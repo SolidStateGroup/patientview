@@ -12,6 +12,11 @@
             <xs:element name="Code" minOccurs="0">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
+                        <xs:enumeration value="0">
+                            <xs:annotation>
+                                <xs:documentation>Cause of death uncertain / not determined</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                    
                         <xs:enumeration value="11">
                             <xs:annotation>
                                 <xs:documentation>Myocardial Ischaemia and Infraction</xs:documentation>
@@ -52,6 +57,11 @@
                                 <xs:documentation>Fluid Overload / Pulmonary Oedema</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
+                        <xs:enumeration value="19">
+                            <xs:annotation>
+                                <xs:documentation>Elevated PVR / Pulmonary hypertension</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
                         <xs:enumeration value="21">
                             <xs:annotation>
                                 <xs:documentation>Pulmonary Embolus</xs:documentation>
@@ -238,11 +248,16 @@
                             </xs:annotation>
                         </xs:enumeration>
                         <xs:enumeration value="73">
-                            <!-- TODO: This one might actually be COPD -->
+                            <!-- NOTE: In v3.14 This was incorrectly published as Unknown -->
                             <xs:annotation>
-                                <xs:documentation>Other identified cause of death</xs:documentation>
+                                <xs:documentation>COPD</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
+                        <xs:enumeration value="79">
+                            <xs:annotation>
+                                <xs:documentation>Multi-system failure</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
                         <xs:enumeration value="81">
                             <xs:annotation>
                                 <xs:documentation>Accident related to ERF Treatment</xs:documentation>
@@ -273,6 +288,46 @@
                                 <xs:documentation>Peritonitis (due to other cause, with peritoneal dialysis)</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
+                        <xs:enumeration value="103">
+                            <xs:annotation>
+                                <xs:documentation>Peripheral Vascular Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="104">
+                            <xs:annotation>
+                                <xs:documentation>Calciphylaxis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="105">
+                            <xs:annotation>
+                                <xs:documentation>Ischaemic bowel</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="106">
+                            <xs:annotation>
+                                <xs:documentation>Ruptured AAA</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="107">
+                            <xs:annotation>
+                                <xs:documentation>Advanced CKD not on dialysis (conservative management)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="108">
+                            <xs:annotation>
+                                <xs:documentation>Acute Kidney Injury</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="109">
+                            <xs:annotation>
+                                <xs:documentation>C Diff Colitis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="110">
+                            <xs:annotation>
+                                <xs:documentation>Line Related Sepsis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>

@@ -1,28 +1,42 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
-
 	<xs:include schemaLocation="../Types/Clinician.xsd"/>
+	<xs:include schemaLocation="../Types/CodedField.xsd"/>
 	<xs:include schemaLocation="../Types/DrugProduct.xsd"/>
-
+    <xs:include schemaLocation="../Types/Location.xsd"/>
+	<xs:include schemaLocation="../Types/CommonMetadata.xsd"/>
 	<xs:complexType name="Medication">
 		<xs:sequence>
-			<xs:element name="PrescriptionNumber" type="xs:string" minOccurs="0">
+			<xs:element name="PrescriptionNumber" minOccurs="0">
 				<xs:annotation>
+                    <xs:appinfo>medication.prescriptionnumber</xs:appinfo>
 					<xs:documentation>Prescription Id</xs:documentation>
 				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>                
 			</xs:element>
 			<xs:element name="FromTime" type="xs:dateTime">
 				<xs:annotation>
+                    <xs:appinfo>medication.fromtime</xs:appinfo>
 					<xs:documentation>Start Time of the prescription</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="ToTime" type="xs:dateTime">
+			<xs:element name="ToTime" type="xs:dateTime" minOccurs="0">
 				<xs:annotation>
+                    <xs:appinfo>medication.totime</xs:appinfo>
 					<xs:documentation>End Time of the prescription</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="OrderedBy" type="Clinician" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Prescriber - National Id</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EnteringOrganization" type="Location" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Where the Medicine was Prescribed</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Route" minOccurs="0">
@@ -34,48 +48,68 @@
 						<xs:element name="CodingStandard" minOccurs="0">
 							<xs:simpleType>
 								<xs:restriction base="xs:string">
-									<xs:maxLength value="32000"/>
+									<xs:maxLength value="100"/>
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:element>
 						<xs:element name="Code" minOccurs="0">
 							<xs:simpleType>
 								<xs:restriction base="xs:string">
-									<xs:maxLength value="32000"/>
+									<xs:maxLength value="5"/>
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:element>
 						<xs:element name="Description" minOccurs="0">
 							<xs:simpleType>
 								<xs:restriction base="xs:string">
-									<xs:maxLength value="32000"/>
+									<xs:maxLength value="100"/>
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="DrugProduct" type="DrugProduct" minOccurs="0"/>
+			<xs:element name="DrugProduct" type="DrugProduct"/>
 			<xs:element name="Frequency" type="xs:string" minOccurs="0">
 				<xs:annotation>
+                    <xs:appinfo>medication.frequency</xs:appinfo>
 					<xs:documentation>Frequency</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Comments" type="xs:string" minOccurs="0">
+			<xs:element name="Comments" minOccurs="0">
 				<xs:annotation>
+                    <xs:appinfo>medication.commenttext</xs:appinfo>
 					<xs:documentation>Other instructions</xs:documentation>
 				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="1000"/>
+					</xs:restriction>
+				</xs:simpleType>                
 			</xs:element>
 			<xs:element name="DoseQuantity" type="xs:decimal" minOccurs="0">
 				<xs:annotation>
+                    <xs:appinfo>medication.dosequantity</xs:appinfo>
 					<xs:documentation>Dose</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Indication" type="xs:string" minOccurs="0">
+			<xs:element name="DoseUoM" type="CodedField" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The condition or problem for which the drug is being prescribed</xs:documentation>
+					<xs:documentation/>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Indication" minOccurs="0">
+				<xs:annotation>
+                    <xs:appinfo>medication.indication</xs:appinfo>
+					<xs:documentation>The condition or problem for which the drug is being prescribed</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>                
+			</xs:element>
+			<xs:group ref="CommonMetadata"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

@@ -12,6 +12,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.util.Util;
 import org.springframework.util.CollectionUtils;
+import uk.org.rixg.Level;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -90,7 +91,8 @@ public class SurveyResponseBuilder {
 
             // scores
             if (this.surveyResponse.getSurveyResponseScores() != null
-                    && !CollectionUtils.isEmpty(this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
+                    && !CollectionUtils.isEmpty(this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore
+                    ())) {
                 for (generated.SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore :
                         this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
                     SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
@@ -132,7 +134,7 @@ public class SurveyResponseBuilder {
             }
 
             // question answers
-            for (uk.org.rixg.Survey.Questions.Question question
+            for (uk.org.rixg.Question question
                     : this.surveyResponseUkrdc.getQuestions().getQuestion()) {
                 // get question
                 Question entityQuestion = questionMap.get(question.getQuestionType().getCode());
@@ -158,7 +160,13 @@ public class SurveyResponseBuilder {
             // scores
             if (this.surveyResponseUkrdc.getScores() != null
                     && !CollectionUtils.isEmpty(this.surveyResponseUkrdc.getScores().getScore())) {
-                for (uk.org.rixg.Survey.Scores.Score surveyResponseScore :
+                Level level = null;
+
+                if (this.surveyResponseUkrdc.getLevels() != null &&
+                        this.surveyResponseUkrdc.getLevels().getLevel().size() != 0) {
+                    level = this.surveyResponseUkrdc.getLevels().getLevel().get(0);
+                }
+                for (uk.org.rixg.Score surveyResponseScore :
                         this.surveyResponseUkrdc.getScores().getScore()) {
 
                     SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
@@ -166,8 +174,8 @@ public class SurveyResponseBuilder {
                     if (surveyResponseScore.getValue() != null) {
                         newSurveyResponseScore.setScore(Double.parseDouble(surveyResponseScore.getValue()));
                     }
-                    if (surveyResponseScore.getLevel() != null) {
-                        newSurveyResponseScore.setLevel(surveyResponseScore.getLevel());
+                    if (level != null) {
+                        newSurveyResponseScore.setLevel(level.getValue());
                     }
 
                     newSurveyResponseScore.setSurveyResponse(newSurveyResponse);

@@ -339,8 +339,1373 @@
                             </xs:annotation>
                         </xs:enumeration>
 
-                        <!-- TODO: EDTA2 Codes will go here -->
+                        <!-- EDTA2 Codes-->
 
+                        <xs:enumeration value="1003">
+                            <xs:annotation>
+                                <xs:documentation>Adult Nephrotic Syndrome - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1019">
+                            <xs:annotation>
+                                <xs:documentation>Nephrotic Syndrome Of Childhood - Steroid Sensitive - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1026">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Nephrotic Syndrome (Cns) - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1035">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Nephrotic Syndrome (Cns) - Finnish Type - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1042">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Nephrotic Syndrome (Cns) - Finnish Type - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1057">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Nephrotic Syndrome (Cns) - Diffuse Mesangial Sclerosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1061">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Nephrotic Syndrome (Cns) - Focal Segmental Glomerulosclerosis (Fsgs)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1074">
+                            <xs:annotation>
+                                <xs:documentation>Denys-Drash Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1088">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Nephrotic Syndrome (Cns) - Congenital Infection</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1090">
+                            <xs:annotation>
+                                <xs:documentation>Minimal Change Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1100">
+                            <xs:annotation>
+                                <xs:documentation>Minimal Change Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1116">
+                            <xs:annotation>
+                                <xs:documentation>Iga Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1128">
+                            <xs:annotation>
+                                <xs:documentation>Iga Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1137">
+                            <xs:annotation>
+                                <xs:documentation>Familial Iga Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1144">
+                            <xs:annotation>
+                                <xs:documentation>Familial Iga Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1159">
+                            <xs:annotation>
+                                <xs:documentation>Iga Nephropathy Secondary To Liver Cirrhosis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1163">
+                            <xs:annotation>
+                                <xs:documentation>Iga Nephropathy Secondary To Liver Cirrhosis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1171">
+                            <xs:annotation>
+                                <xs:documentation>Igm - Associated Nephropathy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1185">
+                            <xs:annotation>
+                                <xs:documentation>Membranous Nephropathy - Idiopathic</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1192">
+                            <xs:annotation>
+                                <xs:documentation>Membranous Nephropathy - Malignancy Associated</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1205">
+                            <xs:annotation>
+                                <xs:documentation>Membranous Nephropathy - Drug Induced</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1214">
+                            <xs:annotation>
+                                <xs:documentation>Membranous Nephropathy - Infection Associated</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1222">
+                            <xs:annotation>
+                                <xs:documentation>Mesangiocapillary Glomerulonephritis Type 1</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1233">
+                            <xs:annotation>
+                                <xs:documentation>Mesangiocapillary Glomerulonephritis Type 2 (Dense Deposit Disease)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1246">
+                            <xs:annotation>
+                                <xs:documentation>Mesangiocapillary Glomerulonephritis Type 3</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1251">
+                            <xs:annotation>
+                                <xs:documentation>Idiopathic Rapidly Progressive (Crescentic) Glomerulonephritis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1267">
+                            <xs:annotation>
+                                <xs:documentation>Primary Focal Segmental Glomerulosclerosis (Fsgs)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1279">
+                            <xs:annotation>
+                                <xs:documentation>Familial Focal Segmental Glomerulosclerosis (Fsgs) - Autosomal Recessive - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1280">
+                            <xs:annotation>
+                                <xs:documentation>Familial Focal Segmental Glomerulosclerosis (Fsgs) - Autosomal Recessive - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1298">
+                            <xs:annotation>
+                                <xs:documentation>Familial Focal Segmental Glomerulosclerosis (Fsgs) - Autosomal Dominant - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1308">
+                            <xs:annotation>
+                                <xs:documentation>Familial Focal Segmental Glomerulosclerosis (Fsgs) - Autosomal Dominant - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1312">
+                            <xs:annotation>
+                                <xs:documentation>Focal Segmental Glomerulosclerosis (Fsgs) Secondary To Obesity - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1320">
+                            <xs:annotation>
+                                <xs:documentation>Focal Segmental Glomerulosclerosis (Fsgs) Secondary To Obesity - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1331">
+                            <xs:annotation>
+                                <xs:documentation>Diffuse Endocapillary Glomerulonephritis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1349">
+                            <xs:annotation>
+                                <xs:documentation>Mesangial Proliferative Glomerulonephritis </xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1354">
+                            <xs:annotation>
+                                <xs:documentation>Focal And Segmental Proliferative Glomerulonephritis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1365">
+                            <xs:annotation>
+                                <xs:documentation>Glomerulonephritis - Secondary To Other Systemic Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1377">
+                            <xs:annotation>
+                                <xs:documentation>Glomerulonephritis - Histologically Indeterminate</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1383">
+                            <xs:annotation>
+                                <xs:documentation>Systemic Vasculitis - Anca Negative - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1396">
+                            <xs:annotation>
+                                <xs:documentation>Systemic Vasculitis - Anca Positive - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1401">
+                            <xs:annotation>
+                                <xs:documentation>Granulomatosis With Polyangiitis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1417">
+                            <xs:annotation>
+                                <xs:documentation>Granulomatosis With Polyangiitis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1429">
+                            <xs:annotation>
+                                <xs:documentation>Microscopic Polyangiitis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1438">
+                            <xs:annotation>
+                                <xs:documentation>Churg-Strauss Syndrome - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1440">
+                            <xs:annotation>
+                                <xs:documentation>Churg-Strauss Syndrome - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1455">
+                            <xs:annotation>
+                                <xs:documentation>Polyarteritis Nodosa</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1464">
+                            <xs:annotation>
+                                <xs:documentation>Anti-Glomerular Basement Membrane (Gbm) Disease / Goodpasture'S Syndrome - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1472">
+                            <xs:annotation>
+                                <xs:documentation>Anti-Glomerular Basement Membrane (Gbm) Disease / Goodpasture'S Syndrome - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1486">
+                            <xs:annotation>
+                                <xs:documentation>Systemic Lupus Erythematosus / Nephritis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1493">
+                            <xs:annotation>
+                                <xs:documentation>Systemic Lupus Erythematosus / Nephritis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1504">
+                            <xs:annotation>
+                                <xs:documentation>Henoch-Schonlein Purpura / Nephritis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1515">
+                            <xs:annotation>
+                                <xs:documentation>Henoch-Schonlein Purpura / Nephritis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1527">
+                            <xs:annotation>
+                                <xs:documentation>Renal Scleroderma / Systemic Sclerosis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1536">
+                            <xs:annotation>
+                                <xs:documentation>Renal Scleroderma / Systemic Sclerosis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1543">
+                            <xs:annotation>
+                                <xs:documentation>Essential Mixed Cryoglobulinaemia - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1558">
+                            <xs:annotation>
+                                <xs:documentation>Essential Mixed Cryoglobulinaemia - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1562">
+                            <xs:annotation>
+                                <xs:documentation>Cryoglobulinaemia Secondary To Hepatitis C - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1570">
+                            <xs:annotation>
+                                <xs:documentation>Cryoglobulinaemia Secondary To Hepatitis C - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1589">
+                            <xs:annotation>
+                                <xs:documentation>Cryoglobulinaemia Secondary To Systemic Disease - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1591">
+                            <xs:annotation>
+                                <xs:documentation>Cryoglobulinaemia Secondary To Systemic Disease - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1602">
+                            <xs:annotation>
+                                <xs:documentation>Primary Reflux Nephropathy - Sporadic</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1618">
+                            <xs:annotation>
+                                <xs:documentation>Familial Reflux Nephropathy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1625">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Dysplasia / Hypoplasia</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1639">
+                            <xs:annotation>
+                                <xs:documentation>Multicystic Dysplastic Kidneys</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1641">
+                            <xs:annotation>
+                                <xs:documentation>Dysplasia Due To Fetal Ace-Inhibitor Exposure</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1656">
+                            <xs:annotation>
+                                <xs:documentation>Glomerulocystic Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1660">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Pelvi-Ureteric Junction Obstruction</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1673">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Vesico-Ureteric Junction Obstruction</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1687">
+                            <xs:annotation>
+                                <xs:documentation>Posterior Urethral Valves</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1694">
+                            <xs:annotation>
+                                <xs:documentation>Syndrome Of Agenesis Of Abdominal Muscles - Prune Belly Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1706">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Neurogenic Bladder</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1710">
+                            <xs:annotation>
+                                <xs:documentation>Bladder Exstrophy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1723">
+                            <xs:annotation>
+                                <xs:documentation>Megacystis-Megaureter</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1734">
+                            <xs:annotation>
+                                <xs:documentation>Oligomeganephronia</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1747">
+                            <xs:annotation>
+                                <xs:documentation>Renal Papillary Necrosis - Cause Unknown</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1752">
+                            <xs:annotation>
+                                <xs:documentation>Acquired Obstructive Uropathy / Nephropathy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1768">
+                            <xs:annotation>
+                                <xs:documentation>Acquired Obstructive Nephropathy Due To Neurogenic Bladder</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1775">
+                            <xs:annotation>
+                                <xs:documentation>Obstructive Nephropathy Due To Prostatic Hypertrophy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1781">
+                            <xs:annotation>
+                                <xs:documentation>Obstructive Nephropathy Due To Prostate Cancer</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1799">
+                            <xs:annotation>
+                                <xs:documentation>Obstructive Nephropathy Due To Bladder Cancer</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1809">
+                            <xs:annotation>
+                                <xs:documentation>Obstructive Nephropathy Due To Other Malignancies</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1813">
+                            <xs:annotation>
+                                <xs:documentation>Idiopathic Retroperitoneal Fibrosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1821">
+                            <xs:annotation>
+                                <xs:documentation>Retroperitoneal Fibrosis Secondary To Malignancies</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1832">
+                            <xs:annotation>
+                                <xs:documentation>Calculus Nephropathy / Urolithiasis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1845">
+                            <xs:annotation>
+                                <xs:documentation>Calcium Oxalate Urolithiasis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1850">
+                            <xs:annotation>
+                                <xs:documentation>Enteric Hyperoxaluria </xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1866">
+                            <xs:annotation>
+                                <xs:documentation>Magnesium Ammonium Phosphate (Struvite) Urolithiasis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1878">
+                            <xs:annotation>
+                                <xs:documentation>Uric Acid Urolithiasis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1884">
+                            <xs:annotation>
+                                <xs:documentation>Tubulointerstitial Nephritis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1897">
+                            <xs:annotation>
+                                <xs:documentation>Tubulointerstitial Nephritis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1907">
+                            <xs:annotation>
+                                <xs:documentation>Familial Interstitial Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1911">
+                            <xs:annotation>
+                                <xs:documentation>Familial Interstitial Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1924">
+                            <xs:annotation>
+                                <xs:documentation>Tubulointerstitial Nephritis Associated With Autoimmune Disease - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1930">
+                            <xs:annotation>
+                                <xs:documentation>Tubulointerstitial Nephritis Associated With Autoimmune Disease - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1948">
+                            <xs:annotation>
+                                <xs:documentation>Tubulointerstitial Nephritis With Uveitis (Tinu) - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1953">
+                            <xs:annotation>
+                                <xs:documentation>Tubulointerstitial Nephritis With Uveitis (Tinu) - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1969">
+                            <xs:annotation>
+                                <xs:documentation>Renal Sarcoidosis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1976">
+                            <xs:annotation>
+                                <xs:documentation>Renal Sarcoidosis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1982">
+                            <xs:annotation>
+                                <xs:documentation>Aristolochic Acid Nephropathy (Balkan / Chinese Herb / Endemic Nephropathy) - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="1995">
+                            <xs:annotation>
+                                <xs:documentation>Aristolochic Acid Nephropathy (Balkan / Chinese Herb / Endemic Nephropathy) - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2005">
+                            <xs:annotation>
+                                <xs:documentation>Drug-Induced Tubulointerstitial Nephritis  - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2014">
+                            <xs:annotation>
+                                <xs:documentation>Drug-Induced Tubulointerstitial Nephritis - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2022">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Analgesic Drugs - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2033">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Analgesic Drugs - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2046">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Ciclosporin - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2051">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Ciclosporin - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2067">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Tacrolimus - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2079">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Tacrolimus - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2080">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Aminoglycosides - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2098">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Aminoglycosides - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2108">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Amphotericin - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2112">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Amphotericin - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2120">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Cisplatin - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2131">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Cisplatin - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2149">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Lithium - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2154">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Lithium - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2165">
+                            <xs:annotation>
+                                <xs:documentation>Lead Induced Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2177">
+                            <xs:annotation>
+                                <xs:documentation>Lead Induced Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2183">
+                            <xs:annotation>
+                                <xs:documentation>Acute Urate Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2196">
+                            <xs:annotation>
+                                <xs:documentation>Acute Urate Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2203">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Urate Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2219">
+                            <xs:annotation>
+                                <xs:documentation>Radiation Nephritis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2226">
+                            <xs:annotation>
+                                <xs:documentation>Renal / Perinephric Abscess</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2235">
+                            <xs:annotation>
+                                <xs:documentation>Renal Tuberculosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2242">
+                            <xs:annotation>
+                                <xs:documentation>Leptospirosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2257">
+                            <xs:annotation>
+                                <xs:documentation>Hantavirus Nephropathy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2261">
+                            <xs:annotation>
+                                <xs:documentation>Xanthogranulomatous Pyelonephritis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2274">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Related To Hiv - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2288">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Related To Hiv - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2290">
+                            <xs:annotation>
+                                <xs:documentation>Schistosomiasis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2300">
+                            <xs:annotation>
+                                <xs:documentation>Other Specific Infection</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2316">
+                            <xs:annotation>
+                                <xs:documentation>Diabetic Nephropathy In Type I Diabetes - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2328">
+                            <xs:annotation>
+                                <xs:documentation>Diabetic Nephropathy In Type I Diabetes - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2337">
+                            <xs:annotation>
+                                <xs:documentation>Diabetic Nephropathy In Type Ii Diabetes - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2344">
+                            <xs:annotation>
+                                <xs:documentation>Diabetic Nephropathy In Type Ii Diabetes - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2359">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Hypertensive Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2363">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Hypertensive Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2371">
+                            <xs:annotation>
+                                <xs:documentation>Malignant Hypertensive Nephropathy / Accelerated Hypertensive Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2385">
+                            <xs:annotation>
+                                <xs:documentation>Malignant Hypertensive Nephropathy / Accelerated Hypertensive Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2392">
+                            <xs:annotation>
+                                <xs:documentation>Ageing Kidney - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2407">
+                            <xs:annotation>
+                                <xs:documentation>Ischaemic Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2411">
+                            <xs:annotation>
+                                <xs:documentation>Ischaemic Nephropathy / Microvascular Disease - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2424">
+                            <xs:annotation>
+                                <xs:documentation>Renal Artery Stenosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2430">
+                            <xs:annotation>
+                                <xs:documentation>Atheroembolic Renal Disease - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2448">
+                            <xs:annotation>
+                                <xs:documentation>Atheroembolic Renal Disease - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2453">
+                            <xs:annotation>
+                                <xs:documentation>Fibromuscular Dysplasia Of Renal Artery</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2469">
+                            <xs:annotation>
+                                <xs:documentation>Renal Arterial Thrombosis / Occlusion</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2476">
+                            <xs:annotation>
+                                <xs:documentation>Renal Vein Thrombosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2482">
+                            <xs:annotation>
+                                <xs:documentation>Cardiorenal Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2495">
+                            <xs:annotation>
+                                <xs:documentation>Hepatorenal Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2509">
+                            <xs:annotation>
+                                <xs:documentation>Renal Amyloidosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2513">
+                            <xs:annotation>
+                                <xs:documentation>Aa Amyloid Secondary To Chronic Inflammation</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2521">
+                            <xs:annotation>
+                                <xs:documentation>Al Amyloid Secondary To Plasma Cell Dyscrasia</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2532">
+                            <xs:annotation>
+                                <xs:documentation>Familial Amyloid Secondary To Protein Mutations - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2545">
+                            <xs:annotation>
+                                <xs:documentation>Familial Amyloid Secondary To Protein Mutations - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2550">
+                            <xs:annotation>
+                                <xs:documentation>Familial Aa Amyloid Secondary To Familial Mediterranean Fever / Traps (Hibernian Fever) - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2566">
+                            <xs:annotation>
+                                <xs:documentation>Familial Aa Amyloid Secondary To Familial Mediterranean Fever / Traps (Hibernian Fever) - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2578">
+                            <xs:annotation>
+                                <xs:documentation>Myeloma Kidney - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2584">
+                            <xs:annotation>
+                                <xs:documentation>Myeloma Cast Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2597">
+                            <xs:annotation>
+                                <xs:documentation>Light Chain Deposition Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2606">
+                            <xs:annotation>
+                                <xs:documentation>Immunotactoid / Fibrillary Nephropathy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2610">
+                            <xs:annotation>
+                                <xs:documentation>Haemolytic Uraemic Syndrome (Hus) - Diarrhoea Associated</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2623">
+                            <xs:annotation>
+                                <xs:documentation>Atypical Haemolytic Uraemic Syndrome (Hus) - Diarrhoea Negative</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2634">
+                            <xs:annotation>
+                                <xs:documentation>Thrombotic Thrombocytopenic Purpura (Ttp)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2647">
+                            <xs:annotation>
+                                <xs:documentation>Haemolytic Uraemic Syndrome (Hus) Secondary To Systemic Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2652">
+                            <xs:annotation>
+                                <xs:documentation>Congenital Haemolytic Uraemic Syndrome (Hus) </xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2668">
+                            <xs:annotation>
+                                <xs:documentation>Familial Haemolytic Uraemic Syndrome (Hus)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2675">
+                            <xs:annotation>
+                                <xs:documentation>Familial Thrombotic Thrombocytopenic Purpura (Ttp)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2681">
+                            <xs:annotation>
+                                <xs:documentation>Nephropathy Due To Pre-Eclampsia / Eclampsia</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2699">
+                            <xs:annotation>
+                                <xs:documentation>Sickle Cell Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2702">
+                            <xs:annotation>
+                                <xs:documentation>Sickle Cell Nephropathy - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2718">
+                            <xs:annotation>
+                                <xs:documentation>Autosomal Dominant (Ad) Polycystic Kidney Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2725">
+                            <xs:annotation>
+                                <xs:documentation>Autosomal Dominant (Ad) Polycystic Kidney Disease Type I</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2739">
+                            <xs:annotation>
+                                <xs:documentation>Autosomal Dominant (Ad) Polycystic Kidney Disease Type Ii</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2741">
+                            <xs:annotation>
+                                <xs:documentation>Autosomal Recessive (Ar) Polycystic Kidney Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2756">
+                            <xs:annotation>
+                                <xs:documentation>Alport Syndrome - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2760">
+                            <xs:annotation>
+                                <xs:documentation>Alport Syndrome - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2773">
+                            <xs:annotation>
+                                <xs:documentation>Benign Familial Haematuria</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2787">
+                            <xs:annotation>
+                                <xs:documentation>Thin Basement Membrane Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2794">
+                            <xs:annotation>
+                                <xs:documentation>Cystic Kidney Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2804">
+                            <xs:annotation>
+                                <xs:documentation>Medullary Cystic Kidney Disease Type I</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2815">
+                            <xs:annotation>
+                                <xs:documentation>Medullary Cystic Kidney Disease Type Ii</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2827">
+                            <xs:annotation>
+                                <xs:documentation>Uromodulin-Associated Nephropathy (Familial Juvenile Hyperuricaemic Nephropathy)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2836">
+                            <xs:annotation>
+                                <xs:documentation>Nephronophthisis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2843">
+                            <xs:annotation>
+                                <xs:documentation>Nephronophthisis - Type 1 (Juvenile Type)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2858">
+                            <xs:annotation>
+                                <xs:documentation>Nephronophthisis - Type 2 (Infantile Type)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2862">
+                            <xs:annotation>
+                                <xs:documentation>Nephronophthisis - Type 3 (Adolescent Type)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2870">
+                            <xs:annotation>
+                                <xs:documentation>Nephronophthisis - Type 4 (Juvenile Type)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2889">
+                            <xs:annotation>
+                                <xs:documentation>Nephronophthisis - Type 5</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2891">
+                            <xs:annotation>
+                                <xs:documentation>Nephronophthisis - Type 6</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2901">
+                            <xs:annotation>
+                                <xs:documentation>Primary Fanconi Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2917">
+                            <xs:annotation>
+                                <xs:documentation>Tubular Disorder As Part Of Inherited Metabolic Diseases</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2929">
+                            <xs:annotation>
+                                <xs:documentation>Dent Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2938">
+                            <xs:annotation>
+                                <xs:documentation>Lowe Syndrome (Oculocerebrorenal Syndrome)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2940">
+                            <xs:annotation>
+                                <xs:documentation>Inherited Aminoaciduria</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2955">
+                            <xs:annotation>
+                                <xs:documentation>Cystinuria</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2964">
+                            <xs:annotation>
+                                <xs:documentation>Cystinosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2972">
+                            <xs:annotation>
+                                <xs:documentation>Inherited Renal Glycosuria</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2986">
+                            <xs:annotation>
+                                <xs:documentation>Hypophosphataemic Rickets X-Linked (Xl)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="2993">
+                            <xs:annotation>
+                                <xs:documentation>Hypophosphataemic Rickets Autosomal Recessive (Ar)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3000">
+                            <xs:annotation>
+                                <xs:documentation>Primary Renal Tubular Acidosis (Rta)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3016">
+                            <xs:annotation>
+                                <xs:documentation>Proximal Renal Tubular Acidosis (Rta) - Type Ii</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3028">
+                            <xs:annotation>
+                                <xs:documentation>Distal Renal Tubular Acidosis (Rta) - Type I</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3037">
+                            <xs:annotation>
+                                <xs:documentation>Distal Renal Tubular Acidosis With Sensorineural Deafness - Gene Mutations</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3044">
+                            <xs:annotation>
+                                <xs:documentation>Nephrogenic Diabetes Insipidus</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3059">
+                            <xs:annotation>
+                                <xs:documentation>Lesch Nyhan Syndrome - Hypoxanthine Guanine Phosphoribosyl Transferase Deficiency </xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3063">
+                            <xs:annotation>
+                                <xs:documentation>Phosphoribosyl Pyrophosphate Synthetase (Prpps) Superactivity</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3071">
+                            <xs:annotation>
+                                <xs:documentation>Alagille Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3085">
+                            <xs:annotation>
+                                <xs:documentation>Bartter Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3092">
+                            <xs:annotation>
+                                <xs:documentation>Gitelman Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3102">
+                            <xs:annotation>
+                                <xs:documentation>Liddle Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3118">
+                            <xs:annotation>
+                                <xs:documentation>Apparent Mineralocorticoid Excess</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3125">
+                            <xs:annotation>
+                                <xs:documentation>Glucocorticoid Suppressible Hyperaldosteronism</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3139">
+                            <xs:annotation>
+                                <xs:documentation>Inherited / Genetic Diabetes Mellitus Type Ii</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3141">
+                            <xs:annotation>
+                                <xs:documentation>Pseudohypoaldosteronism Type 1</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3156">
+                            <xs:annotation>
+                                <xs:documentation>Pseudohypoaldosteronism Type 2 (Gordon Syndrome)</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3160">
+                            <xs:annotation>
+                                <xs:documentation>Familial Hypocalciuric Hypercalcaemia</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3173">
+                            <xs:annotation>
+                                <xs:documentation>Familial Hypercalciuric Hypocalcaemia</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3187">
+                            <xs:annotation>
+                                <xs:documentation>Familial Hypomagnesaemia</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3194">
+                            <xs:annotation>
+                                <xs:documentation>Primary Hyperoxaluria</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3207">
+                            <xs:annotation>
+                                <xs:documentation>Primary Hyperoxaluria Type I</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3211">
+                            <xs:annotation>
+                                <xs:documentation>Primary Hyperoxaluria Type Ii</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3224">
+                            <xs:annotation>
+                                <xs:documentation>Fabry Disease - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3230">
+                            <xs:annotation>
+                                <xs:documentation>Fabry Disease - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3248">
+                            <xs:annotation>
+                                <xs:documentation>Xanthinuria</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3253">
+                            <xs:annotation>
+                                <xs:documentation>Nail-Patella Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3269">
+                            <xs:annotation>
+                                <xs:documentation>Rubinstein-Taybi Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3276">
+                            <xs:annotation>
+                                <xs:documentation>Tuberous Sclerosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3282">
+                            <xs:annotation>
+                                <xs:documentation>Von Hippel-Lindau Disease</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3295">
+                            <xs:annotation>
+                                <xs:documentation>Medullary Sponge Kidneys</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3305">
+                            <xs:annotation>
+                                <xs:documentation>Horse-Shoe Kidney</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3314">
+                            <xs:annotation>
+                                <xs:documentation>Frasier Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3322">
+                            <xs:annotation>
+                                <xs:documentation>Branchio-Oto-Renal Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3333">
+                            <xs:annotation>
+                                <xs:documentation>Williams Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3346">
+                            <xs:annotation>
+                                <xs:documentation>Townes-Brocks Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3351">
+                            <xs:annotation>
+                                <xs:documentation>Lawrence-Moon-Biedl / Bardet-Biedl Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3367">
+                            <xs:annotation>
+                                <xs:documentation>Mitochondrial Cytopathy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3379">
+                            <xs:annotation>
+                                <xs:documentation>Familial Nephropathy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3380">
+                            <xs:annotation>
+                                <xs:documentation>Acute Kidney Injury</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3398">
+                            <xs:annotation>
+                                <xs:documentation>Acute Kidney Injury Due To Hypovolaemia </xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3403">
+                            <xs:annotation>
+                                <xs:documentation>Acute Kidney Injury Due To Circulatory Failure</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3419">
+                            <xs:annotation>
+                                <xs:documentation>Acute Kidney Injury Due To Sepsis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3426">
+                            <xs:annotation>
+                                <xs:documentation>Acute Kidney Injury Due To Rhabdomyolysis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3435">
+                            <xs:annotation>
+                                <xs:documentation>Acute Kidney Injury Due To Nephrotoxicity</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3442">
+                            <xs:annotation>
+                                <xs:documentation>Acute Cortical Necrosis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3457">
+                            <xs:annotation>
+                                <xs:documentation>Acute Pyelonephritis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3461">
+                            <xs:annotation>
+                                <xs:documentation>Kidney Tumour</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3474">
+                            <xs:annotation>
+                                <xs:documentation>Renal Cell Carcinoma - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3488">
+                            <xs:annotation>
+                                <xs:documentation>Transitional Cell Carcinoma - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3490">
+                            <xs:annotation>
+                                <xs:documentation>Wilms Tumour - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3501">
+                            <xs:annotation>
+                                <xs:documentation>Mesoblastic Nephroma - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3517">
+                            <xs:annotation>
+                                <xs:documentation>Single Kidney Identified In Adulthood</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3529">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Kidney Disease (Ckd) / Chronic Renal Failure (Crf) Caused By Tumour Nephrectomy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3538">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Kidney Disease (Ckd) / Chronic Renal Failure (Crf) Due To Traumatic Loss Of Kidney</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3540">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Kidney Disease (Ckd) / Chronic Renal Failure (Crf) Due To Donor Nephrectomy</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3555">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Kidney Disease (Ckd) / Chronic Renal Failure (Crf) - Aetiology Uncertain / Unknown - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3564">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Kidney Disease (Ckd) / Chronic Renal Failure (Crf) - Aetiology Uncertain / Unknown - Histologically Proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3572">
+                            <xs:annotation>
+                                <xs:documentation>Haematuria And Proteinuria - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3604">
+                            <xs:annotation>
+                                <xs:documentation>Nephrotic Syndrome Of Childhood - Steroid Resistant - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3615">
+                            <xs:annotation>
+                                <xs:documentation>Nephrotic Syndrome Of Childhood - No Trial Of Steroids - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3627">
+                            <xs:annotation>
+                                <xs:documentation>Renal Cysts And Diabetes Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3636">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Urate Nephropathy - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3643">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Renal Failure Due To Systemic Infection</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3658">
+                            <xs:annotation>
+                                <xs:documentation>Renal Coloboma Syndrome</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3662">
+                            <xs:annotation>
+                                <xs:documentation>Hypercalcaemic Nephropathy </xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3670">
+                            <xs:annotation>
+                                <xs:documentation>Retroperitoneal Fibrosis Secondary To Peri-Aortitis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3689">
+                            <xs:annotation>
+                                <xs:documentation>Retroperitoneal Fibrosis Secondary To Drugs</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3691">
+                            <xs:annotation>
+                                <xs:documentation>Renal Failure</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3708">
+                            <xs:annotation>
+                                <xs:documentation>Chronic Renal Failure</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3712">
+                            <xs:annotation>
+                                <xs:documentation>Isolated Haematuria - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3720">
+                            <xs:annotation>
+                                <xs:documentation>Isolated Proteinuria - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3731">
+                            <xs:annotation>
+                                <xs:documentation>Primary Hyperoxaluria Type Iii</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3749">
+                            <xs:annotation>
+                                <xs:documentation>Glomerulonephritis - No Histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>

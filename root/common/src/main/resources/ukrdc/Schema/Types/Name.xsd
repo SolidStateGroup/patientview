@@ -21,9 +21,19 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-			<xs:element name="Given" minOccurs="0" maxOccurs="2">
+			<xs:element name="Given" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Up to 2 given names. If the person has more than 2 concatenate in the 2nd occurrence. 1 occurrence is mandatory for a Usual name.</xs:documentation>
+					<xs:documentation>Given name. Mandatory for a Usual name.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="60"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="OtherGivenNames" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>2nd and other given name</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
@@ -42,7 +52,7 @@
 				</xs:simpleType>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute name="use">
+		<xs:attribute name="use" use="required">
 			<xs:annotation>
 				<xs:documentation>Use codes from PDS L=Usual A=Alias (0..*) PREFERRED=Preferred PREVIOUS-BIRTH=Birth name</xs:documentation>
 			</xs:annotation>

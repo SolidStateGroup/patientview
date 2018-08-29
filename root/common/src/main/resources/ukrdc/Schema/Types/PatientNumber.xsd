@@ -1,18 +1,26 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+
+    <xs:complexType name="PatientNumbers">
+        <xs:sequence>
+            <xs:element name="PatientNumber" type="PatientNumber" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="PatientNumber">
         <xs:sequence>
-            <xs:element name="Number" minOccurs="0">
+            <xs:element name="Number" minOccurs="1">
                 <xs:annotation>
-                    <xs:documentation>Patient Idenfitication Number</xs:documentation>
+                    <xs:documentation>Patient Identification Number</xs:documentation>
                 </xs:annotation>
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
-                        <xs:maxLength value="220"/>
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="50"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
 
-            <xs:element name="Organization" minOccurs="0">
+            <xs:element name="Organization" minOccurs="1">
                 <xs:annotation>
                     <xs:documentation>Organisation that issued the number</xs:documentation>
                 </xs:annotation>
@@ -53,6 +61,11 @@
                                 <xs:documentation>Rare Disease Registry</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
+                        <xs:enumeration value="BAPN">
+                            <xs:annotation>
+                                <xs:documentation>British Association For Paediatric Nephrology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
                         <xs:enumeration value="LOCALHOSP">
                             <xs:annotation>
                                 <xs:documentation>Local Hospital Number</xs:documentation>
@@ -63,7 +76,7 @@
                 </xs:simpleType>
             </xs:element>
 
-            <xs:element minOccurs="0" name="NumberType">
+            <xs:element minOccurs="1" name="NumberType">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
                         <xs:enumeration value="MRN">
@@ -71,6 +84,11 @@
                                 <xs:documentation>Primary Identifier for that Organisation</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
+                        <xs:enumeration value="NI">
+                            <xs:annotation>
+                                <xs:documentation>For 3rd-Party Identifiers such as NHS Numbers</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
