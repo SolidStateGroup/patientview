@@ -4,12 +4,26 @@
 <div class="modal-body">
     <h5>Sent {{letter.date | date:'dd-MMM-yyyy'}} by {{letter.group.name}}</h5>
     <p data-ng-bind-html="parseHTMLText(letter.content)"></p>
-    <p data-ng-show="letter.fileDataId" class="p-download alert alert-success">
-        <a href="../api/user/{{loggedInUser.id}}/file/{{letter.fileDataId}}/download?token={{authToken}}" class="a-download">
-            <img src="../images/icons/imageicon.png" data-ng-show="letter.filetype==='application/jpeg'"><img src="../images/icons/fileicon.png" data-ng-show="letter.filetype==='application/unknown'"><img src="../images/icons/pdficon.png" data-ng-show="letter.filetype==='application/pdf'"><img src="../images/icons/wordicon.png" data-ng-show="letter.filetype==='application/msword'"><span class="span-download">Download '{{letter.filename}}' <span data-ng-show="letter.filesize">({{letter.filesize | filesize}})</span></span></a>
+    <p data-ng-show="letter.fileDataId" class="p-download alert alert-info">
+        <strong>
+            Click Continue to open the letter in a new window.<br />
+            Note: If you are using a public machine, please ensure that you
+            <a href="https://www.digitaltrends.com/computing/how-to-clear-your-browser-cache/" target="_blank">clear the browser cache</a> after ending your session.
+        </strong>
+        <br />
+        <br />
+            <img src="../images/icons/imageicon.png" data-ng-show="letter.filetype==='application/jpeg'">
+            <img src="../images/icons/fileicon.png" data-ng-show="letter.filetype==='application/unknown'">
+            <img src="../images/icons/pdficon.png" data-ng-show="letter.filetype==='application/pdf'">
+            <img src="../images/icons/wordicon.png" data-ng-show="letter.filetype==='application/msword'">
+            <span class="span-download">Click continue to view '{{letter.filename}}' <span data-ng-show="letter.filesize">({{letter.filesize | filesize}})</span></span>
     </p>
+
 </div>
 <div class="modal-footer">
-    <button class="btn blue" data-ng-click="print()">Print</button>
+    <a href="../api/user/{{loggedInUser.id}}/file/{{letter.fileDataId}}/download?token={{authToken}}" data-ng-show="letter.fileDataId" target="_blank" class="btn blue">
+        Continue
+    </a>
+    <button class="btn blue" data-ng-show="!letter.fileDataId" data-ng-click="print()">Print</button>
     <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
 </div>
