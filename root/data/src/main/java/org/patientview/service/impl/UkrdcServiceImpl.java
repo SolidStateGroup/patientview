@@ -287,7 +287,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         if (patientRecord.getDocuments() != null
                 && !CollectionUtils.isEmpty(patientRecord.getDocuments().getDocument())) {
             // documents will be stored in fhir so must know group
-            if (StringUtils.isEmpty(patientRecord.getSendingFacility().toString())) {
+            if (patientRecord.getSendingFacility() == null || StringUtils.isEmpty(patientRecord.getSendingFacility().toString())) {
                 throw new ImportResourceException("SendingFacility must be defined (for Documents)");
             }
             if (groupRepository.findByCode(patientRecord.getSendingFacility().toString()) == null) {
