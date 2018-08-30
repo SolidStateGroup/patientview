@@ -91,8 +91,8 @@ public class SurveyResponseBuilder {
 
             // scores
             if (this.surveyResponse.getSurveyResponseScores() != null
-                    && !CollectionUtils.isEmpty(this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore
-                    ())) {
+                    && !CollectionUtils
+                    .isEmpty(this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore())) {
                 for (generated.SurveyResponse.SurveyResponseScores.SurveyResponseScore surveyResponseScore :
                         this.surveyResponse.getSurveyResponseScores().getSurveyResponseScore()) {
                     SurveyResponseScore newSurveyResponseScore = new SurveyResponseScore();
