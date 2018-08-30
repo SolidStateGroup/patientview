@@ -1,80 +1,145 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+    <xs:include schemaLocation="../Types/Clinician.xsd"/>
+    <xs:include schemaLocation="../Types/CommonMetadata.xsd"/>
+    <xs:include schemaLocation="../Types/Location.xsd"/>
 
-	<xs:include schemaLocation="../Types/Clinician.xsd"/>
-	<xs:include schemaLocation="../Types/ActionCode.xsd"/>
+    <xs:complexType name="Observations">
+        <xs:sequence>
+            <xs:element name="Observation" type="Observation" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="start" type="xs:date"/>
+        <xs:attribute name="stop" type="xs:date"/>
+    </xs:complexType>
 
-	<xs:complexType name="Observation">
-		<xs:sequence>
-			<xs:element minOccurs="0" name="UpdatedOn" type="xs:dateTime">
-				<xs:annotation>
-					<xs:documentation>Last Modified Date</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element minOccurs="0" name="ExternalId" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>Unique Identifier</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="ObservationTime" type="xs:dateTime" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation/>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="ObservationCode" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>What observation is being recorded - e.g. Height/Weight. Use LOINC codes. Coding Standard is 2.16.840.1.113883.4.642.2.115 (OID for LOINC) ?? Did we discuss using OIDs ??</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="CodingStandard" minOccurs="0">
-							<xs:simpleType>
-								<xs:restriction base="xs:string">
-									<xs:maxLength value="32000"/>
-								</xs:restriction>
-							</xs:simpleType>
-						</xs:element>
-						<xs:element name="Code" minOccurs="0">
-							<xs:simpleType>
-								<xs:restriction base="xs:string">
-									<xs:maxLength value="32000"/>
-								</xs:restriction>
-							</xs:simpleType>
-						</xs:element>
-						<xs:element name="Description" minOccurs="0">
-							<xs:simpleType>
-								<xs:restriction base="xs:string">
-									<xs:maxLength value="32000"/>
-								</xs:restriction>
-							</xs:simpleType>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="ObservationValue" minOccurs="0">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:maxLength value="999"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="ObservationUnits" minOccurs="0"/>
-			<xs:element name="Comments" minOccurs="0">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:maxLength value="999"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="Clinician" type="Clinician" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Requesting Physician as a nationally coded person. Use the description if this is not coded. </xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element minOccurs="0" name="ActionCode" type="ActionCode">
-				<xs:annotation>
-					<xs:documentation>Add/Update/Delete Control</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
+    <xs:complexType name="Observation">
+        <xs:sequence>
+            <xs:element name="ObservationTime" type="xs:dateTime" minOccurs="0">
+                <xs:annotation>
+                    <xs:appinfo>observation.observationtime</xs:appinfo>
+                    <xs:documentation>When the Observation was made</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ObservationCode" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>What observation is being recorded - e.g. Height/Weight. Use LOINC codes. Coding Standard is 2.16.840.1.113883.4.642.2.115 (OID for LOINC) ?? Did we discuss using OIDs ??</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="CodingStandard" minOccurs="0">
+                            <xs:annotation>
+                                <xs:appinfo>observation.observationcodestd</xs:appinfo>
+                                <xs:documentation/>
+                            </xs:annotation>
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:maxLength value="100"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element name="Code" minOccurs="0">
+                            <xs:annotation>
+                                <xs:appinfo>observation.observationcode</xs:appinfo>
+                                <xs:documentation/>
+                            </xs:annotation>
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:maxLength value="100"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                        <xs:element name="Description" minOccurs="0">
+                            <xs:annotation>
+                                <xs:appinfo>observation.observationdesc</xs:appinfo>
+                                <xs:documentation/>
+                            </xs:annotation>
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:maxLength value="100"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ObservationValue" minOccurs="0">
+                <xs:annotation>
+                    <xs:appinfo>observation.observationvalue</xs:appinfo>
+                    <xs:documentation/>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:maxLength value="20"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="ObservationUnits" minOccurs="0">
+                <xs:annotation>
+                    <xs:appinfo>observation.observationunits</xs:appinfo>
+                    <xs:documentation/>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:maxLength value="30"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="PrePost" minOccurs="0">
+                <xs:annotation>
+                    <xs:appinfo>observation.prepost</xs:appinfo>
+                    <xs:documentation>Was the Observation made PRE or POST dialysis</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="PRE">
+                            <xs:annotation>
+                                <xs:documentation>Pre-Dialysis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="POST">
+                            <xs:annotation>
+                                <xs:documentation>Post-Dialysis</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="UNK">
+                            <xs:annotation>
+                                <xs:documentation>Unknown</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="NA">
+                            <xs:annotation>
+                                <xs:documentation>Not Applicable</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Comments" minOccurs="0">
+                <xs:annotation>
+                    <xs:appinfo>observation.commenttext</xs:appinfo>
+                    <xs:documentation/>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:maxLength value="1000"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Clinician" type="Clinician" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Requesting Physician as a nationally coded person. Use the description if this is not coded. </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="EnteredAt" type="Location" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation/>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="EnteringOrganization" type="Location" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation/>
+                </xs:annotation>
+            </xs:element>
+            <xs:group ref="CommonMetadata"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:schema>

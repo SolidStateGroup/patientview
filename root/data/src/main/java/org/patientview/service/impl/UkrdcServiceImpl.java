@@ -355,7 +355,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         if (document.getFileType() == null) {
             throw new ImportResourceException("Document FileType must be defined");
         }
-        if (StringUtils.isEmpty(document.getFileType().getCode())) {
+        if (StringUtils.isEmpty(document.getFileType())) {
             throw new ImportResourceException("Document FileType Code must be defined");
         }
         if (document.getStream() == null) {
@@ -407,7 +407,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         List<String> includedQuestionTypes = new ArrayList<>();
 
-        for (uk.org.rixg.Survey.Questions.Question question : survey.getQuestions().getQuestion()) {
+        for (uk.org.rixg.Question question : survey.getQuestions().getQuestion()) {
             if (question.getQuestionType() == null) {
                 throw new ImportResourceException("All Question must have a QuestionType");
             }
@@ -470,7 +470,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         // scores
         if (survey.getScores() != null && !CollectionUtils.isEmpty(survey.getScores().getScore())) {
-            for (uk.org.rixg.Survey.Scores.Score score : survey.getScores().getScore()) {
+            for (uk.org.rixg.Score score : survey.getScores().getScore()) {
                 if (score.getScoreType() == null) {
                     throw new ImportResourceException("Score must have ScoreType");
                 }

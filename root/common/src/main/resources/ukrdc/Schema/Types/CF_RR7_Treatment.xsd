@@ -146,6 +146,21 @@
                                 <xs:documentation>Graft acute rejection episode - no biopsy</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
+                        <xs:enumeration value="74">
+                            <xs:annotation>
+                                <xs:documentation>Transplant : Live related - father</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="75">
+                            <xs:annotation>
+                                <xs:documentation>Transplant : Live related - mother</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="76">
+                            <xs:annotation>
+                                <xs:documentation>Transplant : Live related - child</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
                         <xs:enumeration value="80">
                             <xs:annotation>
                                 <xs:documentation>Acute Renal Failure not dialysed</xs:documentation>
@@ -166,7 +181,6 @@
                                 <xs:documentation>Acute Peritoneal Dialysis - ARF</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
-
                         <xs:enumeration value="93">
                             <xs:annotation>
                                 <xs:documentation>Conservative Management - Mutual decision not to offer RRT</xs:documentation>
@@ -177,13 +191,41 @@
                                 <xs:documentation>Conservative Management - Clinical decision not to offer RRT</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
-
+                        <xs:enumeration value="110">
+                            <xs:annotation>
+                                <xs:documentation>Plasmapharesis / Plasma Exchange</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="111">
+                            <xs:annotation>
+                                <xs:documentation>Assisted CAPD</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                         
+                        <xs:enumeration value="121">
+                            <xs:annotation>
+                                <xs:documentation>Assisted APD</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="201">
+                            <xs:annotation>
+                                <xs:documentation>Hybrid CAPD with HD</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                        
+                        <xs:enumeration value="202">
+                            <xs:annotation>
+                                <xs:documentation>Hybrid APD with HD</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="203">
+                            <xs:annotation>
+                                <xs:documentation>Hybrid APD with CAPD</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>                            
                         <xs:enumeration value="900">
                             <xs:annotation>
                                 <xs:documentation>CKD (Not on RRT)</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
-
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>

@@ -1,11 +1,12 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
-	<xs:complexType name="PatientLanguage">
+	<xs:complexType name="Language">
 		<xs:sequence>
 			<xs:element name="CodingStandard" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
 						<!-- Alternative would be ISO 639-1 but the NHS have added some -->
-						<xs:enumeration value="NHS_DATA_DICTIONARY">
+                        <!-- HL7 Table 0296 is also a possible alternative -->
+						<xs:enumeration value="NHS_DATA_DICTIONARY_LANGUAGE_CODE">
 							<xs:annotation>
 								<xs:documentation>http://www.datadictionary.nhs.uk/data_dictionary/attributes/l/language_code_de.asp</xs:documentation>
 							</xs:annotation>
