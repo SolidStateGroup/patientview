@@ -87,7 +87,10 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.awt.*;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -1988,39 +1991,87 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
         Date now = new Date();
         // for ISO1806 date format
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
                 "<SendingFacility>PV</SendingFacility>" +
                 "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
 
         if (groupRole.getUser().getIdentifiers() != null) {
+            String currentMRN = null;
             for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
-                xml.append("<PatientNumber><Number>");
-                xml.append(identifier.getIdentifier());
-                xml.append("</Number><Organization>");
-                switch (identifier.getIdentifierType().getValue()) {
-                    case "HSC_NUMBER":
-                        xml.append("HSC");
-                        break;
-                    case "NHS_NUMBER":
-                        xml.append("NHS");
-                        break;
-                    case "CHI_NUMBER":
-                        xml.append("CHI");
-                        break;
-                    case "NON_UK_UNIQUE":
-                        xml.append("NON_UK_UNIQUE");
-                        break;
-                    case "HOSPITAL_NUMBER":
-                        xml.append("HOSPITAL_NUMBER");
-                        break;
-                    case "RADAR_NUMBER":
-                        xml.append("RADAR_NUMBER");
-                        break;
+                //MRN rule
+                // We need an additional, duplicate identifier to be added with a NumberType of MRN.
+                // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "H&SC"
+                // if someone has more than one. The identifier chosen as MRN should also be included
+                // as an NI type identifier. For example. If a patient has an NHS_NO and a CHI_NO
+                // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
+                if (identifier.getIdentifierType().getValue().equals("HSC_NUMBER") ||
+                        identifier.getIdentifierType().getValue().equals("NHS_NUMBER") ||
+                        identifier.getIdentifierType().getValue().equals("CHI_NUMBER")) {
+                    //If we already have an nhs number,
+                    // ignore, if we already have a CHI and this is a H&S, ignore
+                    if (currentMRN != "NHS" &&
+                            !(currentMRN == "CHI" && identifier.getIdentifierType().getValue().equals("HSC_NUMBER"))) {
+                        xml.append("<PatientNumber><Number>");
+                        xml.append(identifier.getIdentifier());
+                        xml.append("</Number>");
+                        xml.append("<Organization>");
+                        switch (identifier.getIdentifierType().getValue()) {
+                            case "HSC_NUMBER":
+                                currentMRN = "HSC";
+                                xml.append("HSC");
+                                break;
+                            case "NHS_NUMBER":
+                                currentMRN = "NHS";
+                                xml.append("NHS");
+                                break;
+                            case "CHI_NUMBER":
+                                currentMRN = "CHI";
+                                xml.append("CHI");
+                                break;
+                        }
+                        xml.append("</Organization>");
+
+                        xml.append("<NumberType>MRN</NumberType>");
+                        xml.append("</PatientNumber>");
+                    }
+
+
                 }
-                xml.append("</Organization>");
-                xml.append("<NumberType>NI</NumberType>");
-                xml.append("</PatientNumber>");
+
+
+                if (!identifier.getIdentifierType().getValue().equals("NON_UK_UNIQUE")) {
+                    xml.append("<PatientNumber><Number>");
+                    xml.append(identifier.getIdentifier());
+                    xml.append("</Number>");
+                    //Ignore non uk unique
+                    xml.append("<Organization>");
+                    switch (identifier.getIdentifierType().getValue()) {
+                        case "HSC_NUMBER":
+                            xml.append("HSC");
+                            break;
+                        case "NHS_NUMBER":
+                            xml.append("NHS");
+                            break;
+                        case "CHI_NUMBER":
+                            xml.append("CHI");
+                            break;
+                        case "NON_UK_UNIQUE":
+                            xml.append("NON_UK_UNIQUE");
+                            break;
+                        case "HOSPITAL_NUMBER":
+                            xml.append("HOSPITAL_NUMBER");
+                            break;
+                        case "RADAR_NUMBER":
+                            xml.append("RADAR_NUMBER");
+                            break;
+                    }
+                    xml.append("</Organization>");
+
+                    xml.append("<NumberType>NI</NumberType>");
+                    xml.append("</PatientNumber>");
+                }
             }
         }
         xml.append("</PatientNumbers>");
@@ -2031,10 +2082,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append("</Names>");
 
         if (groupRole.getUser() != null && groupRole.getUser().getDateOfBirth() != null) {
-            xml.append(String.format("<BirthTime>%s</BirthTime>", df.format(groupRole.getUser().getDateOfBirth())));
+            try {
+                XMLGregorianCalendar xgc = DatatypeFactory
+                        .newInstance()
+                        .newXMLGregorianCalendar(
+                                new DateTime(groupRole.getUser().getDateOfBirth()).toGregorianCalendar());
+                xml.append(String.format("<BirthTime>%s</BirthTime>",
+                        xgc.toString()));
+            } catch (DatatypeConfigurationException e) {
+                e.printStackTrace();
+            }
         }
         //Add unknown gender
-        xml.append("<Gender>0</Gender>");
+        xml.append("<Gender>9</Gender>");
         xml.append("</Patient>");
 
 
@@ -2054,21 +2114,37 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         xml.append("</EnteredAt>");
 
-
-        xml.append("<UpdatedOn>");
-        xml.append(df.format(now));
-        xml.append("</UpdatedOn><ExternalId>");
-        xml.append(groupRole.getId());
-        xml.append("</ExternalId><ProgramName>");
+        xml.append("<ProgramName>");
         xml.append(String.format("PV.HOSPITAL.%s", groupRole.getGroup().getCode()));
-        xml.append("</ProgramName><ProgramDescription>");
+        xml.append("</ProgramName>");
+        xml.append("<ProgramDescription>");
         xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
-        xml.append("</ProgramDescription><FromTime>");
+        xml.append("</ProgramDescription>");
+
+        xml.append("<FromTime>");
         xml.append(df.format(groupRole.getCreated()));
         xml.append("</FromTime>");
         if (!adding) {
             xml.append("<ToTime>" + df.format(now) + "</ToTime>");
         }
+
+        xml.append("<UpdatedOn>");
+        try {
+            XMLGregorianCalendar xgc = DatatypeFactory
+                    .newInstance()
+                    .newXMLGregorianCalendar(
+                            new DateTime().toGregorianCalendar());
+            xml.append(xgc.toString());
+            xml.append("</UpdatedOn>");
+        } catch (DatatypeConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        xml.append("<ExternalId>");
+        xml.append(groupRole.getId());
+        xml.append("</ExternalId>");
+
+
         xml.append("</ProgramMembership></ProgramMemberships></ns2:PatientRecord>");
 
         externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
