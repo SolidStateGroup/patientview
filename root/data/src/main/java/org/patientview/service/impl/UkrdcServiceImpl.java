@@ -112,7 +112,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         if (patientRecord.getDocuments() != null
                 && !CollectionUtils.isEmpty(patientRecord.getDocuments().getDocument())) {
             // need group for documents
-            Group group = groupRepository.findByCode(patientRecord.getSendingFacility().toString());
+            Group group = groupRepository.findByCode(patientRecord.getSendingFacility().getValue());
 
             for (Document document : patientRecord.getDocuments().getDocument()) {
                 try {
@@ -287,10 +287,10 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         if (patientRecord.getDocuments() != null
                 && !CollectionUtils.isEmpty(patientRecord.getDocuments().getDocument())) {
             // documents will be stored in fhir so must know group
-            if (patientRecord.getSendingFacility() == null || StringUtils.isEmpty(patientRecord.getSendingFacility().toString())) {
+            if (patientRecord.getSendingFacility() == null || StringUtils.isEmpty(patientRecord.getSendingFacility().getValue())) {
                 throw new ImportResourceException("SendingFacility must be defined (for Documents)");
             }
-            if (groupRepository.findByCode(patientRecord.getSendingFacility().toString()) == null) {
+            if (groupRepository.findByCode(patientRecord.getSendingFacility().getValue()) == null) {
                 throw new ImportResourceException("SendingFacility PatientView Group not found (for Documents)");
             }
 
