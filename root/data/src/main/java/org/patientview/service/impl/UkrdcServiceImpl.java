@@ -291,7 +291,8 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 throw new ImportResourceException("SendingFacility must be defined (for Documents)");
             }
             if (groupRepository.findByCode(patientRecord.getSendingFacility().getValue()) == null) {
-                throw new ImportResourceException("SendingFacility PatientView Group not found (for Documents)");
+                throw new ImportResourceException(String.format("SendingFacility PatientView Group not found (%s for " +
+                        "Documents)", patientRecord.getSendingFacility().getValue()));
             }
 
             for (Document document : patientRecord.getDocuments().getDocument()) {
