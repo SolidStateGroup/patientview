@@ -21,24 +21,26 @@
                 <Given>forename</Given>
             </Name>
         </Names>
-        <BirthTime>2018-08-20T14:38:48.419+01:00</BirthTime>
+        <BirthTime>2018-09-03T17:53:26.057+01:00</BirthTime>
         <Gender>9</Gender>
     </Patient>
     <ProgramMemberships>
         <ProgramMembership>
             <EnteredBy>
-                <Code>PV_USERS</Code>
+                <CodingStandard>PV_USERS</CodingStandard>
+                <Code>patient</Code>
+                <Description>forename surname</Description>
             </EnteredBy>
             <EnteredAt>
-                <CodingStandard>TESTGROUP</CodingStandard>
-                <Code>PV_UNITS</Code>
+                <CodingStandard>PV_UNITS</CodingStandard>
+                <Code>TESTGROUP</Code>
                 <Description>testGroup</Description>
             </EnteredAt>
             <ProgramName>PV.HOSPITAL.TESTGROUP</ProgramName>
             <ProgramDescription>PatientView - testGroup</ProgramDescription>
-            <FromTime>2018-08-20</FromTime>
-            <UpdatedOn>2018-08-20T14:38:49.215+01:00</UpdatedOn>
-            <ExternalId>323881</ExternalId>
+            <FromTime>2018-09-03</FromTime>
+            <UpdatedOn>2018-09-03T17:53:26.093+01:00</UpdatedOn>
+            <ExternalId>957268</ExternalId>
         </ProgramMembership>
     </ProgramMemberships>
 </ns2:PatientRecord>
