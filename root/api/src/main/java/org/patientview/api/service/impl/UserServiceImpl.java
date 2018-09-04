@@ -2100,18 +2100,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         xml.append("<ProgramMemberships><ProgramMembership>");
 
-        xml.append("<EnteredBy>");
-        xml.append("<CodingStandard>PV_USERS</CodingStandard>");
 
-        User staffMember;
 
-        if (groupRole.getLastUpdater() != null) {
-            staffMember = groupRole.getLastUpdater();
-        } else if (groupRole.getCreator() != null) {
-            staffMember = groupRole.getCreator();
-        }
+        User staffMember = getCurrentUser();
 
         if (staffMember != null) {
+            xml.append("<EnteredBy>");
+            xml.append("<CodingStandard>PV_USERS</CodingStandard>");
             xml.append("<Code>" + staffMember.getUsername() + "</Code>");
             xml.append(String.format("<Description>%s %s</Description>",
                     staffMember.getForename(),
