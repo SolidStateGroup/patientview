@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Scope;
 
 import javax.inject.Inject;
 import java.util.Properties;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -93,6 +94,10 @@ public class RabbitConfig {
         LOG.info("Initialized  consumer for queue: " + PATIENT_QUEUE_NAME);
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory());
         container.setQueues(patientQueue());
+
+        // Using own thread-pool as default SimpleAsyncTaskExecutor does not reuse threads but spawns new one.
+        // Set to the same number as concurrent consumers or more
+        container.setTaskExecutor(Executors.newFixedThreadPool(RABBIT_CONCURRENT_CONSUMERS)); //
         container.setExposeListenerChannel(true); // expose the channel to the listener to confirm manually
         container.setPrefetchCount(RABBIT_PREFETCH_COUNT);// maximum number of messages each consumer gets
         container.setConcurrentConsumers(RABBIT_CONCURRENT_CONSUMERS); // number of consumers
