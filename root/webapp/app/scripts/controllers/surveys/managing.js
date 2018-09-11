@@ -118,7 +118,6 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             }
 
             var download = '';
-            debugger;
             if ($scope.documentDateMap[response.date]) {
                 download = '<a href="../api/user/' + $scope.loggedInUser.id +
                     '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
