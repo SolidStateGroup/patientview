@@ -286,7 +286,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(0))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
-                        any(String.class), any(User.class), any(Date.class));
+                        any(String.class), any(User.class), any(Date.class), any(GroupRole.class));
     }
 
     /**
@@ -343,7 +343,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
-                        any(String.class), any(User.class), any(Date.class));
+                        any(String.class), any(User.class), any(Date.class), any(GroupRole.class));
 
     }
 
@@ -422,7 +422,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
-                        any(User.class), any(Date.class));
+                        any(User.class), any(Date.class), any(GroupRole.class));
     }
 
     @Test
@@ -927,7 +927,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
-                        any(User.class), any(Date.class));
+                        any(User.class), any(Date.class), any(GroupRole.class));
     }
 
     @Test

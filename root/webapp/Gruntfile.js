@@ -463,7 +463,7 @@ module.exports = function (grunt) {
                 constants: {
                     ENV: {
                         name: 'production',
-                        apiEndpoint: '/api',
+                        apiEndpoint: 'https://www.patientview.org/api',
                         reCaptchaPublicKey: '6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m',
                         buildDateTime: Date.now()
                     }
@@ -549,6 +549,18 @@ module.exports = function (grunt) {
         ]);
     });
 
+    grunt.registerTask('serveapiproduction', function (target) {
+        grunt.task.run([
+            'clean:server',
+            'ngconstant:apiproduction',
+            'bowerInstall',
+            'concurrent:server',
+            'autoprefixer',
+            'connect:livereload',
+            'watch'
+        ]);
+    });
+    
     grunt.registerTask('servelocal', function (target) {
         grunt.task.run([
             'clean:server',

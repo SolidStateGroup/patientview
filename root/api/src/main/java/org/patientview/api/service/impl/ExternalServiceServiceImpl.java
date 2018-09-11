@@ -6,6 +6,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
 import org.patientview.persistence.model.enums.ExternalServices;
@@ -37,11 +38,16 @@ import java.util.Properties;
     private static final int HTTP_OK = 200;
 
     @Override
-    public void addToQueue(ExternalServices externalService, String xml, User creator, Date created) {
+    public void addToQueue(ExternalServices externalService, String xml, User creator,
+                           Date created, GroupRole groupRole) {
         if (externalService.equals(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION)) {
             String url = properties.getProperty("external.service.rdc.url");
             String method = properties.getProperty("external.service.rdc.method");
             if (url != null && method != null && xml != null) {
+                LOG.info(String.format("Sending to external service for group role %d user %d",
+                        groupRole.getId(),
+                        groupRole.getUser().getId()));
+
                 // store in queue, ready to be processed by cron job
                 externalServiceTaskQueueItemRepository.save(
                         new ExternalServiceTaskQueueItem(url, method, xml, ExternalServiceTaskQueueStatus.PENDING,
