@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServices;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,7 +17,7 @@ import java.util.Date;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ExternalServiceService {
 
-    void addToQueue(ExternalServices externalService, String xml, User creator, Date created);
+    void addToQueue(ExternalServices externalService, String xml, User creator, Date created, GroupRole groupRole);
 
     void sendToExternalService();
 }
