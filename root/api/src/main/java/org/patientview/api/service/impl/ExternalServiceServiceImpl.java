@@ -69,6 +69,8 @@ import java.util.Properties;
 
         for (ExternalServiceTaskQueueItem externalServiceTaskQueueItem : externalServiceTaskQueueItems) {
             if (externalServiceTaskQueueItem.getMethod().equals("POST")) {
+                LOG.info(String.format("Sending to external service url: %s",
+                externalServiceTaskQueueItem.getUrl()));
                 try {
                     externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
                     externalServiceTaskQueueItem.setLastUpdate(new Date());
