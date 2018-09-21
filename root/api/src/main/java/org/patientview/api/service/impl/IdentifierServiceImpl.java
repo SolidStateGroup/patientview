@@ -263,6 +263,11 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
                 throw new ResourceInvalidException(
                         "Should be between " + HSC_NUMBER_START + " and " + HSC_NUMBER_END);
             }
+
+            // should be numeric and pass checksum
+            if (!isChecksumValid(value)) {
+                throw new ResourceInvalidException("Invalid number");
+            }
         }
     }
 
