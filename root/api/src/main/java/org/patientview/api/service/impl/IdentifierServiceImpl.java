@@ -47,9 +47,9 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
     private static final Long HSC_NUMBER_END = 3999999999L;
     private static final Long NHS_NUMBER_START = 4000000000L;
     private static final Long NHS_NUMBER_END = 9000000000L;
-    private static final int NHS_NUMBER_LENGTH = 10;
-    private static final int NHS_NUMBER_MODULUS = 11;
-    private static final int NHS_NUMBER_MODULUS_OFFSET = 11;
+    private static final int IDENTIFIER_NUMBER_LENGTH = 10;
+    private static final int IDENTIFIER_NUMBER_MODULUS = 11;
+    private static final int MODULUS_OFFSET = 11;
 
     public Identifier get(final Long identifierId) throws ResourceNotFoundException, ResourceForbiddenException {
 
@@ -223,7 +223,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             }
 
             // should be 10 characters
-            if (value.length() != NHS_NUMBER_LENGTH) {
+            if (value.length() != IDENTIFIER_NUMBER_LENGTH) {
                 throw new ResourceInvalidException("Incorrect length");
             }
         }
@@ -249,6 +249,11 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
                 throw new ResourceInvalidException(
                         "Should be between 00" + CHI_NUMBER_START + " and " + CHI_NUMBER_END);
             }
+
+            // should be numeric and pass checksum
+            if (!isChecksumValid(value)) {
+                throw new ResourceInvalidException("Invalid number");
+            }
         }
 
         // H&SC Number
@@ -261,7 +266,7 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         }
     }
 
-    private boolean isChecksumValid(String nhsNumber) {
+    private boolean isChecksumValid(String identifierNumber) {
         /**
          * Generate the checksum using modulus 11 algorithm
          */
@@ -269,25 +274,26 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
         try {
             // Multiply each of the first 9 digits by 10-character position (where the left character is in position 0)
-            for (int i = 0; i < NHS_NUMBER_LENGTH - 1; i++) {
-                int value = parseInt(nhsNumber.charAt(i) + "") * (NHS_NUMBER_LENGTH - i);
+            for (int i = 0; i < IDENTIFIER_NUMBER_LENGTH - 1; i++) {
+                int value = parseInt(identifierNumber.charAt(i) + "") * (IDENTIFIER_NUMBER_LENGTH - i);
                 checksum += value;
             }
 
             //(modulus 11)
-            checksum = NHS_NUMBER_MODULUS_OFFSET - checksum % NHS_NUMBER_MODULUS;
+            checksum = MODULUS_OFFSET - checksum % IDENTIFIER_NUMBER_MODULUS;
 
-            if (checksum == NHS_NUMBER_MODULUS_OFFSET) {
+            if (checksum == MODULUS_OFFSET) {
                 checksum = 0;
             }
 
             // Does checksum match the 10th digit?
-            return checksum == parseInt(String.valueOf(nhsNumber.charAt(NHS_NUMBER_LENGTH - 1)));
+            return checksum == parseInt(String.valueOf(identifierNumber.charAt(IDENTIFIER_NUMBER_LENGTH - 1)));
 
         } catch (NumberFormatException e) {
             return false; // nhsNumber contains letters
         }
     }
+
 
     private boolean isMemberOfCurrentUsersGroups(User user) {
         for (GroupRole groupRole : user.getGroupRoles()) {
