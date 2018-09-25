@@ -65,12 +65,13 @@
             <input type="checkbox" class="form-control" id="new-user-locked" name="new-user-locked" data-ng-model="editUser.locked"/>
         </div>
         <div class="col-md-3 visible-for-col">
+            <h5 for="user-locked pull-left" class="control-label">Override Identifier Validation</h5>
+            <input type="checkbox" class="form-control" id="user-dummy" name="user-dummy"
+                   data-ng-model="editUser.dummy" data-ng-disabled="!permissions.isSuperAdmin"/>
+        </div>
+        <div class="col-md-3 visible-for-col">
             <h5 for="new-user-emailVerified pull-left" class="control-label">Email Address Verified</h5>
             <input type="checkbox" class="form-control" id="new-user-emailVerified" name="new-user-emailVerified" data-ng-model="editUser.emailVerified" data-ng-disabled="true"/>
-        </div>
-        <div class="col-md-3 visible-for-col hidden">
-            <h5 for="new-user-dummy pull-left" class="control-label">Override Identifier Validation</h5>
-            <input type="checkbox" class="form-control" id="new-user-dummy" name="new-user-dummy" data-ng-model="editUser.dummy"/>
         </div>
     </div>
 </div>
