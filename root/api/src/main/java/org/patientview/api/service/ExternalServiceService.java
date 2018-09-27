@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServices;
@@ -20,4 +21,6 @@ public interface ExternalServiceService {
     void addToQueue(ExternalServices externalService, String xml, User creator, Date created, GroupRole groupRole);
 
     void sendToExternalService();
+
+    void sendTaskToExternalService(ExternalServiceTaskQueueItem externalServiceTaskQueueItem);
 }
