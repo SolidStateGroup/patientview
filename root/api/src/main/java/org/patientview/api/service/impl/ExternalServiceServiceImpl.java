@@ -26,7 +26,8 @@ import java.util.Properties;
  * Created by jamesr@solidstategroup.com
  * Created on 30/04/2015
  */
-@Service public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServiceServiceImpl>
+@Service
+public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServiceServiceImpl>
         implements ExternalServiceService {
 
     @Inject
@@ -57,7 +58,6 @@ import java.util.Properties;
     }
 
     @Override
-    @Async
     public void sendToExternalService() {
         // get unsent or failed
         List<ExternalServiceTaskQueueStatus> statuses = new ArrayList<>();
@@ -68,9 +68,23 @@ import java.util.Properties;
                 = externalServiceTaskQueueItemRepository.findByStatus(statuses);
 
         for (ExternalServiceTaskQueueItem externalServiceTaskQueueItem : externalServiceTaskQueueItems) {
+            sendTaskToExternalService(externalServiceTaskQueueItem);
+        }
+    }
+
+
+    @Async
+    @Override
+    public void sendTaskToExternalService(ExternalServiceTaskQueueItem sentExternalTask) {
+        ExternalServiceTaskQueueItem externalServiceTaskQueueItem =
+                externalServiceTaskQueueItemRepository.findOne(sentExternalTask.getId());
+
+        if (externalServiceTaskQueueItem.getStatus().equals(ExternalServiceTaskQueueStatus.FAILED)
+                || externalServiceTaskQueueItem.getStatus().equals(ExternalServiceTaskQueueStatus.PENDING)) {
             if (externalServiceTaskQueueItem.getMethod().equals("POST")) {
-                LOG.info(String.format("Sending to external service url: %s",
-                externalServiceTaskQueueItem.getUrl()));
+                LOG.info(String.format("Sending to external service url: %s ID %d",
+                        externalServiceTaskQueueItem.getUrl()
+                        , externalServiceTaskQueueItem.getId()));
                 try {
                     externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
                     externalServiceTaskQueueItem.setLastUpdate(new Date());
