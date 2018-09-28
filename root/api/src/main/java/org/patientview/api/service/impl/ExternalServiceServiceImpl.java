@@ -72,7 +72,6 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
         }
     }
 
-
     @Async
     @Override
     public void sendTaskToExternalService(ExternalServiceTaskQueueItem sentExternalTask) {
@@ -94,7 +93,7 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
                             = post(externalServiceTaskQueueItem.getContent(), externalServiceTaskQueueItem.getUrl());
                     if (response.getStatusLine().getStatusCode() == HTTP_OK) {
                         // OK, delete queue item
-                        externalServiceTaskQueueItemRepository.delete(externalServiceTaskQueueItem);
+                        externalServiceTaskQueueItemRepository.delete(externalServiceTaskQueueItem.getId());
                     } else {
                         // not OK, set as failed
                         externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
