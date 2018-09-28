@@ -22,5 +22,5 @@ public interface ExternalServiceService {
 
     void sendToExternalService();
 
-    void sendTaskToExternalService(ExternalServiceTaskQueueItem externalServiceTaskQueueItem);
+    void sendTaskToExternalService(Long sentExternalTaskId);
 }
