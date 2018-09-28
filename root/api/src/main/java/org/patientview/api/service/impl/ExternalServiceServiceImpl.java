@@ -72,7 +72,6 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
         }
     }
 
-    @Async
     @Override
     public void sendTaskToExternalService(ExternalServiceTaskQueueItem sentExternalTask) {
         ExternalServiceTaskQueueItem externalServiceTaskQueueItem =
