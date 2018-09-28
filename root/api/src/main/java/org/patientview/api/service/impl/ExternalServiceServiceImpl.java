@@ -67,15 +67,22 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
         List<ExternalServiceTaskQueueItem> externalServiceTaskQueueItems
                 = externalServiceTaskQueueItemRepository.findByStatus(statuses);
 
+        List<Long> externalTaskIds = new ArrayList<>();
+
+        //Add the ids to the temp list
         for (ExternalServiceTaskQueueItem externalServiceTaskQueueItem : externalServiceTaskQueueItems) {
-            sendTaskToExternalService(externalServiceTaskQueueItem);
+            externalTaskIds.add(externalServiceTaskQueueItem.getId());
+        }
+        //Run through the ids
+        for (Long id : externalTaskIds) {
+            sendTaskToExternalService(id);
         }
     }
 
     @Override
-    public void sendTaskToExternalService(ExternalServiceTaskQueueItem sentExternalTask) {
+    public void sendTaskToExternalService(Long sentExternalTaskId) {
         ExternalServiceTaskQueueItem externalServiceTaskQueueItem =
-                externalServiceTaskQueueItemRepository.findOne(sentExternalTask.getId());
+                externalServiceTaskQueueItemRepository.findOne(sentExternalTaskId);
 
         if (externalServiceTaskQueueItem.getStatus().equals(ExternalServiceTaskQueueStatus.FAILED)
                 || externalServiceTaskQueueItem.getStatus().equals(ExternalServiceTaskQueueStatus.PENDING)) {
