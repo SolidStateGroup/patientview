@@ -515,7 +515,7 @@ public class IdentifierServiceTest {
         groupRolesPatient.add(groupRolePatient);
         patient.setGroupRoles(groupRolesPatient);
 
-        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "0101256420");
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "2000000002");
 
         // transport object
         UserIdentifier userIdentifier = new UserIdentifier();
@@ -535,6 +535,7 @@ public class IdentifierServiceTest {
             fail("Exception: " + e.getMessage());
         }
     }
+
 
     @Test(expected = ResourceInvalidException.class)
     public void testValidateIdentifier_InvalidChiNumber() throws ResourceForbiddenException, ResourceNotFoundException,
@@ -602,7 +603,7 @@ public class IdentifierServiceTest {
         groupRolesPatient.add(groupRolePatient);
         patient.setGroupRoles(groupRolesPatient);
 
-        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "3200000010");
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "3340219001");
 
         // transport object
         UserIdentifier userIdentifier = new UserIdentifier();
@@ -622,6 +623,8 @@ public class IdentifierServiceTest {
             fail("Exception: " + e.getMessage());
         }
     }
+
+
 
     @Test(expected = ResourceInvalidException.class)
     public void testValidateIdentifier_InvalidHscNumber() throws ResourceForbiddenException, ResourceNotFoundException,
@@ -649,7 +652,7 @@ public class IdentifierServiceTest {
         groupRolesPatient.add(groupRolePatient);
         patient.setGroupRoles(groupRolesPatient);
 
-        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "4200000010");
+        Identifier identifier = TestUtils.createIdentifier(lookup, patient, "4000000004");
 
         // transport object
         UserIdentifier userIdentifier = new UserIdentifier();
