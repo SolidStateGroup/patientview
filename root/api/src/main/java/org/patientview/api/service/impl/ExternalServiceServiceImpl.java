@@ -58,6 +58,7 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
     }
 
     @Override
+    @Async
     public void sendToExternalService() {
         // get unsent or failed
         List<ExternalServiceTaskQueueStatus> statuses = new ArrayList<>();
@@ -66,40 +67,20 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
 
         List<ExternalServiceTaskQueueItem> externalServiceTaskQueueItems
                 = externalServiceTaskQueueItemRepository.findByStatus(statuses);
+        List<ExternalServiceTaskQueueItem> tasksToUpdate = new ArrayList<>();
+        List<ExternalServiceTaskQueueItem> tasksToDelete = new ArrayList<>();
 
-        List<Long> externalTaskIds = new ArrayList<>();
-
-        //Add the ids to the temp list
         for (ExternalServiceTaskQueueItem externalServiceTaskQueueItem : externalServiceTaskQueueItems) {
-            externalTaskIds.add(externalServiceTaskQueueItem.getId());
-        }
-        //Run through the ids
-        for (Long id : externalTaskIds) {
-            sendTaskToExternalService(id);
-        }
-    }
-
-    @Override
-    public void sendTaskToExternalService(Long sentExternalTaskId) {
-        ExternalServiceTaskQueueItem externalServiceTaskQueueItem =
-                externalServiceTaskQueueItemRepository.findOne(sentExternalTaskId);
-
-        if (externalServiceTaskQueueItem.getStatus().equals(ExternalServiceTaskQueueStatus.FAILED)
-                || externalServiceTaskQueueItem.getStatus().equals(ExternalServiceTaskQueueStatus.PENDING)) {
             if (externalServiceTaskQueueItem.getMethod().equals("POST")) {
-                LOG.info(String.format("Sending to external service url: %s ID %d",
-                        externalServiceTaskQueueItem.getUrl()
-                        , externalServiceTaskQueueItem.getId()));
                 try {
                     externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
                     externalServiceTaskQueueItem.setLastUpdate(new Date());
-                    externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
 
                     HttpResponse response
                             = post(externalServiceTaskQueueItem.getContent(), externalServiceTaskQueueItem.getUrl());
                     if (response.getStatusLine().getStatusCode() == HTTP_OK) {
                         // OK, delete queue item
-                        externalServiceTaskQueueItemRepository.delete(externalServiceTaskQueueItem.getId());
+                        tasksToDelete.add(externalServiceTaskQueueItem);
                     } else {
                         // not OK, set as failed
                         externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
@@ -107,16 +88,21 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
                                 Integer.valueOf(response.getStatusLine().getStatusCode()));
                         externalServiceTaskQueueItem.setResponseReason(response.getStatusLine().getReasonPhrase());
                         externalServiceTaskQueueItem.setLastUpdate(new Date());
-                        externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
                     }
                 } catch (Exception e) {
                     // exception, set as failed
                     externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
                     externalServiceTaskQueueItem.setLastUpdate(new Date());
-                    externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
                 }
+                tasksToUpdate.add(externalServiceTaskQueueItem);
             }
         }
+
+        //Save all in one go
+        externalServiceTaskQueueItemRepository.save(tasksToUpdate);
+
+        //Delete all in one go
+        externalServiceTaskQueueItemRepository.delete(tasksToDelete);
     }
 
     private static org.apache.http.HttpResponse post(String content, String url) throws Exception {

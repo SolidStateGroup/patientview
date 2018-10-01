@@ -21,6 +21,4 @@ public interface ExternalServiceService {
     void addToQueue(ExternalServices externalService, String xml, User creator, Date created, GroupRole groupRole);
 
     void sendToExternalService();
-
-    void sendTaskToExternalService(Long sentExternalTaskId);
 }
