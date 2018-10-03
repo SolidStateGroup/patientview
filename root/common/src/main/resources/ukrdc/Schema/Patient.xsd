@@ -1,26 +1,19 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
-
 	<xs:include schemaLocation="Types/Address.xsd"/>
 	<xs:include schemaLocation="Types/ContactDetail.xsd"/>
 	<xs:include schemaLocation="Types/EthnicGroup.xsd"/>
 	<xs:include schemaLocation="Types/FamilyDoctor.xsd"/>
+	<xs:include schemaLocation="Types/Gender.xsd"/>
 	<xs:include schemaLocation="Types/Name.xsd"/>
 	<xs:include schemaLocation="Types/Occupation.xsd"/>
-	<xs:include schemaLocation="Types/PatientLanguage.xsd"/>
+	<xs:include schemaLocation="Types/Language.xsd"/>
 	<xs:include schemaLocation="Types/PatientNumber.xsd"/>
 	<xs:include schemaLocation="Types/PersonalContactType.xsd"/>
-
-
+	<xs:include schemaLocation="Types/CommonMetadata.xsd"/>
 	<xs:complexType name="Patient">
 		<xs:sequence>
-			<xs:element name="PatientNumbers" minOccurs="0">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="PatientNumber" type="PatientNumber" maxOccurs="unbounded"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Names">
+			<xs:element name="PatientNumbers" type="PatientNumbers" minOccurs="0"/>
+			<xs:element name="Names" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="Name" type="Name" minOccurs="0" maxOccurs="unbounded">
@@ -31,13 +24,9 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="BirthTime" type="xs:dateTime" minOccurs="0"/>
+			<xs:element name="BirthTime" type="xs:dateTime" minOccurs="1"/>
 			<xs:element name="DeathTime" type="xs:dateTime" minOccurs="0"/>
-			<xs:element name="Gender" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>From NHS Dictionary 0=Not Known 1=Male 2=Female 9=Not Specified 1 instance of name must be present if an NHS Number or CHI Number is included.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
+			<xs:element name="Gender" type="Gender" minOccurs="1"/>
 			<xs:element name="Addresses" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
@@ -62,7 +51,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="FamilyDoctor" type="FamilyDoctor" minOccurs="0"/>
-			<xs:element name="PersonToContact" type="PersonalContactType" minOccurs="0"/>
+			<xs:element name="PersonToContact" type="PersonalContactType" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="EthnicGroup" type="EthnicGroup" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>From NHS Data Dictionary ETHNIC CATEGORY CODE which equates to RR18 (CodingStandard=ONS). From 2011 Scotland Census (CodingStandard=SCOT) </xs:documentation>
@@ -73,10 +62,9 @@
 					<xs:documentation>Code range TBD </xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="PatientLanguage" type="PatientLanguage" minOccurs="0">
+			<xs:element name="PrimaryLanguage" type="Language" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Primary Language</xs:documentation>
-					<!-- Note: HL7 Table 0296 might be an alternative -->
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Death" type="xs:boolean" minOccurs="0">
@@ -84,6 +72,7 @@
 					<xs:documentation>Present only when dead - replaces isDead concept</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:group ref="CommonMetadata"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

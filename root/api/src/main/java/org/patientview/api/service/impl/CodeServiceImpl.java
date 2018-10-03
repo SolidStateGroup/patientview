@@ -315,6 +315,20 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         return codeRepository.findAllByCodeAndType(code, codeType);
     }
 
+    /**
+     * We need to override default service Propagation.REQUIRES_NEW to read only otherwise
+     * will throw org.hibernate.LazyInitializationException
+     *
+     * @param code String code to search for
+     * @param codeType Lookup type of code
+     * @return
+     */
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Code findOneByCodeAndType(String code, Lookup codeType){
+        return codeRepository.findOneByCodeAndType(code, codeType);
+    }
+
     @Override
     public Code get(final Long codeId) throws ResourceNotFoundException {
         Code code = codeRepository.findOne(codeId);

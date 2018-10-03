@@ -286,7 +286,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(0))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
-                        any(String.class), any(User.class), any(Date.class));
+                        any(String.class), any(User.class), any(Date.class), any(GroupRole.class));
     }
 
     /**
@@ -343,7 +343,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
-                        any(String.class), any(User.class), any(Date.class));
+                        any(String.class), any(User.class), any(Date.class), any(GroupRole.class));
 
     }
 
@@ -390,6 +390,8 @@ public class UserServiceTest {
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
         User patientUser = TestUtils.createUser("patient");
+        patientUser.setDateOfBirth(new Date());
+
         TestUtils.createIdentifier(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                 IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111");
         Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
@@ -420,7 +422,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
-                        any(User.class), any(Date.class));
+                        any(User.class), any(Date.class), any(GroupRole.class));
     }
 
     @Test
@@ -925,7 +927,7 @@ public class UserServiceTest {
         // verify queued to RDC
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
-                        any(User.class), any(Date.class));
+                        any(User.class), any(Date.class), any(GroupRole.class));
     }
 
     @Test
@@ -1364,6 +1366,79 @@ public class UserServiceTest {
         when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
         userService.save(staffUser);
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void testUpdateUserEmailAlreadyExistsCheck() throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to save
+        User staffUser = TestUtils.createUser("staff");
+        User staffUser2 = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser2.getId()))).thenReturn(staffUser);
+        when(userRepository.save(any(User.class))).thenReturn(staffUser);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+
+        staffUser2.setEmail("newemail@patientview.org");
+        userService.save(staffUser2);
+        verify(userRepository, times(1)).emailExistsCaseInsensitive(any(String.class));
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test (expected = EntityExistsException.class)
+    public void testUpdateUserEmailAlreadyExistsFailure() throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
+
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        // user to save
+        User staffUser = TestUtils.createUser("staff");
+        User staffUser2 = TestUtils.createUser("staff");
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
+        Set<GroupRole> groupRolesStaff = new HashSet<>();
+        groupRolesStaff.add(groupRoleStaff);
+        staffUser.setGroupRoles(groupRolesStaff);
+
+        when(userRepository.findOne(eq(staffUser2.getId()))).thenReturn(staffUser);
+        when(userRepository.emailExistsCaseInsensitive(eq("newemail@patientview.org"))).thenReturn(true);
+        when(userRepository.save(any(User.class))).thenReturn(staffUser);
+        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+
+        staffUser2.setEmail("newemail@patientview.org");
+        userService.save(staffUser2);
+        verify(userRepository, times(1)).emailExistsCaseInsensitive(any(String.class));
         verify(userRepository, times(1)).save(any(User.class));
     }
 

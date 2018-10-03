@@ -1,0 +1,66 @@
+<xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+	<xs:include schemaLocation="../Types/Clinician.xsd"/>
+	<xs:include schemaLocation="../Types/Location.xsd"/>
+	<xs:include schemaLocation="../Types/ActionCode.xsd"/>
+	<xs:complexType name="OptOut">
+		<xs:sequence>
+			<xs:element name="EnteredBy" type="Clinician" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Person entering the consent as a National Clinicial code where possible or other local code if not.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EnteredAt" type="Location" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>National code for the trust recording the opt-out - e.g. RXF01</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ProgramName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Name of RDG or study</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ProgramDescription" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Free text</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="220"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="FromTime" type="xs:date">
+				<xs:annotation>
+					<xs:documentation>Date of Withdrawal</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ToTime" type="xs:date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Date Withdrawal Ended</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:sequence>
+				<xs:element name="UpdatedOn" type="xs:dateTime" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Last Modified Date</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ActionCode" type="ActionCode" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>A/U/D for Add/Update/Delete</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ExternalId" minOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Unique Identifier</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="100"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

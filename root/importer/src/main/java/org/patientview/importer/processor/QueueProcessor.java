@@ -27,8 +27,19 @@ import java.util.concurrent.ExecutorService;
 /**
  * Created by james@solidstategroup.com
  * Created on 14/07/2014
+ *
+ * The current implementation has few issue with consuming the Queue ('patient_import').
+ *
+ * The processor has internal thread pool to process messages.
+ * Once messages are pushed to RabbitMQ this processor will consume all the messages from the queue
+ * and put them into JVM to be processed later if no thread available to use.
+ *
+ * This put strain on server resources and server restart or other issue will result in message loss.
+ *
+ * @deprecated this been deprecated in favour of Spring implementation
  */
-@Component
+@Deprecated
+//@Component
 public class QueueProcessor extends DefaultConsumer {
 
     @Inject
@@ -91,6 +102,9 @@ public class QueueProcessor extends DefaultConsumer {
         }
 
         public void run() {
+            long start = System.currentTimeMillis();
+
+            LOG.info("STARTING QueueProcessor PatientTask");
             boolean fail = false;
 
             // Unmarshall XML to Patient object
@@ -116,12 +130,12 @@ public class QueueProcessor extends DefaultConsumer {
 
             // if group not set
             if ((!fail && patient.getCentredetails() == null)
-                    || (!fail && patient.getCentredetails() != null 
+                    || (!fail && patient.getCentredetails() != null
                     && StringUtils.isEmpty(patient.getCentredetails().getCentrecode()))) {
                 String errorMessage = "Group not set in XML";
                 LOG.error(patient.getPatient().getPersonaldetails().getNhsno() + ": " + errorMessage);
                 auditService.createAudit(AuditActions.PATIENT_DATA_VALIDATE_FAIL,
-                        patient.getPatient().getPersonaldetails().getNhsno(), null, errorMessage, 
+                        patient.getPatient().getPersonaldetails().getNhsno(), null, errorMessage,
                         message, importerUserId);
                 sendErrorEmail(errorMessage, patient.getPatient().getPersonaldetails().getNhsno(), null, true);
                 fail = true;
@@ -133,7 +147,7 @@ public class QueueProcessor extends DefaultConsumer {
                     LOG.info(patient.getPatient().getPersonaldetails().getNhsno() + ": Received, valid XML");
                     importManager.validate(patient);
                 } catch (ImportResourceException ire) {
-                    String errorMessage = patient.getPatient().getPersonaldetails().getNhsno() 
+                    String errorMessage = patient.getPatient().getPersonaldetails().getNhsno()
                             + " (" + patient.getCentredetails().getCentrecode() + "): Failed validation, "
                             + ire.getMessage();
                     LOG.error(errorMessage);
@@ -171,6 +185,9 @@ public class QueueProcessor extends DefaultConsumer {
                             patient.getCentredetails().getCentrecode(), true);
                 }
             }
+
+            long stop = System.currentTimeMillis();
+            LOG.info("TIMING PatientTask took: " + (stop - start) + " ms");
         }
 
         /**
@@ -209,6 +226,7 @@ public class QueueProcessor extends DefaultConsumer {
 
     public void handleDelivery(String customerTag, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] body)
             throws IOException {
+        LOG.info("QueueProcessor received message ....");
         executor.submit(new PatientTask(new String(body)));
     }
 }

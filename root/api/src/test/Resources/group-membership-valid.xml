@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:PatientRecord xmlns:ns2="http://www.rixg.org.uk/">
+    <SendingFacility>PV</SendingFacility>
+    <SendingExtract>UKRDC</SendingExtract>
+    <Patient>
+        <PatientNumbers>
+            <PatientNumber>
+                <Number>1111111111</Number>
+                <Organization>NHS</Organization>
+                <NumberType>MRN</NumberType>
+            </PatientNumber>
+            <PatientNumber>
+                <Number>1111111111</Number>
+                <Organization>NHS</Organization>
+                <NumberType>NI</NumberType>
+            </PatientNumber>
+        </PatientNumbers>
+        <Names>
+            <Name use="L">
+                <Family>surname</Family>
+                <Given>forename</Given>
+            </Name>
+        </Names>
+        <BirthTime>2018-09-03T17:53:26.057+01:00</BirthTime>
+        <Gender>9</Gender>
+    </Patient>
+    <ProgramMemberships>
+        <ProgramMembership>
+            <EnteredBy>
+                <CodingStandard>PV_USERS</CodingStandard>
+                <Code>patient</Code>
+                <Description>forename surname</Description>
+            </EnteredBy>
+            <EnteredAt>
+                <CodingStandard>PV_UNITS</CodingStandard>
+                <Code>TESTGROUP</Code>
+                <Description>testGroup</Description>
+            </EnteredAt>
+            <ProgramName>PV.HOSPITAL.TESTGROUP</ProgramName>
+            <ProgramDescription>PatientView - testGroup</ProgramDescription>
+            <FromTime>2018-09-03</FromTime>
+            <UpdatedOn>2018-09-03T17:53:26.093+01:00</UpdatedOn>
+            <ExternalId>957268</ExternalId>
+        </ProgramMembership>
+    </ProgramMemberships>
+</ns2:PatientRecord>
