@@ -46,8 +46,9 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
 
                 // handle specific question type for score (expect this to be in score element)
                 if (questionAnswers[j].question.type == 'PAM_SCORE'
-                    || questionAnswers[j].question.type == "PAM_13_LEVEL"
-                    || questionAnswers[j].question.type == "PAM_13_CODE") {
+                    || questionAnswers[j].question.type == "PAM13_LEVEL"
+                    || questionAnswers[j].question.type == "PAM13_CODE"
+                    || questionAnswers[j].question.type == "PAM13_SCORE") {
                     score = questionAnswers[j].value;
                 }
             }
@@ -59,8 +60,9 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
                 for (j = 0; j < response.surveyResponseScores.length; j++) {
                     var surveyResponseScore = response.surveyResponseScores[j];
                     if (surveyResponseScore.type == 'PAM_SCORE'
-                        || surveyResponseScore.type == "PAM_13_LEVEL"
-                        || surveyResponseScore.type == "PAM_13_CODE") {
+                        || surveyResponseScore.type == "PAM13_LEVEL"
+                        || surveyResponseScore.type == "PAM13_CODE"
+                        || surveyResponseScore.type == "PAM13_SCORE") {
                         score = surveyResponseScore.score;
                         level = surveyResponseScore.level;
                     }
@@ -261,8 +263,9 @@ angular.module('patientviewApp').controller('SurveysManagingCtrl',['$scope', '$f
             for (i = 0; i < $scope.latestSurveyResponse.surveyResponseScores.length; i++) {
                 var surveyResponseScore = $scope.latestSurveyResponse.surveyResponseScores[i];
                 if (surveyResponseScore.type == 'PAM_SCORE'
-                    || surveyResponseScore.type == "PAM_13_LEVEL"
-                    || surveyResponseScore.type == "PAM_13_CODE") {
+                    || surveyResponseScore.type == "PAM13_LEVEL"
+                    || surveyResponseScore.type == "PAM13_CODE"
+                    || surveyResponseScore.type == "PAM13_SCORE") {
                     $scope.latestScore = surveyResponseScore.score;
                     $scope.latestLevel = surveyResponseScore.level;
                 }
