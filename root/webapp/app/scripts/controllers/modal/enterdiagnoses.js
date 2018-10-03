@@ -121,7 +121,12 @@ var EnterDiagnosesModalInstanceCtrl = ['$scope', '$rootScope', '$timeout', '$mod
                             if (!_.findWhere($scope.selectedConditions, {code: searchTerm})) {
                                 CodeService.searchDiagnosisCodesByStandard(searchTerm, "PATIENTVIEW")
                                     .then(function (codes) {
-                                    $scope.addCondition(codes[0]);
+                                    var codesMap =  {};
+                                    codes.forEach(function(c){
+                                        codesMap[c.code] = c;
+                                    });
+
+                                    $scope.addCondition(codesMap[$select[0].selectize.getValue()]);
                                     $select[0].selectize.clear();
                                 });
                             } else {

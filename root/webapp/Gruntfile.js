@@ -7,6 +7,8 @@
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+var serveStatic = require('serve-static');
+
 module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-connect-proxy');
@@ -124,8 +126,8 @@ module.exports = function (grunt) {
                     middleware: function (connect) {
                         return [
                             proxySnippet,
-                            connect.static(require('path').resolve('app')),
-                            connect.static(require('path').resolve('.tmp'))
+                            serveStatic(require('path').resolve('app')),
+                            serveStatic(require('path').resolve('.tmp'))
                         ];
                     },
                     open: false,
@@ -653,9 +655,20 @@ module.exports = function (grunt) {
         'war'
     ]);
 
-    grunt.registerTask('minimalssgdev_nowar', [
+    grunt.registerTask('minimalssgproduction_nowar', [
         'clean:dist',
         'ngconstant:apiproduction',
+        'copy:minimal',
+        'useminPrepare',
+        'concat',
+        'uglify',
+        'cssmin',
+        'rev',
+        'usemin'
+    ]);
+    grunt.registerTask('minimalssgdev_nowar', [
+        'clean:dist',
+        'ngconstant:apidev',
         'copy:minimal',
         'useminPrepare',
         'concat',

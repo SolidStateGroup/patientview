@@ -1,0 +1,21 @@
+<xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+
+<xs:simpleType name='RRYesNo'>
+    <xs:restriction base="xs:string">
+        <xs:pattern value="Y|N"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name='RROneTwo'>
+    <xs:restriction base="xs:string">
+        <xs:pattern value="1|2"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name='RRNegPosUk'>
+    <xs:restriction base="xs:string">
+        <xs:pattern value="NEG|POS|UK"/>
+    </xs:restriction>
+</xs:simpleType>
+
+</xs:schema>

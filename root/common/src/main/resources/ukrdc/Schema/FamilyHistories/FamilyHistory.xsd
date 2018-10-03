@@ -1,58 +1,42 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
-
-    <xs:include schemaLocation="../Types/Clinician.xsd"/>
-    <xs:include schemaLocation="../Types/Location.xsd"/>
-    <xs:include schemaLocation="../Types/CF_SNOWMED.xsd"/>
-    <xs:include schemaLocation="../Types/CodedField.xsd"/>
-    <xs:include schemaLocation="../Types/ActionCode.xsd"/>
-
-    <xs:complexType name="FamilyHistory">
-        <xs:sequence>
-            <xs:element minOccurs="0" name="UpdatedOn" type="xs:dateTime">
-                <xs:annotation>
-                    <xs:documentation>Last Modified Date</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="FamilyMember" type="CodedField">
-                <xs:annotation>
-                    <xs:documentation>Family member</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="Diagnosis" type="CF_SNOWMED">
-                <xs:annotation>
-                    <xs:documentation>Diagnosis on family member</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="NoteText" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation/>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="ActionCode" type="ActionCode">
-                <xs:annotation>
-                    <xs:documentation/>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="EnteredAt" type="Location">
-                <xs:annotation>
-                    <xs:documentation/>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="FromTime" type="xs:dateTime">
-                <xs:annotation>
-                    <xs:documentation>Beginning of period covered</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="ToTime" type="xs:dateTime">
-                <xs:annotation>
-                    <xs:documentation>End of period covered</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="ExternalId" type="xs:string">
-                <xs:annotation>
-                    <xs:documentation>Unique Identifier</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
+	<xs:include schemaLocation="../Types/Clinician.xsd"/>
+	<xs:include schemaLocation="../Types/Location.xsd"/>
+	<xs:include schemaLocation="../Types/CF_SNOMED.xsd"/>
+	<xs:include schemaLocation="../Types/CodedField.xsd"/>
+	<xs:include schemaLocation="../Types/CommonMetadata.xsd"/>
+	<xs:complexType name="FamilyHistory">
+		<xs:sequence>
+			<xs:element name="FamilyMember" type="CodedField" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Family member</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Diagnosis" type="CF_SNOMED" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Diagnosis on family member</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NoteText" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EnteredAt" type="Location" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation/>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FromTime" type="xs:dateTime" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Beginning of period covered</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ToTime" type="xs:dateTime" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>End of period covered</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:group ref="CommonMetadata"/>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>

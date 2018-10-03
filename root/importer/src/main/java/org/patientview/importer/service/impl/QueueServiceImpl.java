@@ -7,12 +7,14 @@ import generated.SurveyResponse;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.config.exception.ImportResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.importer.rabbit.MessageProducer;
 import org.patientview.importer.service.QueueService;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.service.AuditService;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import uk.org.rixg.PatientRecord;
@@ -56,6 +58,9 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
 
     @Inject
     private UkrdcService ukrdcService;
+
+    @Autowired
+    private MessageProducer messageProducer;
 
     public QueueServiceImpl() {
 
@@ -103,7 +108,7 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
                 // attempt to get identifier if exists, used by audit
                 String identifier = null;
                 try {
-                 identifier = ukrdcService.findIdentifier(patientRecord);
+                    identifier = ukrdcService.findIdentifier(patientRecord);
                 } catch (ImportResourceException ire2) {
                     // no match in PV db, fall back to first patient number
                     if (patientRecord.getPatient() != null
@@ -145,10 +150,12 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         }
 
         try {
-            channel.basicPublish("", QUEUE_NAME, true, false, null, stringWriter.toString().getBytes());
+            // channel.basicPublish("", QUEUE_NAME, true, false, null, stringWriter.toString().getBytes());
+            messageProducer.sendMessage(stringWriter.toString());
             LOG.info("Successfully sent record to be processed for NHS number {}",
                     patientview.getPatient().getPersonaldetails().getNhsno());
-        } catch (IOException e) {
+        } catch (Exception e) {
+            LOG.error("Failed to send message to the queue: ", e);
             throw new ImportResourceException("Unable to send message onto queue");
         }
     }

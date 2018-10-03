@@ -8,6 +8,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ExternalServiceServiceImpl;
 import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
+import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.RoleName;
@@ -59,7 +62,14 @@ public class ExternalServiceServiceTest {
         when(properties.getProperty("external.service.rdc.url")).thenReturn("http://localhost:8080/");
         when(properties.getProperty("external.service.rdc.method")).thenReturn("POST");
 
-        externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml, creator, new Date());
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+
+
+        externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml, creator, new Date(),
+                groupRole);
 
         verify(externalServiceTaskQueueItemRepository, Mockito.times(1)).save(any(ExternalServiceTaskQueueItem.class));
     }

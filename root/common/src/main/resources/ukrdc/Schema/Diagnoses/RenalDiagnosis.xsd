@@ -1,29 +1,28 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
-
 	<xs:include schemaLocation="../Types/Clinician.xsd"/>
-	<xs:include schemaLocation="../Types/ActionCode.xsd"/>
 	<xs:include schemaLocation="../Types/CF_EDTA_PRD.xsd"/>
-
+	<xs:include schemaLocation="../Types/CommonMetadata.xsd"/>
+	<!-- SDA: Diagnosis -->
 	<xs:complexType name="RenalDiagnosis">
 		<xs:sequence>
-			<xs:element minOccurs="0" name="UpdatedOn" type="xs:dateTime">
-				<xs:annotation>
-					<xs:documentation>Last Modified Date</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="DiagnosisType" minOccurs="0">
+			<xs:element name="DiagnosisType" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The type of diagnosis: admitting, working, final, discharge</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="DiagnosingClinician" type="Clinician" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>National Clinicial code where possible or other local code if not.</xs:documentation>
+					<xs:documentation>Clinician Coding Diagnosis</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Diagnosis" type="CF_EDTA_PRD">
+			<xs:element name="Diagnosis" type="CF_EDTA_PRD" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Primary Renal Diagnosis</xs:documentation>
+					<xs:documentation>Coded Primary Renal Diagnosis</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Comments" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Free text about the Diagnosis</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="IdentificationTime" type="xs:dateTime" minOccurs="0">
@@ -36,21 +35,12 @@
 					<xs:documentation>Date condition began. Can use approximate dates through truncation. CCYYMMDD or CCYYMM or CCYY</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="EnteredOn">
+			<xs:element name="EnteredOn" type="xs:dateTime" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The date the diagnosis was recorded in the medical record.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element minOccurs="0" name="ActionCode" type="ActionCode">
-				<xs:annotation>
-					<xs:documentation>Add/Update/Delete Control</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element minOccurs="0" name="ExternalId" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>Unique Identifier</xs:documentation>
-				</xs:annotation>
-			</xs:element>
+			<xs:group ref="CommonMetadata"/>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

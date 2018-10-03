@@ -6,6 +6,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
 import org.patientview.persistence.model.enums.ExternalServices;
@@ -25,7 +26,8 @@ import java.util.Properties;
  * Created by jamesr@solidstategroup.com
  * Created on 30/04/2015
  */
-@Service public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServiceServiceImpl>
+@Service
+public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServiceServiceImpl>
         implements ExternalServiceService {
 
     @Inject
@@ -37,11 +39,16 @@ import java.util.Properties;
     private static final int HTTP_OK = 200;
 
     @Override
-    public void addToQueue(ExternalServices externalService, String xml, User creator, Date created) {
+    public void addToQueue(ExternalServices externalService, String xml, User creator,
+                           Date created, GroupRole groupRole) {
         if (externalService.equals(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION)) {
             String url = properties.getProperty("external.service.rdc.url");
             String method = properties.getProperty("external.service.rdc.method");
             if (url != null && method != null && xml != null) {
+                LOG.info(String.format("Sending to external service for group role %d user %d",
+                        groupRole.getId(),
+                        groupRole.getUser().getId()));
+
                 // store in queue, ready to be processed by cron job
                 externalServiceTaskQueueItemRepository.save(
                         new ExternalServiceTaskQueueItem(url, method, xml, ExternalServiceTaskQueueStatus.PENDING,
@@ -60,19 +67,20 @@ import java.util.Properties;
 
         List<ExternalServiceTaskQueueItem> externalServiceTaskQueueItems
                 = externalServiceTaskQueueItemRepository.findByStatus(statuses);
+        List<ExternalServiceTaskQueueItem> tasksToUpdate = new ArrayList<>();
+        List<ExternalServiceTaskQueueItem> tasksToDelete = new ArrayList<>();
 
         for (ExternalServiceTaskQueueItem externalServiceTaskQueueItem : externalServiceTaskQueueItems) {
             if (externalServiceTaskQueueItem.getMethod().equals("POST")) {
                 try {
                     externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
                     externalServiceTaskQueueItem.setLastUpdate(new Date());
-                    externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
 
                     HttpResponse response
                             = post(externalServiceTaskQueueItem.getContent(), externalServiceTaskQueueItem.getUrl());
                     if (response.getStatusLine().getStatusCode() == HTTP_OK) {
                         // OK, delete queue item
-                        externalServiceTaskQueueItemRepository.delete(externalServiceTaskQueueItem);
+                        tasksToDelete.add(externalServiceTaskQueueItem);
                     } else {
                         // not OK, set as failed
                         externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
@@ -80,16 +88,21 @@ import java.util.Properties;
                                 Integer.valueOf(response.getStatusLine().getStatusCode()));
                         externalServiceTaskQueueItem.setResponseReason(response.getStatusLine().getReasonPhrase());
                         externalServiceTaskQueueItem.setLastUpdate(new Date());
-                        externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
                     }
                 } catch (Exception e) {
                     // exception, set as failed
                     externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
                     externalServiceTaskQueueItem.setLastUpdate(new Date());
-                    externalServiceTaskQueueItemRepository.save(externalServiceTaskQueueItem);
                 }
+                tasksToUpdate.add(externalServiceTaskQueueItem);
             }
         }
+
+        //Save all in one go
+        externalServiceTaskQueueItemRepository.save(tasksToUpdate);
+
+        //Delete all in one go
+        externalServiceTaskQueueItemRepository.delete(tasksToDelete);
     }
 
     private static org.apache.http.HttpResponse post(String content, String url) throws Exception {

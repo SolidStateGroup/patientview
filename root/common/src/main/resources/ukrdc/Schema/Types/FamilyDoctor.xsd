@@ -1,21 +1,37 @@
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
-	<xs:complexType name="FamilyDoctor">
-		<xs:sequence>
-			<xs:element name="GPPracticeId">
-				<xs:annotation>
-					<xs:documentation>National GP Practice Code</xs:documentation>
-				</xs:annotation>
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:maxLength value="32000"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="GPId" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>National GP Code</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
+    <xs:include schemaLocation="Address.xsd"/>
+    <xs:include schemaLocation="ContactDetail.xsd"/>
+    <xs:complexType name="FamilyDoctor">
+        <xs:sequence>
+            <xs:element name="GPName" type="xs:string" minOccurs="0"/>
+            <xs:element name="GPPracticeId" minOccurs="0">
+                <xs:annotation>
+                    <xs:appinfo>familydoctor.gppracticeid</xs:appinfo>
+                    <xs:documentation>National GP Practice Code</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:maxLength value="32000"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="GPId" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:appinfo>familydoctor.gpid</xs:appinfo>
+                    <xs:documentation>National GP Code</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Address" type="Address" minOccurs="0" >
+                <xs:annotation>
+                    <xs:documentation>Practice Address</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ContactDetail" type="ContactDetail" minOccurs="0" >
+                <xs:annotation>
+                    <xs:documentation>Practice Contact Information</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Email" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:schema>

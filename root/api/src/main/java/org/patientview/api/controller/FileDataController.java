@@ -50,7 +50,7 @@ public class FileDataController extends BaseController<FileDataController> {
             if (contentTypeArr.length == 2) {
                 header.setContentType(new MediaType(contentTypeArr[0], contentTypeArr[1]));
             }
-            header.set("Content-Disposition", "attachment; filename=" + fileData.getName().replace(" ", "_"));
+            header.set("Content-Disposition", "inline; filename=" + fileData.getName().replace(" ", "_"));
             header.setContentLength(fileData.getContent().length);
             return new HttpEntity<>(fileData.getContent(), header);
         }
