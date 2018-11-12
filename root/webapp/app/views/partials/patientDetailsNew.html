@@ -66,7 +66,7 @@
         </div>
         <div class="col-md-3 visible-for-col">
             <h5 for="user-locked pull-left" class="control-label">Override Identifier Validation</h5>
-            <input type="checkbox" class="form-control" id="user-dummy" name="user-dummy"
+            <input type="checkbox" class="form-control" id="user-dummy" name="user-dummy" data-ng-show="permissions.isSuperAdmin" 
                    data-ng-model="editUser.dummy" data-ng-disabled="!permissions.isSuperAdmin"/>
         </div>
         <div class="col-md-3 visible-for-col">
