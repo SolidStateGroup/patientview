@@ -73,7 +73,7 @@
                    data-ng-model="editUser.locked" data-ng-disabled="!permissions.canEditPatients"/>
         </div>
         <div class="col-md-3 visible-for-col">
-            <h5 for="user-locked pull-left" class="control-label">Override Identifier Validation</h5>
+            <h5 for="user-locked pull-left" class="control-label" data-ng-show="permissions.isSuperAdmin">Override Identifier Validation</h5>
             <input type="checkbox" class="form-control" id="user-dummy" name="user-dummy"
                    data-ng-model="editUser.dummy" data-ng-show="permissions.isSuperAdmin" 
                    data-ng-disabled="!permissions.isSuperAdmin"/>
