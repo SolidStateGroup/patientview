@@ -7,6 +7,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
 
     var init = function() {
         $scope.surveyResponse = {};
+        $scope.initalQuestion = 0;
         $scope.answers = [];
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
@@ -63,6 +64,14 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         }, function () {
             alert('error getting survey')
         });
+    };
+
+    $scope.nextQuestion = function(start, end) {
+        $scope.currentQuestion++;
+    };
+
+    $scope.previousQuestion = function(start, end) {
+        $scope.currentQuestion--;
     };
 
     $scope.cancel = function () {

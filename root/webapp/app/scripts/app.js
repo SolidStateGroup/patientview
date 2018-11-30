@@ -186,6 +186,9 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 if (!routeExists(RouteService.getTermsRoute(), data.routes)) {
                     data.routes.push(RouteService.getTermsRoute());
                 }
+                if (!routeExists(RouteService.getQuestionnaireFAQRoute(), data.routes)) {
+                    data.routes.push(RouteService.getQuestionnaireFAQRoute());
+                }
                 if (!routeExists(RouteService.getPrivacyRoute(), data.routes)) {
                     data.routes.push(RouteService.getPrivacyRoute());
                 }

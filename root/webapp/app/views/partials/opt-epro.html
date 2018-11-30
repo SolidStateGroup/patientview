@@ -1,0 +1,64 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>My OPT e-PRO</h3>
+    </div>
+    <div class="panel-body health-surveys">
+        <div class="row">
+            <div class="col-md-1 no-margin text-right">
+                <div class="badge icon-large aqua">
+                    <img src="../images/icons/symptoms.png" alt="Symptoms"/>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h4 class="survey">Your Symptoms</h4>
+                <p>This shows a list of symptoms and your assessment of how each one has been affecting you.</p>
+                <p class="list-date" data-ng-if="foundSurveys['PROM']">
+                    Last completed on {{foundSurveys['PROM'].date | date:'dd-MMM-yyyy'}}
+                </p>
+            </div>
+            <div class="col-md-4 align-bottom">
+                <a data-ng-click="openModalEnterSurveyResponses('PROM')" class="btn blue">
+                    Answer Survey
+                </a>
+                <a href="/#/surveys/symptoms" class="btn blue">
+                    View Surveys
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-1 no-margin text-right">
+                <div class="badge icon-large aqua">
+                    <img src="../images/icons/overall-health.png" alt="Overall health"/>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <h4 class="survey">Your Overall Health</h4>
+                <p>This shows your overall health.</p>
+                <p class="list-date" data-ng-if="foundSurveys['EQ5D']">
+                    Last completed on {{foundSurveys['EQ5D'].date | date:'dd-MMM-yyyy'}}
+                </p>
+            </div>
+            <div class="col-md-4 align-bottom">
+                <a data-ng-click="openModalEnterSurveyResponses('EQ5D')" class="btn blue">
+                    Answer Survey
+                </a>
+                <a href="/#/surveys/overall" class="btn blue">
+                    View Surveys
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <p>If you have recently filled in a ‘Your Health Survey’ but the results are unavailable, it can take 3 weeks to process and upload. If you have been waiting longer than this please contact your renal unit.</p>
+                <p><strong>If you would like to complete a ’Your Health Survey’ discuss this with your clinical team at your next appointment.</strong></p>
+                <a target="_blank" href="/#/questionnaire-faq">What happens with questionnaires?</a>
+            </div>
+        </div>
+    </div>
+    <div data-ng-show="loading" class="container">
+        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Surveys</h3>
+        <br/>
+    </div>
+</div>

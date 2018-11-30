@@ -1,0 +1,133 @@
+<form name="userFormNew">
+    <div class="modal-header">
+        <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
+    </div>
+    <div class="modal-body" data-ng-if="!showEnterResults">
+        <div class="row row-question">
+            <div class="col-md-1">
+                <div class="question-text datetime">Date:</div>
+            </div>
+            <div class="col-md-11">
+                <div class="row">
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="date.day"
+                                data-ng-options="day as day for day in days">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="date.month"
+                                data-ng-options="month as month for month in months">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="date.year"
+                                data-ng-options="year as year for year in years">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-question" data-ng-if="date.hour">
+            <div class="col-md-1">
+                <div class="question-text datetime">Time:</div>
+            </div>
+            <div class="col-md-11">
+                <div class="row">
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="date.hour"
+                                data-ng-options="hour as hour for hour in hours">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-control date-input" data-ng-model="date.minute"
+                                data-ng-options="minute as minute for minute in minutes">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>
+
+                </th>
+                <th>
+                    <strong>
+                        Not at all
+                    </strong>
+                    <div>
+                        0
+                    </div>
+                </th>
+                <th>
+                    <strong>
+                        Slightly
+                    </strong>
+                    <div>
+                        1
+                    </div>
+                </th>
+                <th>
+                    <strong>
+                        Moderately
+                    </strong>
+                    <div>
+                        2
+                    </div>
+                </th>
+                <th>
+                    <strong>
+                        Severely
+                    </strong>
+                    <div>
+                        3
+                    </div>
+                </th>
+                <th>
+                    <strong>
+                        Overwhelmingly
+                    </strong>
+                    <div>
+                        4
+                    </div>
+                </th>
+            </tr>
+            </thead>
+            <!--SINGLE_SELECT-->
+            <tr data-ng-repeat="question in survey.questionGroups[0].questions" class="div-question-group">
+                <td>
+                        {{question.text}}
+                </td>
+                <td data-ng-repeat="option in question.questionOptions" class="div-question-group">
+                    <input type="radio" name="{{question.id}}" data-ng-model="answers[question.id]" data-ng-value="option.score" id="answer-{{option.id}}">
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-body" data-ng-if="showEnterResults">
+        <p>One last step: to help with monitoring please enter your current pulse rate and weight if this is known, else click Cancel</p>
+        <div class="row">
+            <div class="col-md-3 question-text">
+                Pulse<span data-ng-if="pulseHeading && pulseHeading.units"> ({{pulseHeading.units}})</span>:
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control" data-ng-model="enterResults.pulse" only-num>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 question-text">
+                Weight<span data-ng-if="weightHeading && weightHeading.units"> ({{weightHeading.units}})</span>:
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control" data-ng-model="enterResults.weight" only-num-decimal>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length" data-ng-if="!showEnterResults">Save</button>
+        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn blue" data-ng-click="saveResults()" data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save</button>
+    </div>
+</form>

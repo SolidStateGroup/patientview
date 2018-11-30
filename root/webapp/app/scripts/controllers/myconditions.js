@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
-    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout', 'CodeService', '$modal',
-function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout, CodeService, $modal) {
+    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout', 'CodeService', '$modal', 'UtilService', 'SurveyService', 'SurveyResponseService',
+function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout, CodeService, $modal, UtilService, SurveyService, SurveyResponseService) {
 
     $scope.changeSpecialty = function(specialty) {
         $scope.currentSpecialty = specialty;
@@ -20,6 +20,38 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         } else {
             getAllPublic();
         }
+    };
+
+    $scope.surveyType = 'PROM';
+    $scope.openModalEnterSurveyResponses = function () {
+        // open modal and pass in required objects for use in modal scope
+        var modalInstance = $modal.open({
+            templateUrl: 'views/partials/pos-survey.html',
+            controller: SurveyResponseDetailNewModalInstanceCtrl,
+            size: 'lg',
+            backdrop: 'static',
+            resolve: {
+                SurveyService: function(){
+                    return SurveyService;
+                },
+                SurveyResponseService: function(){
+                    return SurveyResponseService;
+                },
+                surveyType: function(){
+                    return $scope.surveyType;
+                },
+                UtilService: function(){
+                    return UtilService;
+                }
+            }
+        });
+
+        // handle modal close (via button click)
+        modalInstance.result.then(function () {
+            getSurveyResponses();
+        }, function () {
+            // close button, do nothing
+        });
     };
 
     // get public listing of groups, used when finding child groups that provide patient information
@@ -325,6 +357,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             // get staff entered diagnosis if present
             var canGetStaffEnteredDiagnosis = false;
             $scope.showRenalHealthSurveys = false;
+            $scope.showOptEPro = false;
             $scope.showEnterConditions = false;
 
             for (i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
@@ -333,6 +366,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 }
 
                 $scope.loggedInUser.groupRoles[i].group.groupFeatures.forEach(function(feature) {
+                    $scope.showOptEPro = true;
                     if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
                         $scope.showRenalHealthSurveys = true;
                     }
