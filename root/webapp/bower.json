@@ -16,7 +16,7 @@
     "angular-bootstrap": "~0.11.0",
     "angular-local-storage": "~0.0.5",
     "jquery-htmlclean": "~1.4.0",
-    "angulartics": "~0.17.1",
+    "angulartics": "0.17.1",
     "angular-bindonce": "~0.3.3",
     "fastclick": "~1.0.6",
     "angular-file-upload": "~1.1.5",
