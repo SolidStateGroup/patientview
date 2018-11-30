@@ -46,64 +46,53 @@
                 </div>
             </div>
         </div>
-        <table>
-            <thead>
-            <tr>
-                <th>
-
-                </th>
-                <th>
-                    <strong>
-                        Not at all
-                    </strong>
-                    <div>
-                        0
+        <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
+            <h4>
+                <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
+                {{questionGroup.text}}
+            </h4>
+            <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
+            <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
+                <div class="col-md-6 question-text">
+                    <span data-ng-if="question.number">{{question.number}}. </span>
+                    <span>{{question.text}}</span>
+                    <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
+                    <span data-ng-if="question.helpLink" class="help-link">
+                        <a href="{{question.helpLink}}" target="_blank">what is this?</a>
+                    </span>
+                    <div class="question-description">{{question.description}}</div>
+                </div>
+                <div class="col-md-6">
+                    <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
+                          data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                        <label for="{{questionOption.id}}" class="radio-label">
+                            <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                            &nbsp;{{questionOption.text}}
+                        </label>
+                    </span>
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
+                            data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
+                            class="form-control">
+                    </select>
+                    <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
+                            data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
+                            class="form-control">
+                    </select>
+                    <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
+                        <div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'
+                             ng-model='answers[question.id]'></div>
+                        <span>{{question.rangeStartDescription}}</span>
+                        <span class="pull-right">{{question.rangeEndDescription}}</span>
                     </div>
-                </th>
-                <th>
-                    <strong>
-                        Slightly
-                    </strong>
-                    <div>
-                        1
-                    </div>
-                </th>
-                <th>
-                    <strong>
-                        Moderately
-                    </strong>
-                    <div>
-                        2
-                    </div>
-                </th>
-                <th>
-                    <strong>
-                        Severely
-                    </strong>
-                    <div>
-                        3
-                    </div>
-                </th>
-                <th>
-                    <strong>
-                        Overwhelmingly
-                    </strong>
-                    <div>
-                        4
-                    </div>
-                </th>
-            </tr>
-            </thead>
-            <!--SINGLE_SELECT-->
-            <tr data-ng-repeat="question in survey.questionGroups[0].questions" class="div-question-group">
-                <td>
-                        {{question.text}}
-                </td>
-                <td data-ng-repeat="option in question.questionOptions" class="div-question-group">
-                    <input type="radio" name="{{question.id}}" data-ng-model="answers[question.id]" data-ng-value="option.score" id="answer-{{option.id}}">
-                </td>
-            </tr>
-        </table>
+                    <input type="text" data-ng-if="question.elementType === 'TEXT' && question.htmlType === 'TEXT'"
+                           data-ng-model="answers[question.id]" class="form-control">
+                    </input>
+                    <input type="text" data-ng-if="question.elementType === 'TEXT_NUMERIC' && question.htmlType === 'TEXT_NUMERIC'"
+                           data-ng-model="answers[question.id]" class="form-control numeric-text" only-num>
+                    </input>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="modal-body" data-ng-if="showEnterResults">
         <p>One last step: to help with monitoring please enter your current pulse rate and weight if this is known, else click Cancel</p>
