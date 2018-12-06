@@ -58,6 +58,11 @@
                     {{questionGroup.text}}
                 </h4>
                 <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
+                <div >
+                    <rzslider
+                            rz-slider-model="answers[1]"
+                            rz-slider-options="{floor: 0, ceil: 100, step:1, precision:1}"></rzslider>
+                </div>
                 <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
                     <div class="col-md-6 question-text">
                         <span data-ng-if="question.number">{{question.number}}. </span>
