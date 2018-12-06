@@ -1,97 +1,192 @@
 <form name="userFormNew">
     <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
     <div class="modal-body" data-ng-if="!showEnterResults">
-        <div class="row row-question">
-            <div class="col-md-1">
-                <div class="question-text datetime">Date:</div>
-            </div>
-            <div class="col-md-11">
-                <div class="row">
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.day"
-                                data-ng-options="day as day for day in days">
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.month"
-                                data-ng-options="month as month for month in months">
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.year"
-                                data-ng-options="year as year for year in years">
-                        </select>
-                    </div>
-                </div>
+        <!--Todo: Not sure if this date input is needed-->
+        <!--<div class="row">-->
+            <!--<div class="col-sm-1">-->
+                <!--<div class="question-text datetime">Date:</div>-->
+            <!--</div>-->
+            <!--<div class="col-sm-11">-->
+                <!--<div class="row">-->
+                    <!--<div class="col-sm-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.day"-->
+                                <!--data-ng-options="day as day for day in days">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <!--<div class="col-sm-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.month"-->
+                                <!--data-ng-options="month as month for month in months">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <!--<div class="col-sm-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.year"-->
+                                <!--data-ng-options="year as year for year in years">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="row" data-ng-if="date.hour">-->
+            <!--<div class="col-md-1">-->
+                <!--<div class="question-text datetime">Time:</div>-->
+            <!--</div>-->
+            <!--<div class="col-md-11">-->
+                <!--<div class="row">-->
+                    <!--<div class="col-md-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.hour"-->
+                                <!--data-ng-options="hour as hour for hour in hours">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <!--<div class="col-md-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.minute"-->
+                                <!--data-ng-options="minute as minute for minute in minutes">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div class="row">
+            <div class="col-md-8">
+                <p>Below is a list of symptoms, which you may or may have not experienced. Please put a tick in the box to show how you feel each of these symptoms has affected you and how you been feeling over the past week.</p>
             </div>
         </div>
-        <div class="row row-question" data-ng-if="date.hour">
-            <div class="col-md-1">
-                <div class="question-text datetime">Time:</div>
-            </div>
-            <div class="col-md-11">
-                <div class="row">
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.hour"
-                                data-ng-options="hour as hour for hour in hours">
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.minute"
-                                data-ng-options="minute as minute for minute in minutes">
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
-            <h4>
-                <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
-                {{questionGroup.text}}
-            </h4>
+            <!--<h4>-->
+                <!--<span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>-->
+                <!--{{questionGroup.text}}-->
+            <!--</h4>-->
             <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
-            <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
-                <div class="col-md-6 question-text">
-                    <span data-ng-if="question.number">{{question.number}}. </span>
-                    <span>{{question.text}}</span>
-                    <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
-                    <span data-ng-if="question.helpLink" class="help-link">
+
+
+            <table class="table">
+                <thead>
+                <tr class="symptom-heading">
+                    <th>
+                    </th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span>
+                    </th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
+                    <th scope="row">
+                        <span data-ng-if="question.number">{{question.number}}. </span>
+                        <span>{{question.text}}</span>
+                        <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
+                        <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
                     </span>
-                    <div class="question-description">{{question.description}}</div>
-                </div>
-                <div class="col-md-6">
-                    <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
-                          data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                        <div class="question-description">{{question.description}}</div>
+                    </th>
+                    <td data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
+                        data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
-                            &nbsp;{{questionOption.text}}
+                            <!--&nbsp;{{questionOption.text}}-->
                         </label>
-                    </span>
-                    <select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
-                            data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
-                            class="form-control">
+
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Any other symptoms:</th>
+                </tr>
+                </tbody>
+            </table>
+
+
+            <table class="table">
+                <!--Todo: 3 inputs to go here-->
+                <tr>
+                    <th scope="row">
+                        <input style="width: 50%;" type="email" class="form-control" id="inputSymptom1" placeholder="Input symptom">
+                    </th>
+                    <td>
+                        <input type="radio" class="radio-button">
+                    </td>
+                    <td>
+                        <input type="radio" class="radio-button">
+                    </td>
+                    <td>
+                        <input type="radio" class="radio-button">
+                    </td>
+                    <td>
+                        <input type="radio" class="radio-button">
+                    </td>
+                    <td>
+                        <input type="radio" class="radio-button">
+                    </td>
+                </tr>
+            </table>
+
+
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <strong>Which symptom has affected you the most?</strong>
+                </div>
+                <div class="col-sm-6">
+                    <select class="form-control">
+                        <option>Pain</option>
+                        <option>Shortness of breath</option>
+                        <option>Weakness or lack of energy</option>
                     </select>
-                    <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
-                            data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
-                            class="form-control">
-                    </select>
-                    <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
-                        <div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'
-                             ng-model='answers[question.id]'></div>
-                        <span>{{question.rangeStartDescription}}</span>
-                        <span class="pull-right">{{question.rangeEndDescription}}</span>
-                    </div>
-                    <input type="text" data-ng-if="question.elementType === 'TEXT' && question.htmlType === 'TEXT'"
-                           data-ng-model="answers[question.id]" class="form-control">
-                    </input>
-                    <input type="text" data-ng-if="question.elementType === 'TEXT_NUMERIC' && question.htmlType === 'TEXT_NUMERIC'"
-                           data-ng-model="answers[question.id]" class="form-control numeric-text" only-num>
-                    </input>
                 </div>
             </div>
+
+
+            <!--Old markup-->
+            <!--<div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">-->
+                <!--<div class="col-sm-3 question-text">-->
+                    <!--<span data-ng-if="question.number">{{question.number}}. </span>-->
+                    <!--<span>{{question.text}}</span>-->
+                    <!--<span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>-->
+                    <!--<span data-ng-if="question.helpLink" class="help-link">-->
+                        <!--<a href="{{question.helpLink}}" target="_blank">what is this?</a>-->
+                    <!--</span>-->
+                    <!--<div class="question-description">{{question.description}}</div>-->
+                <!--</div>-->
+
+                <!--<div class="col-sm-9">-->
+                        <!--<span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"-->
+                              <!--data-ng-repeat="questionOption in question.questionOptions" class="span-radio">-->
+                        <!---->
+                            <!--<label for="{{questionOption.id}}" class="radio-label">-->
+                                <!--&nbsp;{{questionOption.text}}-->
+                            <!--</label>-->
+                              <!--<input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">-->
+                        <!--</span>-->
+                    <!--<select data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"-->
+                            <!--data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"-->
+                            <!--class="form-control">-->
+                    <!--</select>-->
+                    <!--<select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"-->
+                            <!--data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"-->
+                            <!--class="form-control">-->
+                    <!--</select>-->
+                    <!--<div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">-->
+                        <!--<div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'-->
+                             <!--ng-model='answers[question.id]'></div>-->
+                        <!--<span>{{question.rangeStartDescription}}</span>-->
+                        <!--<span class="pull-right">{{question.rangeEndDescription}}</span>-->
+                    <!--</div>-->
+                    <!--<input type="text" data-ng-if="question.elementType === 'TEXT' && question.htmlType === 'TEXT'"-->
+                           <!--data-ng-model="answers[question.id]" class="form-control">-->
+                    <!--</input>-->
+                    <!--<input type="text" data-ng-if="question.elementType === 'TEXT_NUMERIC' && question.htmlType === 'TEXT_NUMERIC'"-->
+                           <!--data-ng-model="answers[question.id]" class="form-control numeric-text" only-num>-->
+                    <!--</input>-->
+                <!--</div>-->
+            <!--</div>-->
         </div>
     </div>
     <div class="modal-body" data-ng-if="showEnterResults">
