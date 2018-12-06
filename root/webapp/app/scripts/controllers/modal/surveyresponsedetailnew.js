@@ -12,6 +12,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears2000();
+        $scope.zoom = 1;
         $scope.date = {};
         var i, j;
 
@@ -152,6 +153,14 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             alert('Please complete all required questions.');
         }
     };
+
+    $scope.increaseFontSize = function() {
+        $scope.zoom = Math.min(2, $scope.zoom + 0.1);
+    }
+
+    $scope.decreaseFontSize = function() {
+        $scope.zoom = Math.max(1, $scope.zoom - 0.1)
+    }
 
     $scope.saveResults = function () {
         var userResultClusters = [];
