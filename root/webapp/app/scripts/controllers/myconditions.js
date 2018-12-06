@@ -26,7 +26,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         $scope.surveyType = surveyType;
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
-            templateUrl: surveyType === 'PROM'? 'views/partials/pos-survey.html' : 'views/partials/pos-survey.html',
+            templateUrl: surveyType === 'PROM'? 'views/partials/pos-survey.html' : 'views/partials/eq-survey.html',
             controller: SurveyResponseDetailNewModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',
