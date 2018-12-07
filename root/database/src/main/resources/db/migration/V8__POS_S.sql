@@ -125,3 +125,5 @@ insert into pv_question_option (id,question_id,text,type,description,display_ord
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917890,14917749,'Overwhelmingly',4,'unable to think of anything else',4,4);
 insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required) values (14917750,14917710,'TEXT','TEXT','Which symptom has affected you the most?','YSQ21',20,false);
 insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required) values (14917751,14917710,'TEXT','TEXT','Which symptom has improved the most?','YSQ22',21,false);
+
+insert into pv_feature (id,feature_name,description,creation_date) values  (15,'OPT_EPRO','OPT ePRO Health Surveys','2018-12-07 10:15:00.000');
