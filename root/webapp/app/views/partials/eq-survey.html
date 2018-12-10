@@ -1,6 +1,6 @@
 <form name="userFormNew">
     <div class="modal-header survey-modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-ng-click="cancel()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
     <div class="modal-body" data-ng-if="!showEnterResults">
@@ -129,14 +129,6 @@
                             <li>100 means the best health you can imagine. 0 means the worst health you can imagine.</li>
                             <li>Please click on the scale to indicate how your health is TODAY.</li>
                         </ul>
-                    </div>
-                </div>
-                <div class="row slider-text">
-                    <div class="col-sm-6">
-                        <p>0 - The worst health you can imagine</p>
-                    </div>
-                    <div class="col-sm-6">
-                        <p class="text-right">100 - The best health you can imagine</p>
                     </div>
                 </div>
             </div>
