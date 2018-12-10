@@ -42,7 +42,11 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             for (i = 0; i < survey.questionGroups.length; i++) {
                 for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
                     var question = survey.questionGroups[i].questions[j];
-                    $scope.questionTypeMap[question.id] = question.elementType;
+                    if (question.htmlType === 'TEXT') {
+                        $scope.questionTypeMap[question.id] = 'TEXT';
+                    } else {
+                        $scope.questionTypeMap[question.id] = question.elementType;
+                    }
                     $scope.questionRequiredMap[question.id] = question.required;
                     if (question.htmlType === 'SLIDER') {
                         $scope.answers[question.id] = 0;

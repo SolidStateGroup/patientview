@@ -32,7 +32,13 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
 
             for (j = 0; j < questions.length; j++) {
                 if (questionAnswerMap[questions[j].type]) {
-                    series[response.date].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
+                    if (questionAnswerMap[questions[j].type].questionOption) {
+                        series[response.date].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
+                    } else {
+                        $scope.showOverallScore = true
+                        $scope.overallScore = parseInt(questionAnswerMap[questions[j].type].value)
+                        $scope.overallDate = $scope.filterDate(response.date);
+                    }
                 } else {
                     series[response.date].data[j] = 0;
                 }
@@ -129,7 +135,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 var questionOptionText = '-';
 
                 if (questionAnswerMap[questionType]) {
-                    questionOptionText = questionAnswerMap[questionType].questionOption.text;
+                    questionOptionText = questionAnswerMap[questionType].questionOption?  questionAnswerMap[questionType].questionOption.text: questionAnswerMap[questionType].value;
                 }
 
                 // set question text, e.g. Pain
@@ -223,8 +229,11 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
     };
 
     var init = function() {
-        $scope.surveyType = 'EQ5D';
+        // $scope.surveyType = 'EQ5D5L';
+        var params = document.location.href.split('type=');
+        $scope.surveyType = params.length === 2 ? params[1] : 'PROM';
         $scope.loading = true;
+        $scope.overallScore = null;
 
         SurveyService.getByType($scope.surveyType).then(function(survey) {
             if (survey != null) {

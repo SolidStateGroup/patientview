@@ -176,6 +176,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
         // format survey response suitable for table view
         var tableRows = [];
+        var customRows = [];
         var tableHeader = [];
         var i, j;
 
@@ -209,33 +210,55 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 questionAnswerMap[questionAnswers[j].question.type] = questionAnswers[j];
             }
 
+            var tableRowIndex = 0;
             for (j = 0; j < questions.length; j++) {
                 var questionText = questions[j].text;
                 var questionType = questions[j].type;
+                var isCustom = questions[j].customQuestion;
                 var questionOptionText = '-';
 
-                if (questionAnswerMap[questionType]) {
-                    questionOptionText = questionAnswerMap[questionType].questionOption.text;
+                if (isCustom) {
+                    $scope.showCustomResponses = true;
+                    if (!customRows[i]) {
+                        var responses = Object.keys(questionAnswerMap).map(function (map) {
+                            var response = questionAnswerMap[map];
+                            return {
+                                label:response.questionText,
+                                value: response.questionOption.text,
+                            };
+                        });
+                        customRows[i] = {
+                            text: $scope.filterDate(response.date),
+                            isLatest: response.isLatest,
+                            responses: responses,
+                        };
+                    }
+                } else {
+                    if (questionAnswerMap[questionType]) {
+                        questionOptionText = questionAnswerMap[questionType].questionOption?  questionAnswerMap[questionType].questionOption.text: questionAnswerMap[questionType].value;
+                    }
+
+                    // set question text, e.g. Pain
+                    if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex] == null) {
+                        tableRows[tableRowIndex] = {};
+                        tableRows[tableRowIndex].type = questionType;
+                        tableRows[tableRowIndex].data = [];
+                        tableRows[tableRowIndex].data.push({'text':questionText});
+                    }
+
+                    // set response text, e.g. Moderately
+                    tableRows[tableRowIndex].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
+                    tableRowIndex++;
                 }
 
-                // set question text, e.g. Pain
-                if (tableRows[j] == undefined || tableRows[j] == null) {
-                    tableRows[j] = {};
-                    tableRows[j].type = questionType;
-                    tableRows[j].data = [];
-                    tableRows[j].data.push({'text':questionText});
-                }
-
-                // set response text, e.g. Moderately
-                tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
 
             // special download row
-            if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
-                tableRows[questions.length] = {};
-                tableRows[questions.length].isDownload = true;
-                tableRows[questions.length].data = [];
-                tableRows[questions.length].data.push({'text':'', 'isDownload':true});
+            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] == null) {
+                tableRows[tableRowIndex] = {};
+                tableRows[tableRowIndex].isDownload = true;
+                tableRows[tableRowIndex].data = [];
+                tableRows[tableRowIndex].data.push({'text':'', 'isDownload':true});
             }
 
             var download = '';
@@ -247,11 +270,12 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                     + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
             }
 
-            tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
+            tableRows[tableRowIndex].data.push({'text': download, 'isLatest':false, 'isDownload':true});
         }
 
         $scope.tableHeader = tableHeader;
         $scope.tableRows = tableRows;
+        $scope.customRows = customRows;
         $scope.minDate = minDate;
         $scope.maxDate = maxDate;
     };
@@ -317,7 +341,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
     };
 
     var init = function() {
-        $scope.surveyType = 'PROM';
+        var params = document.location.href.split('type=');
+        $scope.surveyType = params.length === 2 ? params[1] : 'PROM';
         DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
             .then(function(documents) {
                 $scope.documentDateMap = {};
