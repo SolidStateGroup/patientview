@@ -1,79 +1,84 @@
 <form name="userFormNew">
-    <div class="modal-header">
+    <div class="modal-header survey-modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
     <div class="modal-body" data-ng-if="!showEnterResults">
-        <div class="row row-question">
-            <div class="col-md-1">
-                <div class="question-text datetime">Date:</div>
-            </div>
-            <div class="col-md-11">
-                <div class="row">
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.day"
-                                data-ng-options="day as day for day in days">
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.month"
-                                data-ng-options="month as month for month in months">
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.year"
-                                data-ng-options="year as year for year in years">
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row row-question" data-ng-if="date.hour">
-            <div class="col-md-1">
-                <div class="question-text datetime">Time:</div>
-            </div>
-            <div class="col-md-11">
-                <div class="row">
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.hour"
-                                data-ng-options="hour as hour for hour in hours">
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-control date-input" data-ng-model="date.minute"
-                                data-ng-options="minute as minute for minute in minutes">
-                        </select>
-                    </div>
-                </div>
-            </div>
+        <!--<div class="row row-question">-->
+            <!--<div class="col-md-1">-->
+                <!--<div class="question-text datetime">Date:</div>-->
+            <!--</div>-->
+            <!--<div class="col-md-11">-->
+                <!--<div class="row">-->
+                    <!--<div class="col-md-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.day"-->
+                                <!--data-ng-options="day as day for day in days">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <!--<div class="col-md-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.month"-->
+                                <!--data-ng-options="month as month for month in months">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <!--<div class="col-md-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.year"-->
+                                <!--data-ng-options="year as year for year in years">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="row row-question" data-ng-if="date.hour">-->
+            <!--<div class="col-md-1">-->
+                <!--<div class="question-text datetime">Time:</div>-->
+            <!--</div>-->
+            <!--<div class="col-md-11">-->
+                <!--<div class="row">-->
+                    <!--<div class="col-md-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.hour"-->
+                                <!--data-ng-options="hour as hour for hour in hours">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <!--<div class="col-md-2">-->
+                        <!--<select class="form-control date-input" data-ng-model="date.minute"-->
+                                <!--data-ng-options="minute as minute for minute in minutes">-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div class="resize-text-buttons" role="group">
+            <p>Resize font</p>
+            <button type="button" class="btn btn-default btn-circle" ng-click="decreaseFontSize()">
+                <span class="btn-circle__icon">-</span>
+            </button>
+            <button type="button" class="btn btn-default btn-circle" ng-click="increaseFontSize()">
+                <span class="btn-circle__icon">+</span>
+            </button>
         </div>
 
-        <div>
-            <button ng-click="decreaseFontSize()">-</button>
-            <button ng-click="increaseFontSize()">+</button>
-        </div>
-        <div ng-style="{'zoom':zoom}">
+        <div class="eq-survey" ng-style="{'zoom':zoom}">
             <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
                 <h4>
                     <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
                     {{questionGroup.text}}
                 </h4>
+
                 <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
-                <div >
-                    <rzslider
-                            rz-slider-model="answers[1]"
-                            rz-slider-options="{floor: 0, ceil: 100, step:1, precision:1}"></rzslider>
-                </div>
-                <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">
-                    <div class="col-md-6 question-text">
+                <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
+                    <div class="col-md-12 question-text">
+                        <h5>Please click the ONE box that best describes your health TODAY.</h5>
+                        <hr/>
                         <span data-ng-if="question.number">{{question.number}}. </span>
-                        <span>{{question.text}}</span>
+                        <h4>{{question.text}}</h4>
                         <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
                         <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
                     </span>
                         <div class="question-description">{{question.description}}</div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                     <span data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
                           data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
                         <label for="{{questionOption.id}}" class="radio-label">
@@ -109,11 +114,42 @@
                     </div>
                 </div>
             </div>
+            <div class="slider-component">
+                <hr/>
+                <div class="row row-question">
+                    <div class="col-sm-6">
+                        <ul class="slider-list">
+                            <li>We would like to know how good or bad your health is TODAY</li>
+                            <li>This scale is numbered from 0 to 100</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <ul>
+                            <li>100 means the best health you can imagine. 0 means the worst health you can imagine.</li>
+                            <li>Please click on the scale to indicate how your health is TODAY.</li>
+                        </ul>
+                    </div>
+                </div>
+                <rzslider
+                        rz-slider-model="answers[1]"
+                        rz-slider-options="{floor: 0, ceil: 100, step:1, precision:1}"></rzslider>
+                <div class="row slider-text">
+                    <div class="col-sm-6">
+                        <p>0 - The worst health you can imagine</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="text-right">100 - The best health you can imagine</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal-footer">
+        <div class="eq-survey__copyright">
+            <p>© EuroQol Research Foundation. EQ-5D™ is a trade mark of the EuroQol Research Foundation</p>
+        </div>
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length">Save</button>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length">Save</button>
     </div>
 </form>

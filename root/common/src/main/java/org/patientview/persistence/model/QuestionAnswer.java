@@ -31,6 +31,9 @@ public class QuestionAnswer extends BaseModel {
     @Column(name = "value")
     private String value;
 
+    @Column(name = "question_text")
+    private String questionText;
+
     public QuestionAnswer() {}
 
     public Question getQuestion() {
@@ -65,4 +68,13 @@ public class QuestionAnswer extends BaseModel {
     public void setValue(String value) {
         this.value = value;
     }
+
+    public String getQuestionText() {
+        return questionText;
+    }
+
+    public void setQuestionText(String questionText) {
+        this.questionText = questionText;
+    }
+
 }
