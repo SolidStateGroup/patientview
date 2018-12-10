@@ -17,6 +17,7 @@ insert into pv_question_option (id,question_id,text,type,description,display_ord
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917800,14917731,'Overwhelmingly',4,'unable to think of anything else',4,4);
 insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917732,14917710,'SINGLE_SELECT','RADIO','Weakness or lack of energy','YSQ3',2,false,false);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917801,14917732,'Not at all',0,'No effect',0,0);
+insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917802,14917732,'Slightly',1,'but not bothered to be rid of it',1,1);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917803,14917732,'Moderately',2,'limits on some activity or concentration',2,2);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917804,14917732,'Severely',3,'activities or concentration markedly affected',3,3);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917805,14917732,'Overwhelmingly',4,'unable to think of anything else',4,4);

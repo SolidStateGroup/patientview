@@ -3,7 +3,9 @@ package org.patientview.api.service;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -59,6 +61,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -70,49 +73,46 @@ import static org.mockito.Mockito.when;
  */
 public class ApiSurveyResponseServiceTest {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     User creator;
-
     @Mock
     ConversationRepository conversationRepository;
-
     @Mock
     EmailService emailService;
-
     @Mock
     FeatureRepository featureRepository;
-
     @Mock
     LookupService lookupService;
-
     @Mock
     Properties properties;
-
     @Mock
     QuestionRepository questionRepository;
-
     @Mock
     QuestionOptionRepository questionOptionRepository;
-
     @Mock
     RoleService roleService;
-
     @Mock
     SurveyRepository surveyRepository;
-
     @Mock
     SurveyResponseRepository surveyResponseRepository;
-
     @Mock
     UserRepository userRepository;
-
     @Mock
     UserService userService;
-
     @Mock
     UserTokenRepository userTokenRepository;
-
     @InjectMocks
     ApiSurveyResponseService apiSurveyResponseService = new ApiSurveyResponseServiceImpl();
+
+    private static Survey buildSurveyFrom(long id) {
+
+        Survey survey = new Survey();
+        survey.setType("POS_S");
+        survey.setId(id);
+
+        return survey;
+    }
 
     @Before
     public void setup() {
@@ -162,7 +162,7 @@ public class ApiSurveyResponseServiceTest {
                 TestUtils.createFeature(FeatureType.MESSAGING.toString()), staffUser));
 
         Lookup specialtyGroupLookup
-            = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+                = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
         List<Role> staffRoles = new ArrayList<>();
         staffRoles.add(staffRole);
 
@@ -254,7 +254,7 @@ public class ApiSurveyResponseServiceTest {
         staffUser.getGroupRoles().add(TestUtils.createGroupRole(staffRole, group, staffUser));
 
         Lookup specialtyGroupLookup
-            = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+                = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
         List<Role> staffRoles = new ArrayList<>();
         staffRoles.add(staffRole);
 
@@ -475,5 +475,53 @@ public class ApiSurveyResponseServiceTest {
         verify(surveyResponseRepository, Mockito.times(1)).findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
                 any(Pageable.class));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
+    }
+
+    @Test
+    public void should_Throw_ResourceNotFoundException_When_CustomQuestion_Is_True_And_QuestionText_is_null()
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        // Given
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        SurveyResponse response = new SurveyResponse();
+
+        long surveyId = 14917703;
+        response.setSurvey(buildSurveyFrom(surveyId));
+
+        Question questionWithCustomerQuestionFlag = new Question();
+        questionWithCustomerQuestionFlag.setId(2L);
+        questionWithCustomerQuestionFlag.setCustomQuestion(true);
+
+        QuestionAnswer answerWithoutQuestionText = new QuestionAnswer();
+        answerWithoutQuestionText.setValue("Pain");
+        answerWithoutQuestionText.setQuestion(questionWithCustomerQuestionFlag);
+
+        response.setQuestionAnswers(singletonList(answerWithoutQuestionText));
+        response.setDate(new Date());
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(surveyRepository.findOne(surveyId)).thenReturn(buildSurveyFrom(surveyId));
+        when(questionRepository.findOne(2L)).thenReturn(questionWithCustomerQuestionFlag);
+
+        thrown.expect(ResourceNotFoundException.class);
+
+        // When
+        apiSurveyResponseService.add(user.getId(), response);
     }
 }
