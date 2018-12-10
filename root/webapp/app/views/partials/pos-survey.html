@@ -1,6 +1,6 @@
-<form name="userFormNew">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<form name="userFormNew" class="pos-survey">
+    <div class="modal-header survey-modal-header">
+        <button type="button" class="close" data-ng-click="cancel()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
     <div class="modal-body" data-ng-if="!showEnterResults">
@@ -21,10 +21,10 @@
                     </th>
                     <th><h5>Not at all</h5><span class="small">No effect</span>
                     </th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th><h5>Slightly</h5><span class="small">but not bothered to be rid of it</span></th>
+                    <th><h5>Moderately</h5><span class="small">limits some activity or concentration</span></th>
+                    <th><h5>Severely</h5><span class="small">activities or concentration markedly affected</span></th>
+                    <th><h5>Overwhelmingly</h5><span class="small">Unable to think of anything else</span></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -38,46 +38,50 @@
                     </span>
                         <div class="question-description">{{question.description}}</div>
                     </th>
-                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio text-center">
 
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
                             <!--&nbsp;{{questionOption.text}}-->
+                            <!-- Todo: make this increment -->
+                            <small>1</small>
                         </label>
 
                     </td>
                 </tr>
                 </tbody>
             </table>
-            <p scope="row">Any other symptoms:</p>
 
             <!--Custom Questions-->
-            <table class="table">
+            <table class="table other-symptoms-table">
                 <thead>
                 <tr>
                     <th>
+                        Any other symptoms:
                     </th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span>
+                    <th class="text-center"><h5>Not at all</h5><span class="small">No effect</span>
                     </th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th class="text-center"><h5>Slightly</h5><span class="small">but not bothered to be rid of it</span></th>
+                    <th class="text-center"><h5>Moderately</h5><span class="small">limits some activity or concentration</span></th>
+                    <th class="text-center"><h5>Severely</h5><span class="small">activities or concentration markedly affected</span></th>
+                    <th class="text-center"><h5>Overwhelmingly</h5><span class="small">Unable to think of anything else</span></th>
                 </tr>
                 </thead>
                 <tbody>
 
-                </tbody>
                 <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && !question.text" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
-                    <th scope="row">
-                        <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]" data-ng-change="setCustomQuestion(question.id)" style="width: 50%;" type="text" class="form-control" id="inputSymptom1" placeholder="Input symptom">
+                    <th scope="row" style="width: 25%;">
+                        <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]" data-ng-change="setCustomQuestion(question.id)" type="text" class="form-control" id="inputSymptom1" placeholder="Input symptom">
                     </th>
-                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio text-center">
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                            <!-- Todo: make this increment -->
+                            <small>1</small>
                         </label>
                     </td>
                 </tr>
+                </tbody>
             </table>
 
             <div ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'TEXT'" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
@@ -85,7 +89,7 @@
                     <strong>{{question.text}}</strong>
                 </div>
                 <div class="col-sm-6">
-                    <select ng-model="answers[question.id]" class="form-control">
+                    <select ng-model="answers[question.id]" class="form-control" style="margin-top: 10px;">
                         <option selected value="">Select an answer</option>
                         <option ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && (question.text||customQuestions[question.id])" ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" value="{{question.text || customQuestions[question.id]}}">{{question.text || customQuestions[question.id]}}</option>
                     </select>
@@ -115,8 +119,8 @@
     </div>
     <div class="modal-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length" data-ng-if="!showEnterResults">Save</button>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length" data-ng-if="!showEnterResults">Save</button>
         <button class="btn blue" data-ng-click="saveResults()" data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save</button>
     </div>
 </form>

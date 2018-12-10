@@ -286,6 +286,9 @@
 
 .survey-modal-header {
     background-color: #F5F5F5;
+    .close {
+        opacity: 1;
+    }
 }
 
 .eq-survey {
@@ -317,9 +320,11 @@
     }
 }
 
-.symptom-heading {
-    th {
-        text-align: center;
+.pos-survey {
+    .symptom-heading {
+        th {
+            text-align: center;
+        }
     }
 }
 
