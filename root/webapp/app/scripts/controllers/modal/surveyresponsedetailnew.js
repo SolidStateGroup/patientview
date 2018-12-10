@@ -9,6 +9,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.surveyResponse = {};
         $scope.initalQuestion = 0;
         $scope.answers = [];
+        $scope.customQuestions = [];
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears2000();
@@ -37,7 +38,6 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             $scope.survey = survey;
             $scope.questionTypeMap = [];
             $scope.questionRequiredMap = [];
-
             // create map of question id to question type, used when creating object to send to backend
             for (i = 0; i < survey.questionGroups.length; i++) {
                 for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
@@ -110,6 +110,9 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 if ($scope.questionTypeMap[i] === 'SINGLE_SELECT') {
                     questionAnswer.questionOption = {};
                     questionAnswer.questionOption.id = answer;
+                }
+                if ($scope.customQuestions[i]) {
+                    questionAnswer.questionText = $scope.customQuestions[i];
                 }
                 if (['SINGLE_SELECT_RANGE','TEXT','TEXT_NUMERIC'].indexOf($scope.questionTypeMap[i]) > -1) {
                     questionAnswer.value = answer;
@@ -198,6 +201,10 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         }
         return input;
     };
+
+    var autoCompleteQuestions = function() {
+        debugger
+    }
 
     init();
 }];

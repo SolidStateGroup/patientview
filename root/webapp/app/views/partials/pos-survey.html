@@ -56,13 +56,8 @@
         </div>
 
         <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
-            <!--<h4>-->
-                <!--<span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>-->
-                <!--{{questionGroup.text}}-->
-            <!--</h4>-->
             <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
-
-
+            <!--Radio Questions-->
             <table class="table">
                 <thead>
                 <tr class="symptom-heading">
@@ -77,7 +72,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
+                <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO'  && question.text" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
                     <th scope="row">
                         <span data-ng-if="question.number">{{question.number}}. </span>
                         <span>{{question.text}}</span>
@@ -87,8 +82,7 @@
                     </span>
                         <div class="question-description">{{question.description}}</div>
                     </th>
-                    <td data-ng-if="question.elementType === 'SINGLE_SELECT' && question.htmlType === 'RADIO'"
-                        data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
 
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
@@ -97,55 +91,54 @@
 
                     </td>
                 </tr>
-                <tr>
-                    <th scope="row">Any other symptoms:</th>
-                </tr>
                 </tbody>
             </table>
+            <p scope="row">Any other symptoms:</p>
 
-
+            <!--Custom Questions-->
             <table class="table">
-                <!--Todo: 3 inputs to go here-->
+                <thead>
                 <tr>
-                    <th scope="row">
-                        <input style="width: 50%;" type="email" class="form-control" id="inputSymptom1" placeholder="Input symptom">
+                    <th>
                     </th>
-                    <td>
-                        <input type="radio" class="radio-button">
-                    </td>
-                    <td>
-                        <input type="radio" class="radio-button">
-                    </td>
-                    <td>
-                        <input type="radio" class="radio-button">
-                    </td>
-                    <td>
-                        <input type="radio" class="radio-button">
-                    </td>
-                    <td>
-                        <input type="radio" class="radio-button">
+                    <th><h5>Not at all</h5><span class="small">No effect</span>
+                    </th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                    <th><h5>Not at all</h5><span class="small">No effect</span></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+                <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && !question.text" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
+                    <th scope="row">
+                        <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]" data-ng-change="setCustomQuestion(question.id)" style="width: 50%;" type="text" class="form-control" id="inputSymptom1" placeholder="Input symptom">
+                    </th>
+                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio">
+                        <label for="{{questionOption.id}}" class="radio-label">
+                            <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                        </label>
                     </td>
                 </tr>
             </table>
 
-
-
-            <div class="row">
+            <div ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'TEXT'" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
                 <div class="col-sm-6">
-                    <strong>Which symptom has affected you the most?</strong>
+                    <strong>{{question.text}}</strong>
                 </div>
                 <div class="col-sm-6">
-                    <select class="form-control">
-                        <option>Pain</option>
-                        <option>Shortness of breath</option>
-                        <option>Weakness or lack of energy</option>
+                    <select ng-model="answers[question.id]" class="form-control">
+                        <option selected value="">Select an answer</option>
+                        <option ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && (question.text||customQuestions[question.id])" ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" value="{{question.id}}">{{question.text || customQuestions[question.id]}}</option>
                     </select>
                 </div>
             </div>
 
 
             <!--Old markup-->
-            <!--<div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row row-question">-->
+            <!--<div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="r      -question">-->
                 <!--<div class="col-sm-3 question-text">-->
                     <!--<span data-ng-if="question.number">{{question.number}}. </span>-->
                     <!--<span>{{question.text}}</span>-->

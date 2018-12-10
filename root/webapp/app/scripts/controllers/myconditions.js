@@ -26,7 +26,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         $scope.surveyType = surveyType;
         // open modal and pass in required objects for use in modal scope
         var modalInstance = $modal.open({
-            templateUrl: surveyType === 'PROM'? 'views/partials/pos-survey.html' : 'views/partials/eq-survey.html',
+            templateUrl: surveyType === 'POS_S'? 'views/partials/pos-survey.html' : 'views/partials/eq-survey.html',
             controller: SurveyResponseDetailNewModalInstanceCtrl,
             size: 'lg',
             backdrop: 'static',
@@ -366,7 +366,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 }
 
                 $scope.loggedInUser.groupRoles[i].group.groupFeatures.forEach(function(feature) {
-                    $scope.showOptEPro = true;
+                    if (feature.feature.name == 'OPT_EPRO') {
+                        $scope.showOptEPro = true;
+                    }
                     if (feature.feature.name == 'RENAL_HEALTH_SURVEYS') {
                         $scope.showRenalHealthSurveys = true;
                     }

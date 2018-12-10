@@ -12,12 +12,12 @@
             <div class="col-md-9">
                 <h4 class="survey">Your Symptoms</h4>
                 <p>This shows a list of symptoms and your assessment of how each one has been affecting you.</p>
-                <p class="list-date" data-ng-if="foundSurveys['PROM']">
-                    Last completed on {{foundSurveys['PROM'].date | date:'dd-MMM-yyyy'}}
+                <p class="list-date" data-ng-if="foundSurveys['POS_S']">
+                    Last completed on {{foundSurveys['POS_S'].date | date:'dd-MMM-yyyy'}}
                 </p>
             </div>
             <div class="col-md-4 align-bottom">
-                <a data-ng-click="openModalEnterSurveyResponses('PROM')" class="btn blue">
+                <a data-ng-click="openModalEnterSurveyResponses('POS_S')" class="btn blue">
                     Answer Survey
                 </a>
                 <a href="/#/surveys/symptoms" class="btn blue">
@@ -35,12 +35,12 @@
             <div class="col-md-7">
                 <h4 class="survey">Your Overall Health</h4>
                 <p>This shows your overall health.</p>
-                <p class="list-date" data-ng-if="foundSurveys['EQ5D']">
-                    Last completed on {{foundSurveys['EQ5D'].date | date:'dd-MMM-yyyy'}}
+                <p class="list-date" data-ng-if="foundSurveys['EQ5D5L']">
+                    Last completed on {{foundSurveys['EQ5D5L'].date | date:'dd-MMM-yyyy'}}
                 </p>
             </div>
             <div class="col-md-4 align-bottom">
-                <a data-ng-click="openModalEnterSurveyResponses('EQ5D')" class="btn blue">
+                <a data-ng-click="openModalEnterSurveyResponses('EQ5D5L')" class="btn blue">
                     Answer Survey
                 </a>
                 <a href="/#/surveys/overall" class="btn blue">
