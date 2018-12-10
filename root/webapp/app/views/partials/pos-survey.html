@@ -38,13 +38,13 @@
                     </span>
                         <div class="question-description">{{question.description}}</div>
                     </th>
-                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio text-center">
+                    <td data-ng-repeat="questionOption in question.questionOptions track by $index" class="span-radio text-center">
 
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
                             <!--&nbsp;{{questionOption.text}}-->
                             <!-- Todo: make this increment -->
-                            <small>1</small>
+                            <small>{{$index}}</small>
                         </label>
 
                     </td>
@@ -73,11 +73,11 @@
                     <th scope="row" style="width: 25%;">
                         <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]" data-ng-change="setCustomQuestion(question.id)" type="text" class="form-control" id="inputSymptom1" placeholder="Input symptom">
                     </th>
-                    <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio text-center">
+                    <td data-ng-repeat="questionOption in question.questionOptions track by $index" class="span-radio text-center">
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
                             <!-- Todo: make this increment -->
-                            <small>1</small>
+                            <small>{{$index}}</small>
                         </label>
                     </td>
                 </tr>
