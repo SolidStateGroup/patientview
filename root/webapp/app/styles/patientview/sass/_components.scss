@@ -6,6 +6,29 @@
     }
 }
 
+.resize-text-buttons {
+    float: right;
+    text-align: center;
+    .btn-circle {
+        border: none;
+        color: white;
+        background-color: $primary;
+        width: 30px;
+        height: 30px;
+        min-height: 30px;
+        min-width: 30px;
+        text-align: center;
+        padding: 6px 0;
+        font-size: 20px;
+        line-height: 1.42;
+        border-radius: 15px;
+        &__icon {
+            position: relative;
+            bottom: 5px;
+        }
+    }
+}
+
 .step-markers{
     margin:20px 0 5px;
     li{
