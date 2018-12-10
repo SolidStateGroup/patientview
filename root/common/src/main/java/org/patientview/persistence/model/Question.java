@@ -38,13 +38,6 @@ public class Question extends BaseModel {
     @Enumerated(EnumType.STRING)
     private QuestionHtmlTypes htmlType;
 
-    /**
-     * If the question as not predefined text set this
-     * flag to true.
-     */
-    @Column(name = "custom_question")
-    private boolean customQuestion;
-
     @Column(name = "type")
     private String type;
 
@@ -80,6 +73,13 @@ public class Question extends BaseModel {
 
     @Column(name = "required")
     private boolean required;
+
+    /**
+     * If the question as not predefined text set this
+     * flag to true.
+     */
+    @Column(name = "custom_question")
+    private boolean customQuestion;
 
     public Question() {}
 
