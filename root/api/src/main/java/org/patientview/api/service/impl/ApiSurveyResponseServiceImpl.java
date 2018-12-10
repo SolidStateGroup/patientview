@@ -199,6 +199,17 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                     throw new ResourceNotFoundException("Invalid question");
                 }
 
+                if (question.getCustomQuestion()) {
+
+                    String questionText = questionAnswer.getQuestionText();
+
+                    if (questionText == null) {
+                        throw new ResourceNotFoundException("Customer question does not have question text");
+                    }
+
+                    newQuestionAnswer.setQuestionText(questionText);
+                }
+
                 newQuestionAnswer.setQuestion(question);
                 newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
             }

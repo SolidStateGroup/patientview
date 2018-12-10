@@ -90,11 +90,12 @@
                                 data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
                                 class="form-control">
                         </select>
-                        <!--<div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">-->
-                            <!--<rzslider-->
-                                    <!--rz-slider-model="answers[question.id]"-->
-                                    <!--rz-slider-options="{floor: 0, ceil: 100, step:1, precision:1}"></rzslider>-->
-                        <!--</div>-->
+                        <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
+                            <rzslider
+                                    rz-slider-model="answers[question.id]"
+                                    rz-slider-options="{floor: 0, ceil: 100, step:1, precision:1}"></rzslider>
+                            <div>{{answers[question.id]}}</div>
+                        </div>
                         <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
                                 data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
                                 class="form-control">
@@ -130,9 +131,6 @@
                         </ul>
                     </div>
                 </div>
-                <rzslider
-                        rz-slider-model="answers[1]"
-                        rz-slider-options="{floor: 0, ceil: 100, step:1, precision:1}"></rzslider>
                 <div class="row slider-text">
                     <div class="col-sm-6">
                         <p>0 - The worst health you can imagine</p>
