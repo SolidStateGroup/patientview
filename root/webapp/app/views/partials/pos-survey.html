@@ -87,6 +87,8 @@
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
                             <!--&nbsp;{{questionOption.text}}-->
+                            <!-- Todo: make this increment -->
+                            <small>1</small>
                         </label>
 
                     </td>
@@ -118,6 +120,8 @@
                     <td data-ng-repeat="questionOption in question.questionOptions" class="span-radio text-center">
                         <label for="{{questionOption.id}}" class="radio-label">
                             <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                            <!-- Todo: make this increment -->
+                            <small>1</small>
                         </label>
                     </td>
                 </tr>
