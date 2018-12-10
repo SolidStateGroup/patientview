@@ -132,6 +132,10 @@
                     </div>
                 </div>
             </div>
+            <label for="terms" class="radio-label">
+                I have read and accepted the terms
+                <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
+            </label>
         </div>
     </div>
     <div class="modal-footer">
@@ -140,6 +144,6 @@
         </div>
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length">Save</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms">Save</button>
     </div>
 </form>

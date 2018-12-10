@@ -75,7 +75,7 @@
                     </th>
                     <td data-ng-repeat="questionOption in question.questionOptions track by $index" class="span-radio text-center">
                         <label for="{{questionOption.id}}" class="radio-label">
-                            <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
+                            <input ng-disabled="!customQuestions[question.id]" type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
                             <!-- Todo: make this increment -->
                             <small>{{$index}}</small>
                         </label>
@@ -95,32 +95,16 @@
                     </select>
                 </div>
             </div>
-
-        </div>
-    </div>
-    <div class="modal-body" data-ng-if="showEnterResults">
-        <p>One last step: to help with monitoring please enter your current pulse rate and weight if this is known, else click Cancel</p>
-        <div class="row">
-            <div class="col-md-3 question-text">
-                Pulse<span data-ng-if="pulseHeading && pulseHeading.units"> ({{pulseHeading.units}})</span>:
-            </div>
-            <div class="col-md-9">
-                <input type="text" class="form-control" data-ng-model="enterResults.pulse" only-num>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 question-text">
-                Weight<span data-ng-if="weightHeading && weightHeading.units"> ({{weightHeading.units}})</span>:
-            </div>
-            <div class="col-md-9">
-                <input type="text" class="form-control" data-ng-model="enterResults.weight" only-num-decimal>
-            </div>
+            <label for="terms" class="radio-label">
+                I have read and accepted the terms
+                <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
+            </label>
         </div>
     </div>
     <div class="modal-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length" data-ng-if="!showEnterResults">Save</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms" data-ng-if="!showEnterResults">Save</button>
         <button class="btn blue" data-ng-click="saveResults()" data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save</button>
     </div>
 </form>

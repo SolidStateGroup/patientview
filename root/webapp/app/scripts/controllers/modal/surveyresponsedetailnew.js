@@ -10,6 +10,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.initalQuestion = 0;
         $scope.answers = [];
         $scope.customQuestions = [];
+        $scope.acceptedTerms = false;
         $scope.days = UtilService.generateDays();
         $scope.months = UtilService.generateMonths();
         $scope.years = UtilService.generateYears2000();
@@ -82,6 +83,9 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.currentQuestion--;
     };
 
+    $scope.toggleTerms = function () {
+        $scope.acceptedTerms= !$scope.acceptedTerms;
+    }
     $scope.cancel = function () {
         if (!$scope.showEnterResults) {
             $modalInstance.dismiss('cancel');
