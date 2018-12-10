@@ -284,8 +284,37 @@
     }
 }
 
-.symptom-type {
-    //width: 35%;
+.survey-modal-header {
+    background-color: #F5F5F5;
+}
+
+.eq-survey {
+    margin-top: 5em;
+    .span-radio {
+        display: block;
+    }
+    .slider-component {
+        ul {
+            padding-left: 0;
+            li {
+                font-weight: bold;
+                font-size: 1.5rem;
+            }
+        }
+        .slider-text {
+            margin-top: 15px;
+        }
+    }
+    &__copyright {
+        width: 50%;
+        float: left;
+        text-align: left;
+        display: inline-block;
+        p {
+            font-weight: bolder;
+            font-size: 12px;
+        }
+    }
 }
 
 .symptom-heading {
