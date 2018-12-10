@@ -209,9 +209,5 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         return input;
     };
 
-    var autoCompleteQuestions = function() {
-        debugger
-    }
-
     init();
 }];
