@@ -88,10 +88,12 @@
                     </div>
                 </div>
             </div>
-            <label for="terms" class="radio-label">
-                I have read and accepted the terms
-                <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
-            </label>
+            <div class="well terms-well">
+                <label for="terms" class="radio-label">
+                    I have read and accepted the terms
+                    <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
+                </label>
+            </div>
         </div>
     </div>
     <div class="modal-footer">
