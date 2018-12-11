@@ -1,110 +1,152 @@
 <form name="userFormNew" class="pos-survey">
     <div class="modal-header survey-modal-header">
-        <button type="button" class="close" data-ng-click="cancel()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-ng-click="cancel()" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
     </div>
     <div class="modal-body" data-ng-if="!showEnterResults">
-
-        <div class="row">
-            <div class="col-md-8">
-                <p>Below is a list of symptoms, which you may or may have not experienced. Please put a tick in the box to show how you feel each of these symptoms has affected you and how you been feeling over the past week.</p>
-            </div>
+        <div class="resize-text-buttons" role="group">
+            <p>Resize font</p>
+            <button type="button" class="btn btn-default btn-circle" ng-click="decreaseFontSize()">
+                <span class="btn-circle__icon">-</span>
+            </button>
+            <button type="button" class="btn btn-default btn-circle" ng-click="increaseFontSize()">
+                <span class="btn-circle__icon">+</span>
+            </button>
         </div>
+        <div ng-style="{'zoom':zoom}">
 
-        <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
-            <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
-            <!--Radio Questions-->
-            <table class="table">
-                <thead>
-                <tr class="symptom-heading">
-                    <th>
-                    </th>
-                    <th><h5>Not at all</h5><span class="small">No effect</span>
-                    </th>
-                    <th><h5>Slightly</h5><span class="small">but not bothered to be rid of it</span></th>
-                    <th><h5>Moderately</h5><span class="small">limits some activity or concentration</span></th>
-                    <th><h5>Severely</h5><span class="small">activities or concentration markedly affected</span></th>
-                    <th><h5>Overwhelmingly</h5><span class="small">Unable to think of anything else</span></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO'  && question.text" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
-                    <th scope="row">
-                        <span data-ng-if="question.number">{{question.number}}. </span>
-                        <span>{{question.text}}</span>
-                        <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
-                        <span data-ng-if="question.helpLink" class="help-link">
+            <div class="row">
+                <div class="col-md-8">
+                    <p>Below is a list of symptoms, which you may or may have not experienced. Please tap the button to
+                        show how you feel each of these symptoms has affected you and how you been feeling over the past
+                        week.</p>
+                </div>
+            </div>
+
+            <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'"
+                 class="div-question-group">
+                <div class="question-group-description"
+                     data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
+                <!--Radio Questions-->
+                <table class="table">
+                    <thead>
+                    <tr class="symptom-heading">
+                        <th>
+                        </th>
+                        <th><h5>Not at all</h5><span class="small">No effect</span>
+                        </th>
+                        <th><h5>Slightly</h5><span class="small">but not bothered to be rid of it</span></th>
+                        <th><h5>Moderately</h5><span class="small">limits some activity or concentration</span></th>
+                        <th><h5>Severely</h5><span class="small">activities or concentration markedly affected</span>
+                        </th>
+                        <th><h5>Overwhelmingly</h5><span class="small">Unable to think of anything else</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO'  && question.text"
+                        data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
+                        <th scope="row">
+                            <span data-ng-if="question.number">{{question.number}}. </span>
+                            <span>{{question.text}}</span>
+                            <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
+                            <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
                     </span>
-                        <div class="question-description">{{question.description}}</div>
-                    </th>
-                    <td data-ng-repeat="questionOption in question.questionOptions track by $index" class="span-radio text-center">
+                            <div class="question-description">{{question.description}}</div>
+                        </th>
+                        <td data-ng-repeat="questionOption in question.questionOptions track by $index"
+                            class="span-radio text-center">
 
-                        <label for="{{questionOption.id}}" class="radio-label">
-                            <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
-                            <!--&nbsp;{{questionOption.text}}-->
-                            <!-- Todo: make this increment -->
-                            <small>{{$index}}</small>
-                        </label>
+                            <label for="{{questionOption.id}}" class="radio-label">
+                                <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id"
+                                       class="radio-button" id="{{questionOption.id}}">
+                                <!--&nbsp;{{questionOption.text}}-->
+                                <!-- Todo: make this increment -->
+                                <small>{{$index}}</small>
+                            </label>
 
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-            <!--Custom Questions-->
-            <table class="table other-symptoms-table">
-                <thead>
-                <tr>
-                    <th>
-                        Any other symptoms:
-                    </th>
-                    <th class="text-center"><h5>Not at all</h5><span class="small">No effect</span>
-                    </th>
-                    <th class="text-center"><h5>Slightly</h5><span class="small">but not bothered to be rid of it</span></th>
-                    <th class="text-center"><h5>Moderately</h5><span class="small">limits some activity or concentration</span></th>
-                    <th class="text-center"><h5>Severely</h5><span class="small">activities or concentration markedly affected</span></th>
-                    <th class="text-center"><h5>Overwhelmingly</h5><span class="small">Unable to think of anything else</span></th>
-                </tr>
-                </thead>
-                <tbody>
+                <!--Custom Questions-->
+                <table class="table other-symptoms-table">
+                    <thead>
+                    <tr>
+                        <th>
+                            Any other symptoms:
+                        </th>
+                        <th class="text-center"><h5>Not at all</h5><span class="small">No effect</span>
+                        </th>
+                        <th class="text-center"><h5>Slightly</h5><span
+                                class="small">but not bothered to be rid of it</span></th>
+                        <th class="text-center"><h5>Moderately</h5><span class="small">limits some activity or concentration</span>
+                        </th>
+                        <th class="text-center"><h5>Severely</h5><span class="small">activities or concentration markedly affected</span>
+                        </th>
+                        <th class="text-center"><h5>Overwhelmingly</h5><span class="small">Unable to think of anything else</span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-                <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && !question.text" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
-                    <th scope="row" style="width: 25%;">
-                        <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]" data-ng-change="setCustomQuestion(question.id)" type="text" class="form-control" id="inputSymptom1" placeholder="Input symptom">
-                    </th>
-                    <td data-ng-repeat="questionOption in question.questionOptions track by $index" class="span-radio text-center">
-                        <label for="{{questionOption.id}}" class="radio-label">
-                            <input ng-disabled="!customQuestions[question.id]" type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id" class="radio-button" id="{{questionOption.id}}">
-                            <!-- Todo: make this increment -->
-                            <small>{{$index}}</small>
-                        </label>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && !question.text"
+                        data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
+                        <th scope="row" style="width: 25%;">
+                            <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]"
+                                   data-ng-change="setCustomQuestion(question.id)" type="text" class="form-control"
+                                   id="inputSymptom1" placeholder="Input symptom">
+                            <div class="text-right">
+                                <button ng-click="resetSymptom(question.id)" class="btn btn-primary">Reset</button>
+                            </div>
+                        </th>
+                        <td data-ng-repeat="questionOption in question.questionOptions track by $index"
+                            class="span-radio text-center">
+                            <label for="{{questionOption.id}}" class="radio-label">
+                                <input ng-disabled="!customQuestions[question.id]" type="radio"
+                                       data-ng-model="answers[question.id]" ng-value="questionOption.id"
+                                       class="radio-button" id="{{questionOption.id}}">
+                                <small>{{$index}}</small>
+                            </label>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-            <div ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'TEXT'" data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
-                <div class="col-sm-6">
-                    <strong>{{question.text}}</strong>
+                <div ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'TEXT'"
+                     data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
+                    <div class="col-sm-6">
+                        <strong>{{question.text}}</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <select ng-model="answers[question.id]" class="form-control" style="margin-top: 10px;">
+                            <option selected value="">Select an answer</option>
+                            <option ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && (question.text||customQuestions[question.id])"
+                                    ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'"
+                                    value="{{question.text || customQuestions[question.id]}}">{{question.text ||
+                                customQuestions[question.id]}}
+                            </option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-sm-6">
-                    <select ng-model="answers[question.id]" class="form-control" style="margin-top: 10px;">
-                        <option selected value="">Select an answer</option>
-                        <option ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && (question.text||customQuestions[question.id])" ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" value="{{question.text || customQuestions[question.id]}}">{{question.text || customQuestions[question.id]}}</option>
-                    </select>
-                </div>
+                <label for="terms" class="radio-label">
+                    I have read and accepted the terms
+                    <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button"
+                           id="terms"/>
+                </label>
             </div>
-            <label for="terms" class="radio-label">
-                I have read and accepted the terms
-                <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
-            </label>
         </div>
     </div>
     <div class="modal-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms" data-ng-if="!showEnterResults">Save</button>
-        <button class="btn blue" data-ng-click="saveResults()" data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms"
+                data-ng-if="!showEnterResults">Save
+        </button>
+        <button class="btn blue" data-ng-click="saveResults()"
+                data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save
+        </button>
     </div>
 </form>

@@ -82,6 +82,10 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
     $scope.previousQuestion = function(start, end) {
         $scope.currentQuestion--;
     };
+    $scope.resetSymptom = function(id) {
+        delete $scope.customQuestions[id];
+        delete $scope.answers[id];
+    };
 
     $scope.toggleTerms = function () {
         $scope.acceptedTerms= !$scope.acceptedTerms;

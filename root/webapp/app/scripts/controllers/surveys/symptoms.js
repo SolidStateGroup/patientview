@@ -218,20 +218,23 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 var questionOptionText = '-';
 
                 if (isCustom) {
-                    $scope.showCustomResponses = true;
-                    if (!customRows[i]) {
+                    if (!customRows[i] ) {
                         var responses = Object.keys(questionAnswerMap).map(function (map) {
                             var response = questionAnswerMap[map];
                             return {
                                 label:response.questionText,
-                                value: response.questionOption.text,
+                                value: response.questionOption && response.questionOption.text,
                             };
+                        }).filter(function (v) {
+                            return v.label && v.value;
                         });
-                        customRows[i] = {
-                            text: $scope.filterDate(response.date),
-                            isLatest: response.isLatest,
-                            responses: responses,
-                        };
+                        if (responses && responses.length) {
+                            customRows[i] = {
+                                text: $scope.filterDate(response.date),
+                                isLatest: response.isLatest,
+                                responses: responses,
+                            };
+                        }
                     }
                 } else {
                     if (questionAnswerMap[questionType]) {
@@ -272,7 +275,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
             tableRows[tableRowIndex].data.push({'text': download, 'isLatest':false, 'isDownload':true});
         }
-
+        $scope.showCustomResponses = customRows.length;
         $scope.tableHeader = tableHeader;
         $scope.tableRows = tableRows;
         $scope.customRows = customRows;
