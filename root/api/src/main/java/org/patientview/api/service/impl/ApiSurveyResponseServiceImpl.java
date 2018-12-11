@@ -125,7 +125,9 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     @Transactional
     public void add(Long userId, SurveyResponse surveyResponse)
             throws ResourceForbiddenException, ResourceNotFoundException {
+
         User user = userRepository.findOne(userId);
+
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
@@ -195,6 +197,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
             if (answer) {
                 Question question = questionRepository.findOne(questionAnswer.getQuestion().getId());
+
                 if (question == null) {
                     throw new ResourceNotFoundException("Invalid question");
                 }
@@ -203,8 +206,16 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
                     String questionText = questionAnswer.getQuestionText();
 
+                    // If the question text has not been set don't persist the answer.
                     if (questionText == null) {
-                        throw new ResourceNotFoundException("Customer question does not have question text");
+                        continue;
+                    }
+
+                    boolean hasQuestionOptions = question.getQuestionOptions() != null;
+
+                    if (hasQuestionOptions && questionAnswer.getQuestionOption() == null) {
+                        throw new ResourceNotFoundException("For the symptom that you entered " + questionText +
+                                " please select how you feel by tapping a button");
                     }
 
                     newQuestionAnswer.setQuestionText(questionText);

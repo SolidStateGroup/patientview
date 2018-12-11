@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -478,7 +479,7 @@ public class ApiSurveyResponseServiceTest {
     }
 
     @Test
-    public void should_Throw_ResourceNotFoundException_When_CustomQuestion_Is_True_And_QuestionText_is_null()
+    public void should_Not_Store_QuestionAnswer_When_CustomQuestion_Is_True_And_QuestionText_is_null()
             throws ResourceNotFoundException, ResourceForbiddenException {
         // Given
 
@@ -512,16 +513,28 @@ public class ApiSurveyResponseServiceTest {
         answerWithoutQuestionText.setValue("Pain");
         answerWithoutQuestionText.setQuestion(questionWithCustomerQuestionFlag);
 
-        response.setQuestionAnswers(singletonList(answerWithoutQuestionText));
+        Question question = new Question();
+        question.setId(3L);
+        question.setCustomQuestion(false);
+
+        QuestionAnswer answer = new QuestionAnswer();
+        answer.setValue("Mobility");
+        answer.setQuestion(question);
+
+        response.setQuestionAnswers(asList(answerWithoutQuestionText, answer));
         response.setDate(new Date());
 
         when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
         when(surveyRepository.findOne(surveyId)).thenReturn(buildSurveyFrom(surveyId));
         when(questionRepository.findOne(2L)).thenReturn(questionWithCustomerQuestionFlag);
-
-        thrown.expect(ResourceNotFoundException.class);
+        when(questionRepository.findOne(3L)).thenReturn(question);
 
         // When
+
         apiSurveyResponseService.add(user.getId(), response);
+
+        // Then
+
+        surveyResponseRepository.save(Matchers.any(SurveyResponse.class));
     }
 }
