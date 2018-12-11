@@ -17,7 +17,7 @@
         <div ng-style="{'zoom':zoom}">
 
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-sm-10 symptoms-intro-text">
                     <p>Below is a list of symptoms, which you may or may have not experienced. Please tap the button to
                         show how you feel each of these symptoms has affected you and how you been feeling over the past
                         week.</p>
@@ -98,8 +98,8 @@
                             <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]"
                                    data-ng-change="setCustomQuestion(question.id)" type="text" class="form-control"
                                    id="inputSymptom1" placeholder="Input symptom">
-                            <div class="text-right">
-                                <button ng-click="resetSymptom(question.id)" class="btn btn-primary">Reset</button>
+                            <div>
+                                <button ng-click="resetSymptom(question.id)" class="btn blue btn-block reset-button">Reset</button>
                             </div>
                         </th>
                         <td data-ng-repeat="questionOption in question.questionOptions track by $index"
@@ -131,11 +131,13 @@
                         </select>
                     </div>
                 </div>
-                <label for="terms" class="radio-label">
-                    I have read and accepted the terms
-                    <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button"
-                           id="terms"/>
-                </label>
+                <div class="well terms-well">
+                    <label for="terms" class="radio-label">
+                        I have read and accepted the terms
+                        <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button"
+                               id="terms"/>
+                    </label>
+                </div>
             </div>
         </div>
     </div>

@@ -291,6 +291,10 @@
     }
 }
 
+.reset-button {
+    margin-top: 1em;
+}
+
 .eq-survey {
     margin-top: 5em;
     .span-radio {
@@ -327,6 +331,9 @@
 }
 
 .pos-survey {
+    .symptoms-intro-text {
+        margin-top: 2em;
+    }
     .symptom-heading {
         th {
             text-align: center;
