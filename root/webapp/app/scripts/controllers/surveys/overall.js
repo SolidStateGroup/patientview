@@ -36,8 +36,11 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                         series[response.date].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
                     } else {
                         $scope.showOverallScore = true
-                        $scope.overallScore = parseInt(questionAnswerMap[questions[j].type].value)
-                        $scope.overallDate = $scope.filterDate(response.date);
+                        $scope.overallScore.push({
+                            score: parseInt(questionAnswerMap[questions[j].type].value),
+                            date:  $scope.filterDate(response.date),
+                            color: colours[i]
+                        });
                     }
                 } else {
                     series[response.date].data[j] = 0;
@@ -233,7 +236,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
         var params = document.location.href.split('type=');
         $scope.surveyType = params.length === 2 ? params[1] : 'PROM';
         $scope.loading = true;
-        $scope.overallScore = null;
+        $scope.overallScore = [];
 
         SurveyService.getByType($scope.surveyType).then(function(survey) {
             if (survey != null) {

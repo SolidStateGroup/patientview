@@ -78,7 +78,10 @@
                 <!-- chart populated in controller -->
                 <div id="chart_div"></div>
                 <div ng-if="showOverallScore" class="text-center">
-                    <strong>{{overallDate}}</strong> Your Health from 0 (worst) to 100 (best): <strong style="color:#f0ad4e;">{{overallScore}}</strong>
+                    <div data-ng-repeat="score in overallScore">
+                        <strong>{{score.date}}</strong> Your Health from 0 (worst) to 100 (best): <strong style="color:{{score.color}};">{{score.score}}</strong>
+
+                    </div>
                 </div>
             </div>
         </div>
