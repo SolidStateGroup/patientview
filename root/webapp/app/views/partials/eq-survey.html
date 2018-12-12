@@ -27,7 +27,7 @@
                         <h5>Please click the ONE box that best describes your health TODAY.</h5>
                         <hr/>
                         <span data-ng-if="question.number">{{question.number}}. </span>
-                        <h4>{{question.text}}</h4>
+                        <h4 ng-if="question.htmlType !== 'SLIDER'">{{question.text}}</h4>
                         <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
                         <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>

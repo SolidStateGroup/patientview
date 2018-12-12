@@ -81,7 +81,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             }
         }
 
-        var questionName = _.findWhere($scope.questions, {type: $scope.questionType}).text;
+        var questionName = _.findWhere($scope.nonCustomQuestions, {type: $scope.questionType, customQuestion:false}).text;
         $scope.comparingText = questionName;
 
         chartSeries.push({
@@ -399,12 +399,13 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         }
         $scope.scoreLabels = scoreLabels;
         $scope.questions = $scope.surveyResponses[0].survey.questionGroups[0].questions;
+        $scope.nonCustomQuestions = _.filter($scope.questions, {customQuestion:false});
 
         // build table from visible responses (2 most recent) responses
         buildTable(visibleSurveyResponses);
 
         // build chart from all responses, using first question's type e.g. YSQ1
-        $scope.questionType = $scope.questions[0].type;
+        $scope.questionType = $scope.nonCustomQuestions[0].type;
         buildChart();
     };
 

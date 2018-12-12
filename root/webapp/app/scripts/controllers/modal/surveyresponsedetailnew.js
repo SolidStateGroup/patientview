@@ -91,10 +91,12 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.acceptedTerms= !$scope.acceptedTerms;
     }
     $scope.cancel = function () {
-        if (!$scope.showEnterResults) {
-            $modalInstance.dismiss('cancel');
-        } else {
-            $modalInstance.close();
+        if (window.confirm("Do you really want to cancel?")) {
+            if (!$scope.showEnterResults) {
+                $modalInstance.dismiss('cancel');
+            } else {
+                $modalInstance.close();
+            }
         }
     };
 

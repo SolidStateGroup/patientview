@@ -22,7 +22,7 @@
     "angular-file-upload": "~1.1.5",
     "selectize": "~0.12.0",
     "ng-debounce": "~0.1.7",
-    "moment": "~2.13.0",
+    "moment": "2.13.0",
     "angular-inview": "1.5.7",
     "highstock": "highstock-release#6.0.3",
     "angularjs-slider": "^6.5.1"
