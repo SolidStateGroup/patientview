@@ -398,7 +398,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             scoreLabels[firstOptions[i].score] = firstOptions[i].text;
         }
         $scope.scoreLabels = scoreLabels;
-        $scope.questions = $scope.surveyResponses[0].survey.questionGroups[0].questions;
+        $scope.questions = _.sortBy($scope.surveyResponses[0].survey.questionGroups[0].questions, 'displayOrder');
         $scope.nonCustomQuestions = _.filter($scope.questions, {customQuestion:false});
 
         // build table from visible responses (2 most recent) responses
