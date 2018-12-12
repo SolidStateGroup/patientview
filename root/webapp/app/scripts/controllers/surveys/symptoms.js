@@ -20,7 +20,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             xAxis[response.date] = response.date;
 
             // get question answer data for question with correct type
-            var questions = $scope.questions;
+            var questions = $scope.nonCustomQuestions;
             var questionAnswerMap = [];
             for (j = 0; j < response.questionAnswers.length; j++) {
                 questionAnswerMap[response.questionAnswers[j].question.type] = response.questionAnswers[j];
