@@ -61,8 +61,6 @@
                             <label for="{{questionOption.id}}" class="radio-label">
                                 <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id"
                                        class="radio-button" id="{{questionOption.id}}">
-                                <!--&nbsp;{{questionOption.text}}-->
-                                <!-- Todo: make this increment -->
                                 <small>{{$index}}</small>
                             </label>
 
@@ -115,22 +113,24 @@
                     </tbody>
                 </table>
 
+
                 <div ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'TEXT'"
                      data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
-                    <div class="col-sm-6">
-                        <strong>{{question.text}}</strong>
-                    </div>
-                    <div class="col-sm-6">
-                        <select ng-model="answers[question.id]" class="form-control" style="margin-top: 10px;">
-                            <option selected value="">Select an answer</option>
-                            <option ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && (question.text||customQuestions[question.id])"
-                                    ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'"
-                                    value="{{question.text || customQuestions[question.id]}}">{{question.text ||
-                                customQuestions[question.id]}}
-                            </option>
-                        </select>
-                    </div>
+                        <div class="col-sm-3">
+                            <p class="symptom-label-text">{{question.text}}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <select ng-model="answers[question.id]" class="form-control" style="margin-top: 10px;">
+                                <option selected value="">Select an answer</option>
+                                <option ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && (question.text||customQuestions[question.id])"
+                                        ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'"
+                                        value="{{question.text || customQuestions[question.id]}}">{{question.text ||
+                                    customQuestions[question.id]}}
+                                </option>
+                            </select>
+                        </div>
                 </div>
+
                 <div class="well terms-well">
                     <label for="terms" class="radio-label">
                         I have read and accepted the terms
@@ -138,6 +138,7 @@
                                id="terms"/>
                     </label>
                 </div>
+
             </div>
         </div>
     </div>
