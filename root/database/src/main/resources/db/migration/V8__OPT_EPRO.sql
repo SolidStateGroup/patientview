@@ -1,4 +1,5 @@
 alter table pv_question add column custom_question bool;
+update pv_question set custom_question = false;
 alter table pv_question_answer add column question_text varchar(500);
 
 insert into pv_survey (id,type,description) values (14917703,'POS_S','');
@@ -158,7 +159,8 @@ INSERT INTO public.pv_question_option VALUES (14917912, 14917756, 'I am slightly
 INSERT INTO public.pv_question_option VALUES (14917913, 14917756, 'I am moderately anxious or depressed', '3', NULL, 2, 3);
 INSERT INTO public.pv_question_option VALUES (14917914, 14917756, 'I am severely anxious or depressed', '4', NULL, 3, 4);
 INSERT INTO public.pv_question_option VALUES (14917915, 14917756, 'I am extremely anxious or depressed', '5', NULL, 4, 5);
-INSERT INTO public.pv_question VALUES (14917757, 14917711, 'SINGLE_SELECT_RANGE', 'SLIDER', '', 'YOHQ6', NULL, NULL, 6, 0, 100, 'The worst health you can imagine', 'The best health you can imagine', NULL, false, false);
+INSERT INTO public.pv_question VALUES (14917757, 14917711, 'SINGLE_SELECT_RANGE', 'SLIDER', 'Your Health from 0 (worst) to 100 (best)', 'YOHQ6', NULL, NULL, 6, 0, 100, 'The worst health you can imagine', 'The best health you can imagine', NULL, false, false);
 
 INSERT INTO pv_feature (id,feature_name,description,creation_date) values  (15,'OPT_EPRO','OPT ePRO Health Surveys','2018-12-07 10:15:00.000');
 INSERT INTO pv_feature_feature_type (id,feature_id,type_id) values (21,15,14);
+
