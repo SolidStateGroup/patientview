@@ -104,7 +104,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         var i;
 
         var err = false;
-        _.each($scope.customQuestions, (q, i)=>{
+        _.each($scope.customQuestions, function(q, i) {
             if ($scope.customQuestions[i] && !$scope.answers[i]) {
                 err = $scope.customQuestions[i];
             }
