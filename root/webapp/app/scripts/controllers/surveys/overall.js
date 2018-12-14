@@ -176,6 +176,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
     };
 
     $scope.compareSurvey = function(id) {
+        $scope.overallScore = [];
         if (id !== undefined && id !== null) {
             var visibleSurveyResponses = [];
             visibleSurveyResponses.push(_.findWhere($scope.surveyResponses, {id: id}));

@@ -103,6 +103,17 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
     $scope.save = function () {
         var i;
 
+        var err = false;
+        _.each($scope.customQuestions, (q, i)=>{
+            if ($scope.customQuestions[i] && !$scope.answers[i]) {
+                err = $scope.customQuestions[i];
+            }
+        })
+        if (err){
+            alert("Please enter a value for the other symptom labelled '" + err + "'");
+            return
+        }
+
         // build object to send to back end
         var surveyResponse = {};
         surveyResponse.user = {};

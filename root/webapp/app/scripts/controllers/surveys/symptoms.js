@@ -245,6 +245,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                     if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex] == null) {
                         tableRows[tableRowIndex] = {};
                         tableRows[tableRowIndex].type = questionType;
+                        tableRows[tableRowIndex].nonViewable = questions[j].nonViewable;
                         tableRows[tableRowIndex].data = [];
                         tableRows[tableRowIndex].data.push({'text':questionText});
                     }
@@ -399,8 +400,13 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         }
         $scope.scoreLabels = scoreLabels;
         $scope.questions = _.sortBy($scope.surveyResponses[0].survey.questionGroups[0].questions, 'displayOrder');
-        $scope.nonCustomQuestions = _.filter($scope.questions, {customQuestion:false});
 
+        $scope.nonCustomQuestions = _.filter($scope.questions, {customQuestion:false});
+        if ($scope.surveyType ==='POS_S') {
+            //force last 2 questions to be labelled differently
+            $scope.questions[$scope.questions.length-1].nonViewable = true;
+            $scope.questions[$scope.questions.length-2].nonViewable = true;
+        }
         // build table from visible responses (2 most recent) responses
         buildTable(visibleSurveyResponses);
 
