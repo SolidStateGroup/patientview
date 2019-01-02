@@ -1,7 +1,7 @@
 <form name="userFormNew">
     <div class="modal-header survey-modal-header">
         <button type="button" class="close" data-ng-click="cancel()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h3 class="modal-title">Enter Your Responses - {{survey.description}}</h3>
+        <h3 class="modal-title">Your overall health{{survey.description}}</h3>
     </div>
     <div class="modal-body" data-ng-if="!showEnterResults">
         <div class="resize-text-buttons" role="group">
@@ -16,19 +16,15 @@
 
         <div class="eq-survey" ng-style="{'zoom':zoom}">
             <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
-                <h4>
-                    <span data-ng-if="questionGroup.number">{{questionGroup.number}}. </span>
-                    {{questionGroup.text}}
-                </h4>
 
                 <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
+                <h5>Under each heading, please tick the ONE box that best describes your health TODAY.</h5>
                 <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
                     <div class="col-md-12 question-text">
-                        <h5>Please click the ONE box that best describes your health TODAY.</h5>
                         <hr/>
                         <span data-ng-if="question.number">{{question.number}}. </span>
                         <h4 ng-if="question.htmlType !== 'SLIDER'">{{question.text}}</h4>
-                        <span class="required-question" data-ng-if="question.required && !answers[question.id]">(required)</span>
+
                         <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
                     </span>
@@ -90,18 +86,18 @@
             </div>
             <div class="well terms-well">
                 <label for="terms" class="radio-label">
-                    I have read and accepted the terms
+                    I confirm that my answers are complete and correct
                     <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
                 </label>
             </div>
         </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer eq-survey-footer">
         <div class="eq-survey__copyright">
             <p>© EuroQol Research Foundation. EQ-5D™ is a trade mark of the EuroQol Research Foundation</p>
         </div>
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms">Save</button>
+        <button class="btn btn-lg btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn btn-lg blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms">Save</button>
     </div>
 </form>

@@ -3602,65 +3602,71 @@ input.ng-invalid, textarea.ng-invalid {
   font-size: 12px;
 }
 
-/* line 327, ../sass/_results.scss */
+/* line 328, ../sass/_results.scss */
+.eq-survey-footer .btn-lg, .pos-survey-footer .btn-lg {
+  font-size: 1.5em;
+  margin-left: 1em !important;
+}
+
+/* line 334, ../sass/_results.scss */
 .terms-well {
   margin-top: 20px;
   text-align: center;
   margin-bottom: 0;
 }
 
-/* line 334, ../sass/_results.scss */
+/* line 341, ../sass/_results.scss */
 .pos-survey .symptoms-intro-text {
   margin-top: 2em;
 }
-/* line 337, ../sass/_results.scss */
+/* line 344, ../sass/_results.scss */
 .pos-survey .symptom-label-text {
   margin-top: 10px;
 }
-/* line 341, ../sass/_results.scss */
+/* line 348, ../sass/_results.scss */
 .pos-survey .symptom-heading th {
   text-align: center;
 }
 
-/* line 347, ../sass/_results.scss */
+/* line 354, ../sass/_results.scss */
 .result-graph {
   float: left;
   width: 100%;
   padding: 5px;
 }
 
-/* line 355, ../sass/_results.scss */
+/* line 362, ../sass/_results.scss */
 .header-select > div {
   height: 75px;
 }
-/* line 358, ../sass/_results.scss */
+/* line 365, ../sass/_results.scss */
 .header-select select {
   margin-top: 20px;
 }
-/* line 362, ../sass/_results.scss */
+/* line 369, ../sass/_results.scss */
 .header-select .select-title {
   float: right;
 }
 
-/* line 367, ../sass/_results.scss */
+/* line 374, ../sass/_results.scss */
 .historical-data {
   position: relative;
 }
-/* line 370, ../sass/_results.scss */
+/* line 377, ../sass/_results.scss */
 .historical-data .faux-table {
   max-height: 600px;
   overflow-y: scroll;
 }
-/* line 374, ../sass/_results.scss */
+/* line 381, ../sass/_results.scss */
 .historical-data .faux-table .faux-row {
   cursor: pointer;
 }
-/* line 377, ../sass/_results.scss */
+/* line 384, ../sass/_results.scss */
 .historical-data .faux-table .faux-row.active div.row-item {
   color: #368DE8;
   background: #eee;
 }
-/* line 384, ../sass/_results.scss */
+/* line 391, ../sass/_results.scss */
 .historical-data .overlay {
   position: absolute;
   pointer-events: none;
@@ -3681,91 +3687,91 @@ input.ng-invalid, textarea.ng-invalid {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='white', GradientType=0);
 }
-/* line 395, ../sass/_results.scss */
+/* line 402, ../sass/_results.scss */
 .historical-data .download-all {
   margin: 10px 10px 10px 0;
 }
 
-/* line 401, ../sass/_results.scss */
+/* line 408, ../sass/_results.scss */
 .result-graph .container {
   width: auto;
 }
 
-/* line 406, ../sass/_results.scss */
+/* line 413, ../sass/_results.scss */
 .admin-header {
   padding-left: 210px;
   padding-top: 10px;
 }
 
-/* line 410, ../sass/_results.scss */
+/* line 417, ../sass/_results.scss */
 .label-request {
   margin-left: 10px;
   position: relative;
   top: -2px;
 }
 
-/* line 415, ../sass/_results.scss */
+/* line 422, ../sass/_results.scss */
 .user-header-picture {
   max-height: 40px;
   padding-right: 10px;
 }
 
 @media (max-width: 767px) {
-  /* line 423, ../sass/_results.scss */
+  /* line 430, ../sass/_results.scss */
   .header-select > div {
     height: auto;
   }
-  /* line 427, ../sass/_results.scss */
+  /* line 434, ../sass/_results.scss */
   .header-select h1 {
     font-size: 30px;
   }
-  /* line 431, ../sass/_results.scss */
+  /* line 438, ../sass/_results.scss */
   .header-select select {
     margin-bottom: 10px;
     margin-top: 0;
   }
-  /* line 436, ../sass/_results.scss */
+  /* line 443, ../sass/_results.scss */
   .header-select .select-title {
     float: left;
   }
 
-  /* line 440, ../sass/_results.scss */
+  /* line 447, ../sass/_results.scss */
   .results-header {
     height: 185px;
   }
-  /* line 442, ../sass/_results.scss */
+  /* line 449, ../sass/_results.scss */
   .results-header .header-icon {
     display: none;
   }
-  /* line 446, ../sass/_results.scss */
+  /* line 453, ../sass/_results.scss */
   .results-header .form-row {
     width: 100%;
   }
-  /* line 448, ../sass/_results.scss */
+  /* line 455, ../sass/_results.scss */
   .results-header .form-row label, .results-header .form-row select {
     text-align: center;
     width: 100%;
   }
 
-  /* line 457, ../sass/_results.scss */
+  /* line 464, ../sass/_results.scss */
   .result-detail-panel .result-item-container .info-list {
     width: auto;
   }
-  /* line 460, ../sass/_results.scss */
+  /* line 467, ../sass/_results.scss */
   .result-detail-panel .result-item-container .info-list.inline {
     margin-top: 10px;
   }
-  /* line 465, ../sass/_results.scss */
+  /* line 472, ../sass/_results.scss */
   .result-detail-panel .result-item-container .result-value {
     float: none;
     width: auto;
   }
-  /* line 470, ../sass/_results.scss */
+  /* line 477, ../sass/_results.scss */
   .result-detail-panel .result-item-container .result-comment {
     width: auto;
   }
 
-  /* line 476, ../sass/_results.scss */
+  /* line 483, ../sass/_results.scss */
   .admin-header {
     padding-left: 60px;
     padding-top: 0;
@@ -3773,25 +3779,25 @@ input.ng-invalid, textarea.ng-invalid {
     font-size: 12px;
   }
 
-  /* line 483, ../sass/_results.scss */
+  /* line 490, ../sass/_results.scss */
   .back-to-admin a {
     width: auto;
     padding: 10px;
   }
 }
 @media (max-width: 767px) {
-  /* line 490, ../sass/_results.scss */
+  /* line 497, ../sass/_results.scss */
   .result-text {
     display: none;
   }
 }
-/* line 496, ../sass/_results.scss */
+/* line 503, ../sass/_results.scss */
 .select-result-type {
   width: 390px;
   margin-left: 10px;
 }
 
-/* line 502, ../sass/_results.scss */
+/* line 509, ../sass/_results.scss */
 .results-filter-list .feature-list-item {
   float: left;
   margin: 0 5px 5px 0;
@@ -3810,31 +3816,39 @@ input.ng-invalid, textarea.ng-invalid {
   text-align: center;
 }
 /* line 12, ../sass/_components.scss */
+.resize-text-buttons p {
+  font-size: 2em;
+}
+/* line 15, ../sass/_components.scss */
 .resize-text-buttons .btn-circle {
   border: none;
   color: white;
   background-color: #368de8;
-  width: 30px;
-  height: 30px;
   min-height: 30px;
   min-width: 30px;
   text-align: center;
   padding: 6px 0;
-  font-size: 20px;
   line-height: 1.42;
-  border-radius: 15px;
+  width: 60px;
+  height: 60px;
+  font-size: 3em;
+  border-radius: 30px;
 }
-/* line 25, ../sass/_components.scss */
+/* line 29, ../sass/_components.scss */
 .resize-text-buttons .btn-circle__icon {
   position: relative;
-  bottom: 5px;
+  bottom: 7px;
+}
+/* line 33, ../sass/_components.scss */
+.resize-text-buttons .btn-circle:nth-child(2) {
+  margin-right: .75em;
 }
 
-/* line 32, ../sass/_components.scss */
+/* line 39, ../sass/_components.scss */
 .step-markers {
   margin: 20px 0 5px;
 }
-/* line 34, ../sass/_components.scss */
+/* line 41, ../sass/_components.scss */
 .step-markers li {
   background: #e7ecf2;
   -webkit-box-shadow: inset 0 0 0 #959595;
@@ -3847,29 +3861,29 @@ input.ng-invalid, textarea.ng-invalid {
   width: 10px;
   margin: 0 5px;
 }
-/* line 42, ../sass/_components.scss */
+/* line 49, ../sass/_components.scss */
 .step-markers li.active {
   height: 15px;
   width: 15px;
   background: #368de8;
 }
 
-/* line 50, ../sass/_components.scss */
+/* line 57, ../sass/_components.scss */
 .step-title {
   margin: 0 0 10px;
 }
 
-/* line 54, ../sass/_components.scss */
+/* line 61, ../sass/_components.scss */
 hr.solid {
   border-top: 1px solid #eeeeee;
 }
 
-/* line 58, ../sass/_components.scss */
+/* line 65, ../sass/_components.scss */
 .article-content-small {
   height: 4em;
 }
 
-/* line 63, ../sass/_components.scss */
+/* line 70, ../sass/_components.scss */
 .tab-panel-item .aside-actions {
   height: 180px;
   position: absolute;
@@ -3877,91 +3891,91 @@ hr.solid {
   right: 0;
   bottom: 0;
 }
-/* line 70, ../sass/_components.scss */
+/* line 77, ../sass/_components.scss */
 .tab-panel-item .aside-actions.dashboard {
   height: 190px;
 }
-/* line 72, ../sass/_components.scss */
+/* line 79, ../sass/_components.scss */
 .tab-panel-item .aside-actions.dashboard li {
   height: 95px;
 }
-/* line 77, ../sass/_components.scss */
+/* line 84, ../sass/_components.scss */
 .tab-panel-item .aside-actions li {
   height: 75px;
 }
-/* line 80, ../sass/_components.scss */
+/* line 87, ../sass/_components.scss */
 .tab-panel-item .aside-actions li a {
   height: 100%;
   line-height: 15px;
   padding-top: 15px;
 }
-/* line 88, ../sass/_components.scss */
+/* line 95, ../sass/_components.scss */
 .tab-panel-item .item-detail {
   padding: 20px 20px 10px;
 }
-/* line 91, ../sass/_components.scss */
+/* line 98, ../sass/_components.scss */
 .tab-panel-item .item-detail .last-login {
   width: 40%;
   padding: 0;
 }
-/* line 96, ../sass/_components.scss */
+/* line 103, ../sass/_components.scss */
 .tab-panel-item .item-detail dl {
   margin-bottom: 10px;
 }
-/* line 101, ../sass/_components.scss */
+/* line 108, ../sass/_components.scss */
 .tab-panel-item .item-detail dl dd {
   color: #768696;
 }
 
-/* line 108, ../sass/_components.scss */
+/* line 115, ../sass/_components.scss */
 .user-details {
   padding: 20px 20px 0;
 }
-/* line 111, ../sass/_components.scss */
+/* line 118, ../sass/_components.scss */
 .user-details h3 {
   margin-top: 0;
 }
-/* line 115, ../sass/_components.scss */
+/* line 122, ../sass/_components.scss */
 .user-details h4 {
   margin: 0 0 5px;
 }
-/* line 119, ../sass/_components.scss */
+/* line 126, ../sass/_components.scss */
 .user-details .news-actions {
   margin-bottom: 10px;
 }
-/* line 123, ../sass/_components.scss */
+/* line 130, ../sass/_components.scss */
 .user-details .user-picture {
   max-width: 50px;
   margin-right: 10px;
 }
 
 /** MODALS **/
-/* line 135, ../sass/_components.scss */
+/* line 142, ../sass/_components.scss */
 .modal-dialog {
   width: 75%;
 }
-/* line 138, ../sass/_components.scss */
+/* line 145, ../sass/_components.scss */
 .modal-dialog label {
   font-size: 1.5rem;
 }
-/* line 142, ../sass/_components.scss */
+/* line 149, ../sass/_components.scss */
 .modal-dialog .added-container {
   margin-top: 30px;
 }
 
 /** GRAPHS **/
-/* line 152, ../sass/_components.scss */
+/* line 159, ../sass/_components.scss */
 .graph-selector h3 {
   margin: 0;
   line-height: 35px;
 }
 
-/* line 159, ../sass/_components.scss */
+/* line 166, ../sass/_components.scss */
 .span-download {
   margin-left: 10px;
 }
 
-/* line 163, ../sass/_components.scss */
+/* line 170, ../sass/_components.scss */
 .badge.gp {
   color: #ffffff;
   background: #00adc6;
@@ -3975,7 +3989,7 @@ hr.solid {
   text-align: center;
   font-weight: bold;
 }
-/* line 174, ../sass/_components.scss */
+/* line 181, ../sass/_components.scss */
 .badge.gp.small {
   height: 30px;
   width: 30px;
@@ -3984,7 +3998,7 @@ hr.solid {
   padding: 5px 5px;
 }
 
-/* line 185, ../sass/_components.scss */
+/* line 192, ../sass/_components.scss */
 .slider {
   display: block;
   position: relative;
@@ -3992,7 +4006,7 @@ hr.solid {
   width: 100%;
 }
 
-/* line 191, ../sass/_components.scss */
+/* line 198, ../sass/_components.scss */
 .slider span.bar {
   height: 50%;
   z-index: 0;
@@ -4002,20 +4016,20 @@ hr.solid {
   cursor: pointer;
 }
 
-/* line 201, ../sass/_components.scss */
+/* line 208, ../sass/_components.scss */
 .slider span.bar.selection {
   background: #0a0;
   opacity: 0.5;
 }
 
-/* line 205, ../sass/_components.scss */
+/* line 212, ../sass/_components.scss */
 .slider span.bar.unselected {
   width: auto;
   background: #a00;
   opacity: 0.5;
 }
 
-/* line 210, ../sass/_components.scss */
+/* line 217, ../sass/_components.scss */
 .slider span.pointer {
   cursor: pointer;
   width: 15px;
@@ -4024,7 +4038,7 @@ hr.solid {
   background-color: #368DE8;
 }
 
-/* line 221, ../sass/_components.scss */
+/* line 228, ../sass/_components.scss */
 .slider span.bubble {
   font-size: 1em;
   line-height: 1.4em;
@@ -4035,48 +4049,48 @@ hr.solid {
   cursor: pointer;
 }
 
-/* line 230, ../sass/_components.scss */
+/* line 237, ../sass/_components.scss */
 .slider span.bubble.selection, .slider span.bubble.limit {
   top: 25%;
 }
 
-/* line 240, ../sass/_components.scss */
+/* line 247, ../sass/_components.scss */
 .message-preview {
   background-color: #ffffff;
   border: 1px solid #cccccc;
   border-radius: 4px;
 }
 
-/* line 247, ../sass/_components.scss */
+/* line 254, ../sass/_components.scss */
 .research-study .textarea {
   height: auto;
 }
 
-/* line 252, ../sass/_components.scss */
+/* line 259, ../sass/_components.scss */
 ::-ms-tooltip {
   display: none;
 }
 
 @media only screen and (max-width: 1024px) {
-  /* line 262, ../sass/_components.scss */
+  /* line 269, ../sass/_components.scss */
   .tab-panel-item .item-detail {
     padding: 5px 20px;
   }
 
-  /* line 266, ../sass/_components.scss */
+  /* line 273, ../sass/_components.scss */
   .modal-dialog {
     width: auto;
   }
 }
 @media (max-width: 1199px) {
-  /* line 274, ../sass/_components.scss */
+  /* line 281, ../sass/_components.scss */
   .tab-panel-item .item-detail .last-login {
     padding-left: 15px;
     padding-right: 15px;
   }
 }
 @media all and (max-width: 600px) {
-  /* line 283, ../sass/_components.scss */
+  /* line 290, ../sass/_components.scss */
   g.highcharts-input-group {
     display: none;
   }
