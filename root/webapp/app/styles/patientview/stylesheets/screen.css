@@ -2291,48 +2291,48 @@ label {
   border: 1px solid #f3f3f3;
 }
 
-/* line 83, ../sass/_forms.scss */
+/* line 82, ../sass/_forms.scss */
 .edit-code {
   background: #ffffff;
 }
 
-/* line 87, ../sass/_forms.scss */
+/* line 86, ../sass/_forms.scss */
 input.alert-checkbox {
   margin-right: 7px;
 }
 
-/* line 91, ../sass/_forms.scss */
+/* line 90, ../sass/_forms.scss */
 .btn:active {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
 }
 
-/* line 95, ../sass/_forms.scss */
+/* line 94, ../sass/_forms.scss */
 .filter-panel {
   overflow: visible;
 }
-/* line 98, ../sass/_forms.scss */
+/* line 97, ../sass/_forms.scss */
 .filter-panel .panel-footer {
   padding: 0;
 }
 
-/* line 103, ../sass/_forms.scss */
+/* line 102, ../sass/_forms.scss */
 .filter-tags-container {
   clear: left;
   margin: 15px 0 0;
 }
-/* line 107, ../sass/_forms.scss */
+/* line 106, ../sass/_forms.scss */
 .filter-tags-container li {
   margin-right: 3px;
 }
 
-/* line 113, ../sass/_forms.scss */
+/* line 112, ../sass/_forms.scss */
 .add-recipient-button {
   margin-top: 27px;
 }
 
-/* line 117, ../sass/_forms.scss */
+/* line 116, ../sass/_forms.scss */
 .search-container {
   position: relative;
   height: 60px;
@@ -2340,13 +2340,13 @@ input.alert-checkbox {
   -moz-border-radius: 4px 4px 0 0;
   border-radius: 4px 4px 0 0;
 }
-/* line 122, ../sass/_forms.scss */
+/* line 121, ../sass/_forms.scss */
 .search-container i {
   position: absolute;
   left: 10px;
   top: 10px;
 }
-/* line 127, ../sass/_forms.scss */
+/* line 126, ../sass/_forms.scss */
 .search-container input[type="text"] {
   border: none;
   background: #ffffff;
@@ -2361,22 +2361,22 @@ input.alert-checkbox {
   box-shadow: none;
 }
 
-/* line 138, ../sass/_forms.scss */
+/* line 137, ../sass/_forms.scss */
 .select-container {
   margin-right: 15px;
 }
-/* line 141, ../sass/_forms.scss */
+/* line 140, ../sass/_forms.scss */
 .select-container .btn-group {
   background: #ffffff;
   border: 1px solid #e4e9f0;
 }
-/* line 146, ../sass/_forms.scss */
+/* line 145, ../sass/_forms.scss */
 .select-container .btn-group.open .dropdown-toggle {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
 }
-/* line 151, ../sass/_forms.scss */
+/* line 150, ../sass/_forms.scss */
 .select-container .btn-group button {
   background: transparent;
   color: #7a7a7a;
@@ -2389,7 +2389,7 @@ input.alert-checkbox {
   border-radius: 0;
   width: 220px;
 }
-/* line 163, ../sass/_forms.scss */
+/* line 162, ../sass/_forms.scss */
 .select-container .dropdown-menu {
   width: 221px;
   -webkit-box-shadow: 0 2px 3px -3px rgba(0, 0, 0, 0.176);
@@ -2402,16 +2402,16 @@ input.alert-checkbox {
   overflow-y: scroll;
   max-height: 200px;
 }
-/* line 172, ../sass/_forms.scss */
+/* line 171, ../sass/_forms.scss */
 .select-container .dropdown-menu li a {
   cursor: pointer;
 }
-/* line 174, ../sass/_forms.scss */
+/* line 173, ../sass/_forms.scss */
 .select-container .dropdown-menu li a span {
   cursor: pointer;
 }
 
-/* line 182, ../sass/_forms.scss */
+/* line 181, ../sass/_forms.scss */
 .caret-container {
   display: block;
   height: 100%;
@@ -2422,7 +2422,7 @@ input.alert-checkbox {
   right: 0;
   top: 0;
 }
-/* line 192, ../sass/_forms.scss */
+/* line 191, ../sass/_forms.scss */
 .caret-container .caret {
   border-top: 8px solid #ffffff;
   border-left: 6px solid transparent;
@@ -2430,37 +2430,37 @@ input.alert-checkbox {
   margin-top: 16px;
 }
 
-/* line 201, ../sass/_forms.scss */
+/* line 200, ../sass/_forms.scss */
 .button-dropdown-group > button {
   -webkit-border-radius: 4px 0 0 4px;
   -moz-border-radius: 4px 0 0 4px;
   border-radius: 4px 0 0 4px;
   line-height: 20px;
 }
-/* line 207, ../sass/_forms.scss */
+/* line 206, ../sass/_forms.scss */
 .button-dropdown-group .dropdown > button {
   -webkit-border-radius: 0 4px 4px 0;
   -moz-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
 }
-/* line 212, ../sass/_forms.scss */
+/* line 211, ../sass/_forms.scss */
 .button-dropdown-group .dropdown-menu {
   position: absolute;
   min-width: 100px;
   left: -75px;
 }
-/* line 217, ../sass/_forms.scss */
+/* line 216, ../sass/_forms.scss */
 .button-dropdown-group .dropdown-menu > li a {
   text-align: left;
   padding: 5px;
   font-size: 1.5rem;
 }
 
-/* line 225, ../sass/_forms.scss */
+/* line 224, ../sass/_forms.scss */
 .capsule-list {
   padding-left: 10px;
 }
-/* line 227, ../sass/_forms.scss */
+/* line 226, ../sass/_forms.scss */
 .capsule-list li {
   background: #00aa9e;
   -webkit-border-radius: 5px;
@@ -2470,22 +2470,22 @@ input.alert-checkbox {
   padding: 5px;
   color: #ffffff;
 }
-/* line 235, ../sass/_forms.scss */
+/* line 234, ../sass/_forms.scss */
 .capsule-list > li:first-child {
   padding-left: 5px;
 }
 
-/* line 240, ../sass/_forms.scss */
+/* line 239, ../sass/_forms.scss */
 .form-edit-row {
   margin-top: 0px;
 }
 
-/* line 244, ../sass/_forms.scss */
+/* line 243, ../sass/_forms.scss */
 .set-date-range {
   margin-top: 25px;
 }
 
-/* line 249, ../sass/_forms.scss */
+/* line 248, ../sass/_forms.scss */
 .group-list-item li {
   width: auto;
   height: 40px;
@@ -2497,7 +2497,7 @@ input.alert-checkbox {
   text-align: center;
   line-height: 30px;
 }
-/* line 260, ../sass/_forms.scss */
+/* line 259, ../sass/_forms.scss */
 .group-list-item li.group-list-name {
   width: 52%;
   font-size: 1.3rem;
@@ -2505,7 +2505,7 @@ input.alert-checkbox {
   background: #f8f8f8;
   border: 1px solid #e4e9f0;
 }
-/* line 268, ../sass/_forms.scss */
+/* line 267, ../sass/_forms.scss */
 .group-list-item li.group-list-role {
   color: #e0e0e0;
   font-size: 3rem;
@@ -2513,7 +2513,7 @@ input.alert-checkbox {
   font-weight: bold;
   width: 180px;
 }
-/* line 275, ../sass/_forms.scss */
+/* line 274, ../sass/_forms.scss */
 .group-list-item li.group-list-role span {
   font-size: 1.35rem;
   height: 100%;
@@ -2524,7 +2524,7 @@ input.alert-checkbox {
   float: left;
   display: block;
 }
-/* line 285, ../sass/_forms.scss */
+/* line 284, ../sass/_forms.scss */
 .group-list-item li.group-list-role span.bracket {
   display: block;
   float: left;
@@ -2534,17 +2534,17 @@ input.alert-checkbox {
   font-weight: bold;
   width: 15px;
 }
-/* line 295, ../sass/_forms.scss */
+/* line 294, ../sass/_forms.scss */
 .group-list-item li.group-list-role span.group-role {
   min-width: 80px;
   top: 3px;
 }
-/* line 302, ../sass/_forms.scss */
+/* line 301, ../sass/_forms.scss */
 .group-list-item li.group-list-delete {
   font-size: 2rem;
   padding: 0;
 }
-/* line 305, ../sass/_forms.scss */
+/* line 304, ../sass/_forms.scss */
 .group-list-item li.group-list-delete a {
   color: #f20d2e;
   display: block;
@@ -2552,17 +2552,17 @@ input.alert-checkbox {
   width: 100%;
 }
 
-/* line 315, ../sass/_forms.scss */
+/* line 314, ../sass/_forms.scss */
 .data-range-container {
   margin-top: 20px;
   width: 100%;
 }
-/* line 320, ../sass/_forms.scss */
+/* line 319, ../sass/_forms.scss */
 .data-range-container .dropdown-menu .btn {
   color: #333333;
 }
 
-/* line 326, ../sass/_forms.scss */
+/* line 325, ../sass/_forms.scss */
 .custom-select {
   position: relative;
   height: 34px;
@@ -2571,24 +2571,24 @@ input.alert-checkbox {
   margin-right: 10px;
   cursor: pointer;
 }
-/* line 334, ../sass/_forms.scss */
+/* line 333, ../sass/_forms.scss */
 .custom-select .caret-container {
   position: absolute;
   right: 0;
   top: 0;
   cursor: pointer;
 }
-/* line 340, ../sass/_forms.scss */
+/* line 339, ../sass/_forms.scss */
 .custom-select .caret-container .caret {
   margin-left: 12px;
   cursor: pointer;
 }
 
-/* line 347, ../sass/_forms.scss */
+/* line 346, ../sass/_forms.scss */
 .radio-button-list {
   padding-left: 10px;
 }
-/* line 349, ../sass/_forms.scss */
+/* line 348, ../sass/_forms.scss */
 .radio-button-list .btn {
   background: #e0e0e0;
   color: #585858;
@@ -2602,11 +2602,11 @@ input.alert-checkbox {
   width: 58px;
   font-size: 1.2rem;
 }
-/* line 360, ../sass/_forms.scss */
+/* line 359, ../sass/_forms.scss */
 .radio-button-list .btn:first-child {
   border-left: 0;
 }
-/* line 364, ../sass/_forms.scss */
+/* line 363, ../sass/_forms.scss */
 .radio-button-list .btn.active, .radio-button-list .btn:hover {
   background: #00adc6;
   border-left: 1px solid #039288;
@@ -2616,40 +2616,40 @@ input.alert-checkbox {
   color: #ffffff;
 }
 
-/* line 374, ../sass/_forms.scss */
+/* line 373, ../sass/_forms.scss */
 .select-add-group select {
   width: 50%;
   float: left;
   height: 40px;
 }
-/* line 380, ../sass/_forms.scss */
+/* line 379, ../sass/_forms.scss */
 .select-add-group .group-list-item {
   width: auto;
   float: left;
   clear: left;
 }
-/* line 385, ../sass/_forms.scss */
+/* line 384, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list {
   padding-left: 0;
   margin-top: 10px;
 }
-/* line 389, ../sass/_forms.scss */
+/* line 388, ../sass/_forms.scss */
 .select-add-group .group-list-item .radio-button-list li.active {
   background: #00adc6;
 }
-/* line 395, ../sass/_forms.scss */
+/* line 394, ../sass/_forms.scss */
 .select-add-group button {
   float: left;
   margin-top: 2px;
 }
 
-/* line 402, ../sass/_forms.scss */
+/* line 401, ../sass/_forms.scss */
 .add-feature select {
   float: left;
   width: 80%;
 }
 
-/* line 408, ../sass/_forms.scss */
+/* line 407, ../sass/_forms.scss */
 .bracket {
   font-size: 3rem;
   font-weight: bold;
@@ -2660,12 +2660,12 @@ input.alert-checkbox {
   line-height: 38px;
   color: #e0e0e0;
 }
-/* line 418, ../sass/_forms.scss */
+/* line 417, ../sass/_forms.scss */
 .bracket.pre {
   margin-left: 5px;
 }
 
-/* line 427, ../sass/_forms.scss */
+/* line 426, ../sass/_forms.scss */
 .bracket-input input, .bracket-input select {
   width: 120px;
   float: left;
@@ -2673,20 +2673,20 @@ input.alert-checkbox {
   margin-top: 5px;
 }
 
-/* line 436, ../sass/_forms.scss */
+/* line 435, ../sass/_forms.scss */
 .clamped {
   line-height: 1.5;
   overflow: hidden;
   position: relative;
 }
 
-/* line 442, ../sass/_forms.scss */
+/* line 441, ../sass/_forms.scss */
 .clamped-2 {
   /* Clamp to 2 lines, ie line-height x 2: */
   max-height: 3em;
 }
 
-/* line 447, ../sass/_forms.scss */
+/* line 446, ../sass/_forms.scss */
 .ellipsis {
   background: #fff;
   bottom: 0;
@@ -2694,7 +2694,7 @@ input.alert-checkbox {
   right: 10px;
 }
 
-/* line 454, ../sass/_forms.scss */
+/* line 453, ../sass/_forms.scss */
 .fill {
   background: #fff;
   height: 100%;
@@ -2702,31 +2702,31 @@ input.alert-checkbox {
   width: 100%;
 }
 
-/* line 462, ../sass/_forms.scss */
+/* line 461, ../sass/_forms.scss */
 textarea.form-control.article-content {
   height: 200px;
 }
 
-/* line 468, ../sass/_forms.scss */
+/* line 467, ../sass/_forms.scss */
 .input-comments {
   width: 100%;
 }
 
-/* line 472, ../sass/_forms.scss */
+/* line 471, ../sass/_forms.scss */
 .row.inline-row {
   margin-bottom: 3px;
 }
-/* line 474, ../sass/_forms.scss */
+/* line 473, ../sass/_forms.scss */
 .row.inline-row .inline-span, .row.inline-row .date-input, .row.inline-row .results-enter {
   float: left;
 }
 
-/* line 479, ../sass/_forms.scss */
+/* line 478, ../sass/_forms.scss */
 .row.inline-row .form-control.input-value {
   margin-right: 5px;
 }
 
-/* line 483, ../sass/_forms.scss */
+/* line 482, ../sass/_forms.scss */
 .row.inline-row, .enter-results-row {
   margin-bottom: 15px;
 }
@@ -2736,78 +2736,83 @@ textarea.form-control.article-content {
   margin-right: 5px;
 }
 
-/* line 489, ../sass/_forms.scss */
+/* line 490, ../sass/_forms.scss */
 .instructions {
   font-weight: normal;
 }
 
-/* line 493, ../sass/_forms.scss */
+/* line 494, ../sass/_forms.scss */
 .date-input {
   float: left;
 }
 
-/* line 498, ../sass/_forms.scss */
+/* line 499, ../sass/_forms.scss */
 .row.inline-row .inline-span {
   width: 80px;
 }
-/* line 501, ../sass/_forms.scss */
+/* line 502, ../sass/_forms.scss */
 .row.inline-row .form-control {
   width: 80px;
 }
-/* line 504, ../sass/_forms.scss */
+/* line 505, ../sass/_forms.scss */
 .row.inline-row .form-control.input-value {
   width: 160px;
 }
-/* line 507, ../sass/_forms.scss */
+/* line 508, ../sass/_forms.scss */
 .row.inline-row .form-control.input-comments {
   width: 100%;
 }
 
-/* line 511, ../sass/_forms.scss */
+/* line 513, ../sass/_forms.scss */
 .form-control.no-float {
   float: none;
 }
 
-/* line 515, ../sass/_forms.scss */
+/* line 517, ../sass/_forms.scss */
 .top-offset {
   margin-bottom: 0;
 }
-/* line 518, ../sass/_forms.scss */
+/* line 520, ../sass/_forms.scss */
 .top-offset.twenty {
   margin-top: 20px;
 }
 
 /** Selectize tweaks **/
-/* line 525, ../sass/_forms.scss */
+/* line 527, ../sass/_forms.scss */
 .optgroup-header {
   font-weight: bold;
 }
 
-/* line 528, ../sass/_forms.scss */
+/* line 531, ../sass/_forms.scss */
 .selectize-input {
   height: 40px;
 }
 
-/* line 532, ../sass/_forms.scss */
+/* line 535, ../sass/_forms.scss */
 .selectize-control.loading {
   text-align: left !important;
 }
 
-/* line 537, ../sass/_forms.scss */
+/* line 540, ../sass/_forms.scss */
 .selectize-control.multi .selectize-input > div {
   background: #00adc6;
   border-radius: 4px;
   color: white;
 }
 
-/* line 543, ../sass/_forms.scss */
+/* line 547, ../sass/_forms.scss */
 .selectize-dropdown, .selectize-input, .selectize-input input {
   font-size: inherit;
 }
 
-/* line 547, ../sass/_forms.scss */
+/* line 551, ../sass/_forms.scss */
 input.ng-invalid, textarea.ng-invalid {
   border-color: red;
+}
+
+/* line 555, ../sass/_forms.scss */
+th, td {
+  zoom: env() !important;
 }
 
 /* line 1, ../sass/_lists.scss */

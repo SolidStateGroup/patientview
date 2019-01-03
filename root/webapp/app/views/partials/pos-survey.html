@@ -61,6 +61,7 @@
 
                             <label for="{{questionOption.id}}" class="radio-label">
                                 <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id"
+                                       name="{{question.id}}"
                                        class="radio-button" id="{{questionOption.id}}">
                                 <small>{{$index}}</small>
                             </label>
@@ -125,6 +126,9 @@
                 </div>
 
                 <div class="well terms-well">
+                    <p>
+                        Please confirm that your answers are complete and correct before saving
+                    </p>
                     <label for="terms" class="radio-label">
                         I confirm that my answers are complete and correct
                         <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button"
