@@ -48,14 +48,14 @@
                     <tbody>
                     <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO'  && question.text"
                         data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
-                        <th scope="row">
+                        <td scope="row">
                             <span data-ng-if="question.number">{{question.number}}. </span>
                             <span>{{question.text}}</span>
                             <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
                     </span>
                             <div class="question-description">{{question.description}}</div>
-                        </th>
+                        </td>
                         <td data-ng-repeat="questionOption in question.questionOptions track by $index"
                             class="span-radio text-center">
 
