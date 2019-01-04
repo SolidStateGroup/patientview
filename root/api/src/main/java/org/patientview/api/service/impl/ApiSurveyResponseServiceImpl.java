@@ -673,6 +673,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
             for (SurveyResponse promSurvey : prom_response) {
 
                 SurveyResponse mappedResponse = new SurveyResponse();
+                mappedResponse.setId(promSurvey.getId());
                 mappedResponse.setSurvey(pos_s);
                 mappedResponse.setUser(promSurvey.getUser());
                 mappedResponse.setStaffToken(promSurvey.getStaffToken());
