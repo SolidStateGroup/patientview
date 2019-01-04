@@ -34,7 +34,7 @@ insert into pv_question_option (id,question_id,text,type,description,display_ord
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917813,14917734,'Moderately',2,'limits on some activity or concentration',2,2);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917814,14917734,'Severely',3,'activities or concentration markedly affected',3,3);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917815,14917734,'Overwhelmingly',4,'unable to think of anything else',4,4);
-insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question values (14917735,14917710,'SINGLE_SELECT','RADIO','Poor appetite','YSQ6',6,true,false);
+insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917735,14917710,'SINGLE_SELECT','RADIO','Poor appetite','YSQ6',6,true,false);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917816,14917735,'Not at all',0,'No effect',0,0);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917817,14917735,'Slightly',1,'but not bothered to be rid of it',1,1);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917818,14917735,'Moderately',2,'limits on some activity or concentration',2,2);
@@ -124,8 +124,8 @@ insert into pv_question_option (id,question_id,text,type,description,display_ord
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917888,14917749,'Moderately',2,'limits on some activity or concentration',2,2);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917889,14917749,'Severely',3,'activities or concentration markedly affected',3,3);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917890,14917749,'Overwhelmingly',4,'unable to think of anything else',4,4);
-insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required) values (14917750,14917710,'SINGLE_SELECT','TEXT','Which symptom has affected you the most?','YSQ21',20,false, false);
-insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required) values (14917751,14917710,'SINGLE_SELECT','TEXT','Which symptom has improved the most?','YSQ22',21,false, false);
+insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917750,14917710,'SINGLE_SELECT','TEXT','Which symptom has affected you the most?','YSQ21',20,false, false);
+insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917751,14917710,'SINGLE_SELECT','TEXT','Which symptom has improved the most?','YSQ22',21,false, false);
 
 insert into public.pv_survey (id,type,description) values (14917704,'EQ5D5L','');
 insert into public.pv_question_group (id,survey_id,text,display_order) values (14917711,14917704,'EQ-5D-5L Questions',0);

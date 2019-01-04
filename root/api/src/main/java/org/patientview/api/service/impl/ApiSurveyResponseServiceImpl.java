@@ -2,10 +2,10 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.enums.DummyUsernames;
+import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
-import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -82,42 +82,37 @@ import static org.patientview.api.util.ApiUtil.getCurrentUser;
 public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyResponseServiceImpl>
         implements ApiSurveyResponseService {
 
+    private final static Map<Long, Long> PROM_POS_MAPPING;
+
+    static {
+        PROM_POS_MAPPING = new HashMap<>();
+        PROM_POS_MAPPING.put(21135588L, 14917730L);
+    }
+
     @Inject
     private ConversationRepository conversationRepository;
-
     @Inject
     private EmailService emailService;
-
     @Inject
     private FeatureRepository featureRepository;
-
     @Inject
     private LookupService lookupService;
-
     @Inject
     private Properties properties;
-
     @Inject
     private QuestionRepository questionRepository;
-
     @Inject
     private QuestionOptionRepository questionOptionRepository;
-
     @Inject
     private RoleService roleService;
-
     @Inject
     private SurveyRepository surveyRepository;
-
     @Inject
     private SurveyResponseRepository surveyResponseRepository;
-
     @Inject
     private UserRepository userRepository;
-
     @Inject
     private UserService userService;
-
     @Inject
     private UserTokenRepository userTokenRepository;
 
@@ -473,7 +468,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                     && questionAnswer.getQuestion() != null
                     && questionAnswer.getQuestion().getType() != null) {
                 questionTypeScoreMap.put(
-                    questionAnswer.getQuestion().getType(), questionAnswer.getQuestionOption().getScore());
+                        questionAnswer.getQuestion().getType(), questionAnswer.getQuestionOption().getScore());
             }
 
             // add scoring for ranged values
@@ -638,20 +633,95 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     @Override
     public List<SurveyResponse> getByUserIdAndSurveyType(Long userId, String surveyType)
             throws ResourceNotFoundException {
+
         User user = userRepository.findOne(userId);
+
         if (user == null) {
+
             throw new ResourceNotFoundException("Could not find user");
         }
         if (surveyType == null) {
+
             throw new ResourceNotFoundException("Must set survey type");
         }
 
         List<SurveyResponse> responses = surveyResponseRepository.findByUserAndSurveyType(user, surveyType);
 
+        if (surveyType.equals("POS_S")) {
+
+            // TODO check list has elements.
+            Survey pos_s = surveyRepository.findByType("POS_S").get(0);
+
+            List<SurveyResponse> prom_response = surveyResponseRepository.findByUserAndSurveyType(user, "PROM");
+
+            for (SurveyResponse promSurvey : prom_response) {
+
+                SurveyResponse mappedResponse = new SurveyResponse();
+                mappedResponse.setSurvey(pos_s);
+                mappedResponse.setUser(promSurvey.getUser());
+                mappedResponse.setStaffToken(promSurvey.getStaffToken());
+                mappedResponse.setDate(promSurvey.getDate());
+                mappedResponse.setSurveyResponseScores(promSurvey.getSurveyResponseScores());
+
+                List<QuestionAnswer> mappedQuestionAnswers = new ArrayList<>();
+
+                for (QuestionAnswer questionAnswer : promSurvey.getQuestionAnswers()) {
+
+                    Question question = questionAnswer.getQuestion();
+                    Long posSQuestionId = PROM_POS_MAPPING.get(question.getId());
+
+                    QuestionOption answer = questionAnswer.getQuestionOption();
+
+                    QuestionAnswer mappedQuestionAnswer = new QuestionAnswer();
+                    mappedQuestionAnswer.setId(questionAnswer.getId());
+                    mappedQuestionAnswer.setQuestionText(questionAnswer.getQuestionText());
+                    mappedQuestionAnswer.setValue(questionAnswer.getValue());
+
+                    Question mappedQuestion = null;
+                    QuestionOption mappedAnswer = null;
+
+                    // TODO assuming pos_s has only one question group...
+                    for (Question questionPosS : pos_s.getQuestionGroups().get(0).getQuestions()) {
+
+                        if (questionPosS.getId().equals(posSQuestionId)) {
+
+                            mappedQuestion = questionPosS;
+
+                            // Try to map the answer based on question
+                            for (QuestionOption option : mappedQuestion.getQuestionOptions()) {
+
+                                if (option.getText().equals(answer.getText())) {
+
+                                    mappedAnswer = option;
+                                }
+                            }
+                        }
+                    }
+
+                    if (mappedQuestion != null) {
+
+                        mappedQuestionAnswer.setQuestion(mappedQuestion);
+                    }
+
+                    if (mappedAnswer != null) {
+
+                        mappedQuestionAnswer.setQuestionOption(mappedAnswer);
+                    }
+
+                    mappedQuestionAnswers.add(mappedQuestionAnswer);
+                }
+
+                mappedResponse.setQuestionAnswers(mappedQuestionAnswers);
+            }
+
+        }
         // clean up and reduced info about staff user if present
         if (!CollectionUtils.isEmpty(responses)) {
+
             List<SurveyResponse> reducedResponses = new ArrayList<>();
+
             for (SurveyResponse surveyResponse : responses) {
+
                 reducedResponses.add(reduceStaffUser(surveyResponse));
             }
 
@@ -708,6 +778,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     /**
      * Reduce the information passed back to ui about staff user (only used when a staff member fills in survey when
      * viewing as a patient
+     *
      * @param surveyResponse SurveyResponse to reduce staff user information for
      * @return SurveyResponse where staff user info has been reduced
      */
