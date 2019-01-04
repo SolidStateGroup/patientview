@@ -87,6 +87,22 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     static {
         PROM_POS_MAPPING = new HashMap<>();
         PROM_POS_MAPPING.put(21135588L, 14917730L);
+        PROM_POS_MAPPING.put(21135594L, 14917731L);
+        PROM_POS_MAPPING.put(21135606L, 14917733L);
+        PROM_POS_MAPPING.put(21135612L, 14917734L);
+        PROM_POS_MAPPING.put(21135618L, 14917735L);
+        PROM_POS_MAPPING.put(21135624L, 14917736L);
+        PROM_POS_MAPPING.put(21135630L, 14917737L);
+        PROM_POS_MAPPING.put(21135648L, 14917740L);
+        PROM_POS_MAPPING.put(21135654L, 14917741L);
+        PROM_POS_MAPPING.put(21135642L, 14917739L);
+        PROM_POS_MAPPING.put(21135660L, 14917742L);
+        PROM_POS_MAPPING.put(21135678L, 14917743L);
+        PROM_POS_MAPPING.put(21135684L, 14917744L);
+        PROM_POS_MAPPING.put(21135666L, 14917745L);
+        PROM_POS_MAPPING.put(21135672L, 14917746L);
+        PROM_POS_MAPPING.put(21135600L, 14917732L);
+        PROM_POS_MAPPING.put(21135636L, 14917738L);
     }
 
     @Inject
@@ -712,6 +728,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                 }
 
                 mappedResponse.setQuestionAnswers(mappedQuestionAnswers);
+                responses.add(mappedResponse);
             }
 
         }

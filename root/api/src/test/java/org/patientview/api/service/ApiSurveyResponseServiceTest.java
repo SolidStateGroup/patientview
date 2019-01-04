@@ -24,6 +24,8 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
+import org.patientview.persistence.model.QuestionGroup;
+import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
@@ -43,7 +45,6 @@ import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.FeatureRepository;
-import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
@@ -89,8 +90,6 @@ public class ApiSurveyResponseServiceTest {
     Properties properties;
     @Mock
     QuestionRepository questionRepository;
-    @Mock
-    QuestionOptionRepository questionOptionRepository;
     @Mock
     RoleService roleService;
     @Mock
@@ -536,5 +535,147 @@ public class ApiSurveyResponseServiceTest {
         // Then
 
         surveyResponseRepository.save(Matchers.any(SurveyResponse.class));
+    }
+
+    @Test
+    public void should_not_return_PROM_when_not_found() throws ResourceNotFoundException {
+
+        // Given
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String posS = "POS_S";
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(surveyRepository.findByType("POS_S")).thenReturn(singletonList(new Survey()));
+
+        // When
+
+        List<SurveyResponse> result = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), posS);
+
+        // Then
+
+        Assert.assertThat(result, org.hamcrest.Matchers.<SurveyResponse>hasSize(0));
+    }
+
+    @Test
+    public void should_map_PROM_to_POS_S() throws ResourceNotFoundException {
+
+        // Given
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String posS = "POS_S";
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(surveyRepository.findByType("POS_S")).thenReturn(singletonList(buildPossSurvey()));
+        when(surveyResponseRepository.findByUserAndSurveyType(user, "PROM")).thenReturn(singletonList(buildPromSurveyResponse()));
+
+        // When
+
+        List<SurveyResponse> responses = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), posS);
+
+        // Then
+
+        Assert.assertThat(responses, org.hamcrest.Matchers.<SurveyResponse>hasSize(1));
+    }
+
+    private Survey buildPossSurvey() {
+
+        Survey survey = new Survey();
+        survey.setId(1L);
+
+        QuestionGroup questionGroup = new QuestionGroup();
+        questionGroup.setDescription("test description");
+
+        Question firstQuestion = new Question();
+        firstQuestion.setId(14917730L);
+        firstQuestion.setType("YSQ1");
+        firstQuestion.setText("Pain");
+
+        QuestionOption firstOption = new QuestionOption();
+        firstOption.setDescription("1st option from POS_S");
+        firstOption.setText("1st option");
+        firstOption.setId(1L);
+        QuestionOption secondOption = new QuestionOption();
+        secondOption.setDescription("2nd option from POS_S");
+        secondOption.setText("2nd option");
+        secondOption.setId(2L);
+
+        firstQuestion.setQuestionOptions(asList(firstOption, secondOption));
+
+        List<Question> questions = asList(firstQuestion);
+
+        questionGroup.setQuestions(questions);
+
+        List<QuestionGroup> groups = singletonList(questionGroup);
+
+        survey.setQuestionGroups(groups);
+        survey.setType("POS_S");
+
+        return survey;
+    }
+
+    private SurveyResponse buildPromSurveyResponse() {
+
+        SurveyResponse response = new SurveyResponse();
+        response.setSurvey(new Survey());
+
+        QuestionAnswer questionAnswer = new QuestionAnswer();
+
+        Question firstQuestion = new Question();
+        firstQuestion.setId(21135588L);
+        firstQuestion.setType("TEST");
+        firstQuestion.setText("TEST1");
+
+        QuestionOption firstOption = new QuestionOption();
+        firstOption.setDescription("1st option from PROM");
+        firstOption.setText("1st option");
+        firstOption.setId(3L);
+        QuestionOption secondOption = new QuestionOption();
+        secondOption.setDescription("2nd option from PROM");
+        secondOption.setText("2nd option");
+        secondOption.setId(4L);
+
+        firstQuestion.setQuestionOptions(asList(firstOption, secondOption));
+
+        questionAnswer.setQuestion(firstQuestion);
+        questionAnswer.setQuestionOption(firstOption);
+
+        List<QuestionAnswer> questionAnswers = asList(questionAnswer);
+
+        response.setQuestionAnswers(questionAnswers);
+
+        return response;
     }
 }
