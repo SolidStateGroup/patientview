@@ -20,7 +20,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             xAxis[response.date] = response.date;
 
             // get question answer data for question with correct type
-            var questions = $scope.questions;
+            var questions = $scope.nonCustomQuestions;
             var questionAnswerMap = [];
             for (j = 0; j < response.questionAnswers.length; j++) {
                 questionAnswerMap[response.questionAnswers[j].question.type] = response.questionAnswers[j];
@@ -81,7 +81,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             }
         }
 
-        var questionName = _.findWhere($scope.questions, {type: $scope.questionType}).text;
+        var questionName = _.findWhere($scope.nonCustomQuestions, {type: $scope.questionType, customQuestion:false}).text;
         $scope.comparingText = questionName;
 
         chartSeries.push({
@@ -245,6 +245,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                     if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex] == null) {
                         tableRows[tableRowIndex] = {};
                         tableRows[tableRowIndex].type = questionType;
+                        tableRows[tableRowIndex].nonViewable = questions[j].nonViewable;
                         tableRows[tableRowIndex].data = [];
                         tableRows[tableRowIndex].data.push({'text':questionText});
                     }
@@ -398,13 +399,19 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             scoreLabels[firstOptions[i].score] = firstOptions[i].text;
         }
         $scope.scoreLabels = scoreLabels;
-        $scope.questions = $scope.surveyResponses[0].survey.questionGroups[0].questions;
+        $scope.questions = _.sortBy($scope.surveyResponses[0].survey.questionGroups[0].questions, 'displayOrder');
 
+        $scope.nonCustomQuestions = _.filter($scope.questions, {customQuestion:false});
+        if ($scope.surveyType ==='POS_S') {
+            //force last 2 questions to be labelled differently
+            $scope.questions[$scope.questions.length-1].nonViewable = true;
+            $scope.questions[$scope.questions.length-2].nonViewable = true;
+        }
         // build table from visible responses (2 most recent) responses
         buildTable(visibleSurveyResponses);
 
         // build chart from all responses, using first question's type e.g. YSQ1
-        $scope.questionType = $scope.questions[0].type;
+        $scope.questionType = $scope.nonCustomQuestions[0].type;
         buildChart();
     };
 

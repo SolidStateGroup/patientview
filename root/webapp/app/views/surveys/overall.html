@@ -27,7 +27,7 @@
         <h1>Your Overall Health</h1>
     </div>
     <div class="col-md-6">
-        <h1><a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+        <h1><a href="/#/myconditions?specialty=Renal&activeTab={{surveyType === 'PROM'? 'SURVEYS': 'OPTEPRO'}}" class="btn blue pull-right back-to-results" data-ng-show="!loading">
             <i class="icon-back-to pull-left"> </i>
             Back
         </a></h1>
@@ -78,7 +78,10 @@
                 <!-- chart populated in controller -->
                 <div id="chart_div"></div>
                 <div ng-if="showOverallScore" class="text-center">
-                    <strong>{{overallDate}}</strong> Your Health from 0 (worst) to 100 (best): <strong style="color:#f0ad4e;">{{overallScore}}</strong>
+                    <div data-ng-repeat="score in overallScore">
+                        <strong>{{score.date}}</strong> Your Health from 0 (worst) to 100 (best): <strong style="color:{{score.color}};">{{score.score}}</strong>
+
+                    </div>
                 </div>
             </div>
         </div>

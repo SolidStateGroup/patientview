@@ -91,15 +91,28 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.acceptedTerms= !$scope.acceptedTerms;
     }
     $scope.cancel = function () {
-        if (!$scope.showEnterResults) {
-            $modalInstance.dismiss('cancel');
-        } else {
-            $modalInstance.close();
+        if (window.confirm("Your answers will not be saved. Are you sure you want to cancel?")) {
+            if (!$scope.showEnterResults) {
+                $modalInstance.dismiss('cancel');
+            } else {
+                $modalInstance.close();
+            }
         }
     };
 
     $scope.save = function () {
         var i;
+
+        var err = false;
+        _.each($scope.customQuestions, function(q, i) {
+            if ($scope.customQuestions[i] && !$scope.answers[i]) {
+                err = $scope.customQuestions[i];
+            }
+        })
+        if (err){
+            alert("Please enter a value for the other symptom labelled '" + err + "'");
+            return
+        }
 
         // build object to send to back end
         var surveyResponse = {};
