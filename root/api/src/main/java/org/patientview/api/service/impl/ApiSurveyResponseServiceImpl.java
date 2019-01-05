@@ -83,8 +83,15 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
         implements ApiSurveyResponseService {
 
     private final static Map<Long, Long> PROM_POS_MAPPING;
+    private final static String POS_S = "POS_S";
+    private final static String PROM = "PROM";
+
+    private final static Map<Long, Long> EQ5D_MAPPING;
+    private final static String EQ5D5L = "EQ5D5L";
+    private final static String EQ5D = "EQ5D";
 
     static {
+
         PROM_POS_MAPPING = new HashMap<>();
         PROM_POS_MAPPING.put(21135588L, 14917730L);
         PROM_POS_MAPPING.put(21135594L, 14917731L);
@@ -103,6 +110,13 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
         PROM_POS_MAPPING.put(21135672L, 14917746L);
         PROM_POS_MAPPING.put(21135600L, 14917732L);
         PROM_POS_MAPPING.put(21135636L, 14917738L);
+
+        EQ5D_MAPPING = new HashMap<>();
+        EQ5D_MAPPING.put(21135779L, 14917752L);
+        EQ5D_MAPPING.put(21135803L, 14917753L);
+        EQ5D_MAPPING.put(21135791L, 14917754L);
+        EQ5D_MAPPING.put(21135797L, 14917755L);
+        EQ5D_MAPPING.put(21135785L, 14917756L);
     }
 
     @Inject
@@ -663,76 +677,16 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
         List<SurveyResponse> responses = surveyResponseRepository.findByUserAndSurveyType(user, surveyType);
 
-        if (surveyType.equals("POS_S")) {
+        if (surveyType.equals(POS_S)) {
 
-            // TODO check list has elements.
-            Survey pos_s = surveyRepository.findByType("POS_S").get(0);
-
-            List<SurveyResponse> prom_response = surveyResponseRepository.findByUserAndSurveyType(user, "PROM");
-
-            for (SurveyResponse promSurvey : prom_response) {
-
-                SurveyResponse mappedResponse = new SurveyResponse();
-                mappedResponse.setId(promSurvey.getId());
-                mappedResponse.setSurvey(pos_s);
-                mappedResponse.setUser(promSurvey.getUser());
-                mappedResponse.setStaffToken(promSurvey.getStaffToken());
-                mappedResponse.setDate(promSurvey.getDate());
-                mappedResponse.setSurveyResponseScores(promSurvey.getSurveyResponseScores());
-
-                List<QuestionAnswer> mappedQuestionAnswers = new ArrayList<>();
-
-                for (QuestionAnswer questionAnswer : promSurvey.getQuestionAnswers()) {
-
-                    Question question = questionAnswer.getQuestion();
-                    Long posSQuestionId = PROM_POS_MAPPING.get(question.getId());
-
-                    QuestionOption answer = questionAnswer.getQuestionOption();
-
-                    QuestionAnswer mappedQuestionAnswer = new QuestionAnswer();
-                    mappedQuestionAnswer.setId(questionAnswer.getId());
-                    mappedQuestionAnswer.setQuestionText(questionAnswer.getQuestionText());
-                    mappedQuestionAnswer.setValue(questionAnswer.getValue());
-
-                    Question mappedQuestion = null;
-                    QuestionOption mappedAnswer = null;
-
-                    // TODO assuming pos_s has only one question group...
-                    for (Question questionPosS : pos_s.getQuestionGroups().get(0).getQuestions()) {
-
-                        if (questionPosS.getId().equals(posSQuestionId)) {
-
-                            mappedQuestion = questionPosS;
-
-                            // Try to map the answer based on question
-                            for (QuestionOption option : mappedQuestion.getQuestionOptions()) {
-
-                                if (option.getText().equals(answer.getText())) {
-
-                                    mappedAnswer = option;
-                                }
-                            }
-                        }
-                    }
-
-                    if (mappedQuestion != null) {
-
-                        mappedQuestionAnswer.setQuestion(mappedQuestion);
-                    }
-
-                    if (mappedAnswer != null) {
-
-                        mappedQuestionAnswer.setQuestionOption(mappedAnswer);
-                    }
-
-                    mappedQuestionAnswers.add(mappedQuestionAnswer);
-                }
-
-                mappedResponse.setQuestionAnswers(mappedQuestionAnswers);
-                responses.add(mappedResponse);
-            }
-
+            mapPromSurveys(user, responses);
         }
+
+        if (surveyType.equals(EQ5D5L)) {
+
+            mapEq5dsurveys(user, responses);
+        }
+
         // clean up and reduced info about staff user if present
         if (!CollectionUtils.isEmpty(responses)) {
 
@@ -748,6 +702,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
         return responses;
     }
+
 
     @Override
     public List<SurveyResponse> getLatestByUserIdAndSurveyType(Long userId, List<String> types)
@@ -844,5 +799,94 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
         }
 
         return surveyResponse;
+    }
+
+    private void mapPromSurveys(User user, List<SurveyResponse> responses) {
+
+        mappingSurveyCore(
+                surveyResponseRepository.findByUserAndSurveyType(user, PROM),
+                POS_S,
+                responses,
+                PROM_POS_MAPPING);
+    }
+
+    private void mapEq5dsurveys(User user, List<SurveyResponse> responses) {
+
+        mappingSurveyCore(
+                surveyResponseRepository.findByUserAndSurveyType(user, EQ5D),
+                EQ5D5L,
+                responses,
+                EQ5D_MAPPING);
+    }
+
+    private void mappingSurveyCore(
+            List<SurveyResponse> surveyResponses,
+            String surveyType,
+            List<SurveyResponse> responsesToReturn,
+            Map<Long, Long> mappings) {
+
+        Survey survey = surveyRepository.findByType(surveyType).get(0);
+
+        for (SurveyResponse surveyResponse : surveyResponses) {
+
+            SurveyResponse mappedResponse = new SurveyResponse();
+            mappedResponse.setId(surveyResponse.getId());
+            mappedResponse.setSurvey(survey);
+            mappedResponse.setUser(surveyResponse.getUser());
+            mappedResponse.setStaffToken(surveyResponse.getStaffToken());
+            mappedResponse.setDate(surveyResponse.getDate());
+            mappedResponse.setSurveyResponseScores(surveyResponse.getSurveyResponseScores());
+
+            List<QuestionAnswer> mappedQuestionAnswers = new ArrayList<>();
+
+            for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
+
+                Question question = questionAnswer.getQuestion();
+                Long posSQuestionId = mappings.get(question.getId());
+
+                QuestionOption answer = questionAnswer.getQuestionOption();
+
+                QuestionAnswer mappedQuestionAnswer = new QuestionAnswer();
+                mappedQuestionAnswer.setId(questionAnswer.getId());
+                mappedQuestionAnswer.setQuestionText(questionAnswer.getQuestionText());
+                mappedQuestionAnswer.setValue(questionAnswer.getValue());
+
+                Question mappedQuestion = null;
+                QuestionOption mappedAnswer = null;
+
+                // TODO assuming has only one question group...
+                for (Question questionPosS : survey.getQuestionGroups().get(0).getQuestions()) {
+
+                    if (questionPosS.getId().equals(posSQuestionId)) {
+
+                        mappedQuestion = questionPosS;
+
+                        // Try to map the answer based on question
+                        for (QuestionOption option : mappedQuestion.getQuestionOptions()) {
+
+                            if (option.getText().equals(answer.getText())) {
+
+                                mappedAnswer = option;
+                            }
+                        }
+                    }
+                }
+
+                if (mappedQuestion != null) {
+
+                    mappedQuestionAnswer.setQuestion(mappedQuestion);
+                }
+
+                if (mappedAnswer != null) {
+
+                    mappedQuestionAnswer.setQuestionOption(mappedAnswer);
+                }
+
+                mappedQuestionAnswers.add(mappedQuestionAnswer);
+            }
+
+            mappedResponse.setQuestionAnswers(mappedQuestionAnswers);
+            responsesToReturn.add(mappedResponse);
+        }
     }
 }
