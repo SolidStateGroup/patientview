@@ -110,7 +110,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
 
         $scope.saving = true;
 
-        _.defer(()=>{
+        _.defer(function () {
             _.each($scope.customQuestions, function(q, i) {
                 if ($scope.customQuestions[i] && !$scope.answers[i]) {
                     err = $scope.customQuestions[i];
