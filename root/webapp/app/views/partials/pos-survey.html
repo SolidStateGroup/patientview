@@ -143,10 +143,10 @@
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
         <button class="btn btn-lg btn-grey" data-ng-click="cancel()">Cancel</button>
         <button class="btn btn-lg blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms"
-                data-ng-if="!showEnterResults">Save
+                data-ng-if="!showEnterResults && !saving">Save
         </button>
-        <button class="btn blue" data-ng-click="saveResults()"
-                data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save
+        <button data-ng-if="saving" class="btn btn-lg blue" disabled>
+            Saving
         </button>
     </div>
 </form>

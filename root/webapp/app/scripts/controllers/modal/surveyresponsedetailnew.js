@@ -8,6 +8,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
     var init = function() {
         $scope.surveyResponse = {};
         $scope.initalQuestion = 0;
+        $scope.saving = false;
         $scope.answers = [];
         $scope.customQuestions = [];
         $scope.acceptedTerms = false;
@@ -39,10 +40,12 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             $scope.survey = survey;
             $scope.questionTypeMap = [];
             $scope.questionRequiredMap = [];
+            $scope.questionMap = {};
             // create map of question id to question type, used when creating object to send to backend
             for (i = 0; i < survey.questionGroups.length; i++) {
                 for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
                     var question = survey.questionGroups[i].questions[j];
+                    $scope.questionMap[question.id] = survey.questionGroups[i].questions[j];
                     if (question.htmlType === 'TEXT') {
                         $scope.questionTypeMap[question.id] = 'TEXT';
                     } else {
@@ -104,85 +107,97 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         var i;
 
         var err = false;
-        _.each($scope.customQuestions, function(q, i) {
-            if ($scope.customQuestions[i] && !$scope.answers[i]) {
-                err = $scope.customQuestions[i];
+
+        $scope.saving = true;
+
+        _.defer(()=>{
+            _.each($scope.customQuestions, function(q, i) {
+                if ($scope.customQuestions[i] && !$scope.answers[i]) {
+                    err = $scope.customQuestions[i];
+                }
+            })
+            if (err){
+                alert("Please enter a value for the other symptom labelled '" + err + "'");
+                return
             }
-        })
-        if (err){
-            alert("Please enter a value for the other symptom labelled '" + err + "'");
-            return
-        }
 
-        // build object to send to back end
-        var surveyResponse = {};
-        surveyResponse.user = {};
-        surveyResponse.user.id = $scope.loggedInUser.id;
-        surveyResponse.survey = {};
-        surveyResponse.survey.id = $scope.survey.id;
-        surveyResponse.questionAnswers = [];
-        if (!$scope.date.hour) {
-            surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
-        } else {
-            surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1,
-                $scope.date.day, $scope.date.hour, $scope.date.minute, 0, 0);
-        }
-
-        var requiredMap = $scope.questionRequiredMap.slice();
-        var containsAllRequired = true;
-
-        for (i = 0; i < $scope.answers.length; i++) {
-            var answer = $scope.answers[i];
-            if (answer !== null && answer !== undefined) {
-                var questionAnswer = {};
-                if ($scope.questionTypeMap[i] === 'SINGLE_SELECT') {
-                    questionAnswer.questionOption = {};
-                    questionAnswer.questionOption.id = answer;
-                }
-                if ($scope.customQuestions[i]) {
-                    questionAnswer.questionText = $scope.customQuestions[i];
-                }
-                if (['SINGLE_SELECT_RANGE','TEXT','TEXT_NUMERIC'].indexOf($scope.questionTypeMap[i]) > -1) {
-                    questionAnswer.value = answer;
-                }
-                questionAnswer.question = {};
-                questionAnswer.question.id = i;
-                surveyResponse.questionAnswers.push(questionAnswer);
-
-                requiredMap[i] = false;
+            // build object to send to back end
+            var surveyResponse = {};
+            surveyResponse.user = {};
+            surveyResponse.user.id = $scope.loggedInUser.id;
+            surveyResponse.survey = {};
+            surveyResponse.survey.id = $scope.survey.id;
+            surveyResponse.questionAnswers = [];
+            if (!$scope.date.hour) {
+                surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1, $scope.date.day);
+            } else {
+                surveyResponse.date = new Date($scope.date.year, $scope.date.month - 1,
+                    $scope.date.day, $scope.date.hour, $scope.date.minute, 0, 0);
             }
-        }
 
-        for (i = 0; i < requiredMap.length; i++) {
-            if (requiredMap[i] !== null && requiredMap[i] !== undefined && requiredMap[i] && containsAllRequired) {
-                containsAllRequired = false;
-            }
-        }
+            var requiredMap = $scope.questionRequiredMap.slice();
+            var containsAllRequired = true;
 
-        if (containsAllRequired) {
-            // save, with heart symptom scoring specific code
-            SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function () {
-                if (surveyType === 'HEART_SYMPTOM_SCORE') {
-                    $scope.enterResults = {};
-                    $scope.showEnterResults = true;
+            for (i = 0; i < $scope.answers.length; i++) {
+                var answer = $scope.answers[i];
+                if (answer !== null && answer !== undefined) {
+                    var questionAnswer = {};
+                    if ($scope.questionTypeMap[i] === 'SINGLE_SELECT') {
+                        questionAnswer.questionOption = {};
+                        questionAnswer.questionOption.id = answer;
+                    }
+                    if ($scope.customQuestions[i]) {
+                        questionAnswer.questionText = $scope.customQuestions[i];
+                    }
+                    if (['SINGLE_SELECT_RANGE','TEXT','TEXT_NUMERIC'].indexOf($scope.questionTypeMap[i]) > -1) {
+                        questionAnswer.value = answer;
+                    }
+                    questionAnswer.question = {};
+                    questionAnswer.question.id = i;
+                    surveyResponse.questionAnswers.push(questionAnswer);
 
-                    ObservationHeadingService.getByCode('weight').then(function (observationHeading) {
-                        $scope.weightHeading = observationHeading;
-                    });
-
-                    ObservationHeadingService.getByCode('pulse').then(function (observationHeading) {
-                        $scope.pulseHeading = observationHeading;
-                    });
-
-                } else {
-                    $modalInstance.close();
+                    requiredMap[i] = false;
                 }
-            }, function (error) {
-                $scope.errorMessage = error.data;
-            });
-        } else {
-            alert('Please complete all required questions.');
-        }
+            }
+
+            var requiredList = []
+            for (i = 0; i < requiredMap.length; i++) {
+                if (requiredMap[i] !== null && requiredMap[i] !== undefined && requiredMap[i]) {
+                    containsAllRequired = false;
+                    requiredList.push($scope.questionMap[i]);
+                }
+            }
+
+            if (containsAllRequired) {
+                // save, with heart symptom scoring specific code
+                SurveyResponseService.add(surveyResponse.user.id, surveyResponse).then(function () {
+                    $scope.saving = false;
+                    if (surveyType === 'HEART_SYMPTOM_SCORE') {
+                        $scope.enterResults = {};
+                        $scope.showEnterResults = true;
+
+                        ObservationHeadingService.getByCode('weight').then(function (observationHeading) {
+                            $scope.weightHeading = observationHeading;
+                        });
+
+                        ObservationHeadingService.getByCode('pulse').then(function (observationHeading) {
+                            $scope.pulseHeading = observationHeading;
+                        });
+
+                    } else {
+                        $modalInstance.close();
+                    }
+                }, function (error) {
+                    $scope.errorMessage = error.data;
+                });
+            } else {
+                $scope.saving = false;
+                $scope.$apply();
+
+                alert('Please complete all required questions: \n' + _.map(requiredList, "text").join("\n"));
+            }
+        });
+
     };
 
     $scope.increaseFontSize = function() {
@@ -215,9 +230,12 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         userResultClusters.push(resultCluster);
 
         // generate result clusters to store similarly to enter own results
+        $scope.saving = true;
         ObservationService.saveResultClusters($scope.loggedInUser.id, userResultClusters).then(function() {
+            $scope.saving = false;
             $modalInstance.close();
         }, function () {
+            $scope.saving = false;
             alert('Cannot save your results');
         });
     };
