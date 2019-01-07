@@ -235,7 +235,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
     var init = function() {
         // $scope.surveyType = 'EQ5D5L';
         var params = document.location.href.split('type=');
-        $scope.surveyType = params.length === 2 ? params[1] : 'PROM';
+        $scope.surveyType = params.length === 2 ? params[1] : 'EQ5D';
         $scope.loading = true;
         $scope.overallScore = [];
 
