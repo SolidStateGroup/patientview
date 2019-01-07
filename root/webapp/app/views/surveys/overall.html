@@ -65,7 +65,7 @@
                 <div data-ng-if="surveyResponseSelectOptions.length">
                     <br/>
                     <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
-                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date'"
+                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date':reverse"
                             data-ng-change="compareSurvey(selectedSurveyResponseId)" >
                         <option value="">Compare with a past survey:</option>
                     </select>
