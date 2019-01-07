@@ -194,7 +194,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 $scope.saving = false;
                 $scope.$apply();
 
-                alert('Please complete all required questions: \n' + _.map(requiredList, "text").join("\n"));
+                alert('Please complete all required questions for: \n' + _.map(requiredList, "text").join("\n"));
             }
         });
 
