@@ -1,4 +1,5 @@
 alter table pv_question add column custom_question bool;
+update pv_question set custom_question = false;
 alter table pv_question_answer add column question_text varchar(500);
 
 insert into pv_survey (id,type,description) values (14917703,'POS_S','');
@@ -33,7 +34,7 @@ insert into pv_question_option (id,question_id,text,type,description,display_ord
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917813,14917734,'Moderately',2,'limits on some activity or concentration',2,2);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917814,14917734,'Severely',3,'activities or concentration markedly affected',3,3);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917815,14917734,'Overwhelmingly',4,'unable to think of anything else',4,4);
-insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question values (14917735,14917710,'SINGLE_SELECT','RADIO','Poor appetite','YSQ6',6,true,false);
+insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917735,14917710,'SINGLE_SELECT','RADIO','Poor appetite','YSQ6',6,true,false);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917816,14917735,'Not at all',0,'No effect',0,0);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917817,14917735,'Slightly',1,'but not bothered to be rid of it',1,1);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917818,14917735,'Moderately',2,'limits on some activity or concentration',2,2);
@@ -123,8 +124,8 @@ insert into pv_question_option (id,question_id,text,type,description,display_ord
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917888,14917749,'Moderately',2,'limits on some activity or concentration',2,2);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917889,14917749,'Severely',3,'activities or concentration markedly affected',3,3);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917890,14917749,'Overwhelmingly',4,'unable to think of anything else',4,4);
-insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required) values (14917750,14917710,'SINGLE_SELECT','TEXT','Which symptom has affected you the most?','YSQ21',20,false, false);
-insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required) values (14917751,14917710,'SINGLE_SELECT','TEXT','Which symptom has improved the most?','YSQ22',21,false, false);
+insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917750,14917710,'SINGLE_SELECT','TEXT','Which symptom has affected you the most?','YSQ21',20,false, false);
+insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917751,14917710,'SINGLE_SELECT','TEXT','Which symptom has improved the most?','YSQ22',21,false, false);
 
 insert into public.pv_survey (id,type,description) values (14917704,'EQ5D5L','');
 insert into public.pv_question_group (id,survey_id,text,display_order) values (14917711,14917704,'EQ-5D-5L Questions',0);
@@ -158,7 +159,8 @@ INSERT INTO public.pv_question_option VALUES (14917912, 14917756, 'I am slightly
 INSERT INTO public.pv_question_option VALUES (14917913, 14917756, 'I am moderately anxious or depressed', '3', NULL, 2, 3);
 INSERT INTO public.pv_question_option VALUES (14917914, 14917756, 'I am severely anxious or depressed', '4', NULL, 3, 4);
 INSERT INTO public.pv_question_option VALUES (14917915, 14917756, 'I am extremely anxious or depressed', '5', NULL, 4, 5);
-INSERT INTO public.pv_question VALUES (14917757, 14917711, 'SINGLE_SELECT_RANGE', 'SLIDER', '', 'YOHQ6', NULL, NULL, 6, 0, 100, 'The worst health you can imagine', 'The best health you can imagine', NULL, false, false);
+INSERT INTO public.pv_question VALUES (14917757, 14917711, 'SINGLE_SELECT_RANGE', 'SLIDER', 'Your Health from 0 (worst) to 100 (best)', 'YOHQ6', NULL, NULL, 6, 0, 100, 'The worst health you can imagine', 'The best health you can imagine', NULL, false, false);
 
 INSERT INTO pv_feature (id,feature_name,description,creation_date) values  (15,'OPT_EPRO','OPT ePRO Health Surveys','2018-12-07 10:15:00.000');
 INSERT INTO pv_feature_feature_type (id,feature_id,type_id) values (21,15,14);
+

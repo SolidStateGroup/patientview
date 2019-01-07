@@ -91,7 +91,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.acceptedTerms= !$scope.acceptedTerms;
     }
     $scope.cancel = function () {
-        if (window.confirm("Do you really want to cancel?")) {
+        if (window.confirm("Your answers will not be saved. Are you sure you want to cancel?")) {
             if (!$scope.showEnterResults) {
                 $modalInstance.dismiss('cancel');
             } else {

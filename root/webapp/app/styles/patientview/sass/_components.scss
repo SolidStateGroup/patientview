@@ -9,22 +9,29 @@
 .resize-text-buttons {
     float: right;
     text-align: center;
+    p {
+        font-size: 2em;
+    }
     .btn-circle {
         border: none;
         color: white;
         background-color: $primary;
-        width: 30px;
-        height: 30px;
         min-height: 30px;
         min-width: 30px;
         text-align: center;
         padding: 6px 0;
-        font-size: 20px;
+        //font-size: 20px;
         line-height: 1.42;
-        border-radius: 15px;
+        width: 60px;
+        height: 60px;
+        font-size: 3em;
+        border-radius: 30px;
         &__icon {
             position: relative;
-            bottom: 5px;
+            bottom: 7px;
+        }
+        &:nth-child(2) {
+            margin-right: .75em;
         }
     }
 }
