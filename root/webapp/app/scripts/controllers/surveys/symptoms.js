@@ -5,6 +5,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl', ['$scope', 'S
     'ObservationHeadingService', 'ObservationService', 'DocumentService',
     function ($scope, SurveyResponseService, $filter, ObservationHeadingService, ObservationService, DocumentService) {
 
+        $scope.loading = true;
+
         var buildChart = function () {
             if (!$scope.surveyResponses.length || $scope.questionType == undefined || $scope.questionType == null) {
                 return;
