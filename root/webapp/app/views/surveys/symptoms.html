@@ -55,6 +55,17 @@
                     </tr>
                     </thead>
                     <tbody>
+                        <tr data-ng-repeat="row in customRows track by $index">
+                            <td><strong>{{row.responses[0].label}}</strong></td>
+                            <td ng-if="row.index==1">-</td>
+                            <td data-ng-class="{'latest-td': row.index==1}">
+                                <strong>
+                                    {{row.responses[0].value}}
+                                </strong>
+                            </td>
+                            <td ng-if="row.index==0" data-ng-class="{'latest-td': row.index==0}">-</td>
+                            <td></td>
+                        </tr>
                         <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="row.type == questionType ? 'current-question' : ''">
                             <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
                                 <span data-ng-class="{'bold': $index == 0}" data-ng-bind-html="cell.text" data-ng-if="cell.isDownload"></span>
@@ -66,6 +77,7 @@
                         </tr>
                     </tbody>
                 </table>
+
                 <div data-ng-if="surveyResponseSelectOptions.length">
                     <br/>
                     <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"

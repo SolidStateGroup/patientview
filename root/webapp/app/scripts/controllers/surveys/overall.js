@@ -16,11 +16,11 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
 
         for (i = 0; i < visibleResponses.length; i++) {
             var response = visibleResponses[i];
-            if (series[response.date] == undefined || series[response.date] == null) {
-                series[response.date] = {};
-                series[response.date].color = colours[i];
-                series[response.date].name = $scope.filterDate(response.date);
-                series[response.date].data = [];
+            if (series[response.id] == undefined || series[response.id] == null) {
+                series[response.id] = {};
+                series[response.id].color = colours[i];
+                series[response.id].name = $scope.filterDate(response.date);
+                series[response.id].data = [];
             }
 
             // get question answer data for question with correct type
@@ -31,9 +31,11 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             }
 
             for (j = 0; j < questions.length; j++) {
+                if (questions[j].elementType === "SINGLE_SELECT_RANGE")
+                    continue;
                 if (questionAnswerMap[questions[j].type]) {
                     if (questionAnswerMap[questions[j].type].questionOption) {
-                        series[response.date].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
+                        series[response.id].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
                     } else {
                         $scope.showOverallScore = true
                         $scope.overallScore.push({
@@ -43,7 +45,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                         });
                     }
                 } else {
-                    series[response.date].data[j] = 0;
+                    series[response.id].data[j] = 0;
                 }
             }
         }
@@ -73,13 +75,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 useHtml: true
             },
             xAxis: {
-                categories: [
-                    'Mobility',
-                    'Anxiety / Depression',
-                    'Usual Activities',
-                    'Pain / Discomfort',
-                    'Self-Care'
-                ],
+                categories:_.map(questions,"text"),
                 crosshair: true
             },
             yAxis: {
