@@ -66,37 +66,6 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <table ng-if="showCustomResponses" class="table">
-                    <thead>
-                    <tr>
-                        <th>
-                            <strong>Self-entered symptoms:</strong>
-                        </th>
-                    </tr>
-                    <tr class="survey-table-header">
-                        <th data-ng-repeat="header in customRows track by $index" class="table-th">
-                            <span data-ng-if="header.isLatest" class="label label-info">LATEST&nbsp;&nbsp;<br/></span>
-                            {{header.text}}
-                        </th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td data-ng-repeat="row in customRows track by $index">
-                            <div data-ng-repeat="response in row.responses track by $index">
-                                <strong>
-                                    {{response.label}}
-                                </strong>
-                                <div>
-                                    {{response.value}}
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
                 <div data-ng-if="surveyResponseSelectOptions.length">
                     <br/>
                     <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
