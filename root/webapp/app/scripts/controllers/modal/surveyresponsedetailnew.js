@@ -119,7 +119,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             if (err){
                 alert("Please enter a value for the other symptom labelled '" + err + "'");
                 $scope.loading = false;
-                $scope.apply();
+                $scope.$apply();
                 return
             }
 
