@@ -378,7 +378,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             if ($scope.surveyResponses[i].id !== $scope.latestSurveyResponse.id) {
                 surveyResponseSelectOptions.push({
                     'id': $scope.surveyResponses[i].id,
-                    'date': $filter("date")($scope.surveyResponses[i].date, "dd-MMM-yyyy")
+                    'date': $filter("date")($scope.surveyResponses[i].date, "dd-MMM-yyyy"),
+                    'order': $scope.surveyResponses[i].date
                 });
             }
         }

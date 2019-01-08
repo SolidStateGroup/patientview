@@ -286,11 +286,13 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             if ($scope.surveyResponses[i].id !== $scope.latestSurveyResponse.id) {
                 surveyResponseSelectOptions.push({
                     'id': $scope.surveyResponses[i].id,
-                    'date': $filter("date")($scope.surveyResponses[i].date, "dd-MMM-yyyy")
+                    'date': $filter("date")($scope.surveyResponses[i].date, "dd-MMM-yyyy"),
+                    'order': $scope.surveyResponses[i].date,
                 });
             }
         }
         $scope.surveyResponseSelectOptions = surveyResponseSelectOptions;
+
 
         // add latest to table
         var visibleSurveyResponses = [];
