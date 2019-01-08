@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +33,7 @@ import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
@@ -50,11 +52,14 @@ import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.UkrdcService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.mail.MessagingException;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -66,6 +71,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,31 +83,51 @@ public class ApiSurveyResponseServiceTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+
     User creator;
+
     @Mock
     ConversationRepository conversationRepository;
+
     @Mock
     EmailService emailService;
+
     @Mock
     FeatureRepository featureRepository;
+
     @Mock
     LookupService lookupService;
+
     @Mock
     Properties properties;
+
     @Mock
     QuestionRepository questionRepository;
+
     @Mock
     RoleService roleService;
+
     @Mock
     SurveyRepository surveyRepository;
+
     @Mock
     SurveyResponseRepository surveyResponseRepository;
+
     @Mock
     UserRepository userRepository;
+
     @Mock
     UserService userService;
+
     @Mock
     UserTokenRepository userTokenRepository;
+
+    @Mock
+    UkrdcService ukrdcService;
+
+    @Mock
+    ExternalServiceService externalServiceService;
+
     @InjectMocks
     ApiSurveyResponseService apiSurveyResponseService = new ApiSurveyResponseServiceImpl();
 
@@ -126,7 +152,9 @@ public class ApiSurveyResponseServiceTest {
     }
 
     @Test
-    public void testAdd() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
+    public void testAdd() throws ResourceForbiddenException, ResourceNotFoundException,
+            MessagingException, JAXBException, DatatypeConfigurationException {
+
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -214,14 +242,14 @@ public class ApiSurveyResponseServiceTest {
 
         apiSurveyResponseService.add(user.getId(), surveyResponse);
 
-        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
-        verify(conversationRepository, Mockito.times(1)).save(any(Conversation.class));
-        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+        verify(surveyResponseRepository, times(1)).save(any(SurveyResponse.class));
+        verify(conversationRepository, times(1)).save(any(Conversation.class));
+        verify(emailService, times(1)).sendEmail(any(Email.class));
     }
 
     @Test
     public void testAdd_IBD_SELF_MANAGEMENT()
-            throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
+            throws ResourceForbiddenException, ResourceNotFoundException, MessagingException, JAXBException, DatatypeConfigurationException {
         String staffToken = "1234567890";
 
         User user = TestUtils.createUser("testUser");
@@ -301,11 +329,11 @@ public class ApiSurveyResponseServiceTest {
 
         apiSurveyResponseService.add(user.getId(), surveyResponse);
 
-        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
+        verify(surveyResponseRepository, times(1)).save(any(SurveyResponse.class));
     }
 
     @Test
-    public void testAdd_notHigh() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
+    public void testAdd_notHigh() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException, JAXBException, DatatypeConfigurationException {
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -391,9 +419,9 @@ public class ApiSurveyResponseServiceTest {
 
         apiSurveyResponseService.add(user.getId(), surveyResponse);
 
-        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
-        verify(conversationRepository, Mockito.times(0)).save(any(Conversation.class));
-        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
+        verify(surveyResponseRepository, times(1)).save(any(SurveyResponse.class));
+        verify(conversationRepository, times(0)).save(any(Conversation.class));
+        verify(emailService, times(0)).sendEmail(any(Email.class));
     }
 
     @Test
@@ -430,7 +458,7 @@ public class ApiSurveyResponseServiceTest {
                 .thenReturn(surveyResponses);
         List<SurveyResponse> returned = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), survey.getType());
 
-        verify(surveyResponseRepository, Mockito.times(1)).findByUserAndSurveyType(eq(user), eq(survey.getType()));
+        verify(surveyResponseRepository, times(1)).findByUserAndSurveyType(eq(user), eq(survey.getType()));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
     }
 
@@ -472,14 +500,16 @@ public class ApiSurveyResponseServiceTest {
                 any(Pageable.class))).thenReturn(new PageImpl<>(surveyResponses));
         List<SurveyResponse> returned = apiSurveyResponseService.getLatestByUserIdAndSurveyType(user.getId(), types);
 
-        verify(surveyResponseRepository, Mockito.times(1)).findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
+        verify(surveyResponseRepository, times(1)).findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
                 any(Pageable.class));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
     }
 
     @Test
     public void should_Not_Store_QuestionAnswer_When_CustomQuestion_Is_True_And_QuestionText_is_null()
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException,
+            JAXBException, DatatypeConfigurationException {
+
         // Given
 
         User user = TestUtils.createUser("testUser");
@@ -528,6 +558,11 @@ public class ApiSurveyResponseServiceTest {
         when(questionRepository.findOne(2L)).thenReturn(questionWithCustomerQuestionFlag);
         when(questionRepository.findOne(3L)).thenReturn(question);
 
+        String xml = "<xml>test</xml>";
+
+        when(ukrdcService.buildSurveyXml(Matchers.any(SurveyResponse.class)))
+                .thenReturn(xml);
+
         // When
 
         apiSurveyResponseService.add(user.getId(), response);
@@ -535,6 +570,11 @@ public class ApiSurveyResponseServiceTest {
         // Then
 
         surveyResponseRepository.save(Matchers.any(SurveyResponse.class));
+
+        // And survey is queued for external delivery
+
+        verify(externalServiceService, times(1))
+                .addToQueue(eq(ExternalServices.SURVEY_NOTIFICATION), eq(xml), eq(user), any(Date.class));
     }
 
     @Test
