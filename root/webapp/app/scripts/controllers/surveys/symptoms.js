@@ -230,6 +230,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                         });
                         if (responses && responses.length) {
                             customRows[i] = {
+                                index: i,
                                 text: $scope.filterDate(response.date),
                                 isLatest: response.isLatest,
                                 responses: responses,

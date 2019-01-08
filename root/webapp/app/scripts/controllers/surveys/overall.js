@@ -16,11 +16,11 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
 
         for (i = 0; i < visibleResponses.length; i++) {
             var response = visibleResponses[i];
-            if (series[response.date] == undefined || series[response.date] == null) {
-                series[response.date] = {};
-                series[response.date].color = colours[i];
-                series[response.date].name = $scope.filterDate(response.date);
-                series[response.date].data = [];
+            if (series[response.id] == undefined || series[response.id] == null) {
+                series[response.id] = {};
+                series[response.id].color = colours[i];
+                series[response.id].name = $scope.filterDate(response.date);
+                series[response.id].data = [];
             }
 
             // get question answer data for question with correct type
@@ -31,9 +31,11 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             }
 
             for (j = 0; j < questions.length; j++) {
+                if (questions[j].elementType === "SINGLE_SELECT_RANGE")
+                    continue;
                 if (questionAnswerMap[questions[j].type]) {
                     if (questionAnswerMap[questions[j].type].questionOption) {
-                        series[response.date].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
+                        series[response.id].data[j] = questionAnswerMap[questions[j].type].questionOption.score;
                     } else {
                         $scope.showOverallScore = true
                         $scope.overallScore.push({
@@ -43,7 +45,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                         });
                     }
                 } else {
-                    series[response.date].data[j] = 0;
+                    series[response.id].data[j] = 0;
                 }
             }
         }
@@ -73,13 +75,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
                 useHtml: true
             },
             xAxis: {
-                categories: [
-                    'Mobility',
-                    'Anxiety / Depression',
-                    'Usual Activities',
-                    'Pain / Discomfort',
-                    'Self-Care'
-                ],
+                categories:_.map(questions,"text"),
                 crosshair: true
             },
             yAxis: {
@@ -235,7 +231,7 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
     var init = function() {
         // $scope.surveyType = 'EQ5D5L';
         var params = document.location.href.split('type=');
-        $scope.surveyType = params.length === 2 ? params[1] : 'PROM';
+        $scope.surveyType = params.length === 2 ? params[1] : 'EQ5D';
         $scope.loading = true;
         $scope.overallScore = [];
 
@@ -286,11 +282,13 @@ angular.module('patientviewApp').controller('SurveysOverallCtrl', ['$scope', 'Co
             if ($scope.surveyResponses[i].id !== $scope.latestSurveyResponse.id) {
                 surveyResponseSelectOptions.push({
                     'id': $scope.surveyResponses[i].id,
-                    'date': $filter("date")($scope.surveyResponses[i].date, "dd-MMM-yyyy")
+                    'date': $filter("date")($scope.surveyResponses[i].date, "dd-MMM-yyyy"),
+                    'order': $scope.surveyResponses[i].date,
                 });
             }
         }
         $scope.surveyResponseSelectOptions = surveyResponseSelectOptions;
+
 
         // add latest to table
         var visibleSurveyResponses = [];

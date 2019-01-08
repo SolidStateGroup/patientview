@@ -177,7 +177,24 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                 'url': '/questionnaire-faq',
                 'templateUrl': 'views/questionnaire-faq.html',
                 'controller': 'TermsCtrl',
-                'title': 'Terms and Conditions',
+                'title': 'Questionnaire FAQs',
+                'lookup': {
+                    'id': 103,
+                    'value': 'NOT_DISPLAYED',
+                    'lookupType': {
+                        'id': 3,
+                        'type': 'MENU',
+                        'description': 'Type of menu'
+                    }
+                }
+            };
+        },
+        getQuestionnaireScoresRoute: function() {
+            return {
+                'url': '/questionnaire-scores',
+                'templateUrl': 'views/questionnaire-scores.html',
+                'controller': 'TermsCtrl',
+                'title': 'Questionnaire Scoring',
                 'lookup': {
                     'id': 103,
                     'value': 'NOT_DISPLAYED',
