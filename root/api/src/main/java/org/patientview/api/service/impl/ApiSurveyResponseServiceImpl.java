@@ -92,7 +92,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     private final static String PROM = "PROM";
 
     private final static Map<Long, Long> EQ5D_MAPPING;
-    private final static String EQ5D5L = "POS_S";
+    private final static String EQ5D5L = "EQ5D5L";
     private final static String EQ5D = "EQ5D";
 
     static {
