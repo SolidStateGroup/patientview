@@ -218,25 +218,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 var questionOptionText = '-';
 
                 if (isCustom) {
-                    if (!customRows[i] ) {
-                        var responses = Object.keys(questionAnswerMap).map(function (map) {
-                            var response = questionAnswerMap[map];
-                            return {
-                                label:response.questionText,
-                                value: response.questionOption && response.questionOption.text,
-                            };
-                        }).filter(function (v) {
-                            return v.label && v.value;
-                        });
-                        if (responses && responses.length) {
-                            customRows[i] = {
-                                index: i,
-                                text: $scope.filterDate(response.date),
-                                isLatest: response.isLatest,
-                                responses: responses,
-                            };
-                        }
-                    }
+                  continue;
                 } else {
                     if (questionAnswerMap[questionType]) {
                         questionOptionText = questionAnswerMap[questionType].questionOption?  questionAnswerMap[questionType].questionOption.text: questionAnswerMap[questionType].value;
@@ -244,7 +226,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
                     // set question text, e.g. Pain
                     if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex] == null) {
-                        tableRows[tableRowIndex] = {};
+                        tableRows[tableRowIndex] = {displayOrder: questions[j].displayOrder};
                         tableRows[tableRowIndex].type = questionType;
                         tableRows[tableRowIndex].nonViewable = questions[j].nonViewable;
                         tableRows[tableRowIndex].data = [];
@@ -259,12 +241,34 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             }
 
             // special download row
-            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] == null) {
-                tableRows[tableRowIndex] = {};
+            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] === null) {
+                tableRows[tableRowIndex] = {displayOrder: 999999};
                 tableRows[tableRowIndex].isDownload = true;
                 tableRows[tableRowIndex].data = [];
                 tableRows[tableRowIndex].data.push({'text':'', 'isDownload':true});
             }
+
+            _.filter(response.questionAnswers, function(questionAnswer){return questionAnswer.question.customQuestion})
+                    .map(function(questionAnswer) {
+                        var question = questionAnswer.question;
+                        var questionOption = questionAnswer.questionOption;
+                        var row = {
+                            type:  question,
+                            isCustom: true,
+                            nonViewable: question.nonViewable,
+                            displayOrder: question.displayOrder,
+                        };
+                        let data = [{text:questionAnswer.questionText}];
+                        if(i === 0) {// is left hand response
+                            data.push({text:questionOption.text})
+                            data.push({text:'-' , isLatest:true});
+                        } else {
+                            data.push({text:'-'})
+                            data.push({text:questionOption.text, isLatest:true});
+                        }
+                        row.data = data;
+                        customRows[customRows.length] = row;
+                })
 
             var download = '';
 
@@ -279,8 +283,9 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
         }
         $scope.showCustomResponses = customRows.length;
         $scope.tableHeader = tableHeader;
-        $scope.tableRows = tableRows;
-        $scope.customRows = customRows;
+        // $scope.tableRows = tableRows;
+        $scope.tableRows = _.sortBy(tableRows.concat(customRows),"displayOrder");
+        // $scope.customRows = customRows;
         $scope.minDate = minDate;
         $scope.maxDate = maxDate;
     };
