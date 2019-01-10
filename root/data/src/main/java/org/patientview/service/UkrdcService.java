@@ -1,7 +1,11 @@
 package org.patientview.service;
 
 import org.patientview.config.exception.ImportResourceException;
+import org.patientview.persistence.model.SurveyResponse;
 import uk.org.rixg.PatientRecord;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 
 /**
  * UKRDC service, used by importer to handle data in UKRDC xml format
@@ -68,4 +72,14 @@ public interface UkrdcService {
      * @throws ImportResourceException
      */
     String findIdentifier(PatientRecord patientRecord) throws ImportResourceException;
+
+    /**
+     * Given a survey response construct the xml compliant with the UKRDC xsd.
+     *
+     * @param surveyResponse Survey response to convert
+     * @return               UKRDC complaint xml
+     * @throws DatatypeConfigurationException
+     * @throws JAXBException
+     */
+    String buildSurveyXml(SurveyResponse surveyResponse) throws DatatypeConfigurationException, JAXBException;
 }

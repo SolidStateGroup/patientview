@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.api.service.EmailService;
+import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
 import org.patientview.api.service.UserService;
@@ -33,6 +34,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -52,6 +54,7 @@ import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.UkrdcService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +66,8 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -146,10 +151,17 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     @Inject
     private UserTokenRepository userTokenRepository;
 
+    @Inject
+    private UkrdcService ukrdcService;
+
+    @Inject
+    private ExternalServiceService externalServiceService;
+
     @Override
     @Transactional
     public void add(Long userId, SurveyResponse surveyResponse)
-            throws ResourceForbiddenException, ResourceNotFoundException {
+            throws ResourceForbiddenException, ResourceNotFoundException,
+            JAXBException, DatatypeConfigurationException {
 
         User user = userRepository.findOne(userId);
 
@@ -274,11 +286,18 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else if (survey.getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
+
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_FATIGUE;
             Double score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
-        } else {
+        } else if (survey.getType().equals(SurveyTypes.POS_S.toString())) {
+
+                // If the survey is of type POS S send to ukrdc
+                String xml = ukrdcService.buildSurveyXml(newSurveyResponse);
+                externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, user, new Date());
+        }
+        else {
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN.toString(), 0.0, ScoreSeverity.UNKNOWN));
         }

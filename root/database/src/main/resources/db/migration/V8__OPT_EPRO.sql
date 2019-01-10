@@ -46,7 +46,7 @@ insert into pv_question_option (id,question_id,text,type,description,display_ord
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917823,14917736,'Moderately',2,'limits on some activity or concentration',2,2);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917824,14917736,'Severely',3,'activities or concentration markedly affected',3,3);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917825,14917736,'Overwhelmingly',4,'unable to think of anything else',4,4);
-insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917737,14917710,'SINGLE_SELECT','RADIO','Month Problems','YSQ8',7,true,false);
+insert into pv_question (id,question_group_id,element_type,html_type,text,type,display_order,required,custom_question) values (14917737,14917710,'SINGLE_SELECT','RADIO','Mouth problems','YSQ8',7,true,false);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917826,14917737,'Not at all',0,'No effect',0,0);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917827,14917737,'Slightly',1,'but not bothered to be rid of it',1,1);
 insert into pv_question_option (id,question_id,text,type,description,display_order,score) values (14917828,14917737,'Moderately',2,'limits on some activity or concentration',2,2);

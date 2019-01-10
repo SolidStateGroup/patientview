@@ -117,8 +117,8 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element maxOccurs="unbounded" minOccurs="0" name="Diagnosis" type="Diagnosis"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="CauseOfDeath" type="CauseOfDeath"/>
-                            <xs:element maxOccurs="unbounded" minOccurs="0" name="RenalDiagnosis" type="RenalDiagnosis"/>
+                            <xs:element maxOccurs="1" minOccurs="0" name="CauseOfDeath" type="CauseOfDeath"/>
+                            <xs:element maxOccurs="1" minOccurs="0" name="RenalDiagnosis" type="RenalDiagnosis"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
