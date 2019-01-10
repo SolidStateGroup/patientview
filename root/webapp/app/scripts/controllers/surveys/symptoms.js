@@ -248,7 +248,13 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 tableRows[tableRowIndex].data.push({'text':'', 'isDownload':true});
             }
 
-            // _.filter(response.questionAnswers, function(questionAnswer){return questionAnswer.question.customQuestion})
+            var customQuestions = _.filter(response.questionAnswers,
+                function(questionAnswer){
+                return questionAnswer.question.customQuestion
+            });
+
+
+            //
             //         .map(function(questionAnswer) {
             //             var question = questionAnswer.question;
             //             var questionOption = questionAnswer.questionOption;
