@@ -55,26 +55,26 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr data-ng-repeat="row in customRows track by $index">
-                        <td><strong>{{row.responses[0].label}}</strong></td>
-                        <td ng-if="row.index==1">-</td>
-                        <td data-ng-class="{'latest-td': row.index==1}">
-                            <strong>
-                                {{row.responses[0].value}}
-                            </strong>
-                        </td>
-                        <td ng-if="row.index==0" data-ng-class="{'latest-td': row.index==0}">-</td>
-                        <td></td>
-                    </tr>
-                    <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="row.type == questionType ? 'current-question' : ''">
-                        <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
-                            <span data-ng-class="{'bold': $index == 0}" data-ng-bind-html="cell.text" data-ng-if="cell.isDownload"></span>
-                            <span data-ng-class="{'bold': $index == 0, 'non-viewable':row.nonViewable}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
-                        </td>
-                        <td class="view-graph-td">
-                            <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="(row.type !== questionType) && (row.isDownload !== true) && (!row.nonViewable)">View</a>
-                        </td>
-                    </tr>
+                        <tr data-ng-repeat="row in customRows track by $index">
+                            <td><strong>{{row.responses[0].label}}</strong></td>
+                            <td ng-if="row.index==1">-</td>
+                            <td data-ng-class="{'latest-td': row.index==1}">
+                                <strong>
+                                    {{row.responses[0].value}}
+                                </strong>
+                            </td>
+                            <td ng-if="row.index==0" data-ng-class="{'latest-td': row.index==0}">-</td>
+                            <td></td>
+                        </tr>
+                        <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="row.type == questionType ? 'current-question' : ''">
+                            <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
+                                <span data-ng-class="{'bold': $index == 0}" data-ng-bind-html="cell.text" data-ng-if="cell.isDownload"></span>
+                                <span data-ng-class="{'bold': $index == 0, 'non-viewable':row.nonViewable}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
+                            </td>
+                            <td class="view-graph-td">
+                                <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="(row.type !== questionType) && (row.isDownload !== true) && (!row.nonViewable)">View</a>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
 
