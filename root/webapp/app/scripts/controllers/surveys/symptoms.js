@@ -248,27 +248,27 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 tableRows[tableRowIndex].data.push({'text':'', 'isDownload':true});
             }
 
-            _.filter(response.questionAnswers, function(questionAnswer){return questionAnswer.question.customQuestion; })
-                    .map(function(questionAnswer) {
-                        var question = questionAnswer.question;
-                        var questionOption = questionAnswer.questionOption;
-                        var row = {
-                            type:  question,
-                            isCustom: true,
-                            nonViewable: question.nonViewable,
-                            displayOrder: question.displayOrder,
-                        };
-                        let data = [{text:questionAnswer.questionText}];
-                        if(i === 0) {// is left hand response
-                            data.push({text:questionOption.text})
-                            data.push({text:'-' , isLatest:true});
-                        } else {
-                            data.push({text:'-'})
-                            data.push({text:questionOption.text, isLatest:true});
-                        }
-                        row.data = data;
-                        customRows[customRows.length] = row;
-                })
+            // _.filter(response.questionAnswers, function(questionAnswer){return questionAnswer.question.customQuestion; })
+            //         .map(function(questionAnswer) {
+            //             var question = questionAnswer.question;
+            //             var questionOption = questionAnswer.questionOption;
+            //             var row = {
+            //                 type:  question,
+            //                 isCustom: true,
+            //                 nonViewable: question.nonViewable,
+            //                 displayOrder: question.displayOrder,
+            //             };
+            //             let data = [{text:questionAnswer.questionText}];
+            //             if(i === 0) {// is left hand response
+            //                 data.push({text:questionOption.text})
+            //                 data.push({text:'-' , isLatest:true});
+            //             } else {
+            //                 data.push({text:'-'})
+            //                 data.push({text:questionOption.text, isLatest:true});
+            //             }
+            //             row.data = data;
+            //             customRows[customRows.length] = row;
+            //     })
 
             var download = '';
 
