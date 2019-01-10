@@ -241,14 +241,14 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             }
 
             // special download row
-            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] == null) {
+            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] === null) {
                 tableRows[tableRowIndex] = {displayOrder: 999999};
                 tableRows[tableRowIndex].isDownload = true;
                 tableRows[tableRowIndex].data = [];
                 tableRows[tableRowIndex].data.push({'text':'', 'isDownload':true});
             }
 
-            _.filter(response.questionAnswers, (questionAnswer)=>questionAnswer.question.customQuestion)
+            _.filter(response.questionAnswers, function(questionAnswer){return questionAnswer.question.customQuestion})
                     .map(function(questionAnswer) {
                         var question = questionAnswer.question;
                         var questionOption = questionAnswer.questionOption;
