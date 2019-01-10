@@ -257,14 +257,14 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             //
             customQuestions.map(function(questionAnswer) {
                         //
-                        // var question = questionAnswer.question;
-                        // var questionOption = questionAnswer.questionOption;
-                        // var row = {
-                        //     type:  question,
-                        //     isCustom: true,
-                        //     nonViewable: question.nonViewable,
-                        //     displayOrder: question.displayOrder,
-                        // };
+                        var question = questionAnswer.question;
+                        var questionOption = questionAnswer.questionOption;
+                        var row = {
+                            type:  question,
+                            isCustom: true,
+                            nonViewable: question.nonViewable,
+                            displayOrder: question.displayOrder,
+                        };
                         //
                         // let data = [{text:questionAnswer.questionText}];
                         //
