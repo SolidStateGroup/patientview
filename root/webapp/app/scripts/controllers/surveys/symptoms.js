@@ -241,22 +241,15 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             }
 
             // special download row
-            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] === null) {
+            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] == null) {
                 tableRows[tableRowIndex] = {displayOrder: 999999};
                 tableRows[tableRowIndex].isDownload = true;
                 tableRows[tableRowIndex].data = [];
                 tableRows[tableRowIndex].data.push({'text':'', 'isDownload':true});
             }
 
-            var customQuestions = _.filter(response.questionAnswers,
-                function(a){
-                return a.question.customQuestion;
-            });
-
-
-            //
-            customQuestions.map(function(questionAnswer) {
-                        //
+            _.filter(response.questionAnswers, function(questionAnswer){return questionAnswer.question.customQuestion})
+                    .map(function(questionAnswer) {
                         var question = questionAnswer.question;
                         var questionOption = questionAnswer.questionOption;
                         var row = {
@@ -265,18 +258,16 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                             nonViewable: question.nonViewable,
                             displayOrder: question.displayOrder,
                         };
-                        //
-                        // let data = [{text:questionAnswer.questionText}];
-                        //
-                        // if(i === 0) {// is left hand response
-                        //     data.push({text:questionOption.text})
-                        //     data.push({text:'-' , isLatest:true});
-                        // } else {
-                        //     data.push({text:'-'})
-                        //     data.push({text:questionOption.text, isLatest:true});
-                        // }
-                        // row.data = data;
-                        // customRows[customRows.length] = row;
+                        var data = [{text:questionAnswer.questionText}];
+                        if(i === 0) {// is left hand response
+                            data.push({text:questionOption.text})
+                            data.push({text:'-' , isLatest:true});
+                        } else {
+                            data.push({text:'-'})
+                            data.push({text:questionOption.text, isLatest:true});
+                        }
+                        row.data = data;
+                        customRows[customRows.length] = row;
                 })
 
             var download = '';
@@ -284,8 +275,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             if ($scope.documentDateMap[response.date]) {
                 download = '<a href="../api/user/' + $scope.loggedInUser.id +
                     '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
-                    '?token=' + $scope.authToken +
-                    '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
+                    '?token=' + $scope.authToken
+                    + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
             }
 
             tableRows[tableRowIndex].data.push({'text': download, 'isLatest':false, 'isDownload':true});
