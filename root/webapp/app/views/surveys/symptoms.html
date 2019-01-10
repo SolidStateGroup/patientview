@@ -61,7 +61,7 @@
                                 <span data-ng-class="{'bold': $index == 0, 'non-viewable':row.nonViewable}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
                             </td>
                             <td class="view-graph-td">
-                                <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="(row.type !== questionType) && (row.isDownload !== true) && (!row.nonViewable)">View</a>
+                                <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="(!row.isCustom) && (row.type !== questionType) && (row.isDownload !== true) && (!row.nonViewable)">View</a>
                             </td>
                         </tr>
                     </tbody>
