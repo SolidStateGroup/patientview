@@ -249,40 +249,43 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             }
 
             var customQuestions = _.filter(response.questionAnswers,
-                function(questionAnswer){
-                return questionAnswer.question.customQuestion
+                function(a){
+                return a.question.customQuestion;
             });
 
 
             //
-            //         .map(function(questionAnswer) {
-            //             var question = questionAnswer.question;
-            //             var questionOption = questionAnswer.questionOption;
-            //             var row = {
-            //                 type:  question,
-            //                 isCustom: true,
-            //                 nonViewable: question.nonViewable,
-            //                 displayOrder: question.displayOrder,
-            //             };
-            //             let data = [{text:questionAnswer.questionText}];
-            //             if(i === 0) {// is left hand response
-            //                 data.push({text:questionOption.text})
-            //                 data.push({text:'-' , isLatest:true});
-            //             } else {
-            //                 data.push({text:'-'})
-            //                 data.push({text:questionOption.text, isLatest:true});
-            //             }
-            //             row.data = data;
-            //             customRows[customRows.length] = row;
-            //     })
+            customQuestions.map(function(questionAnswer) {
+
+                        var question = questionAnswer.question;
+                        var questionOption = questionAnswer.questionOption;
+                        var row = {
+                            type:  question,
+                            isCustom: true,
+                            nonViewable: question.nonViewable,
+                            displayOrder: question.displayOrder,
+                        };
+
+                        let data = [{text:questionAnswer.questionText}];
+
+                        if(i === 0) {// is left hand response
+                            data.push({text:questionOption.text})
+                            data.push({text:'-' , isLatest:true});
+                        } else {
+                            data.push({text:'-'})
+                            data.push({text:questionOption.text, isLatest:true});
+                        }
+                        row.data = data;
+                        customRows[customRows.length] = row;
+                })
 
             var download = '';
 
             if ($scope.documentDateMap[response.date]) {
                 download = '<a href="../api/user/' + $scope.loggedInUser.id +
                     '/file/' + $scope.documentDateMap[response.date].fileDataId + '/download' +
-                    '?token=' + $scope.authToken
-                    + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
+                    '?token=' + $scope.authToken +
+                    '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
             }
 
             tableRows[tableRowIndex].data.push({'text': download, 'isLatest':false, 'isDownload':true});
