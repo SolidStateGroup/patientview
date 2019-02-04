@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.ApiMedicationService;
+import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.CaptchaService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.DocumentService;
@@ -204,6 +205,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private CaptchaService captchaService;
+
+    @Inject
+    private AuthenticationService authenticationService;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -603,6 +607,28 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Override
     public String changeSecretWord(Long userId, SecretWordInput secretWordInput, boolean includeSalt)
             throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = findUser(userId);
+        boolean userHasSecretWord = StringUtils.isNotEmpty(user.getSecretWord());
+
+        //  if user has secret word set, validate old secret word
+        if (userHasSecretWord) {
+            if (StringUtils.isEmpty(secretWordInput.getOldSecretWord())) {
+                throw new ResourceForbiddenException("Please provide old secret word");
+            }
+
+            String oldSecretWord = secretWordInput.getOldSecretWord().replace(" ", "").trim().toUpperCase();
+            // convert old secret word to hashmap
+            Map<String, String> oldLetters = new HashMap<>();
+            for (int i = 0; i < oldSecretWord.length(); i++) {
+                oldLetters.put(String.valueOf(i), String.valueOf(oldSecretWord.charAt(i)));
+            }
+
+            // check make sure old secret words match
+            // will throw ResourceForbiddenException if don't match or problem with user account
+            authenticationService.checkSecretWord(user, oldLetters, false);
+        }
+
         if (StringUtils.isEmpty(secretWordInput.getSecretWord1())) {
             throw new ResourceForbiddenException("Secret word must be set");
         }
@@ -616,7 +642,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Secret word must be minimum " + SECRET_WORD_MIN_LENGTH + " letters");
         }
 
-        User user = findUser(userId);
         try {
             String salt = CommonUtils.generateSalt();
             String secretWord = secretWordInput.getSecretWord1().replace(" ", "").trim().toUpperCase();
@@ -2099,7 +2124,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
 
         xml.append("<ProgramMemberships><ProgramMembership>");
-
 
 
         User staffMember = getCurrentUser();

@@ -65,10 +65,12 @@ public interface AuthenticationService extends UserDetailsService {
      * get User information
      * @param user User to validate secret word
      * @param letterMap Map of position to letter chosen
+     * @param lengthCheck if we need to validate the length of there letters
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    void checkSecretWord(org.patientview.persistence.model.User user, Map<String, String> letterMap)
+    void checkSecretWord(org.patientview.persistence.model.User user, Map<String, String> letterMap,
+                         boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
