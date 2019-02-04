@@ -490,7 +490,7 @@ public class UserServiceTest {
 
         userService.changeSecretWord(user.getId(), secretWordInput, false);
 
-        verify(authenticationService, times(1)).checkSecretWord(any(User.class), any(Map.class), false);
+        verify(authenticationService, times(1)).checkSecretWord(any(User.class), any(Map.class), any(Boolean.class));
         verify(userRepository, times(1)).save(any(User.class));
         verify(userTokenRepository, times(1)).findByUser(user.getId());
     }
