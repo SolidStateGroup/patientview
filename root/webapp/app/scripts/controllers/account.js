@@ -34,6 +34,16 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         });
     };
 
+    $scope.updateSecretWordDisabled = function () {
+        if ($rootScope.loggedInUser.secretWordIsSet && !$scope.oldSecretWord) {
+            return true;
+        }
+
+        return !($scope.secretWord1 && $scope.secretWord1.length > 6
+            && $scope.secretWord2 && $scope.secretWord2.length > 6
+            && ($scope.secretWord1 === $scope.secretWord2));
+    }
+
     $scope.saveSettings = function () {
         // If the email field has been changed validate emails
         $scope.settingsSuccessMessage = null;
