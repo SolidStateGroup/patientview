@@ -98,13 +98,15 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         $scope.secretWordSuccessMessage = null;
         $scope.secretWordErrorMessage = null;
 
-        if (!$scope.oldSecretWord) {
+        if ($rootScope.loggedInUser.secretWordIsSet && !$scope.oldSecretWord) {
             $scope.secretWordErrorMessage = 'Please enter your current secret word';
         } else if ($scope.secretWord1 !== $scope.secretWord2) {
             $scope.secretWordErrorMessage = 'The secret words do not match';
         } else {
             var secretWordInput = {};
-            secretWordInput.oldSecretWord = $scope.oldSecretWord;
+            if ($rootScope.loggedInUser.secretWordIsSet) {
+                secretWordInput.oldSecretWord = $scope.oldSecretWord;
+            }
             secretWordInput.secretWord1 = $scope.secretWord1;
             secretWordInput.secretWord2 = $scope.secretWord2;
             UserService.changeSecretWord($rootScope.loggedInUser.id, secretWordInput).then(function () {

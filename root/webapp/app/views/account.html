@@ -151,7 +151,7 @@
             </p>
             <p><strong>The minimum length for a secret word is 7 characters, must be letters not numbers.</strong></p>
 
-            <div class="form-group">
+            <div data-ng-if="loggedInUser.secretWordIsSet" class="form-group">
                 <label for="oldSecretWord" class="col-sm-2 control-label">Current Secret Word:</label>
                 <div class="col-sm-4">
                     <input id="oldSecretWord" data-ng-model="oldSecretWord" type="password" class="form-control" only-capital-letters/>
