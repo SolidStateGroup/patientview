@@ -154,7 +154,7 @@
             <div data-ng-if="loggedInUser.secretWordIsSet" class="form-group">
                 <label for="oldSecretWord" class="col-sm-2 control-label">Current Secret Word:</label>
                 <div class="col-sm-4">
-                    <input id="oldSecretWord" data-ng-model="oldSecretWord" type="password" class="form-control" only-capital-letters/>
+                    <input id="oldSecretWord" data-ng-model="$parent.oldSecretWord" type="password" class="form-control" only-capital-letters/>
                 </div>
             </div>
 
@@ -175,9 +175,7 @@
             <div class="form-group">
                 <div class="col-md-4 col-sm-offset-2">
                     <button data-ng-click="saveSecretWord()" class="btn blue"
-                            data-ng-disabled="!(secretWord1.length > 6
-                            && secretWord2.length > 6
-                            && (secretWord1 === secretWord2))">
+                            data-ng-disabled="updateSecretWordDisabled()">
                         Update Secret Word
                     </button>
                     <button data-ng-click="removeSecretWord()"
