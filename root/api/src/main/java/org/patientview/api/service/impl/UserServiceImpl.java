@@ -2109,7 +2109,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 }
             }
         } else {
-            LOG.error("Missing identifier for Patient while building UKRDC xml: {} " + groupRole.getUser().getId());
+            LOG.error("Missing identifier for Patient while building UKRDC xml: {} ", groupRole.getUser().getId());
         }
         xml.append("</PatientNumbers>");
         xml.append("<Names><Name use=\"L\">");
