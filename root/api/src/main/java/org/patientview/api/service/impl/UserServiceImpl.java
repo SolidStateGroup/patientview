@@ -358,8 +358,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     newUser, patientManagementGroup, firstIdentifier, user.getPatientManagement());
         }
 
-        //Check whether this needs to be sent to ukrdc
-        sendUserUpdatedGroupNotification(user, true);
+        // For Patient check whether this needs to be sent to ukrdc
+        if (isPatient) {
+            sendUserUpdatedGroupNotification(user, true);
+        }
 
         return newUser.getId();
     }
@@ -838,8 +840,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 observationService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
-            //Send any updates if required
-            sendUserUpdatedGroupNotification(user, false);
+            // for Patient Send any updates if required
+            if (isPatient) {
+                sendUserUpdatedGroupNotification(user, false);
+            }
 
 
             if (isPatient || forceDelete) {
@@ -2013,6 +2017,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    /**
+     * Builds group membership XML and adds it to the queue to be processed.
+     *
+     * This should only be called for Patient users.
+     *
+     * @param groupRole
+     * @param adding
+     */
     private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
         Date now = new Date();
         // for ISO1806 date format
@@ -2025,7 +2037,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (groupRole.getUser().getIdentifiers() != null) {
             String currentMRN = null;
             for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
-                //MRN rule
+                // MRN rule
                 // We need an additional, duplicate identifier to be added with a NumberType of MRN.
                 // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "H&SC"
                 // if someone has more than one. The identifier chosen as MRN should also be included
@@ -2061,8 +2073,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         xml.append("<NumberType>MRN</NumberType>");
                         xml.append("</PatientNumber>");
                     }
-
-
                 }
 
 
@@ -2098,6 +2108,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     xml.append("</PatientNumber>");
                 }
             }
+        } else {
+            LOG.error("Missing identifier for Patient while building UKRDC xml: {} ", groupRole.getUser().getId());
         }
         xml.append("</PatientNumbers>");
         xml.append("<Names><Name use=\"L\">");
