@@ -9,7 +9,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.surveyResponse = {};
         $scope.initalQuestion = 0;
         $scope.saving = false;
-        $scope.answers = [];
+        $scope.answers = {};
         $scope.customQuestions = [];
         $scope.acceptedTerms = false;
         $scope.days = UtilService.generateDays();
@@ -73,6 +73,15 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                     }
                 }
             }
+
+            _.defer(function () {
+                $('input[type="radio"]').change(function(e) {
+                    var model = $(this).data('model');
+                    if (model) {
+                        $scope[$(this).data('model')][e.target.name] = e.target.value;
+                    }
+                })
+            });
         }, function () {
             alert('error getting survey')
         });
@@ -140,25 +149,27 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             var requiredMap = $scope.questionRequiredMap.slice();
             var containsAllRequired = true;
 
-            for (i = 0; i < $scope.answers.length; i++) {
-                var answer = $scope.answers[i];
+            var keys = Object.keys($scope.answers);
+            for (i = 0; i < keys.length; i++) {
+                var questionId = keys[i];
+                var answer = $scope.answers[questionId];
                 if (answer !== null && answer !== undefined) {
                     var questionAnswer = {};
-                    if ($scope.questionTypeMap[i] === 'SINGLE_SELECT') {
+                    if ($scope.questionTypeMap[questionId] === 'SINGLE_SELECT') {
                         questionAnswer.questionOption = {};
                         questionAnswer.questionOption.id = answer;
                     }
-                    if ($scope.customQuestions[i]) {
-                        questionAnswer.questionText = $scope.customQuestions[i];
+                    if ($scope.customQuestions[questionId]) {
+                        questionAnswer.questionText = $scope.customQuestions[questionId];
                     }
-                    if (['SINGLE_SELECT_RANGE','TEXT','TEXT_NUMERIC'].indexOf($scope.questionTypeMap[i]) > -1) {
+                    if (['SINGLE_SELECT_RANGE','TEXT','TEXT_NUMERIC'].indexOf($scope.questionTypeMap[questionId]) > -1) {
                         questionAnswer.value = answer;
                     }
                     questionAnswer.question = {};
-                    questionAnswer.question.id = i;
+                    questionAnswer.question.id = questionId;
                     surveyResponse.questionAnswers.push(questionAnswer);
 
-                    requiredMap[i] = false;
+                    requiredMap[questionId] = false;
                 }
             }
 
@@ -196,7 +207,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 $scope.saving = false;
                 $scope.$apply();
 
-                alert('Please complete all required questions for: \n' + _.map(requiredList, "text").join("\n"));
+                alert('Please enter a value for: \n' + _.map(requiredList, "text").join("\n"));
             }
         });
 
@@ -249,6 +260,10 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         }
         return input;
     };
+
+    $scope.canSave = function() {
+        return Object.keys($scope.answers).length;
+    }
 
     init();
 }];

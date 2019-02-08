@@ -48,7 +48,8 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
 
         // handle modal close (via button click)
         modalInstance.result.then(function () {
-            getSurveyResponses();
+            // TODO go to the survey response? /surveys/symptoms
+            // getSurveyResponses();
         }, function () {
             // close button, do nothing
         });

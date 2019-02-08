@@ -60,9 +60,9 @@
                             class="span-radio text-center">
 
                             <label for="{{questionOption.id}}" class="radio-label">
-                                <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id"
+                                <input type="radio" ng-value="questionOption.id"
                                        name="{{question.id}}"
-                                       class="radio-button" id="{{questionOption.id}}">
+                                       class="radio-button" id="{{questionOption.id}}" data-model="answers">
                                 <small>{{$index}}</small>
                             </label>
 
@@ -126,11 +126,8 @@
                 </div>
 
                 <div class="well terms-well">
-                    <p>
-                        Please confirm that your answers are complete and correct before saving
-                    </p>
                     <label for="terms" class="radio-label">
-                        I confirm that my answers are complete and correct
+                        Please confirm that your answers are complete and correct before saving
                         <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button"
                                id="terms"/>
                     </label>
@@ -142,7 +139,7 @@
     <div class="modal-footer pos-survey-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
         <button class="btn btn-lg btn-grey" data-ng-click="cancel()">Cancel</button>
-        <button class="btn btn-lg blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms"
+        <button class="btn btn-lg blue" data-ng-click="save()" data-ng-disabled="!canSave() || !acceptedTerms"
                 data-ng-if="!showEnterResults && !saving">Save
         </button>
         <button data-ng-if="saving" class="btn btn-lg blue" disabled>
