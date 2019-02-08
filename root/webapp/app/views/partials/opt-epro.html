@@ -43,7 +43,7 @@
                 </p>
             </div>
             <div class="col-md-4 align-bottom">
-                <a data-ng-click="openModalEnterSurveyResponses('EQ5D5L')" class="btn blue">
+                <a data-ng-if="canEnterSurveyResponses('EQ5D5L')" data-ng-click="openModalEnterSurveyResponses('EQ5D5L')" class="btn blue">
                     Fill in
                 </a>
                 <a href="/#/surveys/overall?type=EQ5D5L" class="btn blue">

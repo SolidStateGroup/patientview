@@ -4,7 +4,7 @@ angular.module('patientviewApp').controller('MyConditionsSurveysCtrl',['$scope',
     function ($scope, SurveyResponseService) {
 
     var init = function() {
-        var types = ['PAM', 'PROM', 'EQ5D'];
+        var types = ['PAM', 'PROM', 'EQ5D', 'EQ5D5L', 'POS_S'];
         var foundSurveys = [];
 
         SurveyResponseService.getLatestByUserAndSurveyType($scope.loggedInUser.id, types)
@@ -24,6 +24,10 @@ angular.module('patientviewApp').controller('MyConditionsSurveysCtrl',['$scope',
                 $scope.loading = false;
             });
     };
+
+    $scope.canEnterSurveyResponses = function (surveyType) {
+        return !$scope.foundSurveys || !$scope.foundSurveys[surveyType] || moment($scope.foundSurveys[surveyType].date).add(1, 'y').isBefore(moment());
+    }
 
     init();
 }]);
