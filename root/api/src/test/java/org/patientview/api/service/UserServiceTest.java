@@ -490,7 +490,7 @@ public class UserServiceTest {
 
         userService.changeSecretWord(user.getId(), secretWordInput, false);
 
-        verify(authenticationService, times(1)).checkSecretWord(any(User.class), any(Map.class), any(Boolean.class));
+        verify(authenticationService, times(1)).checkLettersAgainstSecretWord(any(User.class), any(Map.class), any(Boolean.class));
         verify(userRepository, times(1)).save(any(User.class));
         verify(userTokenRepository, times(1)).findByUser(user.getId());
     }
@@ -527,13 +527,13 @@ public class UserServiceTest {
         when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
         doThrow(ResourceForbiddenException.class)
                 .when(authenticationService)
-                .checkSecretWord(any(User.class), any(Map.class), any(Boolean.class));
+                .checkLettersAgainstSecretWord(any(User.class), any(Map.class), any(Boolean.class));
 
 
         SecretWordInput secretWordInput = new SecretWordInput("Invalid", "ABCDEFG", "ABCDEFG");
         userService.changeSecretWord(user.getId(), secretWordInput, false);
 
-        verify(authenticationService, times(1)).checkSecretWord(any(User.class), any(Map.class), any(Boolean.class));
+        verify(authenticationService, times(1)).checkLettersAgainstSecretWord(any(User.class), any(Map.class), any(Boolean.class));
         verify(userRepository, times(0)).save(any(User.class));
         verify(userTokenRepository, times(0)).findByUser(user.getId());
     }
