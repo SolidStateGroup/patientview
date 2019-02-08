@@ -1,0 +1,2598 @@
+{
+  "id": 59612908,
+  "staffUser": null,
+  "staffToken": null,
+  "user": {
+    "username": "testuser",
+    "forename": "test",
+    "surname": "user"
+  },
+  "survey": {
+    "id": 14917703,
+    "description": "",
+    "type": "POS_S",
+    "questionGroups": [
+      {
+        "id": 14917710,
+        "text": "POS-S Questions",
+        "description": null,
+        "number": null,
+        "displayOrder": 0,
+        "questions": [
+          {
+            "id": 14917747,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ18",
+            "text": "",
+            "description": null,
+            "number": null,
+            "displayOrder": 17,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917876,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,w
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917877,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917878,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917879,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917880,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": false,
+            "customQuestion": true
+          },
+          {
+            "id": 14917748,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ19",
+            "text": "",
+            "description": null,
+            "number": null,
+            "displayOrder": 18,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917881,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917882,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917883,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917884,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917885,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": false,
+            "customQuestion": true
+          },
+          {
+            "id": 14917730,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ1",
+            "text": "Pain",
+            "description": null,
+            "number": null,
+            "displayOrder": 0,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917791,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917792,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917793,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917794,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917795,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917731,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ2",
+            "text": "Shortness of breath",
+            "description": null,
+            "number": null,
+            "displayOrder": 1,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917796,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917797,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917798,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917799,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917800,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917733,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ4",
+            "text": "Nausea (feeling like you are about to be sick)",
+            "description": null,
+            "number": null,
+            "displayOrder": 3,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917806,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917807,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917808,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917809,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917810,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917734,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ5",
+            "text": "Vomiting (being sick)",
+            "description": null,
+            "number": null,
+            "displayOrder": 4,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917811,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917812,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917813,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917814,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917815,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917735,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ6",
+            "text": "Poor appetite",
+            "description": null,
+            "number": null,
+            "displayOrder": 6,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917816,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917817,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917818,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917819,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917820,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917736,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ7",
+            "text": "Constipation",
+            "description": null,
+            "number": null,
+            "displayOrder": 6,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917821,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917822,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917823,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917824,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917825,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917737,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ8",
+            "text": "Month Problems",
+            "description": null,
+            "number": null,
+            "displayOrder": 7,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917826,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917827,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917828,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917829,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917830,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917740,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ11",
+            "text": "Itching",
+            "description": null,
+            "number": null,
+            "displayOrder": 10,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917841,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917842,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917843,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917844,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917845,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917741,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ12",
+            "text": "Difficulty sleeping",
+            "description": null,
+            "number": null,
+            "displayOrder": 11,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917846,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917847,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917848,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917849,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917850,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917739,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ10",
+            "text": "Poor mobility",
+            "description": null,
+            "number": null,
+            "displayOrder": 9,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917836,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917837,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917838,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917839,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917840,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917742,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ13",
+            "text": "Restless legs or difficulty keeping legs still",
+            "description": null,
+            "number": null,
+            "displayOrder": 12,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917851,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917852,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917853,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917854,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917855,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917743,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ14",
+            "text": "Feeling anxious",
+            "description": null,
+            "number": null,
+            "displayOrder": 13,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917856,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917857,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917858,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917859,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917860,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917744,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ15",
+            "text": "Feeling depressed",
+            "description": null,
+            "number": null,
+            "displayOrder": 14,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917861,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917862,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917863,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917864,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917865,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917745,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ16",
+            "text": "Changes in skin",
+            "description": null,
+            "number": null,
+            "displayOrder": 15,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917866,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917867,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917868,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917869,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917870,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917746,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ17",
+            "text": "Diarrhoea",
+            "description": null,
+            "number": null,
+            "displayOrder": 16,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917871,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917872,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917873,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917874,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917875,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917749,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ20",
+            "text": "",
+            "description": null,
+            "number": null,
+            "displayOrder": 19,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917886,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917887,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917888,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917889,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917890,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": false,
+            "customQuestion": true
+          },
+          {
+            "id": 14917750,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "TEXT",
+            "type": "YSQ21",
+            "text": "Which symptom has affected you the most?",
+            "description": null,
+            "number": null,
+            "displayOrder": 20,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917751,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "TEXT",
+            "type": "YSQ22",
+            "text": "Which symptom has improved the most?",
+            "description": null,
+            "number": null,
+            "displayOrder": 21,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917732,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ3",
+            "text": "Weakness or lack of energy",
+            "description": null,
+            "number": null,
+            "displayOrder": 2,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917801,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917803,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917804,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917805,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              },
+              {
+                "id": 14917802,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          },
+          {
+            "id": 14917738,
+            "elementType": "SINGLE_SELECT",
+            "htmlType": "RADIO",
+            "type": "YSQ9",
+            "text": "Drowsiness",
+            "description": null,
+            "number": null,
+            "displayOrder": 8,
+            "rangeStart": null,
+            "rangeEnd": null,
+            "rangeStartDescription": null,
+            "rangeEndDescription": null,
+            "helpLink": null,
+            "questionOptions": [
+              {
+                "id": 14917831,
+                "text": "Not at all",
+                "description": "No effect",
+                "displayOrder": 0,
+                "score": 0,
+                "type": "0"
+              },
+              {
+                "id": 14917832,
+                "text": "Slightly",
+                "description": "but not bothered to be rid of it",
+                "displayOrder": 1,
+                "score": 1,
+                "type": "1"
+              },
+              {
+                "id": 14917833,
+                "text": "Moderately",
+                "description": "limits on some activity or concentration",
+                "displayOrder": 2,
+                "score": 2,
+                "type": "2"
+              },
+              {
+                "id": 14917834,
+                "text": "Severely",
+                "description": "activities or concentration markedly affected",
+                "displayOrder": 3,
+                "score": 3,
+                "type": "3"
+              },
+              {
+                "id": 14917835,
+                "text": "Overwhelmingly",
+                "description": "unable to think of anything else",
+                "displayOrder": 4,
+                "score": 4,
+                "type": "4"
+              }
+            ],
+            "required": true,
+            "customQuestion": false
+          }
+        ]
+      }
+    ]
+  },
+  "date": 1544486400000,
+  "questionAnswers": [
+    {
+      "id": 59612926,
+      "question": {
+        "id": 14917747,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ18",
+        "text": "",
+        "description": null,
+        "number": null,
+        "displayOrder": 17,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917876,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917877,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917878,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917879,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917880,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": false,
+        "customQuestion": true
+      },
+      "questionOption": {
+        "id": 14917879,
+        "text": "Severely",
+        "description": "activities or concentration markedly affected",
+        "displayOrder": 3,
+        "score": 3,
+        "type": "3"
+      },
+      "value": null,
+      "questionText": "fluey"
+    },
+    {
+      "id": 59612909,
+      "question": {
+        "id": 14917730,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ1",
+        "text": "Pain",
+        "description": null,
+        "number": null,
+        "displayOrder": 0,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917791,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917792,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917793,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917794,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917795,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917791,
+        "text": "Not at all",
+        "description": "No effect",
+        "displayOrder": 0,
+        "score": 0,
+        "type": "0"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612910,
+      "question": {
+        "id": 14917731,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ2",
+        "text": "Shortness of breath",
+        "description": null,
+        "number": null,
+        "displayOrder": 1,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917796,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917797,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917798,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917799,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917800,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917798,
+        "text": "Moderately",
+        "description": "limits on some activity or concentration",
+        "displayOrder": 2,
+        "score": 2,
+        "type": "2"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612912,
+      "question": {
+        "id": 14917733,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ4",
+        "text": "Nausea (feeling like you are about to be sick)",
+        "description": null,
+        "number": null,
+        "displayOrder": 3,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917806,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917807,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917808,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917809,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917810,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917808,
+        "text": "Moderately",
+        "description": "limits on some activity or concentration",
+        "displayOrder": 2,
+        "score": 2,
+        "type": "2"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612913,
+      "question": {
+        "id": 14917734,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ5",
+        "text": "Vomiting (being sick)",
+        "description": null,
+        "number": null,
+        "displayOrder": 4,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917811,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917812,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917813,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917814,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917815,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917814,
+        "text": "Severely",
+        "description": "activities or concentration markedly affected",
+        "displayOrder": 3,
+        "score": 3,
+        "type": "3"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612914,
+      "question": {
+        "id": 14917735,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ6",
+        "text": "Poor appetite",
+        "description": null,
+        "number": null,
+        "displayOrder": 6,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917816,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917817,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917818,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917819,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917820,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917819,
+        "text": "Severely",
+        "description": "activities or concentration markedly affected",
+        "displayOrder": 3,
+        "score": 3,
+        "type": "3"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612915,
+      "question": {
+        "id": 14917736,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ7",
+        "text": "Constipation",
+        "description": null,
+        "number": null,
+        "displayOrder": 6,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917821,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917822,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917823,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917824,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917825,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917823,
+        "text": "Moderately",
+        "description": "limits on some activity or concentration",
+        "displayOrder": 2,
+        "score": 2,
+        "type": "2"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612916,
+      "question": {
+        "id": 14917737,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ8",
+        "text": "Month Problems",
+        "description": null,
+        "number": null,
+        "displayOrder": 7,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917826,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917827,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917828,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917829,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917830,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917829,
+        "text": "Severely",
+        "description": "activities or concentration markedly affected",
+        "displayOrder": 3,
+        "score": 3,
+        "type": "3"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612919,
+      "question": {
+        "id": 14917740,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ11",
+        "text": "Itching",
+        "description": null,
+        "number": null,
+        "displayOrder": 10,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917841,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917842,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917843,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917844,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917845,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917844,
+        "text": "Severely",
+        "description": "activities or concentration markedly affected",
+        "displayOrder": 3,
+        "score": 3,
+        "type": "3"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612920,
+      "question": {
+        "id": 14917741,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ12",
+        "text": "Difficulty sleeping",
+        "description": null,
+        "number": null,
+        "displayOrder": 11,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917846,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917847,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917848,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917849,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917850,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917848,
+        "text": "Moderately",
+        "description": "limits on some activity or concentration",
+        "displayOrder": 2,
+        "score": 2,
+        "type": "2"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612918,
+      "question": {
+        "id": 14917739,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ10",
+        "text": "Poor mobility",
+        "description": null,
+        "number": null,
+        "displayOrder": 9,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917836,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917837,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917838,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917839,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917840,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917840,
+        "text": "Overwhelmingly",
+        "description": "unable to think of anything else",
+        "displayOrder": 4,
+        "score": 4,
+        "type": "4"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612921,
+      "question": {
+        "id": 14917742,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ13",
+        "text": "Restless legs or difficulty keeping legs still",
+        "description": null,
+        "number": null,
+        "displayOrder": 12,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917851,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917852,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917853,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917854,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917855,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917855,
+        "text": "Overwhelmingly",
+        "description": "unable to think of anything else",
+        "displayOrder": 4,
+        "score": 4,
+        "type": "4"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612922,
+      "question": {
+        "id": 14917743,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ14",
+        "text": "Feeling anxious",
+        "description": null,
+        "number": null,
+        "displayOrder": 13,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917856,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917857,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917858,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917859,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917860,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917860,
+        "text": "Overwhelmingly",
+        "description": "unable to think of anything else",
+        "displayOrder": 4,
+        "score": 4,
+        "type": "4"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612923,
+      "question": {
+        "id": 14917744,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ15",
+        "text": "Feeling depressed",
+        "description": null,
+        "number": null,
+        "displayOrder": 14,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917861,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917862,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917863,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917864,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917865,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917864,
+        "text": "Severely",
+        "description": "activities or concentration markedly affected",
+        "displayOrder": 3,
+        "score": 3,
+        "type": "3"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612924,
+      "question": {
+        "id": 14917745,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ16",
+        "text": "Changes in skin",
+        "description": null,
+        "number": null,
+        "displayOrder": 15,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917866,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917867,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917868,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917869,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917870,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917870,
+        "text": "Overwhelmingly",
+        "description": "unable to think of anything else",
+        "displayOrder": 4,
+        "score": 4,
+        "type": "4"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612925,
+      "question": {
+        "id": 14917746,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ17",
+        "text": "Diarrhoea",
+        "description": null,
+        "number": null,
+        "displayOrder": 16,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917871,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917872,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917873,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917874,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917875,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917874,
+        "text": "Severely",
+        "description": "activities or concentration markedly affected",
+        "displayOrder": 3,
+        "score": 3,
+        "type": "3"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612927,
+      "question": {
+        "id": 14917750,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "TEXT",
+        "type": "YSQ21",
+        "text": "Which symptom has affected you the most?",
+        "description": null,
+        "number": null,
+        "displayOrder": 20,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": null,
+      "value": "fluey",
+      "questionText": null
+    },
+    {
+      "id": 59612928,
+      "question": {
+        "id": 14917751,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "TEXT",
+        "type": "YSQ22",
+        "text": "Which symptom has improved the most?",
+        "description": null,
+        "number": null,
+        "displayOrder": 21,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": null,
+      "value": "Changes in skin",
+      "questionText": null
+    },
+    {
+      "id": 59612911,
+      "question": {
+        "id": 14917732,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ3",
+        "text": "Weakness or lack of energy",
+        "description": null,
+        "number": null,
+        "displayOrder": 2,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917801,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917803,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917804,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917805,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          },
+          {
+            "id": 14917802,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917805,
+        "text": "Overwhelmingly",
+        "description": "unable to think of anything else",
+        "displayOrder": 4,
+        "score": 4,
+        "type": "4"
+      },
+      "value": null,
+      "questionText": null
+    },
+    {
+      "id": 59612917,
+      "question": {
+        "id": 14917738,
+        "elementType": "SINGLE_SELECT",
+        "htmlType": "RADIO",
+        "type": "YSQ9",
+        "text": "Drowsiness",
+        "description": null,
+        "number": null,
+        "displayOrder": 8,
+        "rangeStart": null,
+        "rangeEnd": null,
+        "rangeStartDescription": null,
+        "rangeEndDescription": null,
+        "helpLink": null,
+        "questionOptions": [
+          {
+            "id": 14917831,
+            "text": "Not at all",
+            "description": "No effect",
+            "displayOrder": 0,
+            "score": 0,
+            "type": "0"
+          },
+          {
+            "id": 14917832,
+            "text": "Slightly",
+            "description": "but not bothered to be rid of it",
+            "displayOrder": 1,
+            "score": 1,
+            "type": "1"
+          },
+          {
+            "id": 14917833,
+            "text": "Moderately",
+            "description": "limits on some activity or concentration",
+            "displayOrder": 2,
+            "score": 2,
+            "type": "2"
+          },
+          {
+            "id": 14917834,
+            "text": "Severely",
+            "description": "activities or concentration markedly affected",
+            "displayOrder": 3,
+            "score": 3,
+            "type": "3"
+          },
+          {
+            "id": 14917835,
+            "text": "Overwhelmingly",
+            "description": "unable to think of anything else",
+            "displayOrder": 4,
+            "score": 4,
+            "type": "4"
+          }
+        ],
+        "required": true,
+        "customQuestion": false
+      },
+      "questionOption": {
+        "id": 14917835,
+        "text": "Overwhelmingly",
+        "description": "unable to think of anything else",
+        "displayOrder": 4,
+        "score": 4,
+        "type": "4"
+      },
+      "value": null,
+      "questionText": null
+    }
+  ],
+  "surveyResponseScores": [
+    {
+      "id": 59612929,
+      "score": 0.0,
+      "severity": "UNKNOWN",
+      "type": "UNKNOWN",
+      "level": null
+    }
+  ]
+}

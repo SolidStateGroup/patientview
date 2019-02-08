@@ -114,7 +114,9 @@ public interface UserService {
     void changePassword(final Long userId, final String password) throws ResourceNotFoundException;
 
     /**
-     * Update a User's secret word
+     * Update a User's secret word.
+     *
+     * We need to check old secret word if exist, otherwise just set new one.
      *
      * @param userId          Id of User to update secret word for
      * @param secretWordInput String pair containing secret word

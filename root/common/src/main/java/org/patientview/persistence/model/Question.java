@@ -71,8 +71,15 @@ public class Question extends BaseModel {
     @OneToMany(mappedBy = "question", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     private List<QuestionOption> questionOptions = new ArrayList<>();
 
-    @Column(name= "required")
+    @Column(name = "required")
     private boolean required;
+
+    /**
+     * If the question as not predefined text set this
+     * flag to true.
+     */
+    @Column(name = "custom_question")
+    private boolean customQuestion;
 
     public Question() {}
 
@@ -102,6 +109,14 @@ public class Question extends BaseModel {
 
     public void setHtmlType(QuestionHtmlTypes htmlType) {
         this.htmlType = htmlType;
+    }
+
+    public boolean getCustomQuestion() {
+        return customQuestion;
+    }
+
+    public void setCustomQuestion(boolean customQuestion) {
+        this.customQuestion = customQuestion;
     }
 
     public String getType() {

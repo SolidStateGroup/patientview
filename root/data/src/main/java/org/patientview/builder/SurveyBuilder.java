@@ -60,6 +60,10 @@ public class SurveyBuilder {
                 newQuestion.setHtmlType(QuestionHtmlTypes.valueOf(question.getHtmlType().toString()));
                 newQuestion.setNumber(StringUtils.isNotEmpty(question.getNumber()) ? question.getNumber() : null);
                 newQuestion.setQuestionGroup(newQuestionGroup);
+
+                // set custom question to false when imported
+                newQuestion.setCustomQuestion(false);
+
                 if (question.getRangeEnd() != null) {
                     newQuestion.setRangeEnd(question.getRangeEnd().intValue());
                 }

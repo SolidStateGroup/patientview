@@ -1,6 +1,7 @@
 package org.patientview.api.service;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,7 @@ import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -453,6 +456,128 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testChangeSecretWord_With_Old_Secret_Word_Success() throws ResourceNotFoundException, ResourceForbiddenException,
+            NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String oldWord = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i = 0; i < oldWord.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(oldWord.charAt(i)) + salt));
+        }
+        user.setSecretWord(new JSONObject(letters).toString());
+
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        SecretWordInput secretWordInput = new SecretWordInput(oldWord, "ABCDEFG", "ABCDEFG");
+
+        userService.changeSecretWord(user.getId(), secretWordInput, false);
+
+        verify(authenticationService, times(1)).checkSecretWord(any(User.class), any(Map.class), any(Boolean.class));
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(userTokenRepository, times(1)).findByUser(user.getId());
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testChangeSecretWord_With_Old_Secret_Word_Dont_Match() throws ResourceNotFoundException, ResourceForbiddenException,
+            NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String oldWord = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i = 0; i < oldWord.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(oldWord.charAt(i)) + salt));
+        }
+        user.setSecretWord(new JSONObject(letters).toString());
+
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        doThrow(ResourceForbiddenException.class)
+                .when(authenticationService)
+                .checkSecretWord(any(User.class), any(Map.class), any(Boolean.class));
+
+
+        SecretWordInput secretWordInput = new SecretWordInput("Invalid", "ABCDEFG", "ABCDEFG");
+        userService.changeSecretWord(user.getId(), secretWordInput, false);
+
+        verify(authenticationService, times(1)).checkSecretWord(any(User.class), any(Map.class), any(Boolean.class));
+        verify(userRepository, times(0)).save(any(User.class));
+        verify(userTokenRepository, times(0)).findByUser(user.getId());
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testChangeSecretWord_Missing_Old_Secret_Word() throws ResourceNotFoundException, ResourceForbiddenException,
+            NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // Set old secret word for User
+        // create secret word hashmap and convert to json to store in secret word
+        // field, each letter is hashed
+        String word = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i = 0; i < word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+        user.setSecretWord(new JSONObject(letters).toString());
+
+        // mock security context
+        SecurityContext context = new SecurityContextImpl();
+        context.setAuthentication(new TestAuthentication(user));
+        SecurityContextHolder.setContext(context);
+
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        // missing sold secret word from input
+        SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
+
+        userService.changeSecretWord(user.getId(), secretWordInput, false);
+    }
+
+    @Test
     public void testChangeSecretWord_returnSalt() throws ResourceNotFoundException, ResourceForbiddenException {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -539,7 +664,7 @@ public class UserServiceTest {
         Assert.assertTrue("Salt should be be different", isChanged);
     }
 
-    @Test (expected = ResourceForbiddenException.class)
+    @Test(expected = ResourceForbiddenException.class)
     public void testChangeSecretWord_notLetters() throws ResourceNotFoundException, ResourceForbiddenException {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -1195,6 +1320,7 @@ public class UserServiceTest {
     /**
      * Test: User has forgotten password. Update a user with a new password and set the change flag.
      * Fail: Does not find the Resource
+     *
      * @throws ResourceNotFoundException
      */
     @Test
@@ -1218,7 +1344,7 @@ public class UserServiceTest {
      */
     @Test(expected = ResourceNotFoundException.class)
     public void testResetPassword_WrongEmail() throws ResourceNotFoundException, MailException, MessagingException,
-            ResourceForbiddenException{
+            ResourceForbiddenException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
@@ -1237,7 +1363,7 @@ public class UserServiceTest {
      */
     @Test(expected = ResourceNotFoundException.class)
     public void testResetPassword_WrongUsername() throws ResourceNotFoundException, MailException, MessagingException,
-            ResourceForbiddenException{
+            ResourceForbiddenException {
         String email = "forgotten@email.co.uk";
         User user = TestUtils.createUser("testForgottenPassword");
         user.setEmail(email);
@@ -1405,7 +1531,7 @@ public class UserServiceTest {
         verify(userRepository, times(1)).save(any(User.class));
     }
 
-    @Test (expected = EntityExistsException.class)
+    @Test(expected = EntityExistsException.class)
     public void testUpdateUserEmailAlreadyExistsFailure() throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
 
         // current user and security
@@ -1515,7 +1641,7 @@ public class UserServiceTest {
         when(conversationService.getUnreadConversationCount(user.getId())).thenReturn(10L);
         when(apiMedicationService.getByUserId(user.getId())).thenReturn(new ArrayList<FhirMedicationStatement>());
 
-        Map<String, Integer> stats =  userService.getUserStats(user.getId());
+        Map<String, Integer> stats = userService.getUserStats(user.getId());
         Assert.assertNotNull("Stats map should have been returned", stats);
     }
 
@@ -1531,14 +1657,12 @@ public class UserServiceTest {
         }
 
         @Override
-        public UserToken getCredentials()
-        {
+        public UserToken getCredentials() {
             return new UserToken();
         }
 
         @Override
-        public UserDetails getPrincipal()
-        {
+        public UserDetails getPrincipal() {
             return principal;
         }
     }

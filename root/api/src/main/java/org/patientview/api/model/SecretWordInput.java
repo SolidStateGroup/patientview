@@ -7,6 +7,7 @@ package org.patientview.api.model;
  */
 public class SecretWordInput {
 
+    private String oldSecretWord;
     private String secretWord1;
     private String secretWord2;
 
@@ -15,6 +16,20 @@ public class SecretWordInput {
     public SecretWordInput(String secretWord1, String secretWord2) {
         this.secretWord1 = secretWord1;
         this.secretWord2 = secretWord2;
+    }
+
+    public SecretWordInput(String oldSecretWord, String secretWord1, String secretWord2) {
+        this.oldSecretWord = oldSecretWord;
+        this.secretWord1 = secretWord1;
+        this.secretWord2 = secretWord2;
+    }
+
+    public String getOldSecretWord() {
+        return oldSecretWord;
+    }
+
+    public void setOldSecretWord(String oldSecretWord) {
+        this.oldSecretWord = oldSecretWord;
     }
 
     public String getSecretWord1() {

@@ -329,7 +329,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 try {
                     Map<String, String> secretWordMap = new Gson().fromJson(
                             user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                            } .getType());
+                            }.getType());
 
                     if (secretWordMap == null || secretWordMap.isEmpty()) {
                         throw new AuthenticationServiceException("Secret word cannot be retrieved");
@@ -481,7 +481,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             try {
                 Map<String, String> secretWordMap = new Gson().fromJson(
                         user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                        } .getType());
+                        }.getType());
 
                 if (secretWordMap == null || secretWordMap.isEmpty()) {
                     throw new AuthenticationServiceException("Secret word cannot be retrieved");
@@ -648,7 +648,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Override
-    public void checkSecretWord(User user, Map<String, String> letterMap)
+    public void checkSecretWord(User user, Map<String, String> letterMap, boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException {
         if (letterMap == null) {
             throw new ResourceForbiddenException("Letters must be chosen");
@@ -674,7 +674,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
                 user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                } .getType());
+                }.getType());
 
         if (secretWordMap.isEmpty()) {
             throw new ResourceForbiddenException("Secret word not found");
@@ -685,10 +685,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         String salt = secretWordMap.get("salt");
 
-        // We accept only 2 letters for Web or 3 letters  for Mobile
-        if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT
-                && letterMap.keySet().size() != MOBILE_SECRET_WORD_LETTER_COUNT) {
-            throw new ResourceForbiddenException("Must include all requested secret word letters");
+        // Do we need to to length check, in case old secret word we don't
+        if (lengthCheck) {
+            //  We accept only 2 letters for Web or 3 letters  for Mobile
+            if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT
+                    && letterMap.keySet().size() != MOBILE_SECRET_WORD_LETTER_COUNT) {
+                throw new ResourceForbiddenException("Must include all requested secret word letters");
+            }
         }
 
         // check entered letters against salted values
@@ -792,7 +795,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // check if the secret word needs to be checked
             if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
                 // user has a secret word and has included their chosen characters, check that they match
-                checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices());
+                checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices(), true);
 
                 // passed secret word check so set check to false and return user information
                 foundUserToken.setCheckSecretWord(false);

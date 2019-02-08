@@ -1,6 +1,5 @@
 package org.patientview.api.service;
 
-import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServices;
@@ -19,6 +18,16 @@ import java.util.Date;
 public interface ExternalServiceService {
 
     void addToQueue(ExternalServices externalService, String xml, User creator, Date created, GroupRole groupRole);
+
+    /**
+     * Add an xml payload to the queue.
+     *
+     * @param externalServices Type of queue message
+     * @param xml              Payload to queue
+     * @param creator          User
+     * @param created          Date created
+     */
+    void addToQueue(ExternalServices externalServices, String xml, User creator, Date created);
 
     void sendToExternalService();
 }

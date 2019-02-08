@@ -20,7 +20,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             $rootScope.loggedInUser.secretWordIsSet = data.secretWordIsSet;
         });
     };
-        
+
     getUser();
 
     $scope.removeSecretWord = function() {
@@ -33,6 +33,16 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             $scope.secretWordErrorMessage = 'Error removing secret word';
         });
     };
+
+    $scope.updateSecretWordDisabled = function () {
+        if ($rootScope.loggedInUser.secretWordIsSet && !$scope.oldSecretWord) {
+            return true;
+        }
+
+        return !($scope.secretWord1 && $scope.secretWord1.length > 6
+            && $scope.secretWord2 && $scope.secretWord2.length > 6
+            && ($scope.secretWord1 === $scope.secretWord2));
+    }
 
     $scope.saveSettings = function () {
         // If the email field has been changed validate emails
@@ -98,10 +108,15 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         $scope.secretWordSuccessMessage = null;
         $scope.secretWordErrorMessage = null;
 
-        if ($scope.secretWord1 !== $scope.secretWord2) {
+        if ($rootScope.loggedInUser.secretWordIsSet && !$scope.oldSecretWord) {
+            $scope.secretWordErrorMessage = 'Please enter your current secret word';
+        } else if ($scope.secretWord1 !== $scope.secretWord2) {
             $scope.secretWordErrorMessage = 'The secret words do not match';
         } else {
             var secretWordInput = {};
+            if ($rootScope.loggedInUser.secretWordIsSet) {
+                secretWordInput.oldSecretWord = $scope.oldSecretWord;
+            }
             secretWordInput.secretWord1 = $scope.secretWord1;
             secretWordInput.secretWord2 = $scope.secretWord2;
             UserService.changeSecretWord($rootScope.loggedInUser.id, secretWordInput).then(function () {
@@ -126,13 +141,13 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         });
     };
 
-    // configure basic angular-file-upload    
+    // configure basic angular-file-upload
     var uploader = $scope.uploader = new FileUploader({
         // note: ie8 cannot pass custom headers so must be added as query parameter
         url: $scope.userPicture,
         headers: {'X-Auth-Token': $rootScope.authToken}
     });
-        
+
     var isImageFiletype = function(item) {
         var type = '|' + item.file.type.slice(item.file.type.lastIndexOf('/') + 1) + '|';
         return '|jpg|png|jpeg|bmp|gif|'.indexOf(type) !== -1;
@@ -144,8 +159,8 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         delete $scope.pictureChangeSuccessMessage;
         $scope.uploadingPicture = true;
         $scope.uploadError = false;
-        
-        if (isImageFiletype(item)) {            
+
+        if (isImageFiletype(item)) {
             uploader.uploadAll();
             uploader.queue = [];
         } else {
@@ -155,7 +170,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             uploader.queue = [];
         }
     };
-    
+
     // callback if there is a problem with an image
     uploader.onErrorItem = function(fileItem, response, status, headers) {
         console.log(response);
@@ -164,7 +179,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
         $scope.uploadErrorMessage = 'There was an error uploading your image file.';
         $scope.uploadingPicture = false;
     };
-    
+
     // when all uploads complete, if no error then force refresh of image by appending current date as parameter
     uploader.onCompleteAll = function() {
         if (!$scope.uploadError) {
@@ -178,7 +193,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             delete $scope.pictureChangeSuccessMessage;
         }
     };
-        
+
     $scope.deletePicture = function() {
         delete $scope.uploadErrorMessage;
         delete $scope.pictureChangeSuccessMessage;
