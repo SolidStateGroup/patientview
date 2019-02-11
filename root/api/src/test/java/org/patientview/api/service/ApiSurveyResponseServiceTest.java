@@ -3,14 +3,12 @@ package org.patientview.api.service;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.impl.ApiSurveyResponseServiceImpl;
@@ -560,7 +558,7 @@ public class ApiSurveyResponseServiceTest {
 
         String xml = "<xml>test</xml>";
 
-        when(ukrdcService.buildSurveyXml(Matchers.any(SurveyResponse.class)))
+        when(ukrdcService.buildSurveyXml(any(SurveyResponse.class), eq("PROM")))
                 .thenReturn(xml);
 
         // When
