@@ -283,21 +283,19 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
      * {@inheritDoc}
      */
     @Override
-    public String buildSurveyXml(SurveyResponse surveyResponse)
+    public String buildSurveyXml(SurveyResponse surveyResponse, String type)
             throws DatatypeConfigurationException, JAXBException {
 
         User user = surveyResponse.getUser();
 
         PatientRecord patientRecord = new PatientRecord();
 
-        // TODO set this
         PatientRecord.SendingFacility sendingFacility = new PatientRecord.SendingFacility();
         patientRecord.setSendingFacility(sendingFacility);
         patientRecord.setSendingExtract(SendingExtract.SURVEY);
 
         Patient patient = new Patient();
 
-        // TODO  set patient numbers
         PatientNumbers patientNumbers = new PatientNumbers();
         Set<Identifier> identifiers = user.getIdentifiers();
 
@@ -346,8 +344,6 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         names.getName().add(name);
 
         patient.setNames(names);
-        // TODO gender
-//        patient.setGender();
 
         GregorianCalendar birthTime = new GregorianCalendar();
         birthTime.setTime(user.getDateOfBirth());
@@ -364,7 +360,6 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
         programMembership.setFromTime(xMLGregorianCalendar);
 
-        // TODO  externalId
         PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
         programMemberships.getProgramMembership().add(programMembership);
         patientRecord.setProgramMemberships(programMemberships);
@@ -376,7 +371,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         survey.setSurveyTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(surveyTime));
 
         CodedField surveyType = new CodedField();
-        surveyType.setCode("PROM");
+        surveyType.setCode(type);
         surveyType.setCodingStandard("SURVEY");
         survey.setSurveyType(surveyType);
 

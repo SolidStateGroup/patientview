@@ -20,17 +20,17 @@ public interface UkrdcService {
 
     /**
      * Validate UKRDC xml, including basic Patient, Surveys, Documents. Errors include:
-     *
+     * <p>
      * Patient must be defined
      * PatientNumbers must be defined
      * PatientNumbers must have at least one Number
      * PatientNumbers Number must not be empty
      * No patient found with identifier '1111111111'
      * Multiple identifiers found with value '1111111111'
-     *
+     * <p>
      * SendingFacility must be defined (for Documents)
      * SendingFacility PatientView Group not found (for Documents)
-     *
+     * <p>
      * SurveyType must be defined
      * SurveyType Code must be defined
      * Survey type 'XXX' is not defined
@@ -50,7 +50,7 @@ public interface UkrdcService {
      * Score ScoreType must have Code
      * Score must have Value
      * Score Value must be double
-     *
+     * <p>
      * Document DocumentType must be defined
      * Document DocumentType Code must be defined
      * Document FileType must be defined
@@ -77,9 +77,10 @@ public interface UkrdcService {
      * Given a survey response construct the xml compliant with the UKRDC xsd.
      *
      * @param surveyResponse Survey response to convert
-     * @return               UKRDC complaint xml
+     * @param type           Survey type
+     * @return UKRDC complaint xml
      * @throws DatatypeConfigurationException
      * @throws JAXBException
      */
-    String buildSurveyXml(SurveyResponse surveyResponse) throws DatatypeConfigurationException, JAXBException;
+    String buildSurveyXml(SurveyResponse surveyResponse, String type) throws DatatypeConfigurationException, JAXBException;
 }
