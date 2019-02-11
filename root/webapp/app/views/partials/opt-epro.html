@@ -16,7 +16,7 @@
                 <h4 class="survey">Your Symptoms</h4>
                 <p>Questions about your symptoms. To complete every time before you meet with the doctor. This information will help you and the renal team to keep an eye on your symptoms and discuss how best to manage them.</p>
                 <p class="list-date" data-ng-if="foundSurveys['POS_S']">
-                    Last completed on {{foundSurveys['POS_S'].date | date:'dd-MMM-yyyy'}}
+                    Last completed on {{foundSurveys['POS_S'].date | date:'dd-MMM-yyyy HH:mm'}}
                 </p>
             </div>
             <div class="col-md-4 align-bottom">
@@ -39,7 +39,7 @@
                 <h4 class="survey">Your Overall Health</h4>
                 <p>Six extra questions about your overall health. To fill in once a year.</p>
                 <p class="list-date" data-ng-if="foundSurveys['EQ5D5L']">
-                    Last completed on {{foundSurveys['EQ5D5L'].date | date:'dd-MMM-yyyy'}}
+                    Last completed on {{foundSurveys['EQ5D5L'].date | date:'dd-MMM-yyyy HH:mm'}}
                 </p>
             </div>
             <div class="col-md-4 align-bottom">
