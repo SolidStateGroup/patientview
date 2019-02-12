@@ -59,7 +59,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             }
 
             // only certain survey types have hours & minutes
-            if ($scope.survey.type === 'IBD_FATIGUE') {
+            if (['IBD_FATIQUE', 'POS_S', 'EQ5D5L'].indexOf($scope.survey.type) !== -1) {
                 $scope.hours = UtilService.generateHours();
                 $scope.minutes = UtilService.generateMinutes();
                 for (i = 0; i < $scope.hours.length; i++) {
