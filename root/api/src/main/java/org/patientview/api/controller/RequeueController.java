@@ -36,7 +36,7 @@ public class RequeueController extends BaseController<RequeueController> {
         this.ukrdcService = ukrdcService;
     }
 
-    @RequestMapping("/requeue/xkrdcsurveys", method = RequestMethod.GET)
+    @RequestMapping(value = "/requeue/xkrdcsurveys", method = RequestMethod.GET)
     public RequeueReport requeueXkrdcSurveys(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("start") Date start,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("end") Date end)
