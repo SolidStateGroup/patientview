@@ -26,7 +26,6 @@ public class RequeueController extends BaseController<RequeueController> {
         this.requeueService = requeueService;
     }
 
-
     @RequestMapping(value = "/requeue/xkrdcsurveys", method = RequestMethod.GET)
     public RequeueReport requeueXkrdcSurveys(
             @RequestParam(value = "userId", required = false) Long userId,
