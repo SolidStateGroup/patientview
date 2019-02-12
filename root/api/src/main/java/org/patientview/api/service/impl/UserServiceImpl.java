@@ -628,7 +628,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             // check make sure old secret words match
             // will throw ResourceForbiddenException if don't match or problem with user account
-            authenticationService.checkSecretWord(user, oldLetters, false);
+            authenticationService.checkLettersAgainstSecretWord(user, oldLetters, false);
         }
 
         if (StringUtils.isEmpty(secretWordInput.getSecretWord1())) {

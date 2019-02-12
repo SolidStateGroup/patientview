@@ -64,6 +64,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,6 +77,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 import static org.patientview.api.util.ApiUtil.userHasRole;
 
@@ -87,14 +89,12 @@ import static org.patientview.api.util.ApiUtil.userHasRole;
 public class AuthenticationServiceImpl extends AbstractServiceImpl<AuthenticationServiceImpl>
         implements AuthenticationService {
 
+    private static final int SECRET_WORD_LETTER_COUNT = 2;
+    private static final int MOBILE_SECRET_WORD_LETTER_COUNT = 3;
     // retrieved from properties file
     private static Integer maximumLoginAttempts;
     private static Long sessionLength;
     private static Long sessionLengthMobile;
-
-    private static final int SECRET_WORD_LETTER_COUNT = 2;
-    private static final int MOBILE_SECRET_WORD_LETTER_COUNT = 3;
-
     @Inject
     private ApiConditionService apiConditionService;
 
@@ -647,18 +647,41 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 && StringUtils.isEmpty(user.getSecretWord());
     }
 
+    private void checkSecretWord(User user, String userEnteredSecretWord)
+            throws ResourceForbiddenException {
+        if (user == null) {
+            throw new ResourceForbiddenException("User not found");
+        }
+
+        String secretWord = user.getSecretWord();
+
+        if (isBlank(secretWord)) {
+            throw new ResourceForbiddenException("Secret word not found");
+        }
+
+        boolean secretWordDoesNotMatch = !secretWord.equals(userEnteredSecretWord);
+
+        if (secretWordDoesNotMatch) {
+            incrementFailedLogon(user);
+            throw new ResourceForbiddenException("Incorrect secret word");
+        }
+    }
+
     @Override
-    public void checkSecretWord(User user, Map<String, String> letterMap, boolean lengthCheck)
+    public void checkLettersAgainstSecretWord(User user, Map<String, String> letterMap, boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException {
         if (letterMap == null) {
             throw new ResourceForbiddenException("Letters must be chosen");
         }
+
         if (letterMap.isEmpty()) {
             throw new ResourceForbiddenException("Letters must be chosen");
         }
+
         if (user == null) {
             throw new ResourceForbiddenException("User not found");
         }
+
         if (StringUtils.isEmpty(user.getSecretWord())) {
             throw new ResourceForbiddenException("Secret word is not set");
         }
@@ -667,6 +690,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (user.getLocked()) {
             throw new ResourceForbiddenException("This account is locked");
         }
+
         if (user.getDeleted()) {
             throw new ResourceForbiddenException("This account has been deleted");
         }
@@ -709,7 +733,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
-    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken)
+    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken, boolean generateSalt)
             throws ResourceForbiddenException {
         org.patientview.api.model.UserToken transportUserToken
                 = new org.patientview.api.model.UserToken(userToken);
@@ -752,6 +776,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             }
         }
 
+        if (generateSalt) {
+
+            try {
+                transportUserToken.setSecretWordSalt(CommonUtils.generateSalt());
+            } catch (NoSuchAlgorithmException e) {
+                LOG.error("No such algorigthm: " + e.getMessage());
+            }
+        }
+
         // tell ui user must set secret word
         transportUserToken.setMustSetSecretWord(checkMustSetSecretWord(userToken.getUser()));
 
@@ -786,6 +819,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             if (foundUserToken == null) {
                 throw new AuthenticationServiceException("Forbidden, Token not found");
             }
+
             if (foundUserToken.getUser() == null) {
                 throw new AuthenticationServiceException("Forbidden, User not found");
             }
@@ -795,7 +829,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // check if the secret word needs to be checked
             if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
                 // user has a secret word and has included their chosen characters, check that they match
-                checkSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices(), true);
+                boolean shouldGenerateSalt = false;
+                if (userToken.getSecretWordChoices() != null) {
+                    checkLettersAgainstSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices(), true);
+
+                } else {
+                    shouldGenerateSalt = true;
+                    checkSecretWord(foundUserToken.getUser(), userToken.getSecretWord());
+
+                }
 
                 // passed secret word check so set check to false and return user information
                 foundUserToken.setCheckSecretWord(false);
@@ -805,7 +847,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
                 updateUserAndAuditLogin(foundUserToken.getUser(), null);
 
-                return createApiUserToken(foundUserToken);
+                return createApiUserToken(foundUserToken, shouldGenerateSalt);
             } else {
                 // standard login with no secret word
                 throw new AuthenticationServiceException("Forbidden, failed checking secret word");
@@ -816,9 +858,10 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 throw new AuthenticationServiceException("Forbidden, User not found");
             }
 
-            return createApiUserToken(foundUserToken);
+            return createApiUserToken(foundUserToken, false);
         }
     }
+
 
     private void incrementFailedLogon(User user) {
         Integer failedLogonAttempts = user.getFailedLogonAttempts();
@@ -853,7 +896,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     @Caching(evict = {@CacheEvict(value = "unreadConversationCount", allEntries = true),
-            @CacheEvict(value = "authenticateOnToken", allEntries = true) })
+            @CacheEvict(value = "authenticateOnToken", allEntries = true)})
     @Override
     public void logout(String token, boolean expired) throws AuthenticationServiceException {
         UserToken userToken = userTokenRepository.findByToken(token);
