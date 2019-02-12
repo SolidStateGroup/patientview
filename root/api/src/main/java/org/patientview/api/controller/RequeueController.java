@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.RequeueReport;
 import org.patientview.api.service.ExternalServiceService;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.repository.SurveyResponseRepository;
@@ -58,8 +59,7 @@ public class RequeueController extends BaseController<RequeueController> {
         for (SurveyResponse surveyResponse : surveyResponses) {
 
             String xml = ukrdcService.buildSurveyXml(surveyResponse, surveyResponse.getSurvey().getType());
-            externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, null, new Date());
-
+            externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, ApiUtil.getCurrentUser(), new Date());
         }
 
         return new RequeueReport(surveyResponses.size());
