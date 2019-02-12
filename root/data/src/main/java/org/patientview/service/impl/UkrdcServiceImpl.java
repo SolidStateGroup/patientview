@@ -313,6 +313,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
                         if (fhirLink.getUpdated().after(latestDataReceivedDate)
                                 && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())
+                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.STAFF_ENTERED.toString())
                                 && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.ECS.toString())) {
 
                             latestDataReceivedDate = fhirLink.getUpdated();

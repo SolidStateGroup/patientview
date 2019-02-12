@@ -37,11 +37,10 @@ public class RequeueServiceImpl implements RequeueService {
     }
 
     @Override
-    public RequeueReport xkrdcSurveys(Date start, Date end)
+    public RequeueReport xkrdcSurveys(Date start, Date end, String userId)
             throws JAXBException, DatatypeConfigurationException {
 
-        List<SurveyResponse> surveyResponses = surveyResponseRepository
-                .findByDateBetweenAndSurveyIn(start, end, asList(POS_S.getName(), EQ5D5L.getName()));
+        List<SurveyResponse> surveyResponses = buildSurveyResponses(start, end, userId);
 
         if (surveyResponses.size() == 0) {
 
@@ -55,5 +54,16 @@ public class RequeueServiceImpl implements RequeueService {
         }
 
         return new RequeueReport(surveyResponses.size());
+    }
+
+    private List<SurveyResponse> buildSurveyResponses(Date start, Date end, String userId) {
+
+        if (userId == null) {
+            return surveyResponseRepository
+                    .findByDateBetweenAndSurveyIn(start, end, asList(POS_S.getName(), EQ5D5L.getName()));
+        }
+
+        return surveyResponseRepository
+                .findByDateBetweenAndSurveyInAndUser(start, end, asList(POS_S.getName(), EQ5D5L.getName()), userId);
     }
 }
