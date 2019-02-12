@@ -2,7 +2,9 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.RequeueReport;
+import org.patientview.api.service.ExternalServiceService;
 import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.service.UkrdcService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,13 +28,16 @@ import static org.patientview.persistence.model.enums.SurveyTypes.POS_S;
 public class RequeueController extends BaseController<RequeueController> {
 
     private final UkrdcService ukrdcService;
+    private ExternalServiceService externalServiceService;
     private final SurveyResponseRepository surveyResponseRepository;
 
     @Inject
     public RequeueController(UkrdcService ukrdcService,
+                             ExternalServiceService externalServiceService,
                              SurveyResponseRepository surveyResponseRepository) {
 
         this.surveyResponseRepository = surveyResponseRepository;
+        this.externalServiceService = externalServiceService;
         this.ukrdcService = ukrdcService;
     }
 
@@ -52,7 +57,9 @@ public class RequeueController extends BaseController<RequeueController> {
 
         for (SurveyResponse surveyResponse : surveyResponses) {
 
-            ukrdcService.buildSurveyXml(surveyResponse, surveyResponse.getSurvey().getType());
+            String xml = ukrdcService.buildSurveyXml(surveyResponse, surveyResponse.getSurvey().getType());
+            externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, null, new Date());
+
         }
 
         return new RequeueReport(surveyResponses.size());
