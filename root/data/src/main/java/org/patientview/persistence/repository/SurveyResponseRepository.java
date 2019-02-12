@@ -33,5 +33,6 @@ public interface SurveyResponseRepository extends CrudRepository<SurveyResponse,
     Page<SurveyResponse> findLatestByUserAndSurveyType(@Param("user") User user, @Param("surveyType") String surveyType,
                                                  Pageable pageable);
 
-    List<SurveyResponse> findByDateBetweenAndSurveyIn(Date start, Date end, List<String> surveyType);
+    @Query("SELECT s FROM SurveyResponse s WHERE s.date > :start AND s.date <= :end AND s.survey.type IN (:surveyTypes)")
+    List<SurveyResponse> findByDateBetweenAndSurveyIn(@Param("start") Date start, @Param("end") Date end, @Param("surveyTypes") List<String> surveyTypes);
 }
