@@ -14,6 +14,7 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
@@ -23,6 +24,7 @@ import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -311,14 +313,14 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
                     if (fhirLink.getUpdated() != null) {
 
-                        if (fhirLink.getUpdated().after(latestDataReceivedDate)
-                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())
-                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.GENERAL_PRACTICE.toString())
-                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.STAFF_ENTERED.toString())
-                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.ECS.toString())) {
+                        if (fhirLink.getUpdated().after(latestDataReceivedDate)) {
 
                             latestDataReceivedDate = fhirLink.getUpdated();
-                            group = fhirLink.getGroup();
+                            for (GroupFeature groupFeature : fhirLink.getGroup().getGroupFeatures()) {
+                                if (groupFeature.getFeature().getName().equals(FeatureType.OPT_EPRO.toString())) {
+                                    group = fhirLink.getGroup();
+                                }
+                            }
                         }
                     }
                 }
@@ -337,8 +339,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             patientNumberList.add(patientNumber);
         }
 
-        // Fallback to opte pro if unit not set
-        sendingFacility.setValue(unitCode != null ? unitCode : "optepro");
+        sendingFacility.setValue(unitCode);
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
