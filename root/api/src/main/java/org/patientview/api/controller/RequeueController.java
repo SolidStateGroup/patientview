@@ -7,6 +7,7 @@ import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.service.UkrdcService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,7 +36,7 @@ public class RequeueController extends BaseController<RequeueController> {
         this.ukrdcService = ukrdcService;
     }
 
-    @RequestMapping("/requeue/xkrdcsurveys")
+    @RequestMapping("/requeue/xkrdcsurveys", method = RequestMethod.GET)
     public RequeueReport requeueXkrdcSurveys(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("start") Date start,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("end") Date end)
