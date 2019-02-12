@@ -40,5 +40,5 @@ public interface SurveyResponseRepository extends CrudRepository<SurveyResponse,
     List<SurveyResponse> findByDateBetweenAndSurveyInAndUser(@Param("start") Date start,
                                                              @Param("end") Date end,
                                                              @Param("surveyTypes") List<String> surveyTypes,
-                                                             @Param("userId") String userId);
+                                                             @Param("userId") Long userId);
 }

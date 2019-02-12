@@ -29,7 +29,7 @@ public class RequeueController extends BaseController<RequeueController> {
 
     @RequestMapping(value = "/requeue/xkrdcsurveys", method = RequestMethod.GET)
     public RequeueReport requeueXkrdcSurveys(
-            @RequestParam(value = "userId", required = false) String userId,
+            @RequestParam(value = "userId", required = false) Long userId,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("start") Date start,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("end") Date end)
             throws JAXBException, DatatypeConfigurationException {

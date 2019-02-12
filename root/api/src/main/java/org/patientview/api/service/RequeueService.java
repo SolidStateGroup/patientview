@@ -22,5 +22,5 @@ public interface RequeueService {
      * @throws DatatypeConfigurationException
      */
     @RoleOnly(roles = { RoleName.GLOBAL_ADMIN })
-    RequeueReport xkrdcSurveys(Date start, Date end, String userId) throws JAXBException, DatatypeConfigurationException;
+    RequeueReport xkrdcSurveys(Date start, Date end, Long userId) throws JAXBException, DatatypeConfigurationException;
 }

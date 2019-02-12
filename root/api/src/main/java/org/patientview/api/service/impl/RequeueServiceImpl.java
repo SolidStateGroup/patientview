@@ -37,7 +37,7 @@ public class RequeueServiceImpl implements RequeueService {
     }
 
     @Override
-    public RequeueReport xkrdcSurveys(Date start, Date end, String userId)
+    public RequeueReport xkrdcSurveys(Date start, Date end, Long userId)
             throws JAXBException, DatatypeConfigurationException {
 
         List<SurveyResponse> surveyResponses = buildSurveyResponses(start, end, userId);
@@ -56,7 +56,7 @@ public class RequeueServiceImpl implements RequeueService {
         return new RequeueReport(surveyResponses.size());
     }
 
-    private List<SurveyResponse> buildSurveyResponses(Date start, Date end, String userId) {
+    private List<SurveyResponse> buildSurveyResponses(Date start, Date end, Long userId) {
 
         if (userId == null) {
             return surveyResponseRepository
