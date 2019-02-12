@@ -313,6 +313,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
                         if (fhirLink.getUpdated().after(latestDataReceivedDate)
                                 && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())
+                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.GENERAL_PRACTICE.toString())
                                 && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.STAFF_ENTERED.toString())
                                 && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.ECS.toString())) {
 
@@ -322,7 +323,9 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                     }
                 }
 
-                unitCode = group.getCode();
+                if (group != null) {
+                    unitCode = group.getCode();
+                }
             }
 
             PatientNumber patientNumber = new PatientNumber();
@@ -334,7 +337,8 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             patientNumberList.add(patientNumber);
         }
 
-        sendingFacility.setValue(unitCode);
+        // Fallback to opte pro if unit not set
+        sendingFacility.setValue(unitCode != null ? unitCode : "optepro");
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
