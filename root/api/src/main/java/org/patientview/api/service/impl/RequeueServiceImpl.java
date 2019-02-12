@@ -25,7 +25,7 @@ public class RequeueServiceImpl implements RequeueService {
 
     private final UkrdcService ukrdcService;
     private final SurveyResponseRepository surveyResponseRepository;
-    private ExternalServiceService externalServiceService;
+    private final ExternalServiceService externalServiceService;
 
     @Inject
     public RequeueServiceImpl(UkrdcService ukrdcService,

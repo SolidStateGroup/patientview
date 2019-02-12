@@ -302,33 +302,19 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         Set<Identifier> identifiers = user.getIdentifiers();
 
         List<PatientNumber> patientNumberList = new ArrayList<>();
+
         String unitCode = null;
+        for (Group group : groupRepository.findGroupByUser(user)) {
 
-        for (Identifier identifier: identifiers) {
-            if(!identifier.getFhirLink().isEmpty()) {
-                Date latestDataReceivedDate = new Date(1, 1, 1);
-                Group group = null;
+            for (GroupFeature groupFeature : group.getGroupFeatures()) {
+                if (groupFeature.getFeature().getName().equals(FeatureType.OPT_EPRO.toString())) {
 
-                for (FhirLink fhirLink : identifier.getFhirLink()) {
-
-                    if (fhirLink.getUpdated() != null) {
-
-                        if (fhirLink.getUpdated().after(latestDataReceivedDate)) {
-
-                            latestDataReceivedDate = fhirLink.getUpdated();
-                            for (GroupFeature groupFeature : fhirLink.getGroup().getGroupFeatures()) {
-                                if (groupFeature.getFeature().getName().equals(FeatureType.OPT_EPRO.toString())) {
-                                    group = fhirLink.getGroup();
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (group != null) {
                     unitCode = group.getCode();
                 }
             }
+        }
+
+        for (Identifier identifier: identifiers) {
 
             PatientNumber patientNumber = new PatientNumber();
             patientNumber.setNumber(identifier.getIdentifier());
