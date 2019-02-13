@@ -77,7 +77,6 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 import static org.patientview.api.util.ApiUtil.userHasRole;
 
@@ -647,24 +646,16 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 && StringUtils.isEmpty(user.getSecretWord());
     }
 
-    private void checkSecretWord(User user, String userEnteredSecretWord)
-            throws ResourceForbiddenException {
-        if (user == null) {
-            throw new ResourceForbiddenException("User not found");
+    private Map<String, String> secretWordToMap(String secretWord) {
+        Map<String, String> mappedSecretWord = new HashMap<>();
+
+        char[] tokenizedSecretWord = secretWord.toCharArray();
+        for(int idx = 0; idx < tokenizedSecretWord.length; idx++) {
+            mappedSecretWord.put(
+                    String.valueOf(idx), String.valueOf(tokenizedSecretWord[idx]));
         }
 
-        String secretWord = user.getSecretWord();
-
-        if (isBlank(secretWord)) {
-            throw new ResourceForbiddenException("Secret word not found");
-        }
-
-        boolean secretWordDoesNotMatch = !secretWord.equals(userEnteredSecretWord);
-
-        if (secretWordDoesNotMatch) {
-            incrementFailedLogon(user);
-            throw new ResourceForbiddenException("Incorrect secret word");
-        }
+        return mappedSecretWord;
     }
 
     @Override
@@ -733,7 +724,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
-    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken, boolean generateSalt)
+    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken, boolean fullSecretWordCheck)
             throws ResourceForbiddenException {
         org.patientview.api.model.UserToken transportUserToken
                 = new org.patientview.api.model.UserToken(userToken);
@@ -776,12 +767,12 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             }
         }
 
-        if (generateSalt) {
+        if (fullSecretWordCheck) {
 
             try {
                 transportUserToken.setSecretWordSalt(CommonUtils.generateSalt());
             } catch (NoSuchAlgorithmException e) {
-                LOG.error("No such algorigthm: " + e.getMessage());
+                LOG.error("No such algorithm: " + e.getMessage());
             }
         }
 
@@ -829,14 +820,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // check if the secret word needs to be checked
             if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
                 // user has a secret word and has included their chosen characters, check that they match
-                boolean shouldGenerateSalt = false;
-                if (userToken.getSecretWordChoices() != null) {
-                    checkLettersAgainstSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices(), true);
+                boolean fullSecretWordCheck = userToken.getSecretWordChoices() == null;
 
+                if (fullSecretWordCheck) {
+                    checkLettersAgainstSecretWord(
+                            foundUserToken.getUser(), secretWordToMap(userToken.getSecretWord()), false);
                 } else {
-                    shouldGenerateSalt = true;
-                    checkSecretWord(foundUserToken.getUser(), userToken.getSecretWord());
-
+                    checkLettersAgainstSecretWord(
+                            foundUserToken.getUser(), userToken.getSecretWordChoices(),true);
                 }
 
                 // passed secret word check so set check to false and return user information
@@ -847,7 +838,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
                 updateUserAndAuditLogin(foundUserToken.getUser(), null);
 
-                return createApiUserToken(foundUserToken, shouldGenerateSalt);
+                return createApiUserToken(foundUserToken, fullSecretWordCheck);
             } else {
                 // standard login with no secret word
                 throw new AuthenticationServiceException("Forbidden, failed checking secret word");
