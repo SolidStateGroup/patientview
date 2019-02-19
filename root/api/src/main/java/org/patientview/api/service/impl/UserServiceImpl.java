@@ -2199,8 +2199,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         xml.append("</ProgramMembership></ProgramMemberships></ns2:PatientRecord>");
 
-        LOG.info("XML " + xml.toString());
-
         externalServiceService.addToQueue(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION, xml.toString(),
                 getCurrentUser(), now, groupRole);
     }
