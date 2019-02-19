@@ -379,19 +379,19 @@ public class UserServiceTest {
         patientUser.setGroupRoles(patientGroupRoles);
 
         // new role
-        Role newStaffRole = TestUtils.createRole(RoleName.PATIENT);
+        Role newPatientRole = TestUtils.createRole(RoleName.PATIENT);
         org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
         roleType.setValue(RoleType.PATIENT);
-        newStaffRole.setRoleType(roleType);
+        newPatientRole.setRoleType(roleType);
 
         when(userRepository.findOne(eq(patientUser.getId()))).thenReturn(patientUser);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(newStaffRole.getId()))).thenReturn(newStaffRole);
-        when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole);
+        when(roleRepository.findOne(eq(newPatientRole.getId()))).thenReturn(newPatientRole);
+        when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(patientGroupRole);
 
         // add GroupRole to staff user
-        groupRole = userService.addGroupRole(patientUser.getId(), group.getId(), newStaffRole.getId());
+        groupRole = userService.addGroupRole(patientUser.getId(), group.getId(), newPatientRole.getId());
 
         Assert.assertNotNull("The returned object should not be null", groupRole);
         verify(groupRoleRepository, times(1)).save(any(GroupRole.class));
