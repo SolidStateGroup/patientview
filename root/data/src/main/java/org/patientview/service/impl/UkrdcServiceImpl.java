@@ -344,10 +344,19 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
 
                 org.hl7.fhir.instance.model.Patient patient1 =
-                        (org.hl7.fhir.instance.model.Patient) fhirResource.get(fhirLink.getResourceId(), ResourceType.Patient);
+                        null;
+                try {
+                    patient1 = (org.hl7.fhir.instance.model.Patient) fhirResource.get(fhirLink.getResourceId(), ResourceType.Patient);
+                } catch (FhirResourceException e) {
 
-                gender = patient1.getGender().getText().getValue();
-                break;
+                    // Swallow the exception and check the next fhirlink
+                }
+
+                if (gender != null) {
+
+                    gender = patient1.getGender().getText().getValue();
+                    break;
+                }
             }
         }
 
