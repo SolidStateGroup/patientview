@@ -2027,9 +2027,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      */
     private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
         Date now = new Date();
-        // for ISO1806 date format
-        DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        boolean validIdentifierFound = false;
+        DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
         StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
                 "<SendingFacility>PV</SendingFacility>" +
                 "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
@@ -2043,7 +2044,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         identifier.getIdentifierType().getValue().equals("HOSPITAL_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("RADAR_NUMBER")) {
                     continue;
-
                 }
 
                 // MRN rule
@@ -2081,34 +2081,40 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
                         xml.append("<NumberType>MRN</NumberType>");
                         xml.append("</PatientNumber>");
-
-                    } else {
-                        xml.append("<PatientNumber><Number>");
-                        xml.append(identifier.getIdentifier());
-                        xml.append("</Number>");
-                        //Ignore non uk unique
-                        xml.append("<Organization>");
-                        switch (identifier.getIdentifierType().getValue()) {
-                            case "HSC_NUMBER":
-                                xml.append("HSC");
-                                break;
-                            case "NHS_NUMBER":
-                                xml.append("NHS");
-                                break;
-                            case "CHI_NUMBER":
-                                xml.append("CHI");
-                                break;
-                        }
-                        xml.append("</Organization>");
-
-                        xml.append("<NumberType>NI</NumberType>");
-                        xml.append("</PatientNumber>");
                     }
+
+                    // add none MRN type Identifiers
+                    xml.append("<PatientNumber><Number>");
+                    xml.append(identifier.getIdentifier());
+                    xml.append("</Number>");
+                    xml.append("<Organization>");
+                    switch (identifier.getIdentifierType().getValue()) {
+                        case "HSC_NUMBER":
+                            xml.append("HSC");
+                            break;
+                        case "NHS_NUMBER":
+                            xml.append("NHS");
+                            break;
+                        case "CHI_NUMBER":
+                            xml.append("CHI");
+                            break;
+                    }
+                    xml.append("</Organization>");
+                    xml.append("<NumberType>NI</NumberType>");
+                    xml.append("</PatientNumber>");
+
+                    validIdentifierFound = true;
                 }
             }
-        } else {
-            LOG.error("Missing identifier for Patient while building UKRDC xml: {} ", groupRole.getUser().getId());
         }
+
+        // don't queue xml if could not find any valid Identifiers
+        if (!validIdentifierFound) {
+            LOG.error("Missing identifier for Patient while building UKRDC xml: {}, will ignore",
+                    groupRole.getUser().getId());
+            return;
+        }
+
         xml.append("</PatientNumbers>");
         xml.append("<Names><Name use=\"L\">");
         xml.append(String.format("<Family>%s</Family>", groupRole.getUser().getSurname()));
