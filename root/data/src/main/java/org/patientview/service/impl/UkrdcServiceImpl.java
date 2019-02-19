@@ -15,6 +15,7 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
@@ -337,47 +338,10 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         name.setGiven(user.getForename());
         names.getName().add(name);
 
-        String gender = null;
-        for (FhirLink fhirLink : user.getFhirLinks()) {
-
-            if (fhirLink.getActive() && fhirLink.getResourceType().equals(ResourceType.Patient.name())) {
-
-
-                org.hl7.fhir.instance.model.Patient fhirPatient = null;
-                try {
-                    fhirPatient = (org.hl7.fhir.instance.model.Patient) fhirResource.get(fhirLink.getResourceId(), ResourceType.Patient);
-                } catch (FhirResourceException e) {
-
-                    // Swallow the exception and check the next fhirlink
-                }
-
-                if (fhirPatient != null) {
-
-                    String fhirGender = fhirPatient.getGender().getText().getValue();
-
-                    switch (fhirGender) {
-                        case "M":
-
-                            gender = "1";
-                            break;
-                        case "F":
-
-                            gender = "2";
-                            break;
-                        default:
-
-                            gender = "9";
-                            break;
-                    }
-
-                    break;
-                }
-            }
-        }
-
         patient.setNames(names);
-        patient.setGender(gender);
 
+        // Hardcore to 9 - UNKNOWN
+        patient.setGender("9");
 
         GregorianCalendar birthTime = new GregorianCalendar();
         birthTime.setTime(user.getDateOfBirth());
@@ -393,6 +357,18 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         XMLGregorianCalendar xMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
         xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
         programMembership.setFromTime(xMLGregorianCalendar);
+
+        GroupRole surveyGroupRole = null;
+        for (GroupRole groupRole : user.getGroupRoles()) {
+
+            if (groupRole.getGroup().getId().equals(unitCode.getId())) {
+
+                surveyGroupRole = groupRole;
+                break;
+            }
+        }
+
+        programMembership.setExternalId(String.valueOf(surveyGroupRole.getId()));
 
         PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
         programMemberships.getProgramMembership().add(programMembership);
