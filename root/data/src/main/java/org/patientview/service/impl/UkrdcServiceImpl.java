@@ -31,6 +31,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.persistence.util.DataUtils;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.SurveyService;
@@ -303,13 +304,13 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         List<PatientNumber> patientNumberList = new ArrayList<>();
 
-        String unitCode = null;
+        Group unitCode = null;
         for (Group group : groupRepository.findGroupByUser(user)) {
 
             for (GroupFeature groupFeature : group.getGroupFeatures()) {
                 if (groupFeature.getFeature().getName().equals(FeatureType.OPT_EPRO.toString())) {
 
-                    unitCode = group.getCode();
+                    unitCode = group;
                 }
             }
         }
@@ -325,7 +326,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             patientNumberList.add(patientNumber);
         }
 
-        sendingFacility.setValue(unitCode);
+        sendingFacility.setValue(unitCode.getCode());
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
@@ -336,7 +337,23 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         name.setGiven(user.getForename());
         names.getName().add(name);
 
+        String gender = null;
+        for (FhirLink fhirLink : user.getFhirLinks()) {
+
+            if (fhirLink.getActive() && fhirLink.getResourceType().equals(ResourceType.Patient.name())) {
+
+
+                org.hl7.fhir.instance.model.Patient patient1 =
+                        (org.hl7.fhir.instance.model.Patient) fhirResource.get(fhirLink.getResourceId(), ResourceType.Patient);
+
+                gender = patient1.getGender().getText().getValue();
+                break;
+            }
+        }
+
         patient.setNames(names);
+        patient.setGender(gender);
+
 
         GregorianCalendar birthTime = new GregorianCalendar();
         birthTime.setTime(user.getDateOfBirth());
