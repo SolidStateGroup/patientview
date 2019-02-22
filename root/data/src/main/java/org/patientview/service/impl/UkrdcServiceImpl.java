@@ -26,13 +26,12 @@ import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.FeatureType;
-import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.persistence.util.DataUtils;
+import org.patientview.persistence.util.UUIDType5;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.SurveyService;
@@ -60,6 +59,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -78,6 +78,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
     private static final String YOUR_HEALTH = "YOUR_HEALTH";
     private static final String ePro = "ePro";
+    private static final String eProMembership = "EPro";
 
     @Inject
     AuditService auditService;
@@ -102,6 +103,15 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
     @Inject
     SurveyService surveyService;
+
+    static String generateExternalId(String nhsNumber, String membership) {
+
+        UUID uuid = UUIDType5.nameUUIDFromNamespaceAndBytes(
+                UUIDType5.NAMESPACE_YHS, (nhsNumber + membership).getBytes(
+                        Charset.defaultCharset()));
+
+        return uuid.toString();
+    }
 
     @Override
     public void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
@@ -316,12 +326,21 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             }
         }
 
-        for (Identifier identifier: identifiers) {
+        String nhsNumber = null;
+        for (Identifier identifier : identifiers) {
 
             PatientNumber patientNumber = new PatientNumber();
             patientNumber.setNumber(identifier.getIdentifier());
-            patientNumber.setOrganization(
-                    generateOrganization(identifier.getIdentifierType().getValue()));
+
+            String organization =
+                    generateOrganization(identifier.getIdentifierType().getValue();
+
+            patientNumber.setOrganization(organization);
+
+            if (organization.equals("NHS")) {
+                nhsNumber = identifier.getIdentifier();
+            }
+
             patientNumber.setNumberType("NI");
 
             patientNumberList.add(patientNumber);
@@ -340,7 +359,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         patient.setNames(names);
 
-        // Hardcore to 9 - UNKNOWN
+        // Hardcode to 9 - UNKNOWN
         patient.setGender("9");
 
         GregorianCalendar birthTime = new GregorianCalendar();
@@ -352,6 +371,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         ProgramMembership programMembership = new ProgramMembership();
         programMembership.setProgramName(ePro);
+        programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
         GregorianCalendar fromTime = new GregorianCalendar();
         fromTime.setTime(surveyResponse.getDate());
         XMLGregorianCalendar xMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
@@ -438,7 +458,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         StringWriter xml = new StringWriter();
         jaxbContext.createMarshaller().marshal(patientRecord, xml);
 
-         return xml.toString();
+        return xml.toString();
     }
 
     /**
