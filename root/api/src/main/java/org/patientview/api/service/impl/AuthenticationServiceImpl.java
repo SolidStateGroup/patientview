@@ -649,7 +649,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     private Map<String, String> secretWordToMap(String secretWord) {
         Map<String, String> mappedSecretWord = new HashMap<>();
 
-        char[] tokenizedSecretWord = secretWord.toCharArray();
+        char[] tokenizedSecretWord = secretWord.toUpperCase().toCharArray();
         for(int idx = 0; idx < tokenizedSecretWord.length; idx++) {
             mappedSecretWord.put(
                     String.valueOf(idx), String.valueOf(tokenizedSecretWord[idx]));
