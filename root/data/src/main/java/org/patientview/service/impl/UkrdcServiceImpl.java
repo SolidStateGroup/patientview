@@ -371,7 +371,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         ProgramMembership programMembership = new ProgramMembership();
         programMembership.setProgramName(ePro);
-        programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
+        programMembership.(generateExternalId(nhsNumber, eProMembership));
         GregorianCalendar fromTime = new GregorianCalendar();
         fromTime.setTime(surveyResponse.getDate());
         XMLGregorianCalendar xMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
@@ -387,8 +387,6 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 break;
             }
         }
-
-        programMembership.setExternalId(String.valueOf(surveyGroupRole.getId()));
 
         PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
         programMemberships.getProgramMembership().add(programMembership);
