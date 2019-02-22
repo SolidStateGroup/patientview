@@ -31,7 +31,7 @@ import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.persistence.util.UUIDType5;
+import org.patientview.util.UUIDType5;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.SurveyService;
@@ -333,7 +333,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             patientNumber.setNumber(identifier.getIdentifier());
 
             String organization =
-                    generateOrganization(identifier.getIdentifierType().getValue();
+                    generateOrganization(identifier.getIdentifierType().getValue());
 
             patientNumber.setOrganization(organization);
 

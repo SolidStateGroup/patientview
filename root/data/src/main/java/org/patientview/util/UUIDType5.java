@@ -1,4 +1,4 @@
-package org.patientview.persistence.util;
+package org.patientview.util;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;

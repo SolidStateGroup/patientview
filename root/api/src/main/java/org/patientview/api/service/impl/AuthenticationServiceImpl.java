@@ -820,7 +820,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // check if the secret word needs to be checked
             if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
                 // user has a secret word and has included their chosen characters, check that they match
-                boolean fullSecretWordCheck = userToken.getSecretWordChoices() == null;
+                boolean fullSecretWordCheck = userToken.getSecretWord() != null;
 
                 if (fullSecretWordCheck) {
                     checkLettersAgainstSecretWord(
