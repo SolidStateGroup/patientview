@@ -473,7 +473,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             return EPRO_FALLBACK;
         }
 
-        return surveySendingFacility.getSurveyGroup().getCode();
+        return surveySendingFacility.getUnit().getCode();
     }
 
     /**
