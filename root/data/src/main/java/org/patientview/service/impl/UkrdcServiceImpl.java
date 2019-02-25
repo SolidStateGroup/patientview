@@ -15,7 +15,6 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
@@ -377,16 +376,6 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         XMLGregorianCalendar xMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
         xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
         programMembership.setFromTime(xMLGregorianCalendar);
-
-        GroupRole surveyGroupRole = null;
-        for (GroupRole groupRole : user.getGroupRoles()) {
-
-            if (groupRole.getGroup().getId().equals(unitCode.getId())) {
-
-                surveyGroupRole = groupRole;
-                break;
-            }
-        }
 
         PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
         programMemberships.getProgramMembership().add(programMembership);
