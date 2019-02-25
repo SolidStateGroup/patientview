@@ -46,6 +46,6 @@ public class SurveySendingFacilityTest {
 
         SurveySendingFacility result = surveySendingFacilityRepository.findBySurveyGroup_Id(2L);
 
-        Assert.assertEquals(new Long(2L), result.getUnit().getId());
+        Assert.assertEquals(new Long(3L), result.getUnit().getId());
     }
 }
