@@ -41,6 +41,7 @@ import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import uk.org.rixg.Clinician;
 import uk.org.rixg.CodedField;
 import uk.org.rixg.Document;
 import uk.org.rixg.Location;
@@ -351,7 +352,10 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             patientNumberList.add(patientNumber);
         }
 
-        sendingFacility.setValue(getSendingFacilityCode(unitCode.getId()));
+        Group facilityCode = getSendingFacilityCode(unitCode.getId());
+
+        sendingFacility.setValue(
+                facilityCode != null ? facilityCode.getCode() : EPRO_FALLBACK);
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
@@ -376,13 +380,24 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         patientRecord.setPatient(patient);
 
         ProgramMembership programMembership = new ProgramMembership();
-        programMembership.setProgramName(ePro);
+        programMembership.setProgramName(buildProgramName(facilityCode));
+        programMembership.setProgramDescription(
+                facilityCode != null ? facilityCode.getShortName() : null);
+
+        Clinician clinician = new Clinician();
+        clinician.setCodingStandard("PV_USERS");
+        clinician.setCode("migration");
+        programMembership.setEnteredBy(clinician);
         programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
+
         GregorianCalendar fromTime = new GregorianCalendar();
         fromTime.setTime(surveyResponse.getDate());
-        XMLGregorianCalendar xMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
+        XMLGregorianCalendar xMLGregorianCalendar =
+                DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
         xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
         programMembership.setFromTime(xMLGregorianCalendar);
+
+        programMembership.setUpdatedOn(xMLGregorianCalendar);
 
         PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
         programMemberships.getProgramMembership().add(programMembership);
@@ -463,17 +478,27 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
      * @param surveyGroupId id of the group a survey was taken under.
      * @return Sending facility code.
      */
-    private String getSendingFacilityCode(Long surveyGroupId) {
+    private Group getSendingFacilityCode(Long surveyGroupId) {
 
         SurveySendingFacility surveySendingFacility =
                 surveySendingFacilityRepository.findBySurveyGroup_Id(surveyGroupId);
 
         if (surveySendingFacility == null) {
 
-            return EPRO_FALLBACK;
+            return null;
         }
 
-        return surveySendingFacility.getUnit().getCode();
+        return surveySendingFacility.getUnit();
+    }
+
+    private String buildProgramName(Group group) {
+
+        if (group == null) {
+
+            return null;
+        }
+
+        return "PV.HOSPITAL." + group.getCode();
     }
 
     /**
