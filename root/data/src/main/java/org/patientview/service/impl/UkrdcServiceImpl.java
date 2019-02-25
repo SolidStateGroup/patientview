@@ -345,7 +345,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             patientNumberList.add(patientNumber);
         }
 
-        sendingFacility.setValue(unitCode.getCode());
+        sendingFacility.setValue(getUnitCode(unitCode.getId()));
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
@@ -446,6 +446,23 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         jaxbContext.createMarshaller().marshal(patientRecord, xml);
 
         return xml.toString();
+    }
+
+    /**
+     * Takes a
+     *
+     * @param id
+     * @return
+     */
+    private String getUnitCode(Long id) {
+
+        if (Long.compare(id, 59542083L) == 0) {
+
+            return "RQR00";
+        }
+
+        // If not from Leeds fallback to EPRO
+        return "EPRO";
     }
 
     /**
