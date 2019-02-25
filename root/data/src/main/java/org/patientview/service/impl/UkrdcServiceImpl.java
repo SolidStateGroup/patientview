@@ -22,6 +22,7 @@ import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.SurveySendingFacility;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.FeatureType;
@@ -29,6 +30,7 @@ import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
+import org.patientview.persistence.repository.SurveySendingFacilityRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.util.UUIDType5;
 import org.patientview.service.AuditService;
@@ -78,6 +80,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     private static final String YOUR_HEALTH = "YOUR_HEALTH";
     private static final String ePro = "ePro";
     private static final String eProMembership = "EPro";
+    private static final String EPRO_FALLBACK = "optepro";
 
     @Inject
     AuditService auditService;
@@ -99,6 +102,9 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
     @Inject
     SurveyResponseRepository surveyResponseRepository;
+
+    @Inject
+    SurveySendingFacilityRepository surveySendingFacilityRepository;
 
     @Inject
     SurveyService surveyService;
@@ -345,12 +351,13 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             patientNumberList.add(patientNumber);
         }
 
-        sendingFacility.setValue(getUnitCode(unitCode.getId()));
+        sendingFacility.setValue(getSendingFacilityCode(unitCode.getId()));
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
         Patient.Names names = new Patient.Names();
         Name name = new Name();
+        name.setUse("L");
         name.setUse("L");
         name.setFamily(user.getSurname());
         name.setGiven(user.getForename());
@@ -449,20 +456,24 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     }
 
     /**
-     * Takes a
+     * Takes an id from the group a survey was taken under and
+     * uses the {@link SurveySendingFacility} mapping to generate
+     * a unit code to send to UKRDC.
      *
-     * @param id
-     * @return
+     * @param surveyGroupId id of the group a survey was taken under.
+     * @return Sending facility code.
      */
-    private String getUnitCode(Long id) {
+    private String getSendingFacilityCode(Long surveyGroupId) {
 
-        if (Long.compare(id, 59542083L) == 0) {
+        SurveySendingFacility surveySendingFacility =
+                surveySendingFacilityRepository.findBySurveyGroup_Id(surveyGroupId);
 
-            return "RQR00";
+        if (surveySendingFacility == null) {
+
+            return EPRO_FALLBACK;
         }
 
-        // If not from Leeds fallback to EPRO
-        return "EPRO";
+        return surveySendingFacility.getSurveyGroup().getCode();
     }
 
     /**
