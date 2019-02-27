@@ -380,14 +380,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         patientRecord.setPatient(patient);
 
         ProgramMembership programMembership = new ProgramMembership();
-        programMembership.setProgramName(buildProgramName(facilityCode));
-        programMembership.setProgramDescription(
-                facilityCode != null ? facilityCode.getShortName() : null);
-
-        Clinician clinician = new Clinician();
-        clinician.setCodingStandard("PV_USERS");
-        clinician.setCode("migration");
-        programMembership.setEnteredBy(clinician);
+        programMembership.setProgramName(ePro);
         programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
 
         GregorianCalendar fromTime = new GregorianCalendar();

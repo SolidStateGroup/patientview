@@ -2169,7 +2169,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append("<ProgramName>");
         xml.append(String.format("PV.HOSPITAL.%s", groupRole.getGroup().getCode()));
         xml.append("</ProgramName>");
-        xml.append("<ProgramDescription>");
+        xml.append("<ProgramDescrieption>");
         xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
         xml.append("</ProgramDescription>");
 
