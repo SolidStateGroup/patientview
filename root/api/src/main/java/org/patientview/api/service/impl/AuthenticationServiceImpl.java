@@ -77,6 +77,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
 import static org.patientview.api.util.ApiUtil.userHasRole;
 
@@ -89,7 +90,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         implements AuthenticationService {
 
     private static final int SECRET_WORD_LETTER_COUNT = 2;
-    private static final int MOBILE_SECRET_WORD_LETTER_COUNT = 3;
     // retrieved from properties file
     private static Integer maximumLoginAttempts;
     private static Long sessionLength;
@@ -391,13 +391,13 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @CacheEvict(value = "authenticateOnToken", allEntries = true)
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
     @Override
-    public org.patientview.api.model.UserToken authenticateMobile(Credentials credentials, boolean includeSecret)
+    public org.patientview.api.model.UserToken authenticateMobile(Credentials credentials)
             throws AuthenticationServiceException {
         String username = credentials.getUsername();
         String password = credentials.getPassword();
 
         // temporary logging for PSQLException testing on production
-        LOG.info("Authenticating mobile'" + username + "'");
+        LOG.info("Authenticating mobile '" + username + "'");
 
         // validate null
         if (username == null || password == null) {
@@ -464,11 +464,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             userToken.setCheckSecretWord(true);
             toReturn.setCheckSecretWord(userToken.isCheckSecretWord());
 
-            // Check if mobile needs secure details to be returned with initial request
-            if (includeSecret) {
-                toReturn.setSecretWord(user.getSecretWord());
-            }
-
             // set temporary token
             userToken.setSecretWordToken(CommonUtils.getAuthToken());
             toReturn.setSecretWordToken(userToken.getSecretWordToken());
@@ -476,46 +471,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             // set user token (must not be null)
             userToken.setToken(CommonUtils.getAuthToken().substring(0, 40) + "secret");
 
-            // choose three characters to check and add to secret word indexes for ui
-            try {
-                Map<String, String> secretWordMap = new Gson().fromJson(
-                        user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
-                        }.getType());
-
-                if (secretWordMap == null || secretWordMap.isEmpty()) {
-                    throw new AuthenticationServiceException("Secret word cannot be retrieved");
-                }
-
-                Map<String, String> secretWordMapNoSalt = new HashMap<>(secretWordMap);
-                secretWordMapNoSalt.remove("salt");
-
-                List<String> possibleIndexes = new ArrayList<>(secretWordMapNoSalt.keySet());
-                List<String> secretWordIndexes = new ArrayList<>();
-
-                // For mobile choose 3 secret word letters
-                Random ran = new Random();
-                int randomInt = ran.nextInt(possibleIndexes.size() - 1);
-                String indexOne = possibleIndexes.get(randomInt);
-
-                possibleIndexes.remove(randomInt);
-                randomInt = ran.nextInt(possibleIndexes.size() - 1);
-                String indexTwo = possibleIndexes.get(randomInt);
-
-                possibleIndexes.remove(randomInt);
-                randomInt = ran.nextInt(possibleIndexes.size() - 1);
-                String indexThree = possibleIndexes.get(randomInt);
-
-                // need to make sure indexes are returned in ASC order
-                secretWordIndexes.add(indexOne);
-                secretWordIndexes.add(indexTwo);
-                secretWordIndexes.add(indexThree);
-                Collections.sort(secretWordIndexes);
-                toReturn.setSecretWordIndexes(secretWordIndexes);
-
-                userTokenRepository.save(userToken);
-            } catch (JsonSyntaxException jse) {
-                throw new AuthenticationServiceException("Error retrieving secret word");
-            }
+            userTokenRepository.save(userToken);
 
             // reset user login attempts after successfully entering username and password
             resetLogonAttempts(user);
@@ -646,18 +602,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 && StringUtils.isEmpty(user.getSecretWord());
     }
 
-    private Map<String, String> secretWordToMap(String secretWord) {
-        Map<String, String> mappedSecretWord = new HashMap<>();
-
-        char[] tokenizedSecretWord = secretWord.toUpperCase().toCharArray();
-        for(int idx = 0; idx < tokenizedSecretWord.length; idx++) {
-            mappedSecretWord.put(
-                    String.valueOf(idx), String.valueOf(tokenizedSecretWord[idx]));
-        }
-
-        return mappedSecretWord;
-    }
-
     @Override
     public void checkLettersAgainstSecretWord(User user, Map<String, String> letterMap, boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -702,10 +646,15 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // Do we need to to length check, in case old secret word we don't
         if (lengthCheck) {
-            //  We accept only 2 letters for Web or 3 letters  for Mobile
-            if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT
-                    && letterMap.keySet().size() != MOBILE_SECRET_WORD_LETTER_COUNT) {
+            //  We accept only 2 letters for Web
+            if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT) {
                 throw new ResourceForbiddenException("Must include all requested secret word letters");
+            }
+
+        } else {
+            // doing full word check against stored secret word - salt
+            if (letterMap.size() != (secretWordMap.size() - 1)) {
+                throw new ResourceForbiddenException("Secret word check failed");
             }
         }
 
@@ -714,6 +663,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         for (String toCheck : letterMap.keySet()) {
             if (!secretWordMap.get(toCheck).equals(DigestUtils.sha256Hex(letterMap.get(toCheck) + salt))) {
                 checkFailed = true;
+                break;
             }
         }
 
@@ -724,7 +674,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
-    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken, boolean fullSecretWordCheck)
+    private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken, boolean generateSalt)
             throws ResourceForbiddenException {
         org.patientview.api.model.UserToken transportUserToken
                 = new org.patientview.api.model.UserToken(userToken);
@@ -767,7 +717,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             }
         }
 
-        if (fullSecretWordCheck) {
+        if (generateSalt) {
 
             try {
                 transportUserToken.setSecretWordSalt(CommonUtils.generateSalt());
@@ -819,15 +769,33 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
             // check if the secret word needs to be checked
             if (foundUserToken.isCheckSecretWord() && userHasSecretWord) {
-                // user has a secret word and has included their chosen characters, check that they match
-                boolean fullSecretWordCheck = userToken.getSecretWord() != null;
 
-                if (fullSecretWordCheck) {
-                    checkLettersAgainstSecretWord(
-                            foundUserToken.getUser(), secretWordToMap(userToken.getSecretWord()), false);
+                boolean shouldGenerateSalt = false;
+
+                /**
+                 * Mobile flow changed slightly, and requires full secret word to be submitted.
+                 * If token has secret word choices this means request is from the web,
+                 * otherwise mobile request and required full word.
+                 */
+
+                // user has a secret word and has included their chosen characters,
+                // check that they match. Make sure WEB only request.
+                if (userToken.getSecretWordChoices() != null &&
+                        foundUserToken.getType().equals(UserTokenTypes.WEB)) {
+                    checkLettersAgainstSecretWord(foundUserToken.getUser(), userToken.getSecretWordChoices(), true);
+
                 } else {
-                    checkLettersAgainstSecretWord(
-                            foundUserToken.getUser(), userToken.getSecretWordChoices(),true);
+                    // make sure it's Mobile token
+                    if (!foundUserToken.getType().equals(UserTokenTypes.MOBILE)) {
+                        LOG.error("Cannot authenticate userToken, requires MOBILE type. ");
+                        throw new AuthenticationServiceException("Forbidden, failed to validate secret word");
+                    }
+
+                    shouldGenerateSalt = true;
+
+                    // convert entered secret word and validate
+                    checkLettersAgainstSecretWord(foundUserToken.getUser(),
+                            secretWordToMap(userToken.getSecretWord()), false);
                 }
 
                 // passed secret word check so set check to false and return user information
@@ -838,7 +806,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
                 updateUserAndAuditLogin(foundUserToken.getUser(), null);
 
-                return createApiUserToken(foundUserToken, fullSecretWordCheck);
+                return createApiUserToken(foundUserToken, shouldGenerateSalt);
             } else {
                 // standard login with no secret word
                 throw new AuthenticationServiceException("Forbidden, failed checking secret word");
@@ -1177,5 +1145,26 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         auditService.createAudit(AuditActions.LOGGED_ON, user.getUsername(), user,
                 user.getId(), AuditObjectTypes.User, null);
+    }
+
+
+    /**
+     * Helper to transform given secret word string into hasmap
+     *
+     * @param secretWord a secret word to transform
+     * @return a map with secret word letters
+     */
+    private Map<String, String> secretWordToMap(String secretWord) {
+        Map<String, String> userEnteredLetters = new HashMap<>();
+        if (isBlank(secretWord)) {
+            LOG.error("Missing secret word, cannot convert to map.");
+            return userEnteredLetters;
+        }
+
+        String userEnteredSecretWord = secretWord.replace(" ", "").trim().toUpperCase();
+        for (int i = 0; i < userEnteredSecretWord.length(); i++) {
+            userEnteredLetters.put(String.valueOf(i), String.valueOf(userEnteredSecretWord.charAt(i)));
+        }
+        return userEnteredLetters;
     }
 }
