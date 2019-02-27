@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.patientview.api.model.BaseCode;
 import org.patientview.api.model.Patient;
 import org.patientview.api.service.ApiPatientService;
@@ -89,6 +91,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     public Long add(ResearchStudy researchStudy) {
         // set updater and update time (used for ordering correctly)
         User currentUser = getCurrentUser();
+        researchStudy.setDescription(Jsoup.clean(researchStudy.getDescription(), Whitelist.relaxed()));
         researchStudy.setCreator(currentUser);
         researchStudy.setCreatedDate(new Date());
         researchStudy.setLastUpdater(currentUser);

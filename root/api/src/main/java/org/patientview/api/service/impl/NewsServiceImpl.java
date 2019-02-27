@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.patientview.api.service.NewsService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.util.ApiUtil;
@@ -91,6 +93,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         // set updater and update time (used for ordering correctly)
         User currentUser = getCurrentUser();
+        newsItem.setStory(Jsoup.clean(newsItem.getStory(), Whitelist.relaxed()));
         newsItem.setCreator(currentUser);
         newsItem.setLastUpdater(currentUser);
         newsItem.setLastUpdate(newsItem.getCreated());
@@ -534,7 +537,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
         entityNewsItem.setNewsType(newsItem.getNewsType());
         entityNewsItem.setHeading(newsItem.getHeading());
-        entityNewsItem.setStory(newsItem.getStory());
+        entityNewsItem.setStory(Jsoup.clean(newsItem.getStory(), Whitelist.relaxed()));
         entityNewsItem.setLastUpdate(new Date());
         entityNewsItem.setLastUpdater(userRepository.findOne(getCurrentUser().getId()));
         newsItemRepository.save(entityNewsItem);
