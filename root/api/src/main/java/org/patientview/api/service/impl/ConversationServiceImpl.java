@@ -678,6 +678,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("You do not have permission");
         }
 
+        if (!isMessageFromAuthenticatedUser(message)) {
+            throw new ResourceForbiddenException("You do not have permission");
+        }
+
         User entityUser = findEntityUser(message.getUser().getId());
 
         Message newMessage = new Message();
@@ -2134,5 +2138,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
         }
         return false;
+    }
+
+    /**
+     * Checks {@link org.patientview.api.model.Message} user id against the currently authenticated
+     * user.
+     *
+     * @param message Conversion message to check
+     * @return True if message is sent by authenticated user, false otherwise.
+     */
+    private boolean isMessageFromAuthenticatedUser(org.patientview.api.model.Message message) {
+        return message.getUser().getId().equals(getCurrentUser().getId());
     }
 }

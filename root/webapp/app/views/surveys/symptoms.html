@@ -12,6 +12,9 @@
     .current-question {
         background-color: #d5ebfc;
     }
+    td:nth-child(1) .non-viewable {
+        color: #7CB5EC;
+    }
     .survey-table-header {
         background-color: #E7ECF2;
     }
@@ -21,7 +24,7 @@
         <h1>Your Symptoms</h1>
     </div>
     <div class="col-md-6">
-        <h1><a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+        <h1><a href="/#/myconditions?specialty=Renal&activeTab={{surveyType === 'PROM'? 'SURVEYS': 'OPTEPRO'}}" class="btn blue pull-right back-to-results" data-ng-show="!loading">
             <i class="icon-back-to pull-left"> </i>
             Back
         </a></h1>
@@ -33,7 +36,9 @@
 
         <div class="row" data-ng-show="!loading && surveyResponses">
             <div class="col-md-12">
-                <p>The following table shows a list of symptoms and your assessment of how each one has been affecting you.</p>
+                <p>The following table presents your symptoms and they affected you.
+                    <a href="/#/questionnaire-scores">How are these measured?</a>
+                </p>
             </div>
         </div>
 
@@ -53,18 +58,19 @@
                         <tr data-ng-repeat="row in tableRows track by $index" data-ng-class="row.type == questionType ? 'current-question' : ''">
                             <td data-ng-repeat="cell in row.data track by $index" data-ng-class="{'latest-td': cell.isLatest}">
                                 <span data-ng-class="{'bold': $index == 0}" data-ng-bind-html="cell.text" data-ng-if="cell.isDownload"></span>
-                                <span data-ng-class="{'bold': $index == 0}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
+                                <span data-ng-class="{'bold': $index == 0, 'non-viewable':row.nonViewable}" data-ng-if="!cell.isDownload">{{cell.text}}</span>
                             </td>
                             <td class="view-graph-td">
-                                <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="(row.type !== questionType) && (row.isDownload !== true)">View</a>
+                                <a href="" data-ng-click="viewGraph(row.type)" data-ng-if="!row.isCustom && (row.type !== questionType) && (row.isDownload !== true) && (!row.nonViewable)">View</a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+
                 <div data-ng-if="surveyResponseSelectOptions.length">
                     <br/>
                     <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
-                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date'"
+                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:order:reverse"
                             data-ng-change="compareSurvey(selectedSurveyResponseId)" >
                         <option value="">Compare with a past survey:</option>
                     </select>

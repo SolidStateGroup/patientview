@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -65,10 +66,12 @@ public interface AuthenticationService extends UserDetailsService {
      * get User information
      * @param user User to validate secret word
      * @param letterMap Map of position to letter chosen
+     * @param lengthCheck if we need to validate the length of there letters
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    void checkSecretWord(org.patientview.persistence.model.User user, Map<String, String> letterMap)
+    void checkLettersAgainstSecretWord(org.patientview.persistence.model.User user, Map<String, String> letterMap,
+                                       boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**

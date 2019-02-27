@@ -2,10 +2,11 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.enums.DummyUsernames;
+import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.api.service.EmailService;
+import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.LookupService;
 import org.patientview.api.service.RoleService;
-import org.patientview.api.service.ApiSurveyResponseService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -33,6 +34,7 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ConversationLabel;
 import org.patientview.persistence.model.enums.ConversationTypes;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
@@ -52,6 +54,7 @@ import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.UkrdcService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +66,8 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,50 +87,84 @@ import static org.patientview.api.util.ApiUtil.getCurrentUser;
 public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyResponseServiceImpl>
         implements ApiSurveyResponseService {
 
+    private final static Map<Long, Long> PROM_POS_MAPPING;
+    private final static String POS_S = "POS_S";
+    private final static String PROM = "PROM";
+
+    private final static Map<Long, Long> EQ5D_MAPPING;
+    private final static String EQ5D5L = "EQ5D5L";
+    private final static String EQ5D = "EQ5D";
+
+    static {
+
+        PROM_POS_MAPPING = new HashMap<>();
+        PROM_POS_MAPPING.put(21135588L, 14917730L);
+        PROM_POS_MAPPING.put(21135594L, 14917731L);
+        PROM_POS_MAPPING.put(21135606L, 14917733L);
+        PROM_POS_MAPPING.put(21135612L, 14917734L);
+        PROM_POS_MAPPING.put(21135618L, 14917735L);
+        PROM_POS_MAPPING.put(21135624L, 14917736L);
+        PROM_POS_MAPPING.put(21135630L, 14917737L);
+        PROM_POS_MAPPING.put(21135648L, 14917740L);
+        PROM_POS_MAPPING.put(21135654L, 14917741L);
+        PROM_POS_MAPPING.put(21135642L, 14917739L);
+        PROM_POS_MAPPING.put(21135660L, 14917742L);
+        PROM_POS_MAPPING.put(21135678L, 14917743L);
+        PROM_POS_MAPPING.put(21135684L, 14917744L);
+        PROM_POS_MAPPING.put(21135666L, 14917745L);
+        PROM_POS_MAPPING.put(21135672L, 14917746L);
+        PROM_POS_MAPPING.put(21135600L, 14917732L);
+        PROM_POS_MAPPING.put(21135636L, 14917738L);
+
+        EQ5D_MAPPING = new HashMap<>();
+        EQ5D_MAPPING.put(21135779L, 14917752L);
+        EQ5D_MAPPING.put(21135803L, 14917753L);
+        EQ5D_MAPPING.put(21135791L, 14917754L);
+        EQ5D_MAPPING.put(21135797L, 14917755L);
+        EQ5D_MAPPING.put(21135785L, 14917756L);
+    }
+
     @Inject
     private ConversationRepository conversationRepository;
-
     @Inject
     private EmailService emailService;
-
     @Inject
     private FeatureRepository featureRepository;
-
     @Inject
     private LookupService lookupService;
-
     @Inject
     private Properties properties;
-
     @Inject
     private QuestionRepository questionRepository;
-
     @Inject
     private QuestionOptionRepository questionOptionRepository;
-
     @Inject
     private RoleService roleService;
-
     @Inject
     private SurveyRepository surveyRepository;
-
     @Inject
     private SurveyResponseRepository surveyResponseRepository;
-
     @Inject
     private UserRepository userRepository;
-
     @Inject
     private UserService userService;
-
     @Inject
     private UserTokenRepository userTokenRepository;
+
+    @Inject
+    private UkrdcService ukrdcService;
+
+    @Inject
+    private ExternalServiceService externalServiceService;
 
     @Override
     @Transactional
     public void add(Long userId, SurveyResponse surveyResponse)
-            throws ResourceForbiddenException, ResourceNotFoundException {
+            throws ResourceForbiddenException, ResourceNotFoundException,
+            JAXBException, DatatypeConfigurationException {
+
         User user = userRepository.findOne(userId);
+
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
@@ -195,8 +234,28 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
             if (answer) {
                 Question question = questionRepository.findOne(questionAnswer.getQuestion().getId());
+
                 if (question == null) {
                     throw new ResourceNotFoundException("Invalid question");
+                }
+
+                if (question.getCustomQuestion()) {
+
+                    String questionText = questionAnswer.getQuestionText();
+
+                    // If the question text has not been set don't persist the answer.
+                    if (questionText == null) {
+                        continue;
+                    }
+
+                    boolean hasQuestionOptions = question.getQuestionOptions() != null;
+
+                    if (hasQuestionOptions && questionAnswer.getQuestionOption() == null) {
+                        throw new ResourceNotFoundException("For the symptom that you entered " + questionText +
+                                " please select how you feel by tapping a button");
+                    }
+
+                    newQuestionAnswer.setQuestionText(questionText);
                 }
 
                 newQuestionAnswer.setQuestion(question);
@@ -227,11 +286,18 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else if (survey.getType().equals(SurveyTypes.IBD_FATIGUE.toString())) {
+
             SurveyResponseScoreTypes type = SurveyResponseScoreTypes.IBD_FATIGUE;
             Double score = calculateScore(newSurveyResponse, type);
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
-        } else {
+        } else if (survey.getType().equals(SurveyTypes.POS_S.toString())) {
+
+                // If the survey is of type POS S send to ukrdc
+                String xml = ukrdcService.buildSurveyXml(newSurveyResponse);
+                externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, user, new Date());
+        }
+        else {
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN.toString(), 0.0, ScoreSeverity.UNKNOWN));
         }
@@ -451,7 +517,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                     && questionAnswer.getQuestion() != null
                     && questionAnswer.getQuestion().getType() != null) {
                 questionTypeScoreMap.put(
-                    questionAnswer.getQuestion().getType(), questionAnswer.getQuestionOption().getScore());
+                        questionAnswer.getQuestion().getType(), questionAnswer.getQuestionOption().getScore());
             }
 
             // add scoring for ranged values
@@ -616,20 +682,37 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     @Override
     public List<SurveyResponse> getByUserIdAndSurveyType(Long userId, String surveyType)
             throws ResourceNotFoundException {
+
         User user = userRepository.findOne(userId);
+
         if (user == null) {
+
             throw new ResourceNotFoundException("Could not find user");
         }
         if (surveyType == null) {
+
             throw new ResourceNotFoundException("Must set survey type");
         }
 
         List<SurveyResponse> responses = surveyResponseRepository.findByUserAndSurveyType(user, surveyType);
 
+        if (surveyType.equals(POS_S)) {
+
+            mapPromSurveys(user, responses);
+        }
+
+        if (surveyType.equals(EQ5D5L)) {
+
+            mapEq5dsurveys(user, responses);
+        }
+
         // clean up and reduced info about staff user if present
         if (!CollectionUtils.isEmpty(responses)) {
+
             List<SurveyResponse> reducedResponses = new ArrayList<>();
+
             for (SurveyResponse surveyResponse : responses) {
+
                 reducedResponses.add(reduceStaffUser(surveyResponse));
             }
 
@@ -638,6 +721,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
         return responses;
     }
+
 
     @Override
     public List<SurveyResponse> getLatestByUserIdAndSurveyType(Long userId, List<String> types)
@@ -686,6 +770,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     /**
      * Reduce the information passed back to ui about staff user (only used when a staff member fills in survey when
      * viewing as a patient
+     *
      * @param surveyResponse SurveyResponse to reduce staff user information for
      * @return SurveyResponse where staff user info has been reduced
      */
@@ -733,5 +818,94 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
         }
 
         return surveyResponse;
+    }
+
+    private void mapPromSurveys(User user, List<SurveyResponse> responses) {
+
+        mappingSurveyCore(
+                surveyResponseRepository.findByUserAndSurveyType(user, PROM),
+                POS_S,
+                responses,
+                PROM_POS_MAPPING);
+    }
+
+    private void mapEq5dsurveys(User user, List<SurveyResponse> responses) {
+
+        mappingSurveyCore(
+                surveyResponseRepository.findByUserAndSurveyType(user, EQ5D),
+                EQ5D5L,
+                responses,
+                EQ5D_MAPPING);
+    }
+
+    private void mappingSurveyCore(
+            List<SurveyResponse> surveyResponses,
+            String surveyType,
+            List<SurveyResponse> responsesToReturn,
+            Map<Long, Long> mappings) {
+
+        Survey survey = surveyRepository.findByType(surveyType).get(0);
+
+        for (SurveyResponse surveyResponse : surveyResponses) {
+
+            SurveyResponse mappedResponse = new SurveyResponse();
+            mappedResponse.setId(surveyResponse.getId());
+            mappedResponse.setSurvey(survey);
+            mappedResponse.setUser(surveyResponse.getUser());
+            mappedResponse.setStaffToken(surveyResponse.getStaffToken());
+            mappedResponse.setDate(surveyResponse.getDate());
+            mappedResponse.setSurveyResponseScores(surveyResponse.getSurveyResponseScores());
+
+            List<QuestionAnswer> mappedQuestionAnswers = new ArrayList<>();
+
+            for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
+
+                Question question = questionAnswer.getQuestion();
+                Long posSQuestionId = mappings.get(question.getId());
+
+                QuestionOption answer = questionAnswer.getQuestionOption();
+
+                QuestionAnswer mappedQuestionAnswer = new QuestionAnswer();
+                mappedQuestionAnswer.setId(questionAnswer.getId());
+                mappedQuestionAnswer.setQuestionText(questionAnswer.getQuestionText());
+                mappedQuestionAnswer.setValue(questionAnswer.getValue());
+
+                Question mappedQuestion = null;
+                QuestionOption mappedAnswer = null;
+
+                // TODO assuming has only one question group...
+                for (Question questionPosS : survey.getQuestionGroups().get(0).getQuestions()) {
+
+                    if (questionPosS.getId().equals(posSQuestionId)) {
+
+                        mappedQuestion = questionPosS;
+
+                        // Try to map the answer based on question
+                        for (QuestionOption option : mappedQuestion.getQuestionOptions()) {
+
+                            if (option.getText().equals(answer.getText())) {
+
+                                mappedAnswer = option;
+                            }
+                        }
+                    }
+                }
+
+                if (mappedQuestion != null) {
+
+                    mappedQuestionAnswer.setQuestion(mappedQuestion);
+                }
+
+                if (mappedAnswer != null) {
+
+                    mappedQuestionAnswer.setQuestionOption(mappedAnswer);
+                }
+
+                mappedQuestionAnswers.add(mappedQuestionAnswer);
+            }
+
+            mappedResponse.setQuestionAnswers(mappedQuestionAnswers);
+            responsesToReturn.add(mappedResponse);
+        }
     }
 }

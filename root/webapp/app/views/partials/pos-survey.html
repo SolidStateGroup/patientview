@@ -1,0 +1,152 @@
+<form name="userFormNew" class="pos-survey">
+    <div class="modal-header survey-modal-header">
+        <button type="button" class="close" data-ng-click="cancel()" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Your symptoms{{survey.description}}</h3>
+    </div>
+    <div class="modal-body" data-ng-if="!showEnterResults">
+        <div class="resize-text-buttons" role="group">
+            <p>Resize font</p>
+            <button type="button" class="btn btn-default btn-circle" ng-click="decreaseFontSize()">
+                <span class="btn-circle__icon">-</span>
+            </button>
+            <button type="button" class="btn btn-default btn-circle" ng-click="increaseFontSize()">
+                <span class="btn-circle__icon">+</span>
+            </button>
+        </div>
+        <div ng-style="{'zoom':zoom}">
+
+            <div class="row">
+                <div class="col-sm-10 symptoms-intro-text">
+                    <p>Below is a list of symptoms, which you may or may have not experienced. Please tap the button to
+                        show how you feel each of these symptoms has affected you and how you been feeling over the past
+                        week.</p>
+
+                    <p>You need to do this for the first 17 symptoms in the list below (from ‘Pain’ to ‘Diarrhoea’ before you can save your answers.</p>
+                </div>
+            </div>
+
+            <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'"
+                 class="div-question-group">
+                <div class="question-group-description"
+                     data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
+                <!--Radio Questions-->
+                <table class="table">
+                    <thead>
+                    <tr class="symptom-heading">
+                        <th>
+                        </th>
+                        <th><h5>Not at all</h5><span class="small">No effect</span>
+                        </th>
+                        <th><h5>Slightly</h5><span class="small">but not bothered to be rid of it</span></th>
+                        <th><h5>Moderately</h5><span class="small">limits some activity or concentration</span></th>
+                        <th><h5>Severely</h5><span class="small">activities or concentration markedly affected</span>
+                        </th>
+                        <th><h5>Overwhelmingly</h5><span class="small">unable to think of anything else</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO'  && question.text"
+                        data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
+                        <td scope="row">
+                            <span data-ng-if="question.number">{{question.number}}. </span>
+                            <span>{{question.text}}</span>
+                            <span data-ng-if="question.helpLink" class="help-link">
+                        <a href="{{question.helpLink}}" target="_blank">what is this?</a>
+                    </span>
+                            <div class="question-description">{{question.description}}</div>
+                        </td>
+                        <td data-ng-repeat="questionOption in question.questionOptions track by $index"
+                            class="span-radio text-center">
+
+                            <label for="{{questionOption.id}}" class="radio-label">
+                                <input type="radio" data-ng-model="answers[question.id]" ng-value="questionOption.id"
+                                       name="{{question.id}}"
+                                       class="radio-button" id="{{questionOption.id}}">
+                                <small>{{$index}}</small>
+                            </label>
+
+                        </td>
+                    </tr>
+                    <!--Custom Questions-->
+                    <tr>
+                        <th>
+                            Any other symptoms:
+                        </th>
+                        <th class="text-center">
+                        </th>
+                        <th class="text-center"></th>
+                        <th class="text-center">
+                        </th>
+                        <th class="text-center"></th>
+                        <th class="text-center">
+                        </th>
+                    </tr>
+                    <tr ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && !question.text"
+                        data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'">
+                        <td scope="row" style="width: 25%;">
+                            <input placeholder="Enter a symptom" data-ng-model="customQuestions[question.id]"
+                                   data-ng-change="setCustomQuestion(question.id)" type="text" class="form-control"
+                                   id="inputSymptom1" placeholder="Input symptom">
+                            <div>
+                                <button ng-click="resetSymptom(question.id)" class="btn blue btn-block reset-button">Reset</button>
+                            </div>
+                        </td>
+                        <td data-ng-repeat="questionOption in question.questionOptions track by $index"
+                            class="span-radio text-center">
+                            <label for="{{questionOption.id}}" class="radio-label">
+                                <input ng-disabled="!customQuestions[question.id]" type="radio"
+                                       data-ng-model="answers[question.id]" ng-value="questionOption.id"
+                                       class="radio-button" id="{{questionOption.id}}">
+                                <small>{{$index}}</small>
+                            </label>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+
+
+
+                <div ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'TEXT'"
+                     data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
+                        <div class="col-sm-3">
+                            <p class="symptom-label-text">{{question.text}}</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <select ng-model="answers[question.id]" class="form-control" style="margin-top: 10px;">
+                                <option selected value="">Select an answer</option>
+                                <option ng-if="question.elementType==='SINGLE_SELECT' && question.htmlType === 'RADIO' && (question.text||customQuestions[question.id])"
+                                        ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'"
+                                        value="{{question.text || customQuestions[question.id]}}">{{question.text ||
+                                    customQuestions[question.id]}}
+                                </option>
+                            </select>
+                        </div>
+                </div>
+
+                <div class="well terms-well">
+                    <p>
+                        Please confirm that your answers are complete and correct before saving
+                    </p>
+                    <label for="terms" class="radio-label">
+                        I confirm that my answers are complete and correct
+                        <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button"
+                               id="terms"/>
+                    </label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer pos-survey-footer">
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
+        <button class="btn btn-lg btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button class="btn btn-lg blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms"
+                data-ng-if="!showEnterResults && !saving">Save
+        </button>
+        <button data-ng-if="saving" class="btn btn-lg blue" disabled>
+            Saving
+        </button>
+    </div>
+</form>

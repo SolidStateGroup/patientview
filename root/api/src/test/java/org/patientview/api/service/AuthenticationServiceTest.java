@@ -757,7 +757,7 @@ public class AuthenticationServiceTest {
         entered.put("2", "C");
         entered.put("6", "4");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -792,7 +792,7 @@ public class AuthenticationServiceTest {
         entered.put("4", "2");
         entered.put("5", "3");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -825,7 +825,7 @@ public class AuthenticationServiceTest {
         entered.put("2", "X");
         entered.put("6", "4");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -847,7 +847,7 @@ public class AuthenticationServiceTest {
         entered.put("2", "X");
         entered.put("6", "4");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
     }
 
     @Test

@@ -52,6 +52,8 @@ public class UserToken {
     // used to return encrypted secret word on initial login request
     private String secretWord;
 
+    private String secretWordSalt;
+
     public UserToken() {
     }
 
@@ -260,5 +262,13 @@ public class UserToken {
 
     public void setSecretWord(String secretWord) {
         this.secretWord = secretWord;
+    }
+
+    public String getSecretWordSalt() {
+        return secretWordSalt;
+    }
+
+    public void setSecretWordSalt(String secretWordSalt) {
+        this.secretWordSalt = secretWordSalt;
     }
 }

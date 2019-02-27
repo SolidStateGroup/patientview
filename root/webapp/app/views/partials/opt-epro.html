@@ -1,0 +1,70 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>OPT-ePRO</h3>
+    </div>
+    <div class="panel-body health-surveys">
+        <div class="text-center">
+            <img src="../images/icons/OPT-ePRO_LOGO_MAIN_BLUE-PURPLE.png" class="opt-epro-logo" alt="OPT-ePRO logo"/>
+        </div>
+        <div class="row">
+            <div class="col-md-1 no-margin text-right">
+                <div class="badge icon-large aqua">
+                    <img src="../images/icons/symptoms.png" alt="Symptoms"/>
+                </div>
+            </div>
+            <div class="col-md-8 col-xs-7">
+                <h4 class="survey">Your Symptoms</h4>
+                <p>Questions about your symptoms. To complete every time before you meet with the doctor. This information will help you and the renal team to keep an eye on your symptoms and discuss how best to manage them.</p>
+                <p class="list-date" data-ng-if="foundSurveys['POS_S']">
+                    Last completed on {{foundSurveys['POS_S'].date | date:'dd-MMM-yyyy'}}
+                </p>
+            </div>
+            <div class="col-md-4 align-bottom">
+                <a data-ng-click="openModalEnterSurveyResponses('POS_S')" class="btn blue">
+                    Fill in
+                </a>
+                <a href="/#/surveys/symptoms?type=POS_S" class="btn blue">
+                    View
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-1 no-margin text-right">
+                <div class="badge icon-large aqua">
+                    <img src="../images/icons/overall-health.png" alt="Overall health"/>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <h4 class="survey">Your Overall Health</h4>
+                <p>Six extra questions about your overall health. To fill in once a year.</p>
+                <p class="list-date" data-ng-if="foundSurveys['EQ5D5L']">
+                    Last completed on {{foundSurveys['EQ5D5L'].date | date:'dd-MMM-yyyy'}}
+                </p>
+            </div>
+            <div class="col-md-4 align-bottom">
+                <a data-ng-click="openModalEnterSurveyResponses('EQ5D5L')" class="btn blue">
+                    Fill in
+                </a>
+                <a href="/#/surveys/overall?type=EQ5D5L" class="btn blue">
+                    View
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <p>Your answers will be sent to (1) PatientView, so that you can monitor your symptoms yourself, if you wish; (2) Your renal team, so that they can monitor your symptoms as part of your medical record and discuss them with you in clinic; and (3) The UK Renal Registry, who will use your data for audit and research; for more information on how they do this, please visit <a href="https://www.renalreg.org/patient-info/" target="_blank">https://www.renalreg.org/patient-info/</a></p>
+
+                <p>
+                    Filling in the questions is voluntary. If you do not want to take part, just let the nurse know and do not fill in the questions.
+                    <a href="/#/questionnaire-faq">Click here for more information.</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div data-ng-show="loading" class="container">
+        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Surveys</h3>
+        <br/>
+    </div>
+</div>
