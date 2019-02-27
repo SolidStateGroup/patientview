@@ -278,7 +278,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 text = text.replace(/(\r\n|\n|\r)/gm, '<br/>');
 
                 // strip <script> (otherwise htmlClean crashes)
-                text = stripScripts(text);
+                // text = stripScripts(text); 
 
                 // remove 'javascript' strings
                 text = text.replace('javascript', '');
