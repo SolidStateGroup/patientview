@@ -91,7 +91,8 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     public Long add(ResearchStudy researchStudy) {
         // set updater and update time (used for ordering correctly)
         User currentUser = getCurrentUser();
-        researchStudy.setDescription(Jsoup.clean(researchStudy.getDescription(), Whitelist.relaxed()));
+        researchStudy.setDescription(StringUtils.isNotEmpty(researchStudy.getDescription()) ?
+                Jsoup.clean(researchStudy.getDescription(), Whitelist.relaxed()) : "");
         researchStudy.setCreator(currentUser);
         researchStudy.setCreatedDate(new Date());
         researchStudy.setLastUpdater(currentUser);

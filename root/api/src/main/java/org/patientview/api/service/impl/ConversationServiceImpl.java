@@ -207,7 +207,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             Message newMessage = new Message();
             newMessage.setUser(entityUser);
             newMessage.setConversation(newConversation);
-            newMessage.setMessage(Jsoup.clean(message.getMessage(), Whitelist.relaxed()));
+            newMessage.setMessage(StringUtils.isNotEmpty(message.getMessage()) ?
+                    Jsoup.clean(message.getMessage(), Whitelist.relaxed()) : "");
             newMessage.setType(message.getType());
             newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
             newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
@@ -644,7 +645,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // add message
         Message message = new Message();
-        message.setMessage(Jsoup.clean(conversation.getMessage(), Whitelist.relaxed()));
+        message.setMessage(StringUtils.isNotEmpty(conversation.getMessage()) ?
+                Jsoup.clean(conversation.getMessage(), Whitelist.relaxed()) : "");
         message.setType(MessageTypes.MESSAGE);
         message.setConversation(newConversation);
         message.setUser(sender);
@@ -687,7 +689,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         Message newMessage = new Message();
         newMessage.setUser(entityUser);
         newMessage.setConversation(entityConversation);
-        newMessage.setMessage(Jsoup.clean(message.getMessage(), Whitelist.relaxed()));
+        newMessage.setMessage(StringUtils.isNotEmpty(message.getMessage()) ?
+                Jsoup.clean(message.getMessage(), Whitelist.relaxed()) : "");
         newMessage.setType(message.getType());
 
         if (message.getMyMedia() != null) {
@@ -798,7 +801,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setId(message.getId());
             newMessage.setConversation(newConversation);
             newMessage.setType(message.getType());
-            newMessage.setMessage(Jsoup.clean(message.getMessage(), Whitelist.relaxed()));
+            newMessage.setMessage(StringUtils.isNotEmpty(message.getMessage()) ?
+                    Jsoup.clean(message.getMessage(), Whitelist.relaxed()) : "");
             newMessage.setCreated(message.getCreated());
             newMessage.setMyMedia(message.getMyMedia());
             newMessage.setHasAttachment(message.getHasAttachment());
