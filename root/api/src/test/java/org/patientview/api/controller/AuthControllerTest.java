@@ -144,7 +144,7 @@ public class AuthControllerTest {
                 .content(mapper.writeValueAsString(credentials)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        verify(authenticationService, Mockito.times(1)).authenticateMobile(any(Credentials.class), any(Boolean.class));
+        verify(authenticationService, Mockito.times(1)).authenticateMobile(any(Credentials.class));
     }
 
     @Test

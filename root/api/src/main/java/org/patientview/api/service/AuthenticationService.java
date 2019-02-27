@@ -35,15 +35,16 @@ public interface AuthenticationService extends UserDetailsService {
     UserToken authenticate(Credentials credentials) throws AuthenticationServiceException;
 
     /**
-     * Authenticate a User given credentials.
-     * Extra security added to mobile, and will return 3 random characters from secret word.
+     * Step 1: in mobile authentication flow
+     * Authenticate a mobile User given credentials.
+     *
+     * This just return secret word token.
      *
      * @param credentials   Credentials object containing username, password
-     * @param includeSecret whether to set secret in user token
      * @return UserToken containing authentication token, used in all future authenticated requests
      * @throws AuthenticationServiceException
      */
-    UserToken authenticateMobile(Credentials credentials, boolean includeSecret) throws AuthenticationServiceException;
+    UserToken authenticateMobile(Credentials credentials) throws AuthenticationServiceException;
 
     /**
      * Store Authentication object in Spring Security
