@@ -602,26 +602,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 && StringUtils.isEmpty(user.getSecretWord());
     }
 
-    private void checkSecretWord(User user, String userEnteredSecretWord)
-            throws ResourceForbiddenException {
-        if (user == null) {
-            throw new ResourceForbiddenException("User not found");
-        }
-
-        String secretWord = user.getSecretWord();
-
-        if (isBlank(secretWord)) {
-            throw new ResourceForbiddenException("Secret word not found");
-        }
-
-        boolean secretWordDoesNotMatch = !secretWord.equals(userEnteredSecretWord);
-
-        if (secretWordDoesNotMatch) {
-            incrementFailedLogon(user);
-            throw new ResourceForbiddenException("Incorrect secret word");
-        }
-    }
-
     @Override
     public void checkLettersAgainstSecretWord(User user, Map<String, String> letterMap, boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException {
