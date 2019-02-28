@@ -116,7 +116,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 UUIDType5.NAMESPACE_YHS, (nhsNumber + membership).getBytes(
                         Charset.defaultCharset()));
 
-        return uuid.toString();
+        return uuid.toString().replace("-", "");
     }
 
     @Override
