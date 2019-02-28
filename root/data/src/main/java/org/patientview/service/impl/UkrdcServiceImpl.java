@@ -32,16 +32,15 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.SurveySendingFacilityRepository;
 import org.patientview.persistence.resource.FhirResource;
-import org.patientview.util.UUIDType5;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
+import org.patientview.util.UUIDType5;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import uk.org.rixg.Clinician;
 import uk.org.rixg.CodedField;
 import uk.org.rixg.Document;
 import uk.org.rixg.Location;
@@ -335,21 +334,30 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         String nhsNumber = null;
         for (Identifier identifier : identifiers) {
 
-            PatientNumber patientNumber = new PatientNumber();
-            patientNumber.setNumber(identifier.getIdentifier());
-
             String organization =
                     generateOrganization(identifier.getIdentifierType().getValue());
 
-            patientNumber.setOrganization(organization);
-
             if (organization.equals("NHS")) {
+
+                PatientNumber patientNumber = new PatientNumber();
+                patientNumber.setNumber(identifier.getIdentifier());
+                patientNumber.setOrganization(organization);
+
                 nhsNumber = identifier.getIdentifier();
+
+                patientNumber.setNumberType("NI");
+                patientNumberList.add(patientNumber);
             }
+        }
 
-            patientNumber.setNumberType("NI");
+        if (nhsNumber != null) {
 
-            patientNumberList.add(patientNumber);
+            PatientNumber MRN = new PatientNumber();
+            MRN.setOrganization("NHS");
+            MRN.setNumber(nhsNumber);
+            MRN.setNumberType("MRN");
+
+            patientNumberList.add(MRN);
         }
 
         Group facilityCode = getSendingFacilityCode(unitCode.getId());
