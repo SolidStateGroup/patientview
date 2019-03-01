@@ -370,7 +370,6 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         Patient.Names names = new Patient.Names();
         Name name = new Name();
         name.setUse("L");
-        name.setUse("L");
         name.setFamily(user.getSurname());
         name.setGiven(user.getForename());
         names.getName().add(name);

@@ -285,7 +285,7 @@ VALUES (14917899, 14917753, 'I have severe problems washing or dressing myself',
 INSERT INTO public.pv_question_option
 VALUES (14917900, 14917753, 'I am unable to wash or dress myself', '5', NULL, 4, 5);
 INSERT INTO public.pv_question VALUES
-  (14917754, 14917711, 'SINGLE_SELECT', 'RADIO', 'Usual Activities', 'YOHQ3', NULL, NULL, 2, NULL, NULL, NULL, NULL,
+  (14917754, 14917711, 'SINGLE_SELECT', 'RADIO', 'Usual Activities (e.g. work, study, housework, family or leisure activities)', 'YOHQ3', NULL, NULL, 2, NULL, NULL, NULL, NULL,
    NULL, true, false);
 INSERT INTO public.pv_question_option
 VALUES (14917901, 14917754, 'I have no problems doing my usual activities', '1', NULL, 0, 1);
