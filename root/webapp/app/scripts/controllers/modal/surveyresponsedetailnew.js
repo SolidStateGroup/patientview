@@ -8,6 +8,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
     var init = function() {
         $scope.surveyResponse = {};
         $scope.initalQuestion = 0;
+        $scope.currentQuestion = 0;
         $scope.saving = false;
         $scope.answers = {};
         $scope.customQuestions = [];
@@ -17,6 +18,24 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
         $scope.years = UtilService.generateYears2000();
         $scope.zoom = 1;
         $scope.date = {};
+        $scope.slider = {
+            options:{
+                translate: function(value, sliderId, label) {
+                    if (label === 'floor' || !value) {
+                        return '0 - the worst health you can imagine';
+                    } else if (label === 'ceil' || value === 100) {
+                        return '100 - the best health you can imagine';
+                    }
+                    return value;
+                },
+                floor: 0,
+                vertical:true,
+                ceil: 100,
+                step:1,
+                precision:1,
+            }
+
+        };
         var i, j;
 
         var currentDate = new Date();
@@ -41,6 +60,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             $scope.questionTypeMap = [];
             $scope.questionRequiredMap = [];
             $scope.questionMap = {};
+            $scope.questions = [];
             // create map of question id to question type, used when creating object to send to backend
             for (i = 0; i < survey.questionGroups.length; i++) {
                 for (j = 0; j < survey.questionGroups[i].questions.length; j++) {
@@ -55,8 +75,13 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                     if (question.htmlType === 'SLIDER') {
                         $scope.answers[question.id] = 0;
                     }
+                    $scope.questions.push(question);
                 }
             }
+
+            $scope.question = $scope.questions[0];
+            $scope.isFirstQuestion = $scope.currentQuestion === 0;
+            $scope.isLastQuestion = $scope.currentQuestion === $scope.questions.length-1;
 
             // only certain survey types have hours & minutes
             if (['IBD_FATIQUE', 'POS_S', 'EQ5D5L'].indexOf($scope.survey.type) !== -1) {
@@ -89,11 +114,18 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
 
     $scope.nextQuestion = function(start, end) {
         $scope.currentQuestion++;
+        $scope.isFirstQuestion = $scope.currentQuestion === 0;
+        $scope.isLastQuestion = $scope.currentQuestion === $scope.questions.length-1;
+        $scope.question = $scope.questions[$scope.currentQuestion];
     };
 
     $scope.previousQuestion = function(start, end) {
         $scope.currentQuestion--;
+        $scope.isFirstQuestion = $scope.currentQuestion === 0;
+        $scope.isLastQuestion = $scope.currentQuestion === $scope.questions.length-1;
+        $scope.question = $scope.questions[$scope.currentQuestion];
     };
+
     $scope.resetSymptom = function(id) {
         delete $scope.customQuestions[id];
         delete $scope.answers[id];
@@ -259,6 +291,13 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             input.push(i);
         }
         return input;
+    };
+    $scope.needsAnswer = function(question) {
+        if (question.elementType !== 'SINGLE_SELECT') {
+            return false;
+        }
+
+        return typeof $scope.answers[question.id] === 'undefined';
     };
 
     $scope.canSave = function() {
