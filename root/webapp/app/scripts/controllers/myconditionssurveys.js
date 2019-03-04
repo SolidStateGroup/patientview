@@ -26,6 +26,7 @@ angular.module('patientviewApp').controller('MyConditionsSurveysCtrl',['$scope',
     };
 
     $scope.canEnterSurveyResponses = function (surveyType) {
+        return true
         return !$scope.foundSurveys || !$scope.foundSurveys[surveyType] || moment($scope.foundSurveys[surveyType].date).add(1, 'y').isBefore(moment());
     }
 
