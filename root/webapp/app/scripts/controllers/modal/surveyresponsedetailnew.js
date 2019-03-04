@@ -79,6 +79,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 }
             }
 
+            $scope.questions = _.sortBy($scope.questions, 'displayOrder');
             $scope.question = $scope.questions[0];
             $scope.isFirstQuestion = $scope.currentQuestion === 0;
             $scope.isLastQuestion = $scope.currentQuestion === $scope.questions.length-1;
