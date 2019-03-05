@@ -272,7 +272,7 @@ INSERT INTO public.pv_question_option
 VALUES (14917894, 14917752, 'I have severe problems in walking about', '4', NULL, 3, 4);
 INSERT INTO public.pv_question_option VALUES (14917895, 14917752, 'I am unable to walk about', '5', NULL, 4, 5);
 INSERT INTO public.pv_question VALUES
-  (14917753, 14917711, 'SINGLE_SELECT', 'RADIO', 'Self-Care', 'YOHQ2', NULL, NULL, 4, NULL, NULL, NULL, NULL, NULL,
+  (14917753, 14917711, 'SINGLE_SELECT', 'RADIO', 'Self-Care', 'YOHQ2', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL,
    true, false);
 INSERT INTO public.pv_question_option
 VALUES (14917896, 14917753, 'I have no problems washing or dressing myself', '1', NULL, 0, 1);
@@ -285,7 +285,7 @@ VALUES (14917899, 14917753, 'I have severe problems washing or dressing myself',
 INSERT INTO public.pv_question_option
 VALUES (14917900, 14917753, 'I am unable to wash or dress myself', '5', NULL, 4, 5);
 INSERT INTO public.pv_question VALUES
-  (14917754, 14917711, 'SINGLE_SELECT', 'RADIO', 'Usual Activities', 'YOHQ3', NULL, NULL, 2, NULL, NULL, NULL, NULL,
+  (14917754, 14917711, 'SINGLE_SELECT', 'RADIO', 'Usual Activities (e.g. work, study, housework, family or leisure activities)', 'YOHQ3', NULL, NULL, 2, NULL, NULL, NULL, NULL,
    NULL, true, false);
 INSERT INTO public.pv_question_option
 VALUES (14917901, 14917754, 'I have no problems doing my usual activities', '1', NULL, 0, 1);
@@ -307,7 +307,7 @@ VALUES (14917908, 14917755, 'I have moderate pain or discomfort', '3', NULL, 2, 
 INSERT INTO public.pv_question_option VALUES (14917909, 14917755, 'I have severe pain or discomfort', '4', NULL, 3, 4);
 INSERT INTO public.pv_question_option VALUES (14917910, 14917755, 'I have extreme pain or discomfort', '5', NULL, 4, 5);
 INSERT INTO public.pv_question VALUES
-  (14917756, 14917711, 'SINGLE_SELECT', 'RADIO', 'Anxiety / Depression', 'YOHQ5', NULL, NULL, 1, NULL, NULL, NULL, NULL,
+  (14917756, 14917711, 'SINGLE_SELECT', 'RADIO', 'Anxiety / Depression', 'YOHQ5', NULL, NULL, 4, NULL, NULL, NULL, NULL,
    NULL, true, false);
 INSERT INTO public.pv_question_option VALUES (14917911, 14917756, 'I am not anxious or depressed', '1', NULL, 0, 1);
 INSERT INTO public.pv_question_option
@@ -320,7 +320,7 @@ INSERT INTO public.pv_question_option
 VALUES (14917915, 14917756, 'I am extremely anxious or depressed', '5', NULL, 4, 5);
 INSERT INTO public.pv_question VALUES
   (14917757, 14917711, 'SINGLE_SELECT_RANGE', 'SLIDER', 'Your Health from 0 (worst) to 100 (best)', 'YOHQ6', NULL, NULL,
-             6, 0, 100, 'The worst health you can imagine', 'The best health you can imagine', NULL, false, false);
+             5, 0, 100, 'The worst health you can imagine', 'The best health you can imagine', NULL, false, false);
 
 INSERT INTO pv_feature (id, feature_name, description, creation_date)
 values (15, 'OPT_EPRO', 'OPT ePRO Health Surveys', '2018-12-07 10:15:00.000');
