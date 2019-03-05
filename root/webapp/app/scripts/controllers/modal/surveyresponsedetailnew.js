@@ -73,7 +73,7 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                     }
                     $scope.questionRequiredMap[question.id] = question.required;
                     if (question.htmlType === 'SLIDER') {
-                        $scope.answers[question.id] = 0;
+                        $scope.answers[question.id] = 50;
                     }
                     $scope.questions.push(question);
                 }
