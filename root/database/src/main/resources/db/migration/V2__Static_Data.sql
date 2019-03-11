@@ -305,6 +305,7 @@ INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (18, 12, 15
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (19, 13, 14);
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) VALUES (20, 14, 14);
 
+-- Display_Order must be unique as Route.compareTo() will discard when adding to Set
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (1, 4, 10,  '/dashboard', 'views/dashboard.html','DashboardCtrl', 'Home', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
@@ -356,7 +357,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (26, 5, 122,  '/newstaff', 'views/newstaff.html','NewUserCtrl', 'Staff', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (27, 4, 160,  '/admin', 'views/siteadmin.html','SiteAdminCtrl', 'Site Administration', now(), 1 );
+  (27, 4, 160,  '/siteadmin', 'views/siteadmin.html','SiteAdminCtrl', 'Site Administration', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (28, 5, 170,  '/surveys/managing', 'views/surveys/managing.html','SurveysManagingCtrl', 'Managing Your Health', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
@@ -372,7 +373,7 @@ INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller,
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (34, 4, 80,  '/research', 'views/research.html','ResearchCtrl', 'Research', now(), 1);
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
-  (35, 5, 160,  '/siteadmin', 'views/admin.html','AdminCtrl', 'Admin', now(), 1 );
+  (35, 5, 230,  '/admin', 'views/admin.html','AdminCtrl', 'Admin', now(), 1 );
 INSERT INTO PV_Route (Id, Type_Id, Display_Order, Url, Template_Url, Controller, Title, Creation_Date, Created_By) VALUES
   (36, 4, 80,  '/mymedia', 'views/mymedia.html','MyMediaCtrl', 'Media', now(), 1 );
 
