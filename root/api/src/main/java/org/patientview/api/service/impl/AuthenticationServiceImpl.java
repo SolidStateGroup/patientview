@@ -605,12 +605,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Override
     public void checkLettersAgainstSecretWord(User user, Map<String, String> letterMap, boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        if (letterMap == null) {
-            throw new ResourceForbiddenException("Letters must be chosen");
-        }
-
-        if (letterMap.isEmpty()) {
-            throw new ResourceForbiddenException("Letters must be chosen");
+        if (letterMap == null || letterMap.isEmpty()) {
+            throw new ResourceForbiddenException("A new version of PatientView is available. To login, please " +
+                    "update your PatientView app on the App Store");
         }
 
         if (user == null) {
