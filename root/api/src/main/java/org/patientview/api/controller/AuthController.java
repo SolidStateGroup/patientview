@@ -82,18 +82,16 @@ public class AuthController extends BaseController<AuthController> {
      * Mobile specific login endpoint. Log in User, authenticate using username and password. Returns a token, which must be added to X-Auth-Token in
      * the header of all future requests.
      * @param credentials Credentials object containing username, password
-     * @param salt whether to set secret in response
      * @return UserToken with token used to authenticate all future requests, passed as a X-Auth-Token header by the UI
      * @throws UsernameNotFoundException
      * @throws AuthenticationServiceException
      */
     @ExcludeFromApiDoc
     @RequestMapping(value = "/auth/loginmobile", method = RequestMethod.POST, consumes =  MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserToken> logInMobile(@RequestBody Credentials credentials,
-                                                 @RequestParam(value = "salt", required = false) String salt)
+    public ResponseEntity<UserToken> logInMobile(@RequestBody Credentials credentials)
             throws UsernameNotFoundException, AuthenticationServiceException {
         return new ResponseEntity<>(
-                authenticationService.authenticateMobile(credentials, StringUtils.isNotBlank(salt)), HttpStatus.OK);
+                authenticationService.authenticateMobile(credentials), HttpStatus.OK);
     }
 
     /**
