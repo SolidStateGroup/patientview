@@ -18,20 +18,19 @@
 
                 <div ng-if="isLastQuestion">
                     <div class="container">
-                        <h5>Please drag the slider to set the value that describes your health TODAY.</h5>
                         <div class="row" style="margin-top: 50px;">
                             <div class="col-md-6">
                                 <div class="row row-question">
                                         <ul class="slider-list">
                                             <li>We would like to know how good or bad your health is TODAY.</li>
                                             <li>This scale is numbered from 0 to 100.</li>
-                                            <li>100 means the <u>best</u> health you can imagine. 0 means the <u>worst</u> health you can imagine.</li>
+                                            <li>100 means the <u>best</u> health you can imagine.<br />0 means the <u>worst</u> health you can imagine.</li>
                                             <li>Please click on the scale to indicate how your health is TODAY.</li>
                                         </ul>
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <div style="height: 200px;"  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
+                                <div style="height: 300px;"  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
                                     <rzslider
 
                                             rz-slider-model="answers[question.id]"
@@ -55,7 +54,7 @@
                     <div class="col-md-12 question-text">
                         <hr/>
                         <span data-ng-if="question.number">{{question.number}}. </span>
-                        <h4 ng-if="question.htmlType !== 'SLIDER'">{{question.text.toUpperCase()}}</h4>
+                        <h4 ng-if="question.htmlType !== 'SLIDER'" ng-bind-html="getQuestionHeader()"></h4>
 
                         <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>

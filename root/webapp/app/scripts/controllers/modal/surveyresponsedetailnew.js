@@ -33,8 +33,8 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
                 ceil: 100,
                 step:1,
                 precision:1,
+                showTicks: 5,
             }
-
         };
         var i, j;
 
@@ -303,6 +303,16 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
 
     $scope.canSave = function() {
         return Object.keys($scope.answers).length;
+    }
+
+    $scope.getQuestionHeader = function () {
+        if (!$scope.question) return '';
+        var res = $scope.question.text.split('(');
+        if (res.length === 2) {
+            return '<b>' + res[0].toUpperCase() + '</b><i>(' + res[1] + '</i>';
+        } else {
+            return '<b>' + res[0].toUpperCase() + '</b>';
+        }
     }
 
     init();
