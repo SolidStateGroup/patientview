@@ -32,8 +32,8 @@
             <div class="col-md-9">
                 <h4 class="survey">Your Symptoms</h4>
                 <p>This shows a list of symptoms and your assessment of how each one has been affecting you.</p>
-                <p class="list-date" data-ng-if="foundSurveys['PROM']">
-                    Last completed on {{foundSurveys['PROM'].date | date:'dd-MMM-yyyy'}}
+                <p class="list-date" data-ng-if="foundSurveys['EQ5D']">
+                    Last completed on {{foundSurveys['EQ5D'].date | date:'dd-MMM-yyyy'}}
                 </p>
             </div>
             <div class="col-md-2 align-bottom">
@@ -52,8 +52,8 @@
             <div class="col-md-9">
                 <h4 class="survey">Your Overall Health</h4>
                 <p>This shows your overall health.</p>
-                <p class="list-date" data-ng-if="foundSurveys['EQ5D']">
-                    Last completed on {{foundSurveys['EQ5D'].date | date:'dd-MMM-yyyy'}}
+                <p class="list-date" data-ng-if="foundSurveys['PROM']">
+                    Last completed on {{foundSurveys['PROM'].date | date:'dd-MMM-yyyy'}}
                 </p>
             </div>
             <div class="col-md-2 align-bottom">

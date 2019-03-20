@@ -3,11 +3,12 @@ package org.patientview.api.service;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.model.enums.DummyUsernames;
 import org.patientview.api.service.impl.ApiSurveyResponseServiceImpl;
@@ -22,12 +23,15 @@ import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
+import org.patientview.persistence.model.QuestionGroup;
+import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
@@ -41,17 +45,19 @@ import org.patientview.persistence.model.enums.SurveyResponseScoreTypes;
 import org.patientview.persistence.model.enums.SurveyTypes;
 import org.patientview.persistence.repository.ConversationRepository;
 import org.patientview.persistence.repository.FeatureRepository;
-import org.patientview.persistence.repository.QuestionOptionRepository;
 import org.patientview.persistence.repository.QuestionRepository;
 import org.patientview.persistence.repository.SurveyRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.repository.UserTokenRepository;
+import org.patientview.service.UkrdcService;
 import org.patientview.test.util.TestUtils;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import javax.mail.MessagingException;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -59,8 +65,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +78,9 @@ import static org.mockito.Mockito.when;
  * Created on 05/06/2015
  */
 public class ApiSurveyResponseServiceTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     User creator;
 
@@ -91,9 +103,6 @@ public class ApiSurveyResponseServiceTest {
     QuestionRepository questionRepository;
 
     @Mock
-    QuestionOptionRepository questionOptionRepository;
-
-    @Mock
     RoleService roleService;
 
     @Mock
@@ -111,8 +120,23 @@ public class ApiSurveyResponseServiceTest {
     @Mock
     UserTokenRepository userTokenRepository;
 
+    @Mock
+    UkrdcService ukrdcService;
+
+    @Mock
+    ExternalServiceService externalServiceService;
+
     @InjectMocks
     ApiSurveyResponseService apiSurveyResponseService = new ApiSurveyResponseServiceImpl();
+
+    private static Survey buildSurveyFrom(long id) {
+
+        Survey survey = new Survey();
+        survey.setType("POS_S");
+        survey.setId(id);
+
+        return survey;
+    }
 
     @Before
     public void setup() {
@@ -126,7 +150,9 @@ public class ApiSurveyResponseServiceTest {
     }
 
     @Test
-    public void testAdd() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
+    public void testAdd() throws ResourceForbiddenException, ResourceNotFoundException,
+            MessagingException, JAXBException, DatatypeConfigurationException {
+
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -162,7 +188,7 @@ public class ApiSurveyResponseServiceTest {
                 TestUtils.createFeature(FeatureType.MESSAGING.toString()), staffUser));
 
         Lookup specialtyGroupLookup
-            = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+                = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
         List<Role> staffRoles = new ArrayList<>();
         staffRoles.add(staffRole);
 
@@ -214,14 +240,14 @@ public class ApiSurveyResponseServiceTest {
 
         apiSurveyResponseService.add(user.getId(), surveyResponse);
 
-        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
-        verify(conversationRepository, Mockito.times(1)).save(any(Conversation.class));
-        verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
+        verify(surveyResponseRepository, times(1)).save(any(SurveyResponse.class));
+        verify(conversationRepository, times(1)).save(any(Conversation.class));
+        verify(emailService, times(1)).sendEmail(any(Email.class));
     }
 
     @Test
     public void testAdd_IBD_SELF_MANAGEMENT()
-            throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
+            throws ResourceForbiddenException, ResourceNotFoundException, MessagingException, JAXBException, DatatypeConfigurationException {
         String staffToken = "1234567890";
 
         User user = TestUtils.createUser("testUser");
@@ -254,7 +280,7 @@ public class ApiSurveyResponseServiceTest {
         staffUser.getGroupRoles().add(TestUtils.createGroupRole(staffRole, group, staffUser));
 
         Lookup specialtyGroupLookup
-            = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
+                = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.SPECIALTY.toString());
         List<Role> staffRoles = new ArrayList<>();
         staffRoles.add(staffRole);
 
@@ -301,11 +327,11 @@ public class ApiSurveyResponseServiceTest {
 
         apiSurveyResponseService.add(user.getId(), surveyResponse);
 
-        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
+        verify(surveyResponseRepository, times(1)).save(any(SurveyResponse.class));
     }
 
     @Test
-    public void testAdd_notHigh() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException {
+    public void testAdd_notHigh() throws ResourceForbiddenException, ResourceNotFoundException, MessagingException, JAXBException, DatatypeConfigurationException {
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
         user.setIdentifiers(new HashSet<Identifier>());
@@ -391,9 +417,9 @@ public class ApiSurveyResponseServiceTest {
 
         apiSurveyResponseService.add(user.getId(), surveyResponse);
 
-        verify(surveyResponseRepository, Mockito.times(1)).save(any(SurveyResponse.class));
-        verify(conversationRepository, Mockito.times(0)).save(any(Conversation.class));
-        verify(emailService, Mockito.times(0)).sendEmail(any(Email.class));
+        verify(surveyResponseRepository, times(1)).save(any(SurveyResponse.class));
+        verify(conversationRepository, times(0)).save(any(Conversation.class));
+        verify(emailService, times(0)).sendEmail(any(Email.class));
     }
 
     @Test
@@ -430,7 +456,7 @@ public class ApiSurveyResponseServiceTest {
                 .thenReturn(surveyResponses);
         List<SurveyResponse> returned = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), survey.getType());
 
-        verify(surveyResponseRepository, Mockito.times(1)).findByUserAndSurveyType(eq(user), eq(survey.getType()));
+        verify(surveyResponseRepository, times(1)).findByUserAndSurveyType(eq(user), eq(survey.getType()));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
     }
 
@@ -472,8 +498,222 @@ public class ApiSurveyResponseServiceTest {
                 any(Pageable.class))).thenReturn(new PageImpl<>(surveyResponses));
         List<SurveyResponse> returned = apiSurveyResponseService.getLatestByUserIdAndSurveyType(user.getId(), types);
 
-        verify(surveyResponseRepository, Mockito.times(1)).findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
+        verify(surveyResponseRepository, times(1)).findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
                 any(Pageable.class));
         Assert.assertEquals("Should return 1 symptom score", 1, returned.size());
+    }
+
+    @Test
+    public void should_Not_Store_QuestionAnswer_When_CustomQuestion_Is_True_And_QuestionText_is_null()
+            throws ResourceNotFoundException, ResourceForbiddenException,
+            JAXBException, DatatypeConfigurationException {
+
+        // Given
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        // user and security
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        SurveyResponse response = new SurveyResponse();
+
+        long surveyId = 14917703;
+        response.setSurvey(buildSurveyFrom(surveyId));
+
+        Question questionWithCustomerQuestionFlag = new Question();
+        questionWithCustomerQuestionFlag.setId(2L);
+        questionWithCustomerQuestionFlag.setCustomQuestion(true);
+
+        QuestionAnswer answerWithoutQuestionText = new QuestionAnswer();
+        answerWithoutQuestionText.setValue("Pain");
+        answerWithoutQuestionText.setQuestion(questionWithCustomerQuestionFlag);
+
+        Question question = new Question();
+        question.setId(3L);
+        question.setCustomQuestion(false);
+
+        QuestionAnswer answer = new QuestionAnswer();
+        answer.setValue("Mobility");
+        answer.setQuestion(question);
+
+        response.setQuestionAnswers(asList(answerWithoutQuestionText, answer));
+        response.setDate(new Date());
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(surveyRepository.findOne(surveyId)).thenReturn(buildSurveyFrom(surveyId));
+        when(questionRepository.findOne(2L)).thenReturn(questionWithCustomerQuestionFlag);
+        when(questionRepository.findOne(3L)).thenReturn(question);
+
+        String xml = "<xml>test</xml>";
+
+        when(ukrdcService.buildSurveyXml(any(SurveyResponse.class), eq("PROM")))
+                .thenReturn(xml);
+
+        // When
+
+        apiSurveyResponseService.add(user.getId(), response);
+
+        // Then
+
+        surveyResponseRepository.save(Matchers.any(SurveyResponse.class));
+
+        // And survey is queued for external delivery
+
+        verify(externalServiceService, times(1))
+                .addToQueue(eq(ExternalServices.SURVEY_NOTIFICATION), eq(xml), eq(user), any(Date.class));
+    }
+
+    @Test
+    public void should_not_return_PROM_when_not_found() throws ResourceNotFoundException {
+
+        // Given
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String posS = "POS_S";
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(surveyRepository.findByType("POS_S")).thenReturn(singletonList(new Survey()));
+
+        // When
+
+        List<SurveyResponse> result = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), posS);
+
+        // Then
+
+        Assert.assertThat(result, org.hamcrest.Matchers.<SurveyResponse>hasSize(0));
+    }
+
+    @Test
+    public void should_map_PROM_to_POS_S() throws ResourceNotFoundException {
+
+        // Given
+
+        User user = TestUtils.createUser("testUser");
+        user.setId(1L);
+        user.setIdentifiers(new HashSet<Identifier>());
+
+        Group group = TestUtils.createGroup("testGroup");
+        Lookup lookup = TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                IdentifierTypes.NHS_NUMBER.toString());
+        Identifier identifier = TestUtils.createIdentifier(lookup, user, "1111111111");
+        user.getIdentifiers().add(identifier);
+
+        Role role = TestUtils.createRole(RoleName.PATIENT);
+        user.setId(1L);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String posS = "POS_S";
+
+        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(surveyRepository.findByType("POS_S")).thenReturn(singletonList(buildPossSurvey()));
+        when(surveyResponseRepository.findByUserAndSurveyType(user, "PROM")).thenReturn(singletonList(buildPromSurveyResponse()));
+
+        // When
+
+        List<SurveyResponse> responses = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), posS);
+
+        // Then
+
+        Assert.assertThat(responses, org.hamcrest.Matchers.<SurveyResponse>hasSize(1));
+    }
+
+    private Survey buildPossSurvey() {
+
+        Survey survey = new Survey();
+        survey.setId(1L);
+
+        QuestionGroup questionGroup = new QuestionGroup();
+        questionGroup.setDescription("test description");
+
+        Question firstQuestion = new Question();
+        firstQuestion.setId(14917730L);
+        firstQuestion.setType("YSQ1");
+        firstQuestion.setText("Pain");
+
+        QuestionOption firstOption = new QuestionOption();
+        firstOption.setDescription("1st option from POS_S");
+        firstOption.setText("1st option");
+        firstOption.setId(1L);
+        QuestionOption secondOption = new QuestionOption();
+        secondOption.setDescription("2nd option from POS_S");
+        secondOption.setText("2nd option");
+        secondOption.setId(2L);
+
+        firstQuestion.setQuestionOptions(asList(firstOption, secondOption));
+
+        List<Question> questions = asList(firstQuestion);
+
+        questionGroup.setQuestions(questions);
+
+        List<QuestionGroup> groups = singletonList(questionGroup);
+
+        survey.setQuestionGroups(groups);
+        survey.setType("POS_S");
+
+        return survey;
+    }
+
+    private SurveyResponse buildPromSurveyResponse() {
+
+        SurveyResponse response = new SurveyResponse();
+        response.setSurvey(new Survey());
+
+        QuestionAnswer questionAnswer = new QuestionAnswer();
+
+        Question firstQuestion = new Question();
+        firstQuestion.setId(21135588L);
+        firstQuestion.setType("TEST");
+        firstQuestion.setText("TEST1");
+
+        QuestionOption firstOption = new QuestionOption();
+        firstOption.setDescription("1st option from PROM");
+        firstOption.setText("1st option");
+        firstOption.setId(3L);
+        QuestionOption secondOption = new QuestionOption();
+        secondOption.setDescription("2nd option from PROM");
+        secondOption.setText("2nd option");
+        secondOption.setId(4L);
+
+        firstQuestion.setQuestionOptions(asList(firstOption, secondOption));
+
+        questionAnswer.setQuestion(firstQuestion);
+        questionAnswer.setQuestionOption(firstOption);
+
+        List<QuestionAnswer> questionAnswers = asList(questionAnswer);
+
+        response.setQuestionAnswers(questionAnswers);
+
+        return response;
     }
 }

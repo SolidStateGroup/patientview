@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.List;
 
 /**
@@ -34,7 +36,8 @@ public class SurveyResponseController extends BaseController<SurveyResponseContr
     @RequestMapping(value = "/user/{userId}/surveyresponses", method = RequestMethod.POST)
     @ResponseBody
     public void add(@PathVariable("userId") Long userId, @RequestBody SurveyResponse surveyResponse)
-            throws ResourceForbiddenException, ResourceNotFoundException {
+            throws ResourceForbiddenException, ResourceNotFoundException,
+            JAXBException, DatatypeConfigurationException {
         apiSurveyResponseService.add(userId, surveyResponse);
     }
 

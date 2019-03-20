@@ -30,13 +30,21 @@ import java.util.Properties;
 public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServiceServiceImpl>
         implements ExternalServiceService {
 
+    private static final int HTTP_OK = 200;
+
     @Inject
     private ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository;
 
     @Inject
     private Properties properties;
 
-    private static final int HTTP_OK = 200;
+    private static org.apache.http.HttpResponse post(String content, String url) throws Exception {
+        org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
+        HttpPost post = new HttpPost(url);
+        post.setEntity(new StringEntity(content));
+        post.setHeader("Content-type", "application/xml");
+        return httpClient.execute(post);
+    }
 
     @Override
     public void addToQueue(ExternalServices externalService, String xml, User creator,
@@ -54,6 +62,24 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
                         new ExternalServiceTaskQueueItem(url, method, xml, ExternalServiceTaskQueueStatus.PENDING,
                                 creator, created));
             }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addToQueue(ExternalServices externalServices, String xml, User creator,
+                           Date created) {
+        String url = properties.getProperty("external.service.rdc.url");
+        String method = properties.getProperty("external.service.rdc.method");
+
+        if (url != null && method != null && xml != null) {
+
+            // store in queue, ready to be processed by cron job
+            externalServiceTaskQueueItemRepository.save(
+                    new ExternalServiceTaskQueueItem(url, method, xml, ExternalServiceTaskQueueStatus.PENDING,
+                            creator, created));
         }
     }
 
@@ -103,13 +129,5 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
 
         //Delete all in one go
         externalServiceTaskQueueItemRepository.delete(tasksToDelete);
-    }
-
-    private static org.apache.http.HttpResponse post(String content, String url) throws Exception {
-        org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
-        HttpPost post = new HttpPost(url);
-        post.setEntity(new StringEntity(content));
-        post.setHeader("Content-type", "application/xml");
-        return httpClient.execute(post);
     }
 }

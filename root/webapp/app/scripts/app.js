@@ -186,6 +186,12 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 if (!routeExists(RouteService.getTermsRoute(), data.routes)) {
                     data.routes.push(RouteService.getTermsRoute());
                 }
+                if (!routeExists(RouteService.getQuestionnaireFAQRoute(), data.routes)) {
+                    data.routes.push(RouteService.getQuestionnaireFAQRoute());
+                }
+                if (!routeExists(RouteService.getQuestionnaireScoresRoute(), data.routes)) {
+                    data.routes.push(RouteService.getQuestionnaireScoresRoute());
+                }
                 if (!routeExists(RouteService.getPrivacyRoute(), data.routes)) {
                     data.routes.push(RouteService.getPrivacyRoute());
                 }
@@ -278,7 +284,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
                 text = text.replace(/(\r\n|\n|\r)/gm, '<br/>');
 
                 // strip <script> (otherwise htmlClean crashes)
-                text = stripScripts(text);
+                // text = stripScripts(text); 
 
                 // remove 'javascript' strings
                 text = text.replace('javascript', '');

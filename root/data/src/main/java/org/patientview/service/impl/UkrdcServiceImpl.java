@@ -14,37 +14,60 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Question;
+import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.SurveySendingFacility;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
+import org.patientview.persistence.repository.SurveySendingFacilityRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
+import org.patientview.util.UUIDType5;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import uk.org.rixg.CodedField;
 import uk.org.rixg.Document;
+import uk.org.rixg.Location;
+import uk.org.rixg.Name;
+import uk.org.rixg.Patient;
 import uk.org.rixg.PatientNumber;
+import uk.org.rixg.PatientNumbers;
 import uk.org.rixg.PatientRecord;
+import uk.org.rixg.ProgramMembership;
+import uk.org.rixg.SendingExtract;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -53,6 +76,11 @@ import java.util.UUID;
  */
 @Service
 public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> implements UkrdcService {
+
+    private static final String YOUR_HEALTH = "YOUR_HEALTH";
+    private static final String ePro = "ePro";
+    private static final String eProMembership = "EPro";
+    private static final String EPRO_FALLBACK = "optepro";
 
     @Inject
     AuditService auditService;
@@ -76,7 +104,19 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     SurveyResponseRepository surveyResponseRepository;
 
     @Inject
+    SurveySendingFacilityRepository surveySendingFacilityRepository;
+
+    @Inject
     SurveyService surveyService;
+
+    static String generateExternalId(String nhsNumber, String membership) {
+
+        UUID uuid = UUIDType5.nameUUIDFromNamespaceAndBytes(
+                UUIDType5.NAMESPACE_YHS, (nhsNumber + membership).getBytes(
+                        Charset.defaultCharset()));
+
+        return uuid.toString().replace("-", "");
+    }
 
     @Override
     public void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
@@ -256,6 +296,227 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         // save new
         surveyResponseRepository.save(newSurveyResponse);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String buildSurveyXml(SurveyResponse surveyResponse, String type)
+            throws DatatypeConfigurationException, JAXBException {
+
+        User user = surveyResponse.getUser();
+
+        PatientRecord patientRecord = new PatientRecord();
+
+        PatientRecord.SendingFacility sendingFacility = new PatientRecord.SendingFacility();
+        patientRecord.setSendingFacility(sendingFacility);
+        patientRecord.setSendingExtract(SendingExtract.SURVEY);
+
+        Patient patient = new Patient();
+
+        PatientNumbers patientNumbers = new PatientNumbers();
+        Set<Identifier> identifiers = user.getIdentifiers();
+
+        List<PatientNumber> patientNumberList = new ArrayList<>();
+
+        Group unitCode = null;
+        for (Group group : groupRepository.findGroupByUser(user)) {
+
+            for (GroupFeature groupFeature : group.getGroupFeatures()) {
+                if (groupFeature.getFeature().getName().equals(FeatureType.OPT_EPRO.toString())) {
+
+                    unitCode = group;
+                }
+            }
+        }
+
+        String nhsNumber = null;
+        for (Identifier identifier : identifiers) {
+
+            String organization =
+                    generateOrganization(identifier.getIdentifierType().getValue());
+
+            if (organization.equals("NHS")) {
+
+                PatientNumber patientNumber = new PatientNumber();
+                patientNumber.setNumber(identifier.getIdentifier());
+                patientNumber.setOrganization(organization);
+
+                nhsNumber = identifier.getIdentifier();
+
+                patientNumber.setNumberType("NI");
+                patientNumberList.add(patientNumber);
+            }
+        }
+
+        if (nhsNumber != null) {
+
+            PatientNumber MRN = new PatientNumber();
+            MRN.setOrganization("NHS");
+            MRN.setNumber(nhsNumber);
+            MRN.setNumberType("MRN");
+
+            patientNumberList.add(MRN);
+        }
+
+        Group facilityCode = getSendingFacilityCode(unitCode.getId());
+
+        sendingFacility.setValue(
+                facilityCode != null ? facilityCode.getCode() : EPRO_FALLBACK);
+
+        patientNumbers.getPatientNumber().addAll(patientNumberList);
+        patient.setPatientNumbers(patientNumbers);
+        Patient.Names names = new Patient.Names();
+        Name name = new Name();
+        name.setUse("L");
+        name.setFamily(user.getSurname());
+        name.setGiven(user.getForename());
+        names.getName().add(name);
+
+        patient.setNames(names);
+
+        // Hardcode to 9 - UNKNOWN
+        patient.setGender("9");
+
+        GregorianCalendar birthTime = new GregorianCalendar();
+        birthTime.setTime(user.getDateOfBirth());
+        XMLGregorianCalendar birthCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(birthTime);
+        birthCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+        patient.setBirthTime(birthCalendar);
+        patientRecord.setPatient(patient);
+
+        ProgramMembership programMembership = new ProgramMembership();
+        programMembership.setProgramName(ePro);
+        programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
+
+        GregorianCalendar fromTime = new GregorianCalendar();
+        fromTime.setTime(surveyResponse.getDate());
+        XMLGregorianCalendar xMLGregorianCalendar =
+                DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
+        xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+        programMembership.setFromTime(xMLGregorianCalendar);
+
+        programMembership.setUpdatedOn(xMLGregorianCalendar);
+
+        PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
+        programMemberships.getProgramMembership().add(programMembership);
+        patientRecord.setProgramMemberships(programMemberships);
+
+        uk.org.rixg.Survey survey = new uk.org.rixg.Survey();
+
+        GregorianCalendar surveyTime = new GregorianCalendar();
+        surveyTime.setTime(surveyResponse.getDate());
+        survey.setSurveyTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(surveyTime));
+
+        CodedField surveyType = new CodedField();
+        surveyType.setCode(type);
+        surveyType.setCodingStandard("SURVEY");
+        survey.setSurveyType(surveyType);
+
+        CodedField enteredBy = new CodedField();
+        enteredBy.setCodingStandard("PV_USERS");
+
+        enteredBy.setCode(surveyResponse.getUser().getUsername());
+        enteredBy.setDescription(surveyResponse.getUser().getForename() + " " + surveyResponse.getUser().getSurname());
+        survey.setEnteredBy(enteredBy);
+
+        Location enteredAt = new Location();
+        enteredAt.setCode("PatientView");
+        survey.setEnteredAt(enteredAt);
+
+        List<uk.org.rixg.Question> ukrdcQuestions = new ArrayList<>();
+
+        for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
+
+            uk.org.rixg.Question ukrdcQuestion = new uk.org.rixg.Question();
+
+            CodedField questionType = new CodedField();
+            questionType.setCodingStandard(YOUR_HEALTH);
+            questionType.setCode(questionAnswer.getQuestion().getType());
+            ukrdcQuestion.setQuestionType(questionType);
+
+            if (questionAnswer.getQuestionOption() != null) {
+
+                ukrdcQuestion.setResponse(questionAnswer.getQuestionOption().getType());
+            }
+
+            if (questionAnswer.getValue() != null) {
+
+                ukrdcQuestion.setResponse(questionAnswer.getValue());
+            }
+
+            if (questionAnswer.getQuestionText() != null) {
+
+                ukrdcQuestion.setQuestionText(questionAnswer.getQuestionText());
+            }
+
+            ukrdcQuestions.add(ukrdcQuestion);
+        }
+
+        uk.org.rixg.Survey.Questions questions = new uk.org.rixg.Survey.Questions();
+        questions.getQuestion().addAll(ukrdcQuestions);
+        survey.setQuestions(questions);
+
+        PatientRecord.Surveys surveys = new PatientRecord.Surveys();
+        surveys.getSurvey().add(survey);
+
+        patientRecord.setSurveys(surveys);
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(PatientRecord.class);
+        StringWriter xml = new StringWriter();
+        jaxbContext.createMarshaller().marshal(patientRecord, xml);
+
+        return xml.toString();
+    }
+
+    /**
+     * Takes an id from the group a survey was taken under and
+     * uses the {@link SurveySendingFacility} mapping to generate
+     * a unit code to send to UKRDC.
+     *
+     * @param surveyGroupId id of the group a survey was taken under.
+     * @return Sending facility code.
+     */
+    private Group getSendingFacilityCode(Long surveyGroupId) {
+
+        SurveySendingFacility surveySendingFacility =
+                surveySendingFacilityRepository.findBySurveyGroup_Id(surveyGroupId);
+
+        if (surveySendingFacility == null) {
+
+            return null;
+        }
+
+        return surveySendingFacility.getUnit();
+    }
+
+    private String buildProgramName(Group group) {
+
+        if (group == null) {
+
+            return null;
+        }
+
+        return "PV.HOSPITAL." + group.getCode();
+    }
+
+    /**
+     * Provide a mapping between PV values and UKRDC.
+     */
+    private String generateOrganization(String value) {
+
+        switch (value) {
+
+            case "NHS_NUMBER":
+                return "NHS";
+            case "CHI_NUMBER":
+                return "CHI";
+            case "HSC_NUMBER":
+                return "HSC";
+            default:
+                return "NHS";
+        }
     }
 
     @Override

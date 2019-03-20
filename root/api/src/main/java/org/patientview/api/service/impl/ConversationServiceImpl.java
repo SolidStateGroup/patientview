@@ -2,6 +2,8 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.patientview.api.client.FirebaseClient;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.BaseUser;
@@ -205,7 +207,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             Message newMessage = new Message();
             newMessage.setUser(entityUser);
             newMessage.setConversation(newConversation);
-            newMessage.setMessage(message.getMessage());
+            newMessage.setMessage(StringUtils.isNotEmpty(message.getMessage()) ?
+                    Jsoup.clean(message.getMessage(), Whitelist.relaxed()) : "");
             newMessage.setType(message.getType());
             newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
             newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
@@ -642,7 +645,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         // add message
         Message message = new Message();
-        message.setMessage(conversation.getMessage());
+        message.setMessage(StringUtils.isNotEmpty(conversation.getMessage()) ?
+                Jsoup.clean(conversation.getMessage(), Whitelist.relaxed()) : "");
         message.setType(MessageTypes.MESSAGE);
         message.setConversation(newConversation);
         message.setUser(sender);
@@ -676,12 +680,17 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("You do not have permission");
         }
 
+        if (!isMessageFromAuthenticatedUser(message)) {
+            throw new ResourceForbiddenException("You do not have permission");
+        }
+
         User entityUser = findEntityUser(message.getUser().getId());
 
         Message newMessage = new Message();
         newMessage.setUser(entityUser);
         newMessage.setConversation(entityConversation);
-        newMessage.setMessage(message.getMessage());
+        newMessage.setMessage(StringUtils.isNotEmpty(message.getMessage()) ?
+                Jsoup.clean(message.getMessage(), Whitelist.relaxed()) : "");
         newMessage.setType(message.getType());
 
         if (message.getMyMedia() != null) {
@@ -792,7 +801,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setId(message.getId());
             newMessage.setConversation(newConversation);
             newMessage.setType(message.getType());
-            newMessage.setMessage(message.getMessage());
+            newMessage.setMessage(StringUtils.isNotEmpty(message.getMessage()) ?
+                    Jsoup.clean(message.getMessage(), Whitelist.relaxed()) : "");
             newMessage.setCreated(message.getCreated());
             newMessage.setMyMedia(message.getMyMedia());
             newMessage.setHasAttachment(message.getHasAttachment());
@@ -2132,5 +2142,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
         }
         return false;
+    }
+
+    /**
+     * Checks {@link org.patientview.api.model.Message} user id against the currently authenticated
+     * user.
+     *
+     * @param message Conversion message to check
+     * @return True if message is sent by authenticated user, false otherwise.
+     */
+    private boolean isMessageFromAuthenticatedUser(org.patientview.api.model.Message message) {
+        return message.getUser().getId().equals(getCurrentUser().getId());
     }
 }

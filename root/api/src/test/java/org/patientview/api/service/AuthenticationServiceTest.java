@@ -343,13 +343,10 @@ public class AuthenticationServiceTest {
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
 
         org.patientview.api.model.UserToken returned
-                = authenticationService.authenticateMobile(new Credentials(user.getUsername(), password), true);
+                = authenticationService.authenticateMobile(new Credentials(user.getUsername(), password));
 
-        Assert.assertNotNull("secret word should be set", returned.getSecretWord());
-
+        // we only return token
         Assert.assertNotNull("secret word token must not be null", returned.getSecretWordToken());
-        Assert.assertNotNull("secret word indexes should be set", returned.getSecretWordIndexes());
-        Assert.assertEquals("secret word indexes should contain 3 entries", 3, returned.getSecretWordIndexes().size());
 
         verify(userTokenRepository, times(1)).deleteExpiredByUserId(eq(user.getId()));
         verify(auditService, times(0)).createAudit(eq(AuditActions.LOGGED_ON), eq(user.getUsername()),
@@ -376,7 +373,7 @@ public class AuthenticationServiceTest {
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
 
         org.patientview.api.model.UserToken returned
-                = authenticationService.authenticateMobile(new Credentials(user.getUsername(), password), true);
+                = authenticationService.authenticateMobile(new Credentials(user.getUsername(), password));
 
         Assert.assertNotNull("token should be set", returned.getToken());
         Assert.assertNotNull("secret word should be set", returned.getSecretWord());
@@ -757,7 +754,77 @@ public class AuthenticationServiceTest {
         entered.put("2", "C");
         entered.put("6", "4");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
+    }
+
+    @Test
+    public void testCheckFullSecretWord()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String word = "ABCDE";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i = 0; i < word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+
+        user.setSecretWord(new JSONObject(letters).toString());
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("0", "A");
+        entered.put("1", "B");
+        entered.put("2", "C");
+        entered.put("3", "D");
+        entered.put("4", "E");
+
+        authenticationService.checkLettersAgainstSecretWord(user, entered, false);
+    }
+
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void testCheckFullSecretWord_NotFullWord()
+            throws ResourceNotFoundException, ResourceForbiddenException, NoSuchAlgorithmException {
+        // current user and security
+        Group group = TestUtils.createGroup("testGroup");
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        User user = TestUtils.createUser("testUser");
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+        TestUtils.authenticateTest(user, groupRoles);
+
+        String salt = CommonUtils.generateSalt();
+
+        // create secret word hashmap and convert to json to store in secret word field, each letter is hashed
+        String word = "ABC1234";
+        Map<String, String> letters = new HashMap<>();
+        letters.put("salt", salt);
+        for (int i = 0; i < word.length(); i++) {
+            letters.put(String.valueOf(i), DigestUtils.sha256Hex(String.valueOf(word.charAt(i)) + salt));
+        }
+
+        user.setSecretWord(new JSONObject(letters).toString());
+        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+
+        Map<String, String> entered = new HashMap<>();
+        entered.put("2", "C");
+        entered.put("6", "4");
+
+        authenticationService.checkLettersAgainstSecretWord(user, entered, false);
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -792,7 +859,7 @@ public class AuthenticationServiceTest {
         entered.put("4", "2");
         entered.put("5", "3");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -825,7 +892,7 @@ public class AuthenticationServiceTest {
         entered.put("2", "X");
         entered.put("6", "4");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -847,7 +914,7 @@ public class AuthenticationServiceTest {
         entered.put("2", "X");
         entered.put("6", "4");
 
-        authenticationService.checkSecretWord(user, entered);
+        authenticationService.checkLettersAgainstSecretWord(user, entered, true);
     }
 
     @Test
@@ -986,6 +1053,63 @@ public class AuthenticationServiceTest {
 
         Assert.assertNotNull("UserToken must not be null", userToken);
         Assert.assertNotNull("token must not be null", userToken.getToken());
+
+        verify(externalStandardRepository, times(1)).findAll();
+        verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));
+        verify(userTokenRepository, times(1)).save(eq(foundUserToken));
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void testGetUserInformation_enteredSecretWordMobile()
+            throws ResourceNotFoundException, ResourceForbiddenException {
+        String token = "abc123456";
+        String secretWordToken = "secretabc123456";
+
+        User user = TestUtils.createUser("testUser");
+        String salt = "saltsaltsalt";
+        user.setSecretWord("{"
+                + "\"salt\" : \"" + salt + "\", "
+                + "\"0\" : \"" + DigestUtils.sha256Hex("A" + salt) + "\", "
+                + "\"1\" : \"" + DigestUtils.sha256Hex("B" + salt) + "\", "
+                + "\"2\" : \"" + DigestUtils.sha256Hex("C" + salt) + "\", "
+                + "\"3\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
+                + "}");
+
+        Group group = TestUtils.createGroup("testGroup");
+        group.getGroupFeatures().add(
+                TestUtils.createGroupFeature(TestUtils.createFeature(FeatureType.MESSAGING.toString()), group));
+        Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
+        GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        user.setGroupRoles(groupRoles);
+
+        List<Group> userGroups = new ArrayList<>();
+        userGroups.add(group);
+
+        org.patientview.api.model.UserToken input = new org.patientview.api.model.UserToken();
+        input.setToken(token);
+        input.setSecretWord("ABCD");
+        input.setSecretWordToken(secretWordToken);
+
+        UserToken foundUserToken = new UserToken();
+        foundUserToken.setUser(user);
+        foundUserToken.setToken(token);
+        foundUserToken.setCheckSecretWord(true);
+        foundUserToken.setSecretWordToken(secretWordToken);
+        foundUserToken.setType(UserTokenTypes.MOBILE);
+
+        when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
+        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
+        when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
+
+        org.patientview.api.model.UserToken userToken = authenticationService.getUserInformation(input);
+
+        Assert.assertNotNull("UserToken must not be null", userToken);
+        Assert.assertNotNull("token must not be null", userToken.getToken());
+        Assert.assertNotNull("token must not be null", userToken.getSecretWordSalt());
 
         verify(externalStandardRepository, times(1)).findAll();
         verify(groupService, times(1)).getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()));

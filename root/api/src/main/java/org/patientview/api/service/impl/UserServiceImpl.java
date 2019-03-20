@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.ApiMedicationService;
+import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.CaptchaService;
 import org.patientview.api.service.ConversationService;
 import org.patientview.api.service.DocumentService;
@@ -205,6 +206,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private CaptchaService captchaService;
 
+    @Inject
+    private AuthenticationService authenticationService;
+
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
@@ -354,8 +358,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     newUser, patientManagementGroup, firstIdentifier, user.getPatientManagement());
         }
 
-        //Check whether this needs to be sent to ukrdc
-        sendUserUpdatedGroupNotification(user, true);
+        // For Patient check whether this needs to be sent to ukrdc
+        if (isPatient) {
+            sendUserUpdatedGroupNotification(user, true);
+        }
 
         return newUser.getId();
     }
@@ -603,6 +609,28 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Override
     public String changeSecretWord(Long userId, SecretWordInput secretWordInput, boolean includeSalt)
             throws ResourceNotFoundException, ResourceForbiddenException {
+
+        User user = findUser(userId);
+        boolean userHasSecretWord = StringUtils.isNotEmpty(user.getSecretWord());
+
+        //  if user has secret word set, validate old secret word
+        if (userHasSecretWord) {
+            if (StringUtils.isEmpty(secretWordInput.getOldSecretWord())) {
+                throw new ResourceForbiddenException("Please provide old secret word");
+            }
+
+            String oldSecretWord = secretWordInput.getOldSecretWord().replace(" ", "").trim().toUpperCase();
+            // convert old secret word to hashmap
+            Map<String, String> oldLetters = new HashMap<>();
+            for (int i = 0; i < oldSecretWord.length(); i++) {
+                oldLetters.put(String.valueOf(i), String.valueOf(oldSecretWord.charAt(i)));
+            }
+
+            // check make sure old secret words match
+            // will throw ResourceForbiddenException if don't match or problem with user account
+            authenticationService.checkLettersAgainstSecretWord(user, oldLetters, false);
+        }
+
         if (StringUtils.isEmpty(secretWordInput.getSecretWord1())) {
             throw new ResourceForbiddenException("Secret word must be set");
         }
@@ -616,7 +644,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Secret word must be minimum " + SECRET_WORD_MIN_LENGTH + " letters");
         }
 
-        User user = findUser(userId);
         try {
             String salt = CommonUtils.generateSalt();
             String secretWord = secretWordInput.getSecretWord1().replace(" ", "").trim().toUpperCase();
@@ -813,8 +840,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 observationService.deleteAllExistingObservationData(user.getFhirLinks());
             }
 
-            //Send any updates if required
-            sendUserUpdatedGroupNotification(user, false);
+            // for Patient Send any updates if required
+            if (isPatient) {
+                sendUserUpdatedGroupNotification(user, false);
+            }
 
 
             if (isPatient || forceDelete) {
@@ -1988,11 +2017,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    /**
+     * Builds group membership XML and adds it to the queue to be processed.
+     *
+     * This should only be called for Patient users.
+     *
+     * @param groupRole
+     * @param adding
+     */
     private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
         Date now = new Date();
-        // for ISO1806 date format
-        DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        boolean validIdentifierFound = false;
+        DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
         StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
                 "<SendingFacility>PV</SendingFacility>" +
                 "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
@@ -2000,16 +2038,24 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (groupRole.getUser().getIdentifiers() != null) {
             String currentMRN = null;
             for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
-                //MRN rule
+
+                // We ignore NON_UK_UNIQUE, HOSPITAL_NUMBER and RADAR_NUMBER identifiers
+                if (identifier.getIdentifierType().getValue().equals("NON_UK_UNIQUE") ||
+                        identifier.getIdentifierType().getValue().equals("HOSPITAL_NUMBER") ||
+                        identifier.getIdentifierType().getValue().equals("RADAR_NUMBER")) {
+                    continue;
+                }
+
+                // MRN rule
                 // We need an additional, duplicate identifier to be added with a NumberType of MRN.
-                // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "H&SC"
+                // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "HSC"
                 // if someone has more than one. The identifier chosen as MRN should also be included
                 // as an NI type identifier. For example. If a patient has an NHS_NO and a CHI_NO
                 // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
                 if (identifier.getIdentifierType().getValue().equals("HSC_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("NHS_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("CHI_NUMBER")) {
-                    //If we already have an nhs number,
+                    // If we already have an nhs number,
                     // ignore, if we already have a CHI and this is a H&S, ignore
                     if (currentMRN != "NHS" &&
                             !(currentMRN == "CHI" && identifier.getIdentifierType().getValue().equals("HSC_NUMBER"))) {
@@ -2037,15 +2083,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         xml.append("</PatientNumber>");
                     }
 
-
-                }
-
-
-                if (!identifier.getIdentifierType().getValue().equals("NON_UK_UNIQUE")) {
+                    // add none MRN type Identifiers
                     xml.append("<PatientNumber><Number>");
                     xml.append(identifier.getIdentifier());
                     xml.append("</Number>");
-                    //Ignore non uk unique
                     xml.append("<Organization>");
                     switch (identifier.getIdentifierType().getValue()) {
                         case "HSC_NUMBER":
@@ -2057,23 +2098,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         case "CHI_NUMBER":
                             xml.append("CHI");
                             break;
-                        case "NON_UK_UNIQUE":
-                            xml.append("NON_UK_UNIQUE");
-                            break;
-                        case "HOSPITAL_NUMBER":
-                            xml.append("HOSPITAL_NUMBER");
-                            break;
-                        case "RADAR_NUMBER":
-                            xml.append("RADAR_NUMBER");
-                            break;
                     }
                     xml.append("</Organization>");
-
                     xml.append("<NumberType>NI</NumberType>");
                     xml.append("</PatientNumber>");
+
+                    validIdentifierFound = true;
                 }
             }
         }
+
+        // don't queue xml if could not find any valid Identifiers
+        if (!validIdentifierFound) {
+            LOG.error("Missing identifier for Patient while building UKRDC xml: {}, will ignore",
+                    groupRole.getUser().getId());
+            return;
+        }
+
         xml.append("</PatientNumbers>");
         xml.append("<Names><Name use=\"L\">");
         xml.append(String.format("<Family>%s</Family>", groupRole.getUser().getSurname()));
@@ -2099,7 +2140,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
 
         xml.append("<ProgramMemberships><ProgramMembership>");
-
 
 
         User staffMember = getCurrentUser();

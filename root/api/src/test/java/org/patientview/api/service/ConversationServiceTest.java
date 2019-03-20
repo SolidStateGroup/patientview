@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.patientview.api.model.BaseUser;
 import org.patientview.api.model.ExternalConversation;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -1067,5 +1068,62 @@ public class ConversationServiceTest {
         } catch (ResourceNotFoundException rnf) {
             Assert.fail("resource not found exception");
         }
+    }
+
+    @Test(expected = ResourceForbiddenException.class)
+    public void should_reject_message_when_authenticated_user_does_not_match_user_id()
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
+        // Given
+
+        long conservationId = 3L;
+
+        Conversation conversation = conversationBuilder(conservationId, ConversationTypes.MESSAGE);
+
+        User victim = TestUtils.createUser("victim");
+        ConversationUser conversationUser1 = conversationUserBuilder(4L, victim, conversation);
+
+        User hacker = TestUtils.createUser("hacker");
+        ConversationUser conversationUser2 = conversationUserBuilder(5L, hacker, conversation);
+
+        conversation.setConversationUsers(
+                new HashSet<>(Arrays.asList(conversationUser1, conversationUser2)));
+
+        org.patientview.api.model.Message message = sendMessage(6L, victim);
+
+        when(conversationRepository.findOne(Matchers.eq(conservationId))).thenReturn(conversation);
+
+        // When malicious message is sent
+
+        TestUtils.authenticateTest(hacker, RoleName.PATIENT);
+        conversationService.addMessage(conservationId, message);
+    }
+
+    private ConversationUser conversationUserBuilder(long id, User user, Conversation conversation) {
+        ConversationUser conversationUser = new ConversationUser();
+        conversationUser.setId(id);
+        conversationUser.setUser(user);
+        conversationUser.setConversation(conversation);
+        conversationUser.setAnonymous(false);
+
+        return conversationUser;
+    }
+
+    private Conversation conversationBuilder(long id, ConversationTypes conversationType) {
+        Conversation conversation = new Conversation();
+        conversation.setId(id);
+        conversation.setType(conversationType);
+
+        return conversation;
+    }
+
+    private org.patientview.api.model.Message sendMessage(long id, User from) {
+        BaseUser baseUser = new BaseUser(from);
+        org.patientview.api.model.Message message = new org.patientview.api.model.Message();
+        message.setId(id);
+        message.setUser(baseUser);
+        message.setType(MessageTypes.MESSAGE);
+
+        return message;
     }
 }

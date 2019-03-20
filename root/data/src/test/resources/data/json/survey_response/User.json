@@ -1,0 +1,18 @@
+{
+  "forename": "test",
+  "surname": "user",
+  "username": "testuser1",
+  "created": 1546881444284,
+  "hideSecretWordNotification": false,
+  "name": "null null",
+  "identifiers": [
+    {
+      "created": 1546881444284
+    },
+    {
+      "created": 1546881444284
+    }
+  ],
+  "canSwitchUser": false,
+  "creationPassword": ""
+}

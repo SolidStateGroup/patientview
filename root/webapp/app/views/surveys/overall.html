@@ -27,7 +27,7 @@
         <h1>Your Overall Health</h1>
     </div>
     <div class="col-md-6">
-        <h1><a href="/#/myconditions?specialty=Renal&activeTab=SURVEYS" class="btn blue pull-right back-to-results" data-ng-show="!loading">
+        <h1><a href="/#/myconditions?specialty=Renal&activeTab={{surveyType === 'PROM'? 'SURVEYS': 'OPTEPRO'}}" class="btn blue pull-right back-to-results" data-ng-show="!loading">
             <i class="icon-back-to pull-left"> </i>
             Back
         </a></h1>
@@ -40,6 +40,14 @@
 
         <div class="alert-block alert-warning" data-ng-show="!loading && !surveyResponses">
             <h5>No Data is currently available for your overall health</h5>
+        </div>
+
+        <div class="row" data-ng-show="!loading && surveyResponses">
+            <div class="col-md-12">
+                <p>The following table presents how you rated your overall health.
+                    <a href="/#/questionnaire-scores">Click here for more information.</a>
+                </p>
+            </div>
         </div>
 
         <div class="row">
@@ -65,7 +73,7 @@
                 <div data-ng-if="surveyResponseSelectOptions.length">
                     <br/>
                     <select class="form-control pull-right" data-ng-model="selectedSurveyResponseId"
-                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:'date'"
+                            data-ng-options="surveyResponseSelectOptions.id as filterDate(surveyResponseSelectOptions.date) for surveyResponseSelectOptions in surveyResponseSelectOptions | orderBy:order:reverse"
                             data-ng-change="compareSurvey(selectedSurveyResponseId)" >
                         <option value="">Compare with a past survey:</option>
                     </select>
@@ -77,13 +85,19 @@
             <div class="col-md-6">
                 <!-- chart populated in controller -->
                 <div id="chart_div"></div>
+                <div ng-if="showOverallScore" class="text-center">
+                    <div data-ng-repeat="score in overallScore">
+                        <strong>{{score.date}}</strong> Your Health from 0 (worst) to 100 (best): <strong style="color:{{score.color}};">{{score.score}}</strong>
+                    </div>
+                    <a href="/#/questionnaire-scores">Click here for more information.</a>
+                </div>
             </div>
         </div>
 
         <br/>
 
         <div class="row" data-ng-show="!loading">
-            <div class="col-md-12">
+            <div ng-if="surveyType==='PROM'" class="col-md-12">
                 <p>If any of your symptoms or results worry you, you will have a chance to discuss these at your next visit.
                     Your nurse or doctor will have a copy of your completed health survey.</p>
 

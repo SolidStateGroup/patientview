@@ -28,7 +28,6 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class TestPersistenceConfig  {
 
-
     private Properties properties;
 
     @PostConstruct
@@ -65,8 +64,6 @@ public class TestPersistenceConfig  {
 
         return dataSource;
     }
-
-
 
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
