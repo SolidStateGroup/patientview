@@ -3,3 +3,4 @@
 target
 .idea
 **/webapp/app/scripts/config.js
+.sass-cache

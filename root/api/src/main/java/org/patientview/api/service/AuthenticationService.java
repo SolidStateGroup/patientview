@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -34,15 +35,16 @@ public interface AuthenticationService extends UserDetailsService {
     UserToken authenticate(Credentials credentials) throws AuthenticationServiceException;
 
     /**
-     * Authenticate a User given credentials.
-     * Extra security added to mobile, and will return 3 random characters from secret word.
+     * Step 1: in mobile authentication flow
+     * Authenticate a mobile User given credentials.
+     *
+     * This just return secret word token.
      *
      * @param credentials   Credentials object containing username, password
-     * @param includeSecret whether to set secret in user token
      * @return UserToken containing authentication token, used in all future authenticated requests
      * @throws AuthenticationServiceException
      */
-    UserToken authenticateMobile(Credentials credentials, boolean includeSecret) throws AuthenticationServiceException;
+    UserToken authenticateMobile(Credentials credentials) throws AuthenticationServiceException;
 
     /**
      * Store Authentication object in Spring Security
@@ -65,10 +67,12 @@ public interface AuthenticationService extends UserDetailsService {
      * get User information
      * @param user User to validate secret word
      * @param letterMap Map of position to letter chosen
+     * @param lengthCheck if we need to validate the length of there letters
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
-    void checkSecretWord(org.patientview.persistence.model.User user, Map<String, String> letterMap)
+    void checkLettersAgainstSecretWord(org.patientview.persistence.model.User user, Map<String, String> letterMap,
+                                       boolean lengthCheck)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**

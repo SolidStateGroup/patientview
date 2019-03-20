@@ -9,11 +9,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.GpService;
@@ -74,18 +70,15 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -464,7 +457,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
     }
 
     private Group createGpGroup(GpDetails gpDetails, GpMaster gpMaster, User user,
-            Feature messagingFeature, Group generalPracticeSpecialty) throws VerificationException {
+                                Feature messagingFeature, Group generalPracticeSpecialty) throws VerificationException {
 
         // group basic details
         Group group = new Group();
@@ -744,6 +737,32 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
     }
 
+
+    // retrieve files from various web services to temp directory
+    public Map<String, String> updateMasterTable() throws IOException, ZipException {
+        initialise();
+        updateEngland();
+        updateScotland();
+        updateNorthernIreland();
+
+        // save objects to db
+        gpMasterRepository.save(gpToSave.values());
+
+        // output info on new/changed
+        Map<String, String> status = new HashMap<>();
+        status.put("total", String.valueOf(total));
+        status.put("existing", String.valueOf(existingGp));
+        status.put("new", String.valueOf(newGp));
+        return status;
+    }
+
+    /**
+     * Updates GP list for England and Wales.
+     * Downloads zip file from remote url, parses it
+     *
+     * @throws IOException
+     * @throws ZipException
+     */
     private void updateEngland() throws IOException, ZipException {
         // get properties
         String url = properties.getProperty("gp.master.url.england");
@@ -796,24 +815,6 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
     }
 
-    // retrieve files from various web services to temp directory
-    public Map<String, String> updateMasterTable() throws IOException, ZipException {
-        initialise();
-        updateEngland();
-        updateScotland();
-        updateNorthernIreland();
-
-        // save objects to db
-        gpMasterRepository.save(gpToSave.values());
-
-        // output info on new/changed
-        Map<String, String> status = new HashMap<>();
-        status.put("total", String.valueOf(total));
-        status.put("existing", String.valueOf(existingGp));
-        status.put("new", String.valueOf(newGp));
-        return status;
-    }
-
     private void updateNorthernIreland() throws IOException, ZipException {
         // get properties
         String url = properties.getProperty("gp.master.url.northernireland");
@@ -823,52 +824,28 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             File zipFolder = new File(this.tempDirectory.concat("/" + GpCountries.NI.toString()));
             zipFolder.mkdir();
             File extractedDataFile = new File(this.tempDirectory.concat(
-                    "/" + GpCountries.NI.toString() + "/" + GpCountries.NI.toString() + ".xls"));
+                    "/" + GpCountries.NI.toString() + "/" + GpCountries.NI.toString() + ".csv"));
 
-            // needs user agent setting to avoid 403 when retrieving
-            URL urlObj = new URL(url);
-            URLConnection conn = urlObj.openConnection();
-            conn.setRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0");
-            conn.connect();
-            FileUtils.copyInputStreamToFile(conn.getInputStream(), extractedDataFile);
+            FileUtils.copyURLToFile(new URL(url), extractedDataFile);
 
-            // read XLS file line by line, extracting data to populate GpMaster objects
-            FileInputStream inputStream = new FileInputStream(new File(extractedDataFile.getAbsolutePath()));
+            // read CSV file line by line, extracting data to populate GpMaster objects
+            CSVParser parser = new CSVParser(new FileReader(extractedDataFile), CSVFormat.DEFAULT);
+            for (CSVRecord record : parser) {
+                String practiceCode = record.get(0);
+                String practiceName = record.get(1);
+                String address1 = record.get(2);
+                String address2 = record.get(3);
+                String address3 = record.get(4);
+                String postcode = record.get(5);
 
-            Workbook workbook = new HSSFWorkbook(inputStream);
-            Sheet firstSheet = workbook.getSheetAt(0);
-            Iterator<Row> iterator = firstSheet.iterator();
-            int count = 0;
-
-            while (iterator.hasNext()) {
-                Row nextRow = iterator.next();
-
-                if (count > 0) {
-                    String practiceCode = getCellContent(nextRow.getCell(1));
-                    String practiceName = getCellContent(nextRow.getCell(2));
-                    String address1 = getCellContent(nextRow.getCell(3));
-                    String address2 = getCellContent(nextRow.getCell(4));
-                    String address3 = getCellContent(nextRow.getCell(5));
-                    String postcode = getCellContent(nextRow.getCell(6));
-                    String telephone = getCellContent(nextRow.getCell(7));
-
-                    if (practiceCode != null) {
-                        // handle errors in postcode field
-                        String[] postcodeSplit = postcode.split(" ");
-                        if (postcodeSplit.length == 4) {
-                            postcode = postcodeSplit[2] + " " + postcodeSplit[3];
-                        }
-
-                        addToSaveMap(practiceCode, practiceName, address1, address2, address3, null,
-                                postcode, null, telephone, GpCountries.NI);
-                    }
+                if (practiceCode != null) {
+                    addToSaveMap(practiceCode, practiceName, address1, address2, address3, null, postcode, null,
+                            null, GpCountries.NI);
                 }
-                count++;
             }
 
-            workbook.close();
-            inputStream.close();
+            //close the parser
+            parser.close();
 
             // archive csv file to new archive directory
             File archiveDir = new File(this.tempDirectory.concat(
@@ -892,51 +869,34 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             File zipFolder = new File(this.tempDirectory.concat("/" + GpCountries.SCOT.toString()));
             zipFolder.mkdir();
             File extractedDataFile = new File(this.tempDirectory.concat(
-                    "/" + GpCountries.SCOT.toString() + "/" + GpCountries.SCOT.toString() + ".xls"));
+                    "/" + GpCountries.SCOT.toString() + "/" + GpCountries.SCOT.toString() + ".csv"));
 
-            // needs user agent setting to avoid 403 when retrieving
-            URL urlObj = new URL(url);
-            URLConnection conn = urlObj.openConnection();
-            conn.setRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0");
-            conn.connect();
-            FileUtils.copyInputStreamToFile(conn.getInputStream(), extractedDataFile);
+            FileUtils.copyURLToFile(new URL(url), extractedDataFile);
 
-            // read XLS file line by line, extracting data to populate GpMaster objects
-            FileInputStream inputStream = new FileInputStream(new File(extractedDataFile.getAbsolutePath()));
+            // read CSV file line by line, extracting data to populate GpMaster objects
+            CSVParser parser = new CSVParser(new FileReader(extractedDataFile), CSVFormat.DEFAULT);
+            for (CSVRecord record : parser) {
+                String practiceCode = record.get(0);
+                String practiceName = record.get(1);
+                String address1 = record.get(3);
+                String address2 = record.get(4);
+                String address3 = record.get(5);
+                String address4 = record.get(6);
+                String postcode = record.get(7);
+                String telephone = record.get(8);
 
-            Workbook workbook = new HSSFWorkbook(inputStream);
-            Sheet firstSheet = workbook.getSheetAt(1);
-            Iterator<Row> iterator = firstSheet.iterator();
-            int count = 0;
-
-            while (iterator.hasNext()) {
-                Row nextRow = iterator.next();
-
-                if (count > 5) {
-                    String practiceCode = getCellContent(nextRow.getCell(1));
-                    String practiceName = getCellContent(nextRow.getCell(3));
-                    String address1 = getCellContent(nextRow.getCell(4));
-                    String address2 = getCellContent(nextRow.getCell(5));
-                    String address3 = getCellContent(nextRow.getCell(6));
-                    String address4 = getCellContent(nextRow.getCell(7));
-                    String postcode = getCellContent(nextRow.getCell(8));
-                    String telephone = getCellContent(nextRow.getCell(9));
-
-                    if (practiceCode != null) {
-                        addToSaveMap(practiceCode, practiceName, address1, address2, address3, address4, postcode, null,
-                                telephone, GpCountries.SCOT);
-                    }
+                if (practiceCode != null) {
+                    addToSaveMap(practiceCode, practiceName, address1, address2, address3, address4, postcode, null,
+                            telephone, GpCountries.SCOT);
                 }
-                count++;
             }
 
-            workbook.close();
-            inputStream.close();
+            //close the parser
+            parser.close();
 
             // archive csv file to new archive directory
             File archiveDir = new File(this.tempDirectory.concat(
-                "/archive/" + new DateTime(this.now).toString("YYYMMddhhmmss") + "/" + GpCountries.SCOT.toString()));
+                    "/archive/" + new DateTime(this.now).toString("YYYMMddhhmmss") + "/" + GpCountries.SCOT.toString()));
             archiveDir.mkdirs();
             FileUtils.copyFileToDirectory(extractedDataFile, archiveDir);
 

@@ -20,7 +20,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             xAxis[response.date] = response.date;
 
             // get question answer data for question with correct type
-            var questions = $scope.questions;
+            var questions = $scope.nonCustomQuestions;
             var questionAnswerMap = [];
             for (j = 0; j < response.questionAnswers.length; j++) {
                 questionAnswerMap[response.questionAnswers[j].question.type] = response.questionAnswers[j];
@@ -81,7 +81,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             }
         }
 
-        var questionName = _.findWhere($scope.questions, {type: $scope.questionType}).text;
+        var questionName = _.findWhere($scope.nonCustomQuestions, {type: $scope.questionType, customQuestion:false}).text;
         $scope.comparingText = questionName;
 
         chartSeries.push({
@@ -176,6 +176,7 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
 
         // format survey response suitable for table view
         var tableRows = [];
+        var customRows = [];
         var tableHeader = [];
         var i, j;
 
@@ -209,34 +210,65 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                 questionAnswerMap[questionAnswers[j].question.type] = questionAnswers[j];
             }
 
+            var tableRowIndex = 0;
             for (j = 0; j < questions.length; j++) {
                 var questionText = questions[j].text;
                 var questionType = questions[j].type;
+                var isCustom = questions[j].customQuestion;
                 var questionOptionText = '-';
 
-                if (questionAnswerMap[questionType]) {
-                    questionOptionText = questionAnswerMap[questionType].questionOption.text;
+                if (isCustom) {
+                  continue;
+                } else {
+                    if (questionAnswerMap[questionType]) {
+                        questionOptionText = questionAnswerMap[questionType].questionOption?  questionAnswerMap[questionType].questionOption.text: questionAnswerMap[questionType].value;
+                    }
+
+                    // set question text, e.g. Pain
+                    if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex] == null) {
+                        tableRows[tableRowIndex] = {displayOrder: questions[j].displayOrder};
+                        tableRows[tableRowIndex].type = questionType;
+                        tableRows[tableRowIndex].nonViewable = questions[j].nonViewable;
+                        tableRows[tableRowIndex].data = [];
+                        tableRows[tableRowIndex].data.push({'text':questionText});
+                    }
+
+                    // set response text, e.g. Moderately
+                    tableRows[tableRowIndex].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
+                    tableRowIndex++;
                 }
 
-                // set question text, e.g. Pain
-                if (tableRows[j] == undefined || tableRows[j] == null) {
-                    tableRows[j] = {};
-                    tableRows[j].type = questionType;
-                    tableRows[j].data = [];
-                    tableRows[j].data.push({'text':questionText});
-                }
-
-                // set response text, e.g. Moderately
-                tableRows[j].data.push({'text':questionOptionText, 'isLatest':response.isLatest});
             }
 
             // special download row
-            if (tableRows[questions.length] == undefined || tableRows[questions.length] == null) {
-                tableRows[questions.length] = {};
-                tableRows[questions.length].isDownload = true;
-                tableRows[questions.length].data = [];
-                tableRows[questions.length].data.push({'text':'', 'isDownload':true});
+            if (tableRows[tableRowIndex] == undefined || tableRows[tableRowIndex+1] == null) {
+                tableRows[tableRowIndex] = {displayOrder: 999999};
+                tableRows[tableRowIndex].isDownload = true;
+                tableRows[tableRowIndex].data = [];
+                tableRows[tableRowIndex].data.push({'text':'', 'isDownload':true});
             }
+
+            _.filter(response.questionAnswers, function(questionAnswer){return questionAnswer.question.customQuestion})
+                    .map(function(questionAnswer) {
+                        var question = questionAnswer.question;
+                        var questionOption = questionAnswer.questionOption;
+                        var row = {
+                            type:  question,
+                            isCustom: true,
+                            nonViewable: question.nonViewable,
+                            displayOrder: question.displayOrder,
+                        };
+                        var data = [{text:questionAnswer.questionText}];
+                        if(i === 0) {// is left hand response
+                            data.push({text:questionOption.text})
+                            data.push({text:'-' , isLatest:true});
+                        } else {
+                            data.push({text:'-'})
+                            data.push({text:questionOption.text, isLatest:true});
+                        }
+                        row.data = data;
+                        customRows[customRows.length] = row;
+                })
 
             var download = '';
 
@@ -247,11 +279,13 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
                     + '" class="btn blue"><i class="glyphicon glyphicon-download-alt"></i>&nbsp; Download</a>';
             }
 
-            tableRows[questions.length].data.push({'text': download, 'isLatest':false, 'isDownload':true});
+            tableRows[tableRowIndex].data.push({'text': download, 'isLatest':false, 'isDownload':true});
         }
-
+        $scope.showCustomResponses = customRows.length;
         $scope.tableHeader = tableHeader;
-        $scope.tableRows = tableRows;
+        // $scope.tableRows = tableRows;
+        $scope.tableRows = _.sortBy(tableRows.concat(customRows),"displayOrder");
+        // $scope.customRows = customRows;
         $scope.minDate = minDate;
         $scope.maxDate = maxDate;
     };
@@ -317,7 +351,8 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
     };
 
     var init = function() {
-        $scope.surveyType = 'PROM';
+        var params = document.location.href.split('type=');
+        $scope.surveyType = params.length === 2 ? params[1] : 'PROM';
         DocumentService.getByUserIdAndClass($scope.loggedInUser.id, 'YOUR_HEALTH_SURVEY')
             .then(function(documents) {
                 $scope.documentDateMap = {};
@@ -370,13 +405,19 @@ angular.module('patientviewApp').controller('SurveysSymptomsCtrl',['$scope', 'Su
             scoreLabels[firstOptions[i].score] = firstOptions[i].text;
         }
         $scope.scoreLabels = scoreLabels;
-        $scope.questions = $scope.surveyResponses[0].survey.questionGroups[0].questions;
+        $scope.questions = _.sortBy($scope.surveyResponses[0].survey.questionGroups[0].questions, 'displayOrder');
 
+        $scope.nonCustomQuestions = _.filter($scope.questions, {customQuestion:false});
+        if ($scope.surveyType ==='POS_S') {
+            //force last 2 questions to be labelled differently
+            $scope.questions[$scope.questions.length-1].nonViewable = true;
+            $scope.questions[$scope.questions.length-2].nonViewable = true;
+        }
         // build table from visible responses (2 most recent) responses
         buildTable(visibleSurveyResponses);
 
         // build chart from all responses, using first question's type e.g. YSQ1
-        $scope.questionType = $scope.questions[0].type;
+        $scope.questionType = $scope.nonCustomQuestions[0].type;
         buildChart();
     };
 

@@ -11,15 +11,22 @@
                 </xs:annotation>
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
-                        <xs:maxLength value="32000"/>
+                        <xs:maxLength value="6" />
+                        <xs:pattern value="([A-HJ-NPWY][0-9]{5})|((ALD|JER|GUE)[0-9]{3})" />
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-            <xs:element name="GPId" type="xs:string" minOccurs="0">
+            <xs:element name="GPId" minOccurs="0">
                 <xs:annotation>
                     <xs:appinfo>familydoctor.gpid</xs:appinfo>
                     <xs:documentation>National GP Code</xs:documentation>
                 </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:maxLength value="8" />
+                        <xs:pattern value="G[0-9]{7}" />
+                    </xs:restriction>
+                </xs:simpleType>
             </xs:element>
             <xs:element name="Address" type="Address" minOccurs="0" >
                 <xs:annotation>
