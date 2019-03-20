@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('patientviewApp').controller('MyconditionsCtrl',['$scope', 'PatientService', 'GroupService',
-    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout', 'CodeService', '$modal', 'UtilService', 'SurveyService', 'SurveyResponseService',
-function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout, CodeService, $modal, UtilService, SurveyService, SurveyResponseService) {
+    'ObservationService', '$routeParams', 'DiagnosisService', '$timeout', 'CodeService', '$modal',
+function ($scope, PatientService, GroupService, ObservationService, $routeParams, DiagnosisService, $timeout, CodeService, $modal) {
 
     $scope.changeSpecialty = function(specialty) {
         $scope.currentSpecialty = specialty;
@@ -20,38 +20,6 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
         } else {
             getAllPublic();
         }
-    };
-
-    $scope.openModalEnterSurveyResponses = function (surveyType) {
-        $scope.surveyType = surveyType;
-        // open modal and pass in required objects for use in modal scope
-        var modalInstance = $modal.open({
-            templateUrl: surveyType === 'POS_S'? 'views/partials/pos-survey.html' : 'views/partials/eq-survey.html',
-            controller: SurveyResponseDetailNewModalInstanceCtrl,
-            size: 'lg',
-            backdrop: 'static',
-            resolve: {
-                SurveyService: function(){
-                    return SurveyService;
-                },
-                SurveyResponseService: function(){
-                    return SurveyResponseService;
-                },
-                surveyType: function(){
-                    return $scope.surveyType;
-                },
-                UtilService: function(){
-                    return UtilService;
-                }
-            }
-        });
-
-        // handle modal close (via button click)
-        modalInstance.result.then(function () {
-            getSurveyResponses();
-        }, function () {
-            // close button, do nothing
-        });
     };
 
     // get public listing of groups, used when finding child groups that provide patient information

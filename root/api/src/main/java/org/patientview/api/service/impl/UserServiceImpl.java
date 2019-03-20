@@ -2027,9 +2027,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      */
     private void sendGroupMemberShipNotification(GroupRole groupRole, boolean adding) {
         Date now = new Date();
-        // for ISO1806 date format
-        DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        boolean validIdentifierFound = false;
+        DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
         StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
                 "<SendingFacility>PV</SendingFacility>" +
                 "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
@@ -2037,16 +2038,24 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (groupRole.getUser().getIdentifiers() != null) {
             String currentMRN = null;
             for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
+
+                // We ignore NON_UK_UNIQUE, HOSPITAL_NUMBER and RADAR_NUMBER identifiers
+                if (identifier.getIdentifierType().getValue().equals("NON_UK_UNIQUE") ||
+                        identifier.getIdentifierType().getValue().equals("HOSPITAL_NUMBER") ||
+                        identifier.getIdentifierType().getValue().equals("RADAR_NUMBER")) {
+                    continue;
+                }
+
                 // MRN rule
                 // We need an additional, duplicate identifier to be added with a NumberType of MRN.
-                // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "H&SC"
+                // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "HSC"
                 // if someone has more than one. The identifier chosen as MRN should also be included
                 // as an NI type identifier. For example. If a patient has an NHS_NO and a CHI_NO
                 // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
                 if (identifier.getIdentifierType().getValue().equals("HSC_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("NHS_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("CHI_NUMBER")) {
-                    //If we already have an nhs number,
+                    // If we already have an nhs number,
                     // ignore, if we already have a CHI and this is a H&S, ignore
                     if (currentMRN != "NHS" &&
                             !(currentMRN == "CHI" && identifier.getIdentifierType().getValue().equals("HSC_NUMBER"))) {
@@ -2073,14 +2082,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         xml.append("<NumberType>MRN</NumberType>");
                         xml.append("</PatientNumber>");
                     }
-                }
 
-
-                if (!identifier.getIdentifierType().getValue().equals("NON_UK_UNIQUE")) {
+                    // add none MRN type Identifiers
                     xml.append("<PatientNumber><Number>");
                     xml.append(identifier.getIdentifier());
                     xml.append("</Number>");
-                    //Ignore non uk unique
                     xml.append("<Organization>");
                     switch (identifier.getIdentifierType().getValue()) {
                         case "HSC_NUMBER":
@@ -2092,25 +2098,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                         case "CHI_NUMBER":
                             xml.append("CHI");
                             break;
-                        case "NON_UK_UNIQUE":
-                            xml.append("NON_UK_UNIQUE");
-                            break;
-                        case "HOSPITAL_NUMBER":
-                            xml.append("HOSPITAL_NUMBER");
-                            break;
-                        case "RADAR_NUMBER":
-                            xml.append("RADAR_NUMBER");
-                            break;
                     }
                     xml.append("</Organization>");
-
                     xml.append("<NumberType>NI</NumberType>");
                     xml.append("</PatientNumber>");
+
+                    validIdentifierFound = true;
                 }
             }
-        } else {
-            LOG.error("Missing identifier for Patient while building UKRDC xml: {} ", groupRole.getUser().getId());
         }
+
+        // don't queue xml if could not find any valid Identifiers
+        if (!validIdentifierFound) {
+            LOG.error("Missing identifier for Patient while building UKRDC xml: {}, will ignore",
+                    groupRole.getUser().getId());
+            return;
+        }
+
         xml.append("</PatientNumbers>");
         xml.append("<Names><Name use=\"L\">");
         xml.append(String.format("<Family>%s</Family>", groupRole.getUser().getSurname()));

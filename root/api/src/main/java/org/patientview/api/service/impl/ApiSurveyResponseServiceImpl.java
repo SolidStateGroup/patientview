@@ -293,11 +293,15 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                     newSurveyResponse, type.toString(), score, calculateSeverity(newSurveyResponse, score)));
         } else if (survey.getType().equals(SurveyTypes.POS_S.toString())) {
 
-                // If the survey is of type POS S send to ukrdc
-                String xml = ukrdcService.buildSurveyXml(newSurveyResponse);
-                externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, user, new Date());
-        }
-        else {
+            // If the survey is of type POS S send to ukrdc
+            String xml = ukrdcService.buildSurveyXml(newSurveyResponse, PROM);
+            externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, user, new Date());
+        } else if (survey.getType().equals(SurveyTypes.EQ5D5L.toString())) {
+
+            // If the survey is of type EQ5D-5L send to ukrdc
+            String xml = ukrdcService.buildSurveyXml(newSurveyResponse, EQ5D);
+            externalServiceService.addToQueue(ExternalServices.SURVEY_NOTIFICATION, xml, user, new Date());
+        } else {
             newSurveyResponse.getSurveyResponseScores().add(new SurveyResponseScore(
                     newSurveyResponse, SurveyResponseScoreTypes.UNKNOWN.toString(), 0.0, ScoreSeverity.UNKNOWN));
         }

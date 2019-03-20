@@ -195,6 +195,14 @@
     margin-top: 10px;
     font-size: 14px;
 }
+.rz-model-value {
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 20px;
+}
+.rz-tick {
+    height: 1px!important;
+}
 .capitalize {
     text-transform:capitalize;
 }
@@ -288,6 +296,7 @@
     background-color: #F5F5F5;
     .close {
         opacity: 1;
+        padding: 10px;
     }
 }
 

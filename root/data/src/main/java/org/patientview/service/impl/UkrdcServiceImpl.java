@@ -14,6 +14,7 @@ import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
+import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
@@ -21,18 +22,21 @@ import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.SurveySendingFacility;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
-import org.patientview.persistence.model.enums.HiddenGroupCodes;
+import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
+import org.patientview.persistence.repository.SurveySendingFacilityRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.AuditService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.SurveyService;
 import org.patientview.service.UkrdcService;
+import org.patientview.util.UUIDType5;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +60,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -74,6 +79,8 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
     private static final String YOUR_HEALTH = "YOUR_HEALTH";
     private static final String ePro = "ePro";
+    private static final String eProMembership = "EPro";
+    private static final String EPRO_FALLBACK = "optepro";
 
     @Inject
     AuditService auditService;
@@ -97,7 +104,19 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     SurveyResponseRepository surveyResponseRepository;
 
     @Inject
+    SurveySendingFacilityRepository surveySendingFacilityRepository;
+
+    @Inject
     SurveyService surveyService;
+
+    static String generateExternalId(String nhsNumber, String membership) {
+
+        UUID uuid = UUIDType5.nameUUIDFromNamespaceAndBytes(
+                UUIDType5.NAMESPACE_YHS, (nhsNumber + membership).getBytes(
+                        Charset.defaultCharset()));
+
+        return uuid.toString().replace("-", "");
+    }
 
     @Override
     public void process(PatientRecord patientRecord, String xml, String identifier, Long importerUserId)
@@ -283,71 +302,82 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
      * {@inheritDoc}
      */
     @Override
-    public String buildSurveyXml(SurveyResponse surveyResponse)
+    public String buildSurveyXml(SurveyResponse surveyResponse, String type)
             throws DatatypeConfigurationException, JAXBException {
 
         User user = surveyResponse.getUser();
 
         PatientRecord patientRecord = new PatientRecord();
 
-        // TODO set this
         PatientRecord.SendingFacility sendingFacility = new PatientRecord.SendingFacility();
         patientRecord.setSendingFacility(sendingFacility);
         patientRecord.setSendingExtract(SendingExtract.SURVEY);
 
         Patient patient = new Patient();
 
-        // TODO  set patient numbers
         PatientNumbers patientNumbers = new PatientNumbers();
         Set<Identifier> identifiers = user.getIdentifiers();
 
         List<PatientNumber> patientNumberList = new ArrayList<>();
-        String unitCode = null;
 
-        for (Identifier identifier: identifiers) {
-            if(!identifier.getFhirLink().isEmpty()) {
-                Date latestDataReceivedDate = new Date(1, 1, 1);
-                Group group = null;
+        Group unitCode = null;
+        for (Group group : groupRepository.findGroupByUser(user)) {
 
-                for (FhirLink fhirLink : identifier.getFhirLink()) {
+            for (GroupFeature groupFeature : group.getGroupFeatures()) {
+                if (groupFeature.getFeature().getName().equals(FeatureType.OPT_EPRO.toString())) {
 
-                    if (fhirLink.getUpdated() != null) {
-
-                        if (fhirLink.getUpdated().after(latestDataReceivedDate)
-                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.PATIENT_ENTERED.toString())
-                                && !fhirLink.getGroup().getCode().equals(HiddenGroupCodes.ECS.toString())) {
-
-                            latestDataReceivedDate = fhirLink.getUpdated();
-                            group = fhirLink.getGroup();
-                        }
-                    }
+                    unitCode = group;
                 }
-
-                unitCode = group.getCode();
             }
-
-            PatientNumber patientNumber = new PatientNumber();
-            patientNumber.setNumber(identifier.getIdentifier());
-            patientNumber.setOrganization(
-                    generateOrganization(identifier.getIdentifierType().getValue()));
-            patientNumber.setNumberType("NI");
-
-            patientNumberList.add(patientNumber);
         }
 
-        sendingFacility.setValue(unitCode);
+        String nhsNumber = null;
+        for (Identifier identifier : identifiers) {
+
+            String organization =
+                    generateOrganization(identifier.getIdentifierType().getValue());
+
+            if (organization.equals("NHS")) {
+
+                PatientNumber patientNumber = new PatientNumber();
+                patientNumber.setNumber(identifier.getIdentifier());
+                patientNumber.setOrganization(organization);
+
+                nhsNumber = identifier.getIdentifier();
+
+                patientNumber.setNumberType("NI");
+                patientNumberList.add(patientNumber);
+            }
+        }
+
+        if (nhsNumber != null) {
+
+            PatientNumber MRN = new PatientNumber();
+            MRN.setOrganization("NHS");
+            MRN.setNumber(nhsNumber);
+            MRN.setNumberType("MRN");
+
+            patientNumberList.add(MRN);
+        }
+
+        Group facilityCode = getSendingFacilityCode(unitCode.getId());
+
+        sendingFacility.setValue(
+                facilityCode != null ? facilityCode.getCode() : EPRO_FALLBACK);
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
         Patient.Names names = new Patient.Names();
         Name name = new Name();
+        name.setUse("L");
         name.setFamily(user.getSurname());
         name.setGiven(user.getForename());
         names.getName().add(name);
 
         patient.setNames(names);
-        // TODO gender
-//        patient.setGender();
+
+        // Hardcode to 9 - UNKNOWN
+        patient.setGender("9");
 
         GregorianCalendar birthTime = new GregorianCalendar();
         birthTime.setTime(user.getDateOfBirth());
@@ -358,13 +388,17 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         ProgramMembership programMembership = new ProgramMembership();
         programMembership.setProgramName(ePro);
+        programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
+
         GregorianCalendar fromTime = new GregorianCalendar();
         fromTime.setTime(surveyResponse.getDate());
-        XMLGregorianCalendar xMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
+        XMLGregorianCalendar xMLGregorianCalendar =
+                DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
         xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
         programMembership.setFromTime(xMLGregorianCalendar);
 
-        // TODO  externalId
+        programMembership.setUpdatedOn(xMLGregorianCalendar);
+
         PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
         programMemberships.getProgramMembership().add(programMembership);
         patientRecord.setProgramMemberships(programMemberships);
@@ -376,7 +410,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         survey.setSurveyTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(surveyTime));
 
         CodedField surveyType = new CodedField();
-        surveyType.setCode("PROM");
+        surveyType.setCode(type);
         surveyType.setCodingStandard("SURVEY");
         survey.setSurveyType(surveyType);
 
@@ -433,7 +467,38 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         StringWriter xml = new StringWriter();
         jaxbContext.createMarshaller().marshal(patientRecord, xml);
 
-         return xml.toString();
+        return xml.toString();
+    }
+
+    /**
+     * Takes an id from the group a survey was taken under and
+     * uses the {@link SurveySendingFacility} mapping to generate
+     * a unit code to send to UKRDC.
+     *
+     * @param surveyGroupId id of the group a survey was taken under.
+     * @return Sending facility code.
+     */
+    private Group getSendingFacilityCode(Long surveyGroupId) {
+
+        SurveySendingFacility surveySendingFacility =
+                surveySendingFacilityRepository.findBySurveyGroup_Id(surveyGroupId);
+
+        if (surveySendingFacility == null) {
+
+            return null;
+        }
+
+        return surveySendingFacility.getUnit();
+    }
+
+    private String buildProgramName(Group group) {
+
+        if (group == null) {
+
+            return null;
+        }
+
+        return "PV.HOSPITAL." + group.getCode();
     }
 
     /**

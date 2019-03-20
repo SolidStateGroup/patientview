@@ -15,15 +15,46 @@
         </div>
 
         <div class="eq-survey" ng-style="{'zoom':zoom}">
-            <div data-ng-repeat="questionGroup in survey.questionGroups | orderBy:'displayOrder'" class="div-question-group">
+
+                <div ng-if="isLastQuestion">
+                    <div class="container">
+                        <div class="row" style="margin-top: 50px;">
+                            <div class="col-md-6">
+                                <div class="row row-question">
+                                        <ul class="slider-list">
+                                            <li>We would like to know how good or bad your health is TODAY.</li>
+                                            <li>This scale is numbered from 0 to 100.</li>
+                                            <li>100 means the <u>best</u> health you can imagine.<br />0 means the <u>worst</u> health you can imagine.</li>
+                                            <li>Please click on the scale to indicate how your health is TODAY.</li>
+                                        </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div style="height: 300px;"  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
+                                    <rzslider
+
+                                            rz-slider-model="answers[question.id]"
+                                            rz-slider-options="slider.options"></rzslider>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="well terms-well">
+                        <label for="terms" class="radio-label">
+                            Please confirm that your answers are complete and correct before saving
+                            <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
+                        </label>
+                    </div>
+                </div>
 
                 <div class="question-group-description" data-ng-bind-html="parseHTMLText(questionGroup.description)"></div>
-                <h5>Under each heading, please tick the ONE box that best describes your health TODAY.</h5>
-                <div data-ng-repeat="question in questionGroup.questions | orderBy:'displayOrder'" class="row">
+                <h5 ng-if="question.elementType !== 'SINGLE_SELECT_RANGE'"> Please select the ONE box that best describes your health TODAY.</h5>
+                <div ng-if="!isLastQuestion" class="row">
                     <div class="col-md-12 question-text">
                         <hr/>
                         <span data-ng-if="question.number">{{question.number}}. </span>
-                        <h4 ng-if="question.htmlType !== 'SLIDER'">{{question.text}}</h4>
+                        <h4 ng-if="question.htmlType !== 'SLIDER'" ng-bind-html="getQuestionHeader()"></h4>
 
                         <span data-ng-if="question.helpLink" class="help-link">
                         <a href="{{question.helpLink}}" target="_blank">what is this?</a>
@@ -42,12 +73,6 @@
                                 data-ng-options="questionOption.id as questionOption.text for questionOption in question.questionOptions | orderBy:'displayOrder'"
                                 class="form-control">
                         </select>
-                        <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
-                            <rzslider
-                                    rz-slider-model="answers[question.id]"
-                                    rz-slider-options="{floor: 0, ceil: 100, step:1, precision:1}"></rzslider>
-                            <div>{{answers[question.id]}}</div>
-                        </div>
                         <select data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SELECT'" data-ng-model="answers[question.id]"
                                 data-ng-options="n as n for n in range(question.rangeStart, question.rangeEnd)"
                                 class="form-control">
@@ -65,34 +90,8 @@
                                data-ng-model="answers[question.id]" class="form-control numeric-text" only-num>
                         </input>
                     </div>
-                </div>
             </div>
-            <div class="slider-component">
-                <hr/>
-                <div class="row row-question">
-                    <div class="col-sm-6">
-                        <ul class="slider-list">
-                            <li>We would like to know how good or bad your health is TODAY</li>
-                            <li>This scale is numbered from 0 to 100</li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-6">
-                        <ul>
-                            <li>100 means the best health you can imagine. 0 means the worst health you can imagine.</li>
-                            <li>Please click on the scale to indicate how your health is TODAY.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="well terms-well">
-                <p>
-                    Please confirm that your answers are complete and correct before saving
-                </p>
-                <label for="terms" class="radio-label">
-                    I confirm that my answers are complete and correct
-                    <input ng-change="toggleTerms()" type="checkbox" ng-model="acceptedTerms" class="radio-button" id="terms"/>
-                </label>
-            </div>
+
         </div>
     </div>
     <div class="modal-footer eq-survey-footer">
@@ -100,9 +99,11 @@
             <p>© EuroQol Research Foundation. EQ-5D™ is a trade mark of the EuroQol Research Foundation</p>
         </div>
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn btn-lg btn-grey" data-ng-click="cancel()">Cancel</button>
-        <button ng-if="!saving" class="btn btn-lg blue" data-ng-click="save()" data-ng-disabled="!answers.length || !acceptedTerms">Save</button>
-        <button data-ng-if="saving" class="btn btn-lg blue" disabled>
+        <button ng-if="isFirstQuestion" class="btn btn-lg btn-grey" data-ng-click="cancel()">Cancel</button>
+        <button ng-if="!isFirstQuestion" class="btn btn-lg btn-grey" data-ng-click="previousQuestion()">Previous Page</button>
+        <button ng-disabled="needsAnswer(question)" ng-if="!isLastQuestion" class="btn btn-lg blue" data-ng-click="nextQuestion()">Next Page</button>
+        <button ng-if="isLastQuestion && !saving" class="btn btn-lg blue" data-ng-click="save()" data-ng-disabled="!canSave() || !acceptedTerms">Save</button>
+        <button data-ng-if="isLastQuestion && saving" class="btn btn-lg blue" disabled>
             Saving
         </button>
     </div>
