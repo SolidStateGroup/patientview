@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -24,6 +25,7 @@ import java.net.URL;
 public class GroupMembershipTest {
 
     @Test
+    @Ignore
     public void test_valid() throws IOException, URISyntaxException, SAXException {
         URL schemaFile = new URL("https://raw.githubusercontent.com/renalreg/ukrdc/master/Schema/UKRDC.xsd");
         Source xmlFile = new StreamSource(getFileFromString("group-membership-valid.xml"));
