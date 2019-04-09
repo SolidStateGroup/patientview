@@ -101,10 +101,18 @@ function ($scope, $rootScope, $modalInstance, SurveyService, SurveyResponseServi
             }
 
             _.defer(function () {
-                $('input[type="radio"]').change(function(e) {
+                $('input[type="radio"]').on('change', function(e) {
                     var model = $(this).data('model');
                     if (model) {
-                        $scope[$(this).data('model')][e.target.name] = e.target.value;
+                        $scope[model][e.target.name] = e.target.value;
+                    }
+                })
+                $('label.radio-label').on('click', function(e) {
+                    var model = $(this).data('model');
+                    if (model) {
+                        var questionId = $(this).data('question-id');
+                        var questionOptionId = $(this).data('question-option-id');
+                        $scope[model][questionId] = questionOptionId;
                     }
                 })
             });
