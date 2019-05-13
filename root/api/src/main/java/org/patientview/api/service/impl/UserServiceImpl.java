@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
@@ -2162,7 +2163,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append(String.format("<Code>%s</Code>", groupRole.getGroup().getCode()));
 
         if (groupRole.getGroup() != null) {
-            xml.append(String.format("<Description>%s</Description>", groupRole.getGroup().getName()));
+            xml.append("<Description>");
+            xml.append(StringEscapeUtils.escapeXml(
+                    String.format("%s", groupRole.getGroup().getName())));
+            xml.append("</Description>");
         }
         xml.append("</EnteredAt>");
 
@@ -2170,7 +2174,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append(String.format("PV.HOSPITAL.%s", groupRole.getGroup().getCode()));
         xml.append("</ProgramName>");
         xml.append("<ProgramDescription>");
-        xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
+
+        xml.append(StringEscapeUtils.escapeXml(String.format("PatientView - %s", groupRole.getGroup().getName())));
         xml.append("</ProgramDescription>");
 
         xml.append("<FromTime>");
