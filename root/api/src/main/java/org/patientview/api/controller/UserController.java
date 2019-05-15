@@ -357,6 +357,28 @@ public class UserController extends BaseController<UserController> {
     }
 
     /**
+     * Get a User by email, used when searching for existing staff.
+     * Email passed as request parameter,rather then path variable, as above seemed
+     * to have some issues.
+     *
+     * @param email String email used to search for Users
+     * @return User object
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/user/email", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> getUserByEmailParam(@RequestParam("email") String email)
+            throws ResourceNotFoundException {
+        User user = userService.getByEmail(email);
+        if (user == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+    }
+
+    /**
      * Get a User by Identifier value, used when searching for existing patients.
      * @param identifier Identifier value used to search for Users
      * @return User object
