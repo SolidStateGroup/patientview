@@ -1366,6 +1366,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             } else {
                 sortOrder.append(" NULLS FIRST");
             }
+
+            sortOrder.append(", u.id");
         }
 
         StringBuilder userListSql = new StringBuilder("SELECT u ");
