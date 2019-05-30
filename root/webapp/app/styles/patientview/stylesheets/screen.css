@@ -2932,6 +2932,34 @@ th, td {
   bottom: 0;
 }
 
+/* line 116, ../sass/_lists.scss */
+.faq-list-header {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* line 121, ../sass/_lists.scss */
+.faq-list {
+  margin-top: 30px;
+  margin-left: 0;
+  padding-left: 0;
+  list-style-position: inside;
+}
+/* line 126, ../sass/_lists.scss */
+.faq-list li {
+  margin-top: 30px;
+  font-weight: bold;
+}
+/* line 129, ../sass/_lists.scss */
+.faq-list li span {
+  padding-left: 5px;
+}
+/* line 132, ../sass/_lists.scss */
+.faq-list li p {
+  font-weight: normal;
+  margin-top: 5px;
+}
+
 /** hero pane **/
 /* line 3, ../sass/_hero.scss */
 .hero-panel {
