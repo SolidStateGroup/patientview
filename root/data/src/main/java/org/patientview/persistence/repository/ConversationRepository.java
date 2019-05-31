@@ -27,6 +27,14 @@ public interface ConversationRepository extends CrudRepository<Conversation, Lon
             "ORDER BY c.lastUpdate DESC")
     Page<Conversation> findByUser(@Param("user") User user, Pageable pageable);
 
+    @Query("SELECT   c " +
+            "FROM    Conversation c " +
+            "JOIN    c.conversationUsers cu " +
+            "WHERE   cu.conversation = c " +
+            "AND     cu.creator = :user " +
+            "ORDER BY c.lastUpdate DESC ")
+    Page<Conversation> findByCreator(@Param("user") User user, Pageable pageable);
+
     @Query("SELECT   count(c.id) " +
             "FROM    Conversation c " +
             "JOIN    c.messages m " +
