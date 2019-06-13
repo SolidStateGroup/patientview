@@ -25,7 +25,7 @@ public class ExternalServicesTask {
     @Inject
     private Properties properties;
 
-    @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
+    @Scheduled(cron = "0 */1 * * * ?") // every 1 minutes
     public void sendToExternalService() {
         String enabled = properties.getProperty("external.service.enabled");
         if (enabled != null && Boolean.parseBoolean(properties.getProperty("external.service.enabled"))) {

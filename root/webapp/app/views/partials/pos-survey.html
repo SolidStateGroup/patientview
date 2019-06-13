@@ -22,7 +22,7 @@
                         show how you feel each of these symptoms has affected you and how you been feeling over the past
                         week.</p>
 
-                    <p>You need to do this for the first 17 symptoms in the list below (from ‘Pain’ to ‘Diarrhoea’ before you can save your answers.</p>
+                    <p>You need to do this for the first 17 symptoms in the list below (from ‘Pain’ to ‘Diarrhoea’) before you can save your answers.</p>
                 </div>
             </div>
 
@@ -59,10 +59,10 @@
                         <td data-ng-repeat="questionOption in question.questionOptions track by $index"
                             class="span-radio text-center">
 
-                            <label for="{{questionOption.id}}" class="radio-label">
-                                <input type="radio" ng-value="questionOption.id"
+                            <label class="radio-label" data-model="answers" data-question-id="{{question.id}}" data-question-option-id="{{questionOption.id}}">
+                                <input type="radio" value="{{questionOption.id}}" ng-checked="answers[question.id] == questionOption.id"
                                        name="{{question.id}}"
-                                       class="radio-button" id="{{questionOption.id}}" data-model="answers">
+                                       class="radio-button" id="{{questionOption.id}}" data-model="answers"/>
                                 <small>{{$index}}</small>
                             </label>
 
