@@ -1,17 +1,24 @@
 package org.patientview.api.job;
 
+import java.util.List;
+
 import org.patientview.api.service.ExternalServiceService;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.Properties;
+import java.util.UUID;
+
+import static java.util.Collections.singletonList;
 
 /**
  * Scheduled external services sending task, used for sending data to external services based on external service task
  * queue.
+ *
  * Created by jamesr@solidstategroup.com
  * Created on 30/04/2015
  */
@@ -19,22 +26,63 @@ import java.util.Properties;
 public class ExternalServicesTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalServicesTask.class);
-    @Inject
-    private ExternalServiceService externalServiceService;
 
-    @Inject
-    private Properties properties;
+    private final ExternalServiceService externalServiceService;
+    private final Properties properties;
 
-    @Scheduled(cron = "0 */1 * * * ?") // every 1 minutes
+    @Autowired
+    public ExternalServicesTask(ExternalServiceService externalServiceService,
+                                Properties properties) {
+
+        this.externalServiceService = externalServiceService;
+        this.properties = properties;
+    }
+
+    @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
     public void sendToExternalService() {
-        String enabled = properties.getProperty("external.service.enabled");
-        if (enabled != null && Boolean.parseBoolean(properties.getProperty("external.service.enabled"))) {
-            try {
-                LOG.info("Running sendToExternalService task");
-                externalServiceService.sendToExternalService();
-            } catch (Exception e) {
-                LOG.error("Error running sendToExternalService task: " + e.getMessage(), e);
-            }
+
+        processQueueItems(singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION));
+    }
+
+    @Scheduled(cron = "0 */1 * * * ?") // every 1 minute
+    public void sendSurveysToExternalService() {
+
+       processQueueItems(singletonList(ExternalServices.SURVEY_NOTIFICATION));
+    }
+
+    private void processQueueItems(List<ExternalServices> externalServices) {
+
+        if (serviceIsDisabled()) {
+            return;
         }
+
+        String correlationId = UUID.randomUUID().toString();
+        try {
+
+            LOG.info("Starting external service sync with id: {} for: {}", correlationId, flattenToString(externalServices));
+            externalServiceService.sendToExternalService(externalServices);
+        } catch (Exception e) {
+
+            LOG.error("Error running sendToExternalService task {} : {}" + e.getMessage(), correlationId, e);
+        }
+    }
+
+    private boolean serviceIsDisabled() {
+        String enabled = properties.getProperty("external.service.enabled");
+
+        return !Boolean.parseBoolean(enabled);
+    }
+
+    private static <T> String flattenToString(List<T> items) {
+
+        StringBuilder builder = new StringBuilder();
+
+        for (T item: items) {
+
+            builder.append(item.toString());
+            builder.append(" ");
+        }
+
+        return builder.toString();
     }
 }

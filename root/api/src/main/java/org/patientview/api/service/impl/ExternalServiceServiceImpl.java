@@ -14,15 +14,18 @@ import org.patientview.persistence.repository.ExternalServiceTaskQueueItemReposi
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import static java.util.Arrays.asList;
+import static org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus.FAILED;
+import static org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus.PENDING;
+
 /**
  * Service for sending data from PatientView to external services via HTTP request.
- *
+ * <p>
  * Created by jamesr@solidstategroup.com
  * Created on 30/04/2015
  */
@@ -32,11 +35,15 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
 
     private static final int HTTP_OK = 200;
 
-    @Inject
-    private ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository;
+    private final ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository;
+    private final Properties properties;
 
-    @Inject
-    private Properties properties;
+    public ExternalServiceServiceImpl(ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository,
+                                      Properties properties) {
+
+        this.externalServiceTaskQueueItemRepository = externalServiceTaskQueueItemRepository;
+        this.properties = properties;
+    }
 
     private static org.apache.http.HttpResponse post(String content, String url) throws Exception {
         org.apache.http.client.HttpClient httpClient = new DefaultHttpClient();
@@ -59,8 +66,14 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
 
                 // store in queue, ready to be processed by cron job
                 externalServiceTaskQueueItemRepository.save(
-                        new ExternalServiceTaskQueueItem(url, method, xml, ExternalServiceTaskQueueStatus.PENDING,
-                                creator, created));
+                        new ExternalServiceTaskQueueItem(
+                                url,
+                                method,
+                                xml,
+                                PENDING,
+                                externalService,
+                                creator,
+                                created));
             }
         }
     }
@@ -78,49 +91,61 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
 
             // store in queue, ready to be processed by cron job
             externalServiceTaskQueueItemRepository.save(
-                    new ExternalServiceTaskQueueItem(url, method, xml, ExternalServiceTaskQueueStatus.PENDING,
+                    new ExternalServiceTaskQueueItem(
+                            url,
+                            method,
+                            xml,
+                            PENDING,
+                            externalServices,
                             creator, created));
         }
     }
 
-    @Override
     @Async
-    public void sendToExternalService() {
-        // get unsent or failed
-        List<ExternalServiceTaskQueueStatus> statuses = new ArrayList<>();
-        statuses.add(ExternalServiceTaskQueueStatus.FAILED);
-        statuses.add(ExternalServiceTaskQueueStatus.PENDING);
+    @Override
+    public void sendToExternalService(List<ExternalServices> externalServices) {
 
-        List<ExternalServiceTaskQueueItem> externalServiceTaskQueueItems
-                = externalServiceTaskQueueItemRepository.findByStatus(statuses);
+        List<ExternalServiceTaskQueueItem> externalServiceTaskQueueItems =
+                getUnsentOrFailedItems(externalServices);
+
         List<ExternalServiceTaskQueueItem> tasksToUpdate = new ArrayList<>();
         List<ExternalServiceTaskQueueItem> tasksToDelete = new ArrayList<>();
 
-        for (ExternalServiceTaskQueueItem externalServiceTaskQueueItem : externalServiceTaskQueueItems) {
-            if (externalServiceTaskQueueItem.getMethod().equals("POST")) {
+        for (ExternalServiceTaskQueueItem queueItem : externalServiceTaskQueueItems) {
+
+            if (isPost(queueItem)) {
+
                 try {
-                    externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
-                    externalServiceTaskQueueItem.setLastUpdate(new Date());
+
+                    queueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
+                    queueItem.setLastUpdate(new Date());
+
+                    // Update the queue status
+                    externalServiceTaskQueueItemRepository.save(queueItem);
 
                     HttpResponse response
-                            = post(externalServiceTaskQueueItem.getContent(), externalServiceTaskQueueItem.getUrl());
+                            = post(queueItem.getContent(), queueItem.getUrl());
+
                     if (response.getStatusLine().getStatusCode() == HTTP_OK) {
+
                         // OK, delete queue item
-                        tasksToDelete.add(externalServiceTaskQueueItem);
+                        tasksToDelete.add(queueItem);
                     } else {
+
                         // not OK, set as failed
-                        externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
-                        externalServiceTaskQueueItem.setResponseCode(
+                        queueItem.setStatus(FAILED);
+                        queueItem.setResponseCode(
                                 Integer.valueOf(response.getStatusLine().getStatusCode()));
-                        externalServiceTaskQueueItem.setResponseReason(response.getStatusLine().getReasonPhrase());
-                        externalServiceTaskQueueItem.setLastUpdate(new Date());
+                        queueItem.setResponseReason(response.getStatusLine().getReasonPhrase());
+                        queueItem.setLastUpdate(new Date());
                     }
                 } catch (Exception e) {
                     // exception, set as failed
-                    externalServiceTaskQueueItem.setStatus(ExternalServiceTaskQueueStatus.FAILED);
-                    externalServiceTaskQueueItem.setLastUpdate(new Date());
+                    queueItem.setStatus(FAILED);
+                    queueItem.setLastUpdate(new Date());
                 }
-                tasksToUpdate.add(externalServiceTaskQueueItem);
+
+                tasksToUpdate.add(queueItem);
             }
         }
 
@@ -129,5 +154,16 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
 
         //Delete all in one go
         externalServiceTaskQueueItemRepository.delete(tasksToDelete);
+    }
+
+    private List<ExternalServiceTaskQueueItem> getUnsentOrFailedItems(List<ExternalServices> externalService) {
+
+        List<ExternalServiceTaskQueueStatus> statuses = asList(FAILED, PENDING);
+
+        return externalServiceTaskQueueItemRepository.findByStatusAndServiceType(statuses, externalService);
+    }
+
+    private boolean isPost(ExternalServiceTaskQueueItem item) {
+        return item.getMethod().equals("POST");
     }
 }

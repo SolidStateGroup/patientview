@@ -1,6 +1,7 @@
 package org.patientview.persistence.model;
 
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
+import org.patientview.persistence.model.enums.ExternalServices;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,6 +33,10 @@ public class ExternalServiceTaskQueueItem extends AuditModel {
     @Enumerated(EnumType.STRING)
     private ExternalServiceTaskQueueStatus status;
 
+    @Column(name = "service_type")
+    @Enumerated(EnumType.STRING)
+    private ExternalServices serviceType;
+
     @Column(name = "response_code")
     private Integer responseCode;
 
@@ -40,12 +45,18 @@ public class ExternalServiceTaskQueueItem extends AuditModel {
 
     public ExternalServiceTaskQueueItem() {}
 
-    public ExternalServiceTaskQueueItem(String url, String method, String content,
-                                        ExternalServiceTaskQueueStatus status, User creator, Date creationDate) {
+    public ExternalServiceTaskQueueItem(String url,
+                                        String method,
+                                        String content,
+                                        ExternalServiceTaskQueueStatus status,
+                                        ExternalServices serviceType,
+                                        User creator,
+                                        Date creationDate) {
         this.url = url;
         this.method = method;
         this.content = content;
         this.status = status;
+        this.serviceType = serviceType;
         this.setCreator(creator);
         this.setCreated(creationDate);
     }
@@ -72,6 +83,14 @@ public class ExternalServiceTaskQueueItem extends AuditModel {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public ExternalServices getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(ExternalServices serviceType) {
+        this.serviceType = serviceType;
     }
 
     public ExternalServiceTaskQueueStatus getStatus() {

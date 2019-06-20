@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Service for sending data from PatientView to external services via HTTP request.
@@ -29,5 +30,5 @@ public interface ExternalServiceService {
      */
     void addToQueue(ExternalServices externalServices, String xml, User creator, Date created);
 
-    void sendToExternalService();
+    void sendToExternalService(List<ExternalServices> externalServices);
 }
