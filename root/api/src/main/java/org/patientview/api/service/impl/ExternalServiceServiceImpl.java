@@ -101,6 +101,9 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Async
     @Override
     public void sendToExternalService(List<ExternalServices> externalServices) {
@@ -156,6 +159,10 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
         externalServiceTaskQueueItemRepository.delete(tasksToDelete);
     }
 
+    /**
+     * Finds queue items of a certain type with status FAILED or PENDING.
+     *
+     */
     private List<ExternalServiceTaskQueueItem> getUnsentOrFailedItems(List<ExternalServices> externalService) {
 
         List<ExternalServiceTaskQueueStatus> statuses = asList(FAILED, PENDING);
@@ -163,6 +170,9 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
         return externalServiceTaskQueueItemRepository.findByStatusAndServiceType(statuses, externalService);
     }
 
+    /**
+     * Checks if the queue item is of type POST.
+     */
     private boolean isPost(ExternalServiceTaskQueueItem item) {
         return item.getMethod().equals("POST");
     }

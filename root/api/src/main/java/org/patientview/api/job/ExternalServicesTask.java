@@ -1,7 +1,5 @@
 package org.patientview.api.job;
 
-import java.util.List;
-
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.persistence.model.enums.ExternalServices;
 import org.slf4j.Logger;
@@ -10,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -18,7 +17,7 @@ import static java.util.Collections.singletonList;
 /**
  * Scheduled external services sending task, used for sending data to external services based on external service task
  * queue.
- *
+ * <p>
  * Created by jamesr@solidstategroup.com
  * Created on 30/04/2015
  */
@@ -38,6 +37,19 @@ public class ExternalServicesTask {
         this.properties = properties;
     }
 
+    private static <T> String flattenToString(List<T> items) {
+
+        StringBuilder builder = new StringBuilder();
+
+        for (T item : items) {
+
+            builder.append(item.toString());
+            builder.append(" ");
+        }
+
+        return builder.toString();
+    }
+
     @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
     public void sendToExternalService() {
 
@@ -47,7 +59,7 @@ public class ExternalServicesTask {
     @Scheduled(cron = "0 */1 * * * ?") // every 1 minute
     public void sendSurveysToExternalService() {
 
-       processQueueItems(singletonList(ExternalServices.SURVEY_NOTIFICATION));
+        processQueueItems(singletonList(ExternalServices.SURVEY_NOTIFICATION));
     }
 
     private void processQueueItems(List<ExternalServices> externalServices) {
@@ -71,18 +83,5 @@ public class ExternalServicesTask {
         String enabled = properties.getProperty("external.service.enabled");
 
         return !Boolean.parseBoolean(enabled);
-    }
-
-    private static <T> String flattenToString(List<T> items) {
-
-        StringBuilder builder = new StringBuilder();
-
-        for (T item: items) {
-
-            builder.append(item.toString());
-            builder.append(" ");
-        }
-
-        return builder.toString();
     }
 }

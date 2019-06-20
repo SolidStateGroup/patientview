@@ -30,5 +30,10 @@ public interface ExternalServiceService {
      */
     void addToQueue(ExternalServices externalServices, String xml, User creator, Date created);
 
+    /**
+     * Queues up items to send to external service.
+     *
+     * @param externalServices item types to send.
+     */
     void sendToExternalService(List<ExternalServices> externalServices);
 }
