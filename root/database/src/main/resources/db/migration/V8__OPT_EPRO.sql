@@ -332,3 +332,5 @@ CREATE TABLE IF NOT EXISTS public.pv_survey_unit (
   survey_group_id BIGINT REFERENCES public.pv_group (id)      NOT NULL,
   PRIMARY KEY (Id)
 );
+
+ALTER TABLE pv_external_service_task_queue_item ADD COLUMN service_type TEXT;

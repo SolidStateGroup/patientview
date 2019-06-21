@@ -8,7 +8,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.Timer;
+import org.patientview.persistence.model.enums.ExternalServices;
 
+import java.util.Collections;
 import java.util.Properties;
 
 import static org.mockito.Mockito.verify;
@@ -39,15 +41,17 @@ public class ExternalServicesTaskTest {
 
     @Test
     public void testRemoveOldAuditXml() throws Exception {
+
         when(properties.getProperty("external.service.enabled")).thenReturn("true");
         externalServicesTask.sendToExternalService();
-        verify(externalServiceService, Mockito.times(1)).sendToExternalService();
+        verify(externalServiceService, Mockito.times(1)).sendToExternalService(Collections.singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION));
     }
 
     @Test
     public void testRemoveOldAuditXmlDisabled() throws Exception {
+
         when(properties.getProperty("external.service.enabled")).thenReturn("false");
         externalServicesTask.sendToExternalService();
-        verify(externalServiceService, Mockito.times(0)).sendToExternalService();
+        verify(externalServiceService, Mockito.times(0)).sendToExternalService(Collections.singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION));
     }
 }
