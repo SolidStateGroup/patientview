@@ -50,7 +50,7 @@ public class ExternalServicesTask {
         return builder.toString();
     }
 
-    @Scheduled(cron = "0 */10 * * * ?") // every 10 minutes
+    @Scheduled(cron = "0 */1 * * * ?") // every 1 minute
     public void sendToExternalService() {
 
         processQueueItems(singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION));
