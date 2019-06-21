@@ -189,23 +189,6 @@ angular.module('patientviewApp').factory('RouteService', [function () {
                 }
             };
         },
-        getQuestionnaireScoresRoute: function() {
-            return {
-                'url': '/questionnaire-scores',
-                'templateUrl': 'views/questionnaire-scores.html',
-                'controller': 'TermsCtrl',
-                'title': 'Questionnaire Scoring',
-                'lookup': {
-                    'id': 103,
-                    'value': 'NOT_DISPLAYED',
-                    'lookupType': {
-                        'id': 3,
-                        'type': 'MENU',
-                        'description': 'Type of menu'
-                    }
-                }
-            };
-        },
         getPrivacyRoute: function() {
             return {
                 'url': '/privacy',

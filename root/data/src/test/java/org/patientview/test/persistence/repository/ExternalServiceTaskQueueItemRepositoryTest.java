@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
+import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.repository.ExternalServiceTaskQueueItemRepository;
 import org.patientview.test.persistence.config.TestPersistenceConfig;
 import org.patientview.test.util.DataTestUtils;
@@ -48,10 +49,14 @@ public class ExternalServiceTaskQueueItemRepositoryTest {
 
         externalServiceTaskQueueItemRepository.save(
             new ExternalServiceTaskQueueItem("url1", "method1", "content1",
-                    ExternalServiceTaskQueueStatus.PENDING, creator, now));
+                    ExternalServiceTaskQueueStatus.PENDING,
+                    ExternalServices.RDC_GROUP_ROLE_NOTIFICATION,
+                    creator, now));
         externalServiceTaskQueueItemRepository.save(
             new ExternalServiceTaskQueueItem("url2", "method2", "content2",
-                    ExternalServiceTaskQueueStatus.IN_PROGRESS, creator, now));
+                    ExternalServiceTaskQueueStatus.IN_PROGRESS,
+                    ExternalServices.RDC_GROUP_ROLE_NOTIFICATION,
+                    creator, now));
 
         List<ExternalServiceTaskQueueStatus> statuses = new ArrayList<>();
         statuses.add(ExternalServiceTaskQueueStatus.FAILED);

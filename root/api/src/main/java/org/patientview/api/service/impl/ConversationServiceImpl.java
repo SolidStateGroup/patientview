@@ -924,8 +924,16 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     @Override
     public void deleteUserFromConversations(User user) {
         // remove from all conversations where user is a member (including messages)
+        // this will return all conversation where user is a member and creator
         List<Conversation> conversations
                 = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
+
+        // we could not find any conversation where user is a member
+        // check if we have any where user is a creator
+        if (CollectionUtils.isEmpty(conversations)) {
+            conversations =
+                    conversationRepository.findByCreator(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
+        }
 
         LOG.info("user id: " + user.getId() + " has " + conversations.size() + " conversations");
 
@@ -973,9 +981,41 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             // remove from messages
             LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
                     + " from messages");
-            List<Message> removedUserMessages = new ArrayList<>();
-            for (Message message : conversation.getMessages()) {
-                if (message.getUser().getId().equals(user.getId())) {
+            List<Message> removedUserMessages = deleteMessages(conversation.getMessages(), user);
+
+            LOG.info("conversation id: " + conversation.getId() + ", save " + removedUserMessages.size() + " messages");
+
+            conversation.setMessages(removedUserMessages);
+
+            if (conversation.getCreator() != null && conversation.getCreator().getId().equals(user.getId())) {
+                conversation.setCreator(null);
+            }
+            conversationRepository.save(conversation);
+        }
+
+        // check make sure we don't have orphan messages (without user)
+        // need to clean them up as well
+        List<Message> messages = messageRepository.findByUserOrCreator(user);
+        deleteMessages(messages, user);
+
+        user.setConversationUsers(new HashSet<ConversationUser>());
+        userRepository.save(user);
+    }
+
+    /**
+     * Helper to delete messages for the user.
+     * Messages are not deleted, just setting user refrences to null
+     *
+     * @param messages a List of Message to delete.
+     * @param user     a User to delete messages for
+     * @return
+     */
+    private List<Message> deleteMessages(List<Message> messages, User user) {
+        List<Message> removedUserMessages = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(messages)) {
+
+            for (Message message : messages) {
+                if (message.getLastUpdater() != null && message.getUser().getId().equals(user.getId())) {
                     LOG.info("message id: " + message.getId() + " set user null");
                     message.setUser(null);
                 }
@@ -1002,19 +1042,12 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 removedUserMessages.add(message);
             }
 
-            LOG.info("conversation id: " + conversation.getId() + ", save " + removedUserMessages.size() + " messages");
+            LOG.info("user id: " + user.getId() + ", save " + removedUserMessages.size() + " messages");
 
             messageRepository.save(removedUserMessages);
-            conversation.setMessages(removedUserMessages);
-
-            if (conversation.getCreator() != null && conversation.getCreator().getId().equals(user.getId())) {
-                conversation.setCreator(null);
-            }
-            conversationRepository.save(conversation);
         }
 
-        user.setConversationUsers(new HashSet<ConversationUser>());
-        userRepository.save(user);
+        return removedUserMessages;
     }
 
     /**

@@ -34,7 +34,7 @@ public class ExternalServiceServiceTest {
     private ExternalServiceTaskQueueItemRepository externalServiceTaskQueueItemRepository;
 
     @InjectMocks
-    ExternalServiceService externalServiceService = new ExternalServiceServiceImpl();
+    ExternalServiceServiceImpl externalServiceService;
 
     @Mock
     Properties properties;

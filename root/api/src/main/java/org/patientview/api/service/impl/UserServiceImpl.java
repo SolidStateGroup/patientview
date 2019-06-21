@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
@@ -1365,6 +1366,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             } else {
                 sortOrder.append(" NULLS FIRST");
             }
+
+            sortOrder.append(", u.id");
         }
 
         StringBuilder userListSql = new StringBuilder("SELECT u ");
@@ -1436,10 +1439,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public org.patientview.api.model.User getByEmail(String email) {
+        LOG.info("Searching by Email: "+ email);
         List<User> foundUsers = userRepository.findByEmailCaseInsensitive(email);
 
         // should only return one
         if (CollectionUtils.isEmpty(foundUsers)) {
+            LOG.info("User Not Found User for : "+ email);
             return null;
         } else {
             return new org.patientview.api.model.User(foundUsers.get(0));
@@ -2162,7 +2167,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append(String.format("<Code>%s</Code>", groupRole.getGroup().getCode()));
 
         if (groupRole.getGroup() != null) {
-            xml.append(String.format("<Description>%s</Description>", groupRole.getGroup().getName()));
+            xml.append("<Description>");
+            xml.append(StringEscapeUtils.escapeXml(
+                    String.format("%s", groupRole.getGroup().getName())));
+            xml.append("</Description>");
         }
         xml.append("</EnteredAt>");
 
@@ -2170,7 +2178,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         xml.append(String.format("PV.HOSPITAL.%s", groupRole.getGroup().getCode()));
         xml.append("</ProgramName>");
         xml.append("<ProgramDescription>");
-        xml.append(String.format("PatientView - %s", groupRole.getGroup().getName()));
+
+        xml.append(StringEscapeUtils.escapeXml(String.format("PatientView - %s", groupRole.getGroup().getName())));
         xml.append("</ProgramDescription>");
 
         xml.append("<FromTime>");
