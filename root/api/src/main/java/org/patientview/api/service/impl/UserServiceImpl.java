@@ -92,7 +92,7 @@ import javax.persistence.Query;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -1435,12 +1435,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public org.patientview.api.model.User getByEmail(String email) {
-        LOG.info("Searching by Email: "+ email);
+        LOG.info("Searching by Email: " + email);
         List<User> foundUsers = userRepository.findByEmailCaseInsensitive(email);
 
         // should only return one
         if (CollectionUtils.isEmpty(foundUsers)) {
-            LOG.info("User Not Found User for : "+ email);
+            LOG.info("User Not Found User for : " + email);
             return null;
         } else {
             return new org.patientview.api.model.User(foundUsers.get(0));
@@ -1978,6 +1978,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        // if username, email, forename, surname or DOB changed send UKRDC notification
+        boolean notify = false;
+        if (!user.getEmail().equals(entityUser.getEmail())
+                || !user.getUsername().equals(entityUser.getUsername())
+                || !user.getForename().equals(entityUser.getForename())
+                || !user.getSurname().equals(entityUser.getSurname())
+                || !user.getDateOfBirth().equals(entityUser.getDateOfBirth())) {
+            notify = true;
+        }
+
         entityUser.setForename(user.getForename());
         entityUser.setSurname(user.getSurname());
         entityUser.setUsername(user.getUsername());
@@ -1995,6 +2005,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         if (isPatient) {
             auditService.createAudit(AuditActions.PATIENT_EDIT, entityUser.getUsername(), getCurrentUser(),
                     entityUser.getId(), AuditObjectTypes.User, null);
+
+            if (notify) {
+                sendUserUpdatedGroupNotification(entityUser, true);
+            }
         } else {
             auditService.createAudit(AuditActions.ADMIN_EDIT, entityUser.getUsername(), getCurrentUser(),
                     entityUser.getId(), AuditObjectTypes.User, null);
