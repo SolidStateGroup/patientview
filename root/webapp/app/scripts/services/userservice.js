@@ -262,7 +262,11 @@ function ($q, Restangular, UtilService) {
             Restangular.one('user', user.id).get().then(function(user) {
                 user.remove().then(function(res) {
                     deferred.resolve(res);
+                }, function(failureResult) {
+                    deferred.reject(failureResult);
                 });
+            }, function(failureResult) {
+                deferred.reject(failureResult);
             });
             return deferred.promise;
         },

@@ -46,6 +46,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
     // delete user
     $scope.deleteUser = function (userId) {
         $scope.successMessage = '';
+        $scope.errorMessage = '';
         $scope.printSuccessMessage = false;
         // close any open edit panels
         $('.panel-collapse.in').collapse('hide');
