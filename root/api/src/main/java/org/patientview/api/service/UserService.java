@@ -223,6 +223,13 @@ public interface UserService {
         throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
+     * Sends a user updated notification for UKRDC
+     *
+     * @param user - user that has been updated
+     */
+    void sendUserUpdatedGroupNotification(User user, boolean adding);
+
+    /**
      * Delete the picture associated with a User.
      * @param userId ID of User to delete picture from
      * @throws ResourceNotFoundException

@@ -1,11 +1,12 @@
 package org.patientview.api.service.impl;
 
 import org.patientview.api.model.UserIdentifier;
-import org.patientview.config.exception.ResourceInvalidException;
-import org.patientview.persistence.model.GroupRole;
 import org.patientview.api.service.IdentifierService;
+import org.patientview.api.service.UserService;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
@@ -18,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.NonUniqueResultException;
-
 import java.util.List;
 
 import static java.lang.Integer.parseInt;
@@ -39,6 +39,9 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
     @Inject
     private LookupRepository lookupRepository;
+
+    @Inject
+    private UserService userService;
 
     private static final String GENERIC_GROUP_CODE = "GENERIC";
     private static final Long CHI_NUMBER_START = 10000010L;
@@ -83,6 +86,15 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             throw new ResourceForbiddenException("Cannot be deleted, in use by FHIR data");
         }
 
+        // for NHS Number, CHI Number, H&SC Number or Radar se
+        if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.NHS_NUMBER.toString())
+                || identifier.getIdentifierType().getValue().equals(IdentifierTypes.CHI_NUMBER.toString())
+                || identifier.getIdentifierType().getValue().equals(IdentifierTypes.HSC_NUMBER.toString())
+                || identifier.getIdentifierType().getValue().equals(IdentifierTypes.RADAR_NUMBER.toString())) {
+
+            userService.sendUserUpdatedGroupNotification(identifier.getUser(), true);
+        }
+
         identifierRepository.delete(identifierId);
     }
 
@@ -108,7 +120,16 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
         entityIdentifier.setIdentifier(identifier.getIdentifier());
         entityIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
-        identifierRepository.save(entityIdentifier);
+        Identifier saved = identifierRepository.save(entityIdentifier);
+
+        // for NHS Number, CHI Number, H&SC Number or Radar se
+        if (saved.getIdentifierType().getValue().equals(IdentifierTypes.NHS_NUMBER.toString())
+                || saved.getIdentifierType().getValue().equals(IdentifierTypes.CHI_NUMBER.toString())
+                || saved.getIdentifierType().getValue().equals(IdentifierTypes.HSC_NUMBER.toString())
+                || saved.getIdentifierType().getValue().equals(IdentifierTypes.RADAR_NUMBER.toString())) {
+
+            userService.sendUserUpdatedGroupNotification(entityIdentifier.getUser(), true);
+        }
     }
 
     public Identifier add(Long userId, Identifier identifier)
@@ -135,20 +156,31 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         identifier.setCreator(getCurrentUser());
         user.getIdentifiers().add(identifier);
         identifier.setUser(user);
-        return identifierRepository.save(identifier);
+        Identifier saved = identifierRepository.save(identifier);
+
+        // for NHS Number, CHI Number, H&SC Number or Radar se
+        if (saved.getIdentifierType().getValue().equals(IdentifierTypes.NHS_NUMBER.toString())
+                || saved.getIdentifierType().getValue().equals(IdentifierTypes.CHI_NUMBER.toString())
+                || saved.getIdentifierType().getValue().equals(IdentifierTypes.HSC_NUMBER.toString())
+                || saved.getIdentifierType().getValue().equals(IdentifierTypes.RADAR_NUMBER.toString())) {
+
+            userService.sendUserUpdatedGroupNotification(user, true);
+        }
+
+        return saved;
     }
 
     public List<Identifier> getIdentifierByValue(String identifierValue) throws ResourceNotFoundException {
         List<Identifier> identifiers = identifierRepository.findByValue(identifierValue);
         if (identifiers.isEmpty()) {
             throw new ResourceNotFoundException(String.format("Could not find identifier with value %s",
-                identifierValue));
+                    identifierValue));
         }
         return identifiers;
     }
 
     public void validate(UserIdentifier userIdentifier)
-        throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
+            throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException, ResourceInvalidException {
 
         Long userId = userIdentifier.getUserId();
         Identifier identifier = userIdentifier.getIdentifier();
@@ -212,8 +244,8 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
         // for NHS Number, CHI Number, H&SC Number
         if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.NHS_NUMBER.toString())
-            || identifier.getIdentifierType().getValue().equals(IdentifierTypes.CHI_NUMBER.toString())
-            || identifier.getIdentifierType().getValue().equals(IdentifierTypes.HSC_NUMBER.toString())) {
+                || identifier.getIdentifierType().getValue().equals(IdentifierTypes.CHI_NUMBER.toString())
+                || identifier.getIdentifierType().getValue().equals(IdentifierTypes.HSC_NUMBER.toString())) {
 
             // should be numeric
             try {

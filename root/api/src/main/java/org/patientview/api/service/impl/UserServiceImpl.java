@@ -1041,12 +1041,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    /**
-     * Sends a user updated notification for UKRDC group roles
-     *
-     * @param user - user that has been updated
-     */
-    private void sendUserUpdatedGroupNotification(User user, boolean adding) {
+    @Override
+    public void sendUserUpdatedGroupNotification(User user, boolean adding) {
         for (GroupRole groupRole : user.getGroupRoles()) {
             // send membership notification to RDC, not GroupTypes.SPECIALTY
             if (groupRole.getGroup().getGroupType() != null &&
