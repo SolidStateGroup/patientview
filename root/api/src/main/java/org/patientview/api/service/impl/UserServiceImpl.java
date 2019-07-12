@@ -1984,7 +1984,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 || !user.getUsername().equals(entityUser.getUsername())
                 || !user.getForename().equals(entityUser.getForename())
                 || !user.getSurname().equals(entityUser.getSurname())
-                || !user.getDateOfBirth().equals(entityUser.getDateOfBirth())) {
+                || (user.getDateOfBirth() != null && !user.getDateOfBirth().equals(entityUser.getDateOfBirth()))) {
             notify = true;
         }
 
