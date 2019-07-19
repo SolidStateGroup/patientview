@@ -122,7 +122,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 $scope.user.canRemoveFromMyGroups = false;
                 $scope.user.canRemoveFromAllGroups = false;
                 $scope.user.canDelete = false;
-            }, function() {
+            }, function(error) {
                 $scope.errorMessage = 'There was an error';
             });
         };

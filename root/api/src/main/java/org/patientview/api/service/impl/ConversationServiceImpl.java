@@ -1015,7 +1015,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         if (!CollectionUtils.isEmpty(messages)) {
 
             for (Message message : messages) {
-                if (message.getLastUpdater() != null && message.getUser().getId().equals(user.getId())) {
+                if (message.getUser() != null && message.getUser().getId().equals(user.getId())) {
                     LOG.info("message id: " + message.getId() + " set user null");
                     message.setUser(null);
                 }
