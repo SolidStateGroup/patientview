@@ -79,8 +79,8 @@
                             class="form-control">
                     </select>
                     <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
-                        <div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'
-                                ng-model='answers[question.id]'></div>
+                        <rzslider rz-slider-options='{floor: question.rangeStart, ceil: question.rangeEnd, step: 1, precision: 0}'
+                                rz-slider-model='answers[question.id]'></div>
                         <span>{{question.rangeStartDescription}}</span>
                         <span class="pull-right">{{question.rangeEndDescription}}</span>
                     </div>
@@ -115,7 +115,7 @@
     </div>
     <div class="modal-footer">
         <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
-        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!answers.length" data-ng-if="!showEnterResults">Save</button>
+        <button class="btn blue" data-ng-click="save()" data-ng-disabled="!canSave()" data-ng-if="!showEnterResults">Save</button>
         <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
         <button class="btn blue" data-ng-click="saveResults()" data-ng-disabled="!enterResults.pulse || !enterResults.weight" data-ng-if="showEnterResults">Save</button>
     </div>
