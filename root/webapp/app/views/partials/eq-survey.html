@@ -78,8 +78,8 @@
                                 class="form-control">
                         </select>
                         <div  data-ng-if="question.elementType === 'SINGLE_SELECT_RANGE' && question.htmlType === 'SLIDER'">
-                            <div class="slider" slider floor='0' ceiling='100' step='1' precision='0' stickiness='0'
-                                 ng-model='answers[question.id]'></div>
+                            <rzslider rz-slider-options='{floor: question.rangeStart, ceil: question.rangeEnd, step: 1, precision: 0}'
+                                rz-slider-model='answers[question.id]'></div>
                             <span>{{question.rangeStartDescription}}</span>
                             <span class="pull-right">{{question.rangeEndDescription}}</span>
                         </div>
