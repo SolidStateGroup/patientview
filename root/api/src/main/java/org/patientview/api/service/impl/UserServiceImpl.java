@@ -2046,6 +2046,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
+        // make sure the Group we are sending to is part of the Renal Specialty
+        if (groupIsRenalChild(groupRole.getGroup())) {
+            LOG.info("Group {} not part of the Renal, ignoring sending notification", groupRole.getGroup().getCode());
+            return;
+        }
+
         StringBuilder xml = new StringBuilder("<ns2:PatientRecord xmlns:ns2=\"http://www.rixg.org.uk/\">    " +
                 "<SendingFacility>PV</SendingFacility>" +
                 "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
