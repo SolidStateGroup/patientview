@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -145,7 +146,11 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
      * @param group a group to check
      * @return true if group has parent Renal group, false otherwise
      */
-    protected boolean groupIsRenalChild(Group group) {
+    protected boolean groupIsRenalChild(final Group group) {
+
+        if(group == null || CollectionUtils.isEmpty(group.getGroupRelationships())){
+            return false;
+        }
         for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
             if (groupRelationship.getRelationshipType().equals(RelationshipTypes.PARENT)
                     && groupRelationship.getObjectGroup().getCode().equals(RENAL_GROUP_CODE)) {
