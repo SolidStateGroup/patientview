@@ -2047,8 +2047,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
         // make sure the Group we are sending to is part of the Renal Specialty
-        if (groupIsRenalChild(groupRole.getGroup())) {
-            LOG.info("Group {} not part of the Renal, ignoring sending notification", groupRole.getGroup().getCode());
+        // need to re fetch to get all relationship
+        Group groupToCheck = groupRepository.findOne(groupRole.getGroup().getId());
+        if (!groupIsRenalChild(groupToCheck)) {
+            LOG.info("Group {} not part of the Renal, ignoring sending notification", groupToCheck.getCode());
             return;
         }
 
