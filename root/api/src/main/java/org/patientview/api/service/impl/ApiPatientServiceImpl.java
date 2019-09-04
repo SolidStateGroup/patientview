@@ -120,7 +120,6 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     @Inject
     private UserRepository userRepository;
 
-    private static final String RENAL_GROUP_CODE = "Renal";
     private static final String GEN_CODE = "GEN";
 
     /**
@@ -491,17 +490,6 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
             LOG.error("Get Practitioner error: ", e);
             return null;
         }
-    }
-
-    private boolean groupIsRenalChild(Group group) {
-        for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
-            if (groupRelationship.getRelationshipType().equals(RelationshipTypes.PARENT)
-                    && groupRelationship.getObjectGroup().getCode().equals(RENAL_GROUP_CODE)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private org.patientview.api.model.Patient setAllergies(
