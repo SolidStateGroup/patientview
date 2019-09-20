@@ -364,6 +364,11 @@ public class UserServiceTest {
 
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
+        Group parent = TestUtils.createGroup("Renal");
+        parent.setCode("Renal");
+        // create group relationships
+        group2.getGroupRelationships().add(TestUtils.createGroupRelationship(group, parent, RelationshipTypes.PARENT));
+
         Lookup lookupValue = new Lookup();
         lookupValue.setValue("");
         group2.setGroupType(lookupValue);
@@ -394,7 +399,7 @@ public class UserServiceTest {
         groupRole = userService.addGroupRole(patientUser.getId(), group.getId(), newPatientRole.getId());
 
         Assert.assertNotNull("The returned object should not be null", groupRole);
-        verify(groupRoleRepository, times(1)).save(any(GroupRole.class));
+        verify(groupRoleRepository, times(2)).save(any(GroupRole.class));
 
         // verify queued to RDC
         verify(externalServiceService, times(1))
@@ -434,6 +439,11 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        Group parent = TestUtils.createGroup("Renal");
+        parent.setCode("Renal");
+        // create group relationships
+        group.getGroupRelationships().add(TestUtils.createGroupRelationship(group, parent, RelationshipTypes.PARENT));
+
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
@@ -473,7 +483,7 @@ public class UserServiceTest {
         groupRole = userService.addGroupRole(patientUser.getId(), group.getId(), newRole.getId());
 
         Assert.assertNotNull("The returned object should not be null", groupRole);
-        verify(groupRoleRepository, times(1)).save(any(GroupRole.class));
+        verify(groupRoleRepository, times(2)).save(any(GroupRole.class));
 
         // verify queued to RDC
         verify(externalServiceService, times(1))
@@ -1080,6 +1090,10 @@ public class UserServiceTest {
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
         User patientUser = TestUtils.createUser("staff");
+        Group parent = TestUtils.createGroup("Renal");
+        parent.setCode("Renal");
+        // create group relationships
+        group2.getGroupRelationships().add(TestUtils.createGroupRelationship(group2, parent, RelationshipTypes.PARENT));
         Role patientRole = TestUtils.createRole(RoleName.PATIENT, RoleType.PATIENT);
         GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group2, patientUser);
         groupRolePatient.setCreated(new Date(new Date().getTime() - 1000000));

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -28,9 +29,11 @@ import java.util.List;
  */
 public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
+    protected static final String RENAL_GROUP_CODE = "Renal";
+
     protected final Logger LOG = LoggerFactory.getLogger(getServiceClass());
 
-    private Class<T> getServiceClass()  {
+    private Class<T> getServiceClass() {
         ParameterizedType superclass = (ParameterizedType) getClass().getGenericSuperclass();
         return (Class<T>) superclass.getActualTypeArguments()[0];
     }
@@ -131,6 +134,27 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
                 if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Helper to check if given group belongs to Renal SPECIALTY
+     *
+     * @param group a group to check
+     * @return true if group has parent Renal group, false otherwise
+     */
+    protected boolean groupIsRenalChild(final Group group) {
+
+        if(group == null || CollectionUtils.isEmpty(group.getGroupRelationships())){
+            return false;
+        }
+        for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
+            if (groupRelationship.getRelationshipType().equals(RelationshipTypes.PARENT)
+                    && groupRelationship.getObjectGroup().getCode().equals(RENAL_GROUP_CODE)) {
+                return true;
             }
         }
 
