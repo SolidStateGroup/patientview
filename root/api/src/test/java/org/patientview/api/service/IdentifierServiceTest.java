@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,6 +59,9 @@ public class IdentifierServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    UserService userService;
 
     @Mock
     LookupRepository lookupRepository;
@@ -106,6 +110,7 @@ public class IdentifierServiceTest {
 
         when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
+        when(lookupRepository.findOne(any(Long.class))).thenReturn(lookup);
         when(identifierRepository.save(eq(identifier))).thenReturn(identifier);
 
         try {
@@ -115,6 +120,7 @@ public class IdentifierServiceTest {
         }
 
         verify(identifierRepository, Mockito.times(1)).save(eq(identifier));
+        verify(userService, Mockito.times(1)).sendUserUpdatedGroupNotification(any(User.class), any(Boolean.class));
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -195,6 +201,7 @@ public class IdentifierServiceTest {
         }
 
         verify(identifierRepository, Mockito.times(1)).delete(eq(identifier.getId()));
+        verify(userService, Mockito.times(1)).sendUserUpdatedGroupNotification(any(User.class), any(Boolean.class));
     }
 
     @Test(expected = ResourceForbiddenException.class)
@@ -270,7 +277,9 @@ public class IdentifierServiceTest {
         identifiers.add(identifier);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
+        when(lookupRepository.findOne(any(Long.class))).thenReturn(lookup);
         when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(identifierRepository.save(eq(identifier))).thenReturn(identifier);
 
         try {
             identifierService.add(patient.getId(), identifier);
@@ -279,6 +288,7 @@ public class IdentifierServiceTest {
         }
 
         verify(identifierRepository, Mockito.times(1)).save(Matchers.eq(identifier));
+        verify(userService, Mockito.times(1)).sendUserUpdatedGroupNotification(any(User.class), any(Boolean.class));
     }
 
     /**
