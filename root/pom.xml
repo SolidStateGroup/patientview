@@ -89,54 +89,5 @@
             </plugin>
         </plugins>
     </build>
-    <!-- Add Spring repositories -->
-    <!-- (you don't need this if you are using a .RELEASE version) -->
-    <repositories>
-        <repository>
-            <id>spring-snapshots</id>
-            <url>http://repo.spring.io/snapshot</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>nexus</id>
-            <name>Solid State Group Repository</name>
-            <url>http://nexus2.solidstategroup.com</url>
-        </repository>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>http://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
-        <!-- Swagger.io -->
-        <repository>
-            <id>jcenter-release</id>
-            <name>jcenter</name>
-            <url>http://oss.jfrog.org/artifactory/oss-release-local/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-snapshots</id>
-            <url>http://repo.spring.io/snapshot</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>spring-milestones</id>
-            <url>http://repo.spring.io/milestone</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <distributionManagement>
-        <repository>
-            <id>nexus</id>
-            <name>Solid State Group Repository</name>
-            <url>http://nexus.solidstategroup.com/content/repositories/snapshots/</url>
-        </repository>
-    </distributionManagement>
 
 </project>
