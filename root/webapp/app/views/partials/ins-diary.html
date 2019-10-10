@@ -1,0 +1,88 @@
+<div class="panel panel-default">
+    <div class="panel-body health-surveys">
+        <div class="text-center">
+            <img src="../images/icons/NEST_logo.png" class="opt-epro-logo" alt="NEST logo"/>
+        </div>
+        <div></div>
+        <div class="row">
+            <div class="col-md-8 col-xs-7">
+                <h4 class="survey">INS Diary Recording</h4>
+            </div>
+            <div class="col-md-4 align-bottom">
+                <a data-ng-click="openModalEnterSurveyResponses('POS_S')" class="btn blue">
+                    Create new
+                </a>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <!-- data grid -->
+                <div class="faux-table seven-col" > <!--data-ng-show="pagedItems.length  > 0"-->
+                    <!-- header -->
+                    <div class="accordion-title-row table-head">
+                        <div class="hidden">ID</div>
+                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
+                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('shortName');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
+                        <div class="head-item accordion-title-text" data-ng-show="permissions.sortByGroupType"><a data-ng-click="sortBy('groupType.value');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
+                        <div class="head-item accordion-title-text" data-ng-show="!permissions.sortByGroupType">Type</div>
+                        <div class="head-item accordion-title-text">Parent Groups</div>
+                        <div class="head-item accordion-title-text">Features</div>
+                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('lastImportDate');" class="sort-title"><i class="icon-sort pull-right"></i>Last Import</a></div>
+                        <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
+                    </div>
+
+                    <!-- body -->
+                    <div class="item-header" data-ng-repeat="group in pagedItems">
+                        <div class="faux-row">
+                            <div class="row-item hidden">{{group.id}}</div>
+                            <div class="row-item accordion-heading-text">{{group.code}}</div>
+                            <div class="row-item accordion-heading-text">
+                                <span data-ng-show="group.shortName.length">{{group.shortName}}</span>
+                                <span data-ng-show="!group.shortName.length">{{group.name}}</span>
+                            </div>
+                            <div class="row-item accordion-heading-text">{{group.groupType.description}}</div>
+                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
+                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>
+                            <div >{{group.lastImportDate | date:'dd-MM-yyyy HH:mm'}}</div>
+                            <div class="row-item actions">
+                                <!-- Stats, Edit buttons -->
+                                <div class="btn-group">
+                                    <button type="button" class="edit-button btn blue" data-ng-click="opened(group)"> Edit</button>
+                                    <button type="button" class="statistics-button btn aquamarine" data-ng-click="statistics(group.id, $event)"> Stats</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- edit pane -->
+                        <div class="panel-body" data-ng-show="group.showEdit">
+                            <div class="alert alert-danger" data-ng-show="group.errorMessage && !group.editLoading">There was an error {{group.errorMessage}}</div>
+                            <div data-ng-show="group.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                            <div data-ng-show="!group.editLoading">
+                                <form name="groupForm">
+                                    <div data-ng-include src="'views/partials/groupDetails.html'" data-ng-controller="GroupDetailsCtrl"></div>
+                                </form>
+                                <hr>
+                                <div class="panel-body-footer"><button class="btn btn-grey close-edit pull-right" data-ng-click="group.showEdit = false">Close</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" data-ng-show="pagedItems.length == 0">
+                    <div class="col-md-12">
+                        <br/>
+                        <h4>No groups found</h4>
+                    </div>
+                </div>
+
+                <!-- pagination -->
+                <div pv-pagination></div>
+            </div>
+        </div>
+    </div>
+    <div data-ng-show="loading" class="container">
+        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Surveys</h3>
+        <br/>
+    </div>
+</div>
