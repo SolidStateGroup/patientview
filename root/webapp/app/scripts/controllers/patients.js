@@ -4,10 +4,10 @@
 angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scope', '$compile', '$modal', '$timeout', 
     '$location', '$routeParams', 'UserService', 'GroupService', 'RoleService', 'FeatureService', 'StaticDataService',
     'AuthService', 'localStorageService', 'UtilService', '$route', 'ConversationService', '$cookies',
-    'DiagnosisService', 'CodeService', 'PatientService', 'Mixins',
+    'DiagnosisService', 'CodeService', 'PatientService', 'Mixins', 'AlertService',
     function ($rootScope, $scope, $compile, $modal, $timeout, $location, $routeParams, UserService, GroupService,
         RoleService, FeatureService, StaticDataService, AuthService, localStorageService, UtilService, $route,
-        ConversationService, $cookies, DiagnosisService, CodeService, PatientService, Mixins) {
+        ConversationService, $cookies, DiagnosisService, CodeService, PatientService, Mixins, AlertService) {
 
     // mixins for filters and shared code
     angular.extend($scope, Mixins);
@@ -88,6 +88,8 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
     // Get users based on current user selected filters etc
     $scope.getItems = function () {
+
+        $scope.getAlertsForUser();
         $scope.loading = true;
 
         var getParameters = {};
@@ -124,6 +126,36 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
             delete $scope.loading;
         });
     };
+
+        // Get alerts for patient delete
+        $scope.getAlertsForUser = function () {
+            $scope.deletedPatientAlert = [];
+            $scope.failedPatientAlert = [];
+
+            // successfully deleted patients alerts
+            AlertService.getAlerts($scope.loggedInUser.id, 'PATIENT_DELETED')
+                .then(function (deletedPatientAlert) {
+                    $scope.deletedPatientAlert = deletedPatientAlert;
+                }, function () {
+                    alert('Error getting Deleted patients alerts');
+                });
+
+            // failed to delete patients alerts
+            AlertService.getAlerts($scope.loggedInUser.id, 'PATIENT_DELETE_FAILED')
+                .then(function (failedPatientAlert) {
+                    $scope.failedPatientAlert = failedPatientAlert;
+                }, function () {
+                    alert('Error getting Deleted patients alerts');
+                });
+        };
+
+        $scope.dismissAlert = function (alertId) {
+            AlertService.removeAlert($scope.loggedInUser.id, alertId).then(function () {
+                $scope.getAlertsForUser();
+            }, function () {
+                alert('Error removing alert');
+            });
+        };
 
     $scope.downloadList = function(){
         if ($scope.total >= 5000) {
