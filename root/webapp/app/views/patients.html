@@ -5,6 +5,19 @@
     }
 </style>
 
+
+<br/>
+<div class="row" >
+    <div class="alert alert-warning" data-ng-repeat="alert in deletedPatientAlert ">
+        <span data-ng-bind-html="parseHTMLText(alert.latestValue)"></span>
+        <a href="" data-ng-click="dismissAlert(alert.id)" class="pull-right alert-button">Dismiss</a>
+    </div>
+    <div class="alert alert-danger" data-ng-repeat="alert in failedPatientAlert ">
+        <span data-ng-bind-html="parseHTMLText(alert.latestValue)"></span>
+        <a href="" data-ng-click="dismissAlert(alert.id)" class="pull-right alert-button">Dismiss</a>
+    </div>
+</div>
+
 <div data-ng-show="!loading">
     <h1>Patients
         <a class="btn blue" data-ng-show="permissions.canCreatePatients" href="/#/newpatient">Create New</a>
