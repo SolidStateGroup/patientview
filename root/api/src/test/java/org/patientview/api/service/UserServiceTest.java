@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.aspect.AuditAspect;
+import org.patientview.api.job.DeletePatientTask;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.impl.UserServiceImpl;
@@ -164,6 +165,9 @@ public class UserServiceTest {
 
     @Mock
     private CaptchaService captchaService;
+
+    @Mock
+    private DeletePatientTask deletePatientTask;
 
     @Before
     public void setUp() throws Exception {
@@ -1150,7 +1154,7 @@ public class UserServiceTest {
         when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
         userService.delete(staffUser.getId(), false);
-        verify(userRepository, times(1)).delete(any(User.class));
+        verify(deletePatientTask, times(1)).deletePatient(any(Long.class), any(User.class));
     }
 
     @Test
