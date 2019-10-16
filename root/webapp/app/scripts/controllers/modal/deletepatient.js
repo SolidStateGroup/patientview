@@ -107,7 +107,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 if ($scope.user.keepData) {
                     $scope.successMessage += ' but data has not been permanently deleted.';
                 } else {
-                    $scope.successMessage += ' and data has been permanently deleted.';
+                    $scope.successMessage += ' and requested deletion is processing now. A notification will appear on your Patients page once this has completed.';
                     $scope.user.canDelete = false;
                 }
             }, function() {
