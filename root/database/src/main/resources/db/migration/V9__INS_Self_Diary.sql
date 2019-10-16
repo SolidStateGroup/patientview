@@ -13,3 +13,31 @@ CREATE TABLE pv_ins_diary
   last_updated_by             BIGINT REFERENCES pv_user (Id),
   PRIMARY KEY (Id)
 );
+
+CREATE TABLE pv_immunisation
+(
+  id                          BIGINT NOT NULL,
+  user_id                     BIGINT NOT NULL REFERENCES pv_user (id),
+  codelist                    Character Varying( 50 ) NOT NULL,
+  other                       Text,
+  immunisation_date           TIMESTAMP,
+  created_by                  BIGINT       REFERENCES pv_user (id) NOT NULL,
+  creation_date               TIMESTAMP    NOT NULL,
+  last_update_date            TIMESTAMP,
+  last_updated_by             BIGINT REFERENCES pv_user (Id),
+  PRIMARY KEY (Id)
+);
+
+CREATE TABLE pv_hospitalisation
+(
+  id                          BIGINT NOT NULL,
+  user_id                     BIGINT NOT NULL REFERENCES pv_user (id),
+  reason                      Text,
+  date_admitted               TIMESTAMP NOT NULL,
+  date_discharged             TIMESTAMP,
+  created_by                  BIGINT       REFERENCES pv_user (id) NOT NULL,
+  creation_date               TIMESTAMP    NOT NULL,
+  last_update_date            TIMESTAMP,
+  last_updated_by             BIGINT REFERENCES pv_user (Id),
+  PRIMARY KEY (Id)
+);
