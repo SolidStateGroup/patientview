@@ -27,7 +27,6 @@ import org.patientview.persistence.model.FhirPatient;
 import org.patientview.persistence.model.FhirPractitioner;
 import org.patientview.persistence.model.GpLetter;
 import org.patientview.persistence.model.Group;
-import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.ServerResponse;
@@ -39,7 +38,6 @@ import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.NonTestObservationTypes;
-import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.TransplantStatus;
 import org.patientview.persistence.repository.FhirLinkRepository;
@@ -123,7 +121,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
     private static final String GEN_CODE = "GEN";
 
     /**
-     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient data.
+     * Get a list of User patient records, as stored in FHIR and associated with Groups that have imported patient
+     * data.
      * Produces a larger object containing all the properties required to populate My Details and My Conditions pages.
      *
      * @param userId   ID of User to retrieve patient record for

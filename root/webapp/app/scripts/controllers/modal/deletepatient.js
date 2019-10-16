@@ -107,7 +107,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
                 if ($scope.user.keepData) {
                     $scope.successMessage += ' but data has not been permanently deleted.';
                 } else {
-                    $scope.successMessage += ' and data has been permanently deleted.';
+                    $scope.successMessage += ' and requested deletion is processing now. A notification will appear on your Patients page once this has completed.';
                     $scope.user.canDelete = false;
                 }
             }, function() {
@@ -118,7 +118,7 @@ var DeletePatientModalInstanceCtrl = ['$scope', '$modalInstance','permissions','
         // delete patient permanently
         $scope.remove = function () {
             UserService.remove(user).then(function() {
-                $scope.successMessage = 'Patient has been permanently deleted.';
+                $scope.successMessage = 'The requested deletion is processing now. A notification will appear on your Patients page once this has completed.';
                 $scope.user.canRemoveFromMyGroups = false;
                 $scope.user.canRemoveFromAllGroups = false;
                 $scope.user.canDelete = false;

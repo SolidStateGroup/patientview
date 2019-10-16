@@ -6,7 +6,9 @@ package org.patientview.persistence.model.enums;
  */
 public enum AlertTypes {
     RESULT("Result"),
-    LETTER("Letter");
+    LETTER("Letter"),
+    PATIENT_DELETED("Patient Deleted"),
+    PATIENT_DELETE_FAILED("Patient Delete Failed");
 
     private String name;
     AlertTypes(String name) { this.name = name; }
