@@ -26,7 +26,7 @@ public class Immunisation extends AuditModel {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "source_object_type")
+    @Column(name = "codelist", nullable = false)
     @Enumerated(EnumType.STRING)
     private ImmunisationCodelist codelist;
 
@@ -36,7 +36,6 @@ public class Immunisation extends AuditModel {
     @Column(name = "immunisation_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date immunisationDate;
-
 
     public User getUser() {
         return user;
