@@ -50,7 +50,7 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
      */
     @GetMapping(value = "/user/{userId}/insdiary/{recordId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> get(@PathVariable("userId") Long userId, @PathVariable("recordId") Long recordId)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceForbiddenException {
         return new ResponseEntity<>(insDiaryService.get(userId, recordId), HttpStatus.OK);
     }
 
