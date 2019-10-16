@@ -4,6 +4,7 @@ package org.patientview.persistence.model.enums;
  * Codelist types for Immunisation
  */
 public enum ImmunisationCodelist {
+    OTHER("Other"),
     MMR("MMR"),
     PNEUMOCCAL("Pneumoccal"),
     ROTAVIRUS("Rotavirus"),
