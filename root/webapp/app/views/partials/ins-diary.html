@@ -19,38 +19,28 @@
         <div class="row">
             <div class="col-md-12">
                 <!-- data grid -->
-                <div class="faux-table seven-col" > <!--data-ng-show="pagedItems.length  > 0"-->
+                <div class="faux-table four-col" > <!--data-ng-show="pagedItems.length  > 0"-->
                     <!-- header -->
                     <div class="accordion-title-row table-head">
                         <div class="hidden">ID</div>
-                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Code</a></div>
-                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('shortName');" class="sort-title"><i class="icon-sort pull-right"></i>Name</a></div>
-                        <div class="head-item accordion-title-text" data-ng-show="permissions.sortByGroupType"><a data-ng-click="sortBy('groupType.value');" class="sort-title"><i class="icon-sort pull-right"></i>Type</a></div>
-                        <div class="head-item accordion-title-text" data-ng-show="!permissions.sortByGroupType">Type</div>
-                        <div class="head-item accordion-title-text">Parent Groups</div>
-                        <div class="head-item accordion-title-text">Features</div>
-                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('lastImportDate');" class="sort-title"><i class="icon-sort pull-right"></i>Last Import</a></div>
+                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Diary Entry Datetime</a></div>
+                        <div class="head-item accordion-title-text">Urine Protein Dipstick</div>
+                        <div class="head-item accordion-title-text">Relapse</div>
                         <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
                     </div>
 
                     <!-- body -->
-                    <div class="item-header" data-ng-repeat="group in pagedItems">
+                    <div class="item-header">
                         <div class="faux-row">
-                            <div class="row-item hidden">{{group.id}}</div>
-                            <div class="row-item accordion-heading-text">{{group.code}}</div>
-                            <div class="row-item accordion-heading-text">
-                                <span data-ng-show="group.shortName.length">{{group.shortName}}</span>
-                                <span data-ng-show="!group.shortName.length">{{group.name}}</span>
-                            </div>
-                            <div class="row-item accordion-heading-text">{{group.groupType.description}}</div>
-                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="group in group.parentGroups">{{group.name}}</li></ul></div>
-                            <div class="row-item accordion-heading-text"> <ul class="unstyled"><li data-ng-repeat="groupFeature in group.groupFeatures">{{groupFeature.feature.description}}</li></ul></div>
-                            <div >{{group.lastImportDate | date:'dd-MM-yyyy HH:mm'}}</div>
+                            <div class="row-item hidden">123</div>
+                            <div class="row-item accordion-heading-text">12-Jan-2019 12:32</div>
+                            <div class="row-item accordion-heading-text">Some value</div>
+                            <div class="row-item accordion-heading-text">Yes</div>
                             <div class="row-item actions">
                                 <!-- Stats, Edit buttons -->
                                 <div class="btn-group">
-                                    <button type="button" class="edit-button btn blue" data-ng-click="opened(group)"> Edit</button>
-                                    <button type="button" class="statistics-button btn aquamarine" data-ng-click="statistics(group.id, $event)"> Stats</button>
+                                    <button type="button" class="edit-button btn blue" data-ng-click="alert('Not implemented')"> Edit</button>
+                                    <button type="button" class="statistics-button btn negative" data-ng-click="alert('Not implemented')"> Delete</button>
                                 </div>
                             </div>
                         </div>
