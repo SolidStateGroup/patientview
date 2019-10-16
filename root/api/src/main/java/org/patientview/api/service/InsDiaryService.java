@@ -31,7 +31,7 @@ public interface InsDiaryService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    InsDiaryRecord get(Long userId, Long recordId) throws ResourceNotFoundException;
+    InsDiaryRecord get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
     /**
