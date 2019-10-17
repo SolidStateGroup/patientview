@@ -36,7 +36,7 @@ public interface ImmunisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    Immunisation get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException;
+    Immunisation get(Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
     /**

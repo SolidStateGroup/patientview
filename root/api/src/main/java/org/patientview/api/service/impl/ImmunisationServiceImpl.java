@@ -52,7 +52,7 @@ public class ImmunisationServiceImpl extends
     }
 
     @Override
-    public Immunisation get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public Immunisation get( Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
