@@ -27,7 +27,7 @@ public class ImmunisationServiceImpl extends
     private UserRepository userRepository;
 
     @Override
-    public void add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException {
+    public Immunisation add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -48,7 +48,7 @@ public class ImmunisationServiceImpl extends
         record.setUser(patientUser);
         record.setCreator(editor);
 
-        immunisationRepository.save(record);
+        return immunisationRepository.save(record);
     }
 
     @Override

@@ -24,7 +24,7 @@ public interface ImmunisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException;
+    Immunisation add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException;
 
     /**
      * Get an Immunisation object for patient
