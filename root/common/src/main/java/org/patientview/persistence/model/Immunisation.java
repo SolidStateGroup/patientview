@@ -15,7 +15,7 @@ import javax.persistence.TemporalType;
 import java.util.Date;
 
 /**
- * Immunisation entity to store immunisation records for the Ins Diary
+ * Immunisation entity to store immunisation records for Patient
  */
 @Entity
 @Table(name = "pv_immunisation")

@@ -12,7 +12,7 @@ import javax.persistence.TemporalType;
 import java.util.Date;
 
 /**
- *
+ * Hospitalisation entity to store hospitalisation records for Patient
  */
 @Entity
 @Table(name = "pv_hospitalisation")
