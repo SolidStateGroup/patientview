@@ -52,7 +52,7 @@ public class ImmunisationServiceImpl extends
     }
 
     @Override
-    public Immunisation get( Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public Immunisation get(Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -120,6 +120,8 @@ public class ImmunisationServiceImpl extends
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        LOG.info("Deleting Immunisation id: {}, user id {}, admin id {}", recordId, userId, adminId);
+
         immunisationRepository.delete(recordId);
     }
 
@@ -131,6 +133,11 @@ public class ImmunisationServiceImpl extends
         }
 
         return immunisationRepository.findByUser(user);
+    }
+
+    @Override
+    public void deleteRecordsForUser(User user) {
+        immunisationRepository.deleteByUser(user.getId());
     }
 
 }

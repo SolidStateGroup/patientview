@@ -5,6 +5,7 @@ import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Hospitalisation;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
@@ -79,5 +80,11 @@ public interface HospitalisationService {
     @RoleOnly(roles = {RoleName.PATIENT})
     List<Hospitalisation> getList(Long userId) throws ResourceNotFoundException;
 
+
+    /**
+     * Remove all Hospitalisation entries associated with a User.
+     * @param user User to delete Hospitalisation entries for
+     */
+    void deleteRecordsForUser(User user);
 
 }

@@ -5,6 +5,7 @@ import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Immunisation;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
@@ -77,5 +78,12 @@ public interface ImmunisationService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     List<Immunisation> getList(Long userId) throws ResourceNotFoundException;
+
+    /**
+     * Remove all Immunisation entries associated with a User.
+     *
+     * @param user User to delete Immunisation entries for
+     */
+    void deleteRecordsForUser(User user);
 
 }

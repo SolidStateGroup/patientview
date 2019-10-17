@@ -119,6 +119,8 @@ public class HospitalisatioServiceImpl extends
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        LOG.info("Deleting Hospitalisation id: {}, user id {}, admin id {}", recordId, userId, adminId);
+
         hospitalisationRepository.delete(recordId);
     }
 
@@ -130,6 +132,11 @@ public class HospitalisatioServiceImpl extends
         }
 
         return hospitalisationRepository.findByUser(user);
+    }
+
+    @Override
+    public void deleteRecordsForUser(User user) {
+        hospitalisationRepository.deleteByUser(user.getId());
     }
 
 }
