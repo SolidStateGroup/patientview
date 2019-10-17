@@ -99,7 +99,7 @@ public class ImmunisationServiceImpl extends
         foundRecord.setCodelist(record.getCodelist());
         foundRecord.setImmunisationDate(record.getImmunisationDate());
         foundRecord.setOther(record.getOther());
-        foundRecord.setCreator(editor);
+        foundRecord.setLastUpdater(editor);
 
         return immunisationRepository.save(foundRecord);
     }
