@@ -19,6 +19,6 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface HospitalisationRepository extends CrudRepository<Hospitalisation, Long> {
 
-    @Query("SELECT h FROM Hospitalisation h WHERE h.user = :user")
+    @Query("SELECT h FROM Hospitalisation h WHERE h.user = :user ORDER BY h.dateAdmitted DESC")
     List<InsDiaryRecord> findByUser(@Param("user") User user);
 }
