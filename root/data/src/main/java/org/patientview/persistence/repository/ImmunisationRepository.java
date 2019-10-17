@@ -18,6 +18,6 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface ImmunisationRepository extends CrudRepository<Immunisation, Long> {
 
-    @Query("SELECT i FROM Immunisation i WHERE i.user = :user")
+    @Query("SELECT i FROM Immunisation i WHERE i.user = :user ORDER by i.immunisationDate DESC")
     List<Immunisation> findByUser(@Param("user") User user);
 }
