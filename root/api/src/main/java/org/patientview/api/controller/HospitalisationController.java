@@ -57,7 +57,7 @@ public class HospitalisationController extends BaseController<HospitalisationCon
     public ResponseEntity<?> get(@PathVariable("userId") Long userId,
                                  @PathVariable("recordId") Long recordId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(hospitalisationService.get(userId, recordId), HttpStatus.OK);
+        return new ResponseEntity<>(hospitalisationService.get(recordId, userId), HttpStatus.OK);
     }
 
     /**
@@ -97,7 +97,7 @@ public class HospitalisationController extends BaseController<HospitalisationCon
         if (adminId == null || adminId == -1) {
             adminId = null;
         }
-        hospitalisationService.delete(userId, recordId, adminId);
+        hospitalisationService.delete(recordId, userId, adminId);
     }
 
     /**
