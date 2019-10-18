@@ -1,7 +1,7 @@
 package org.patientview.persistence.model.enums;
 
 /**
- * Codelist types for Immunisation
+ * Enum Codelist types for Immunisation records
  */
 public enum ImmunisationCodelist {
     OTHER("Other"),
