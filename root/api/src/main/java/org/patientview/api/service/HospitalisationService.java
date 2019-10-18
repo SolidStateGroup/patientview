@@ -25,7 +25,8 @@ public interface HospitalisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException;
+    Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException,
+            ResourceForbiddenException;
 
     /**
      * Get an Hospitalisation object for patient
@@ -37,7 +38,7 @@ public interface HospitalisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    Hospitalisation get(Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+    Hospitalisation get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
     /**
@@ -53,7 +54,7 @@ public interface HospitalisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    Hospitalisation update(Long recordId, Long userId, Long adminId, Hospitalisation record)
+    Hospitalisation update(Long userId, Long recordId, Long adminId, Hospitalisation record)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -67,7 +68,7 @@ public interface HospitalisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void delete(Long recordId, Long userId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException;
+    void delete(Long userId, Long recordId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Get a List of all a User's Hospitalisation objects
@@ -83,6 +84,7 @@ public interface HospitalisationService {
 
     /**
      * Remove all Hospitalisation entries associated with a User.
+     *
      * @param user User to delete Hospitalisation entries for
      */
     void deleteRecordsForUser(User user);

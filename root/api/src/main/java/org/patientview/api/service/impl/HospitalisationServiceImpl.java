@@ -19,8 +19,8 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class HospitalisatioServiceImpl extends
-        AbstractServiceImpl<HospitalisatioServiceImpl> implements HospitalisationService {
+public class HospitalisationServiceImpl extends
+        AbstractServiceImpl<HospitalisationServiceImpl> implements HospitalisationService {
 
     @Inject
     private HospitalisationRepository hospitalisationRepository;
@@ -49,7 +49,7 @@ public class HospitalisatioServiceImpl extends
         // before adding new Hospitalisation record make sure
         // no active hospitalisation, eg without discharged date
         List<Hospitalisation> activeList = hospitalisationRepository.findActiveByUser(patientUser);
-        if(!CollectionUtils.isEmpty(activeList)){
+        if (!CollectionUtils.isEmpty(activeList)) {
             throw new ResourceForbiddenException("Please complete currently active hospitalisation.");
         }
 
@@ -60,7 +60,7 @@ public class HospitalisatioServiceImpl extends
     }
 
     @Override
-    public Hospitalisation get(Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public Hospitalisation get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -76,7 +76,7 @@ public class HospitalisatioServiceImpl extends
     }
 
     @Override
-    public Hospitalisation update(Long recordId, Long userId, Long adminId, Hospitalisation record)
+    public Hospitalisation update(Long userId, Long recordId, Long adminId, Hospitalisation record)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
@@ -112,7 +112,7 @@ public class HospitalisatioServiceImpl extends
     }
 
     @Override
-    public void delete(Long recordId, Long userId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public void delete(Long userId, Long recordId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException {
         User patient = userRepository.findOne(userId);
         if (patient == null) {
             throw new ResourceNotFoundException("Could not find user");
