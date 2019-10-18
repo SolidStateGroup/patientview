@@ -52,7 +52,7 @@ public class ImmunisationServiceImpl extends
     }
 
     @Override
-    public Immunisation get(Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public Immunisation get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -68,7 +68,7 @@ public class ImmunisationServiceImpl extends
     }
 
     @Override
-    public Immunisation update(Long recordId, Long userId, Long adminId, Immunisation record)
+    public Immunisation update(Long userId, Long recordId, Long adminId, Immunisation record)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
@@ -105,7 +105,7 @@ public class ImmunisationServiceImpl extends
     }
 
     @Override
-    public void delete(Long recordId, Long userId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException {
+    public void delete(Long userId, Long recordId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException {
         User patient = userRepository.findOne(userId);
         if (patient == null) {
             throw new ResourceNotFoundException("Could not find user");

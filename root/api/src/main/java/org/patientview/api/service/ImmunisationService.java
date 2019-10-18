@@ -37,7 +37,7 @@ public interface ImmunisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    Immunisation get(Long recordId, Long userId) throws ResourceNotFoundException, ResourceForbiddenException;
+    Immunisation get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Update a Immunisation
@@ -52,7 +52,7 @@ public interface ImmunisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    Immunisation update(Long recordId, Long userId, Long adminId, Immunisation record)
+    Immunisation update(Long userId, Long recordId, Long adminId, Immunisation record)
             throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -66,7 +66,7 @@ public interface ImmunisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    void delete(Long recordId, Long userId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException;
+    void delete(Long userId, Long recordId, Long adminId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
      * Get a List of all a User's Immunisation objects
