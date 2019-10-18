@@ -22,6 +22,10 @@ public interface HospitalisationRepository extends CrudRepository<Hospitalisatio
     @Query("SELECT h FROM Hospitalisation h WHERE h.user = :user ORDER BY h.dateAdmitted DESC")
     List<Hospitalisation> findByUser(@Param("user") User user);
 
+    @Query("SELECT h FROM Hospitalisation h " +
+            " WHERE h.user = :user AND h.dateDischarged IS NULL ORDER BY h.dateAdmitted DESC")
+    List<Hospitalisation> findActiveByUser(@Param("user") User user);
+
     @Modifying(clearAutomatically = true) // note: clearAutomatically required to flush changes straight away
     @Query("DELETE FROM Hospitalisation WHERE user.id = :userId")
     void deleteByUser(@Param("userId") Long userId);

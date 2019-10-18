@@ -39,7 +39,9 @@ public class HospitalisationController extends BaseController<HospitalisationCon
     @PostMapping(value = "/user/{userId}/hospitalisations", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Hospitalisation add(@PathVariable("userId") Long userId,
                                @RequestParam(required = false) Long adminId,
-                               @RequestBody Hospitalisation record) throws ResourceNotFoundException {
+                               @RequestBody Hospitalisation record)
+            throws ResourceNotFoundException, ResourceForbiddenException {
+
         if (adminId == null || adminId == -1) {
             adminId = null;
         }

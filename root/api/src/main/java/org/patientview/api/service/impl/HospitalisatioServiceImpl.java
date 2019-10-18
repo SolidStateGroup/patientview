@@ -9,6 +9,7 @@ import org.patientview.persistence.repository.HospitalisationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -27,7 +28,7 @@ public class HospitalisatioServiceImpl extends
     private UserRepository userRepository;
 
     @Override
-    public Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException {
+    public Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException, ResourceForbiddenException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -43,6 +44,13 @@ public class HospitalisatioServiceImpl extends
 
         if (editor == null) {
             throw new ResourceNotFoundException("Editor User does not exist");
+        }
+
+        // before adding new Hospitalisation record make sure
+        // no active hospitalisation, eg without discharged date
+        List<Hospitalisation> activeList = hospitalisationRepository.findActiveByUser(patientUser);
+        if(!CollectionUtils.isEmpty(activeList)){
+            throw new ResourceForbiddenException("Please complete currently active hospitalisation.");
         }
 
         record.setUser(patientUser);
