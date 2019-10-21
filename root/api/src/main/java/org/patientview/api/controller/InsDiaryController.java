@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
@@ -36,9 +37,14 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
      * @throws ResourceNotFoundException
      */
     @PostMapping(value = "/user/{userId}/insdiary", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void add(@PathVariable("userId") Long userId, @RequestBody InsDiaryRecord record)
+    public InsDiaryRecord add(@PathVariable("userId") Long userId,
+                              @RequestParam(required = false) Long adminId,
+                              @RequestBody InsDiaryRecord record)
             throws ResourceNotFoundException {
-        insDiaryService.add(userId, record);
+        if (adminId == null || adminId == -1) {
+            adminId = null;
+        }
+        return insDiaryService.add(userId, adminId, record);
     }
 
     /**
