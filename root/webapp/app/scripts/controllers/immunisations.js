@@ -81,8 +81,10 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
                 $scope.immunisations.push(formatImmunisation(d));
             });
             $scope.loading = false;
-        }, function() {
+            delete $scope.errorMessage;
+        }, function(error) {
             $scope.loading = false;
+            $scope.errorMessage = error.data;
         });
     }
     
@@ -92,7 +94,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
 
         $scope.loading = true;
         var date = new Date();
-        date.setFullYear($scope.newForm.date.year, $scope.newForm.date.month, $scope.newForm.date.day);
+        date.setFullYear($scope.newForm.date.year, $scope.newForm.date.month - 1, $scope.newForm.date.day);
 
         ImmunisationService.post($scope.loggedInUser.id, {
             codelist: $scope.newForm.code,
@@ -100,9 +102,11 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
             immunisationDate: date.toISOString(),
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
+            delete $scope.errorMessage;
             $scope.immunisations.push(formatImmunisation(data));
-        }, function() {
+        }, function(error) {
             $scope.loading = false;
+            $scope.errorMessage = error.data;
         });
     }
 
@@ -112,7 +116,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
 
         $scope.loading = true;
         var date = new Date();
-        date.setFullYear($scope.editForm.date.year, $scope.editForm.date.month, $scope.editForm.date.day);
+        date.setFullYear($scope.editForm.date.year, $scope.editForm.date.month - 1, $scope.editForm.date.day);
 
         ImmunisationService.save($scope.loggedInUser.id, id,{
             codelist: $scope.editForm.code,
@@ -120,6 +124,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
             immunisationDate: date.toISOString(),
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
+            delete $scope.errorMessage;
             $scope.immunisations = $scope.immunisations.filter(function(val){
                 return val.id !== id;
             });
@@ -131,8 +136,9 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
             $('.item-header').removeClass('open');
             $('.faux-row').removeClass('dull');
             $('.edit-button').removeClass('editing');
-        }, function() {
+        }, function(error) {
             $scope.loading = false;
+            $scope.errorMessage = error.data;
         });
     }
 
@@ -144,11 +150,13 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
 
         ImmunisationService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
+            delete $scope.errorMessage;
             $scope.immunisations = $scope.immunisations.filter(function(val){
                 return val.id !== id;
             });
-        }, function() {
+        }, function(error) {
             $scope.loading = false;
+            $scope.errorMessage = error.data;
         });
     }
 
@@ -157,9 +165,10 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
 
         ImmunisationService.get($scope.loggedInUser.id, id).then(function(data) {
             $scope.loading = false;
-            console.log(data);
-        }, function() {
+            delete $scope.errorMessage;
+        }, function(error) {
             $scope.loading = false;
+            $scope.errorMessage = error.data;
         });
     }
 
@@ -187,8 +196,6 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
         }
 
         errors.isValid = Object.keys(errors).length === 0;
-
-        console.log(errors);
 
         return errors;
     };

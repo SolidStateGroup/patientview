@@ -48,7 +48,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             reason: '',
             dateAdmitted: getDateDropdownVals(new Date()),
             dateDischarged: getDateDropdownVals(new Date()),
-            ongoing: true,
+            ongoing: false,
         }
 
         $scope.editForm = {
@@ -141,7 +141,6 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             $scope.hospitalisations = $scope.hospitalisations.filter(function(val){
-                console.log(val.id, id, val.id === id)
                 return val.id !== id;
             });
             $scope.hospitalisations.push(formatHostpitalisation(data));
@@ -176,7 +175,6 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         if (
             new Date(form.dateDischarged.month + '/' + form.dateDischarged.day + '/' + form.dateDischarged.year) < 
                 new Date(form.dateAdmitted.month + '/' + form.dateAdmitted.day + '/' + form.dateAdmitted.year)) {
-                    console.log(form);
                     errors.dateDischarged =  'After admission date';
         }
 
