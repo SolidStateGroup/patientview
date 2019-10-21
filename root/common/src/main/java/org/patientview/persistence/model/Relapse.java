@@ -2,11 +2,13 @@ package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -45,17 +47,17 @@ public class Relapse extends AuditModel {
     @Column(name = "hay_fever")
     private boolean hayFever = false;
 
-    @Column(name = "alergic_reaction")
-    private boolean alergicReaction = false;
+    @Column(name = "allergic_reaction")
+    private boolean allergicReaction = false;
 
-    @Column(name = "alergic_skin_rash")
-    private boolean alergicSkinRash = false;
+    @Column(name = "allergic_skin_rash")
+    private boolean allergicSkinRash = false;
 
-    @Column(name = "food_intolerence")
-    private boolean foodIntolerence = false;
+    @Column(name = "food_intolerance")
+    private boolean foodIntolerance = false;
 
-    private List<RelapseMedication> midications = new ArrayList();
-
+    @OneToMany(mappedBy = "relapse", cascade = {CascadeType.ALL})
+    private List<RelapseMedication> medications = new ArrayList();
 
     public User getUser() {
         return user;
@@ -105,35 +107,35 @@ public class Relapse extends AuditModel {
         this.hayFever = hayFever;
     }
 
-    public boolean isAlergicReaction() {
-        return alergicReaction;
+    public boolean isAllergicReaction() {
+        return allergicReaction;
     }
 
-    public void setAlergicReaction(boolean alergicReaction) {
-        this.alergicReaction = alergicReaction;
+    public void setAllergicReaction(boolean allergicReaction) {
+        this.allergicReaction = allergicReaction;
     }
 
-    public boolean isAlergicSkinRash() {
-        return alergicSkinRash;
+    public boolean isAllergicSkinRash() {
+        return allergicSkinRash;
     }
 
-    public void setAlergicSkinRash(boolean alergicSkinRash) {
-        this.alergicSkinRash = alergicSkinRash;
+    public void setAllergicSkinRash(boolean allergicSkinRash) {
+        this.allergicSkinRash = allergicSkinRash;
     }
 
-    public boolean isFoodIntolerence() {
-        return foodIntolerence;
+    public boolean isFoodIntolerance() {
+        return foodIntolerance;
     }
 
-    public void setFoodIntolerence(boolean foodIntolerence) {
-        this.foodIntolerence = foodIntolerence;
+    public void setFoodIntolerance(boolean foodIntolerance) {
+        this.foodIntolerance = foodIntolerance;
     }
 
-    public List<RelapseMedication> getMidications() {
-        return midications;
+    public List<RelapseMedication> getMedications() {
+        return medications;
     }
 
-    public void setMidications(List<RelapseMedication> midications) {
-        this.midications = midications;
+    public void setMedications(List<RelapseMedication> medications) {
+        this.medications = medications;
     }
 }

@@ -1,5 +1,6 @@
 package org.patientview.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.patientview.persistence.model.enums.DoseFrequencyTypes;
 import org.patientview.persistence.model.enums.DoseUnitTypes;
 import org.patientview.persistence.model.enums.MedicationRouteTypes;
@@ -9,6 +10,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -25,7 +28,7 @@ public class RelapseMedication extends BaseModel {
     @Enumerated(EnumType.STRING)
     private RelapseMedicationTypes name;
 
-    @Column(name = "other")
+    @Column(name = "other", length = 200)
     private String other;
 
     @Column(name = "dose_quantity")
@@ -50,6 +53,11 @@ public class RelapseMedication extends BaseModel {
     @Column(name = "stopped")
     @Temporal(TemporalType.DATE)
     private Date stopped;
+
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "relapse_id", nullable = false)
+    private Relapse relapse;
 
     public RelapseMedicationTypes getName() {
         return name;
@@ -113,5 +121,13 @@ public class RelapseMedication extends BaseModel {
 
     public void setStopped(Date stopped) {
         this.stopped = stopped;
+    }
+
+    public Relapse getRelapse() {
+        return relapse;
+    }
+
+    public void setRelapse(Relapse relapse) {
+        this.relapse = relapse;
     }
 }
