@@ -15,56 +15,34 @@
             </div>
         </div>
 
+        <div style="height:50px;"></div>
 
         <div class="row">
+                <div class="col-md-8 col-xs-7">
+                    <h4 class="survey">Immunisations</h4>
+                </div>
+            </div>
+
+        <div class="row mb-big">
             <div class="col-md-12">
                 <!-- data grid -->
-                <div class="faux-table four-col" > <!--data-ng-show="pagedItems.length  > 0"-->
-                    <!-- header -->
-                    <div class="accordion-title-row table-head">
-                        <div class="hidden">ID</div>
-                        <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Diary Entry Datetime</a></div>
-                        <div class="head-item accordion-title-text">Urine Protein Dipstick</div>
-                        <div class="head-item accordion-title-text">Relapse</div>
-                        <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
-                    </div>
+                
+                <div data-ng-include src="'views/partials/immunisations.html'" data-ng-controller="ImmunisationsCtrl"></div>
 
-                    <!-- body -->
-                    <div class="item-header">
-                        <div class="faux-row">
-                            <div class="row-item hidden">123</div>
-                            <div class="row-item accordion-heading-text">12-Jan-2019 12:32</div>
-                            <div class="row-item accordion-heading-text">Some value</div>
-                            <div class="row-item accordion-heading-text">Yes</div>
-                            <div class="row-item actions">
-                                <!-- Stats, Edit buttons -->
-                                <div class="btn-group">
-                                    <button type="button" class="edit-button btn blue" data-ng-click="alert('Not implemented')"> Edit</button>
-                                    <button type="button" class="statistics-button btn negative" data-ng-click="alert('Not implemented')"> Delete</button>
-                                </div>
-                            </div>
-                        </div>
+            </div> 
+        </div> 
 
-                        <!-- edit pane -->
-                        <div class="panel-body" data-ng-show="group.showEdit">
-                            <div class="alert alert-danger" data-ng-show="group.errorMessage && !group.editLoading">There was an error {{group.errorMessage}}</div>
-                            <div data-ng-show="group.editLoading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
-                            <div data-ng-show="!group.editLoading">
-                                <form name="groupForm">
-                                    <div data-ng-include src="'views/partials/groupDetails.html'" data-ng-controller="GroupDetailsCtrl"></div>
-                                </form>
-                                <hr>
-                                <div class="panel-body-footer"><button class="btn btn-grey close-edit pull-right" data-ng-click="group.showEdit = false">Close</button></div>
-                            </div>
-                        </div>
-                    </div>
+
+        <div class="row">
+                <div class="col-md-8 col-xs-7">
+                    <h4 class="survey">Hospitalisations</h4>
                 </div>
-                <div class="col-md-12" data-ng-show="pagedItems.length == 0">
-                    <div class="col-md-12">
-                        <br/>
-                        <h4>No INS Diary records found</h4>
-                    </div>
-                </div>
+            </div>
+
+        <div class="row mb-big">
+                <div class="col-md-12">
+
+                <div data-ng-include src="'views/partials/hospitalisations.html'" data-ng-controller="HospitalisationsCtrl"></div>
 
                 <!-- pagination -->
                 <div pv-pagination></div>

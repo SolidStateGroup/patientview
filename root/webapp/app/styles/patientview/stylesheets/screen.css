@@ -37,53 +37,79 @@
 }
 
 /* line 29, ../sass/_utils.scss */
+.p-min {
+  padding: 5px;
+}
+
+/* line 34, ../sass/_utils.scss */
 .mb {
   margin-bottom: 15px;
 }
 
-/* line 33, ../sass/_utils.scss */
+/* line 38, ../sass/_utils.scss */
+.mb-min {
+  margin-bottom: 5px;
+}
+
+/* line 42, ../sass/_utils.scss */
+.mb-big {
+  margin-bottom: 50px;
+}
+
+/* line 46, ../sass/_utils.scss */
 .mt {
   margin-top: 15px;
 }
 
-/* line 38, ../sass/_utils.scss */
+/* line 50, ../sass/_utils.scss */
+.mt-big {
+  margin-top: 50px;
+}
+
+/* line 55, ../sass/_utils.scss */
 .hide,
 .hidden {
   display: none;
 }
 
-/* line 43, ../sass/_utils.scss */
+/* line 60, ../sass/_utils.scss */
 .show {
   display: block;
 }
 
-/* line 48, ../sass/_utils.scss */
+/* line 65, ../sass/_utils.scss */
 .invisible {
   visibility: hidden;
 }
 
-/* line 53, ../sass/_utils.scss */
+/* line 70, ../sass/_utils.scss */
 .text-left {
   text-align: left;
 }
 
-/* line 57, ../sass/_utils.scss */
+/* line 74, ../sass/_utils.scss */
 .text-right {
   text-align: right;
 }
 
-/* line 61, ../sass/_utils.scss */
+/* line 78, ../sass/_utils.scss */
 .text-center,
 .centered {
   text-align: center;
 }
 
-/* line 66, ../sass/_utils.scss */
+/* line 83, ../sass/_utils.scss */
 .no-pad {
   padding: 0;
 }
 
-/* line 71, ../sass/_utils.scss */
+/* line 87, ../sass/_utils.scss */
+.strong {
+  font-weight: bold;
+  font-style: italic;
+}
+
+/* line 93, ../sass/_utils.scss */
 .truncate {
   display: block;
   overflow: hidden;
@@ -92,7 +118,7 @@
   width: 100%;
 }
 
-/* line 80, ../sass/_utils.scss */
+/* line 102, ../sass/_utils.scss */
 .clearfix {
   *zoom: 1;
 }
@@ -106,18 +132,18 @@
   clear: both;
 }
 
-/* line 84, ../sass/_utils.scss */
+/* line 106, ../sass/_utils.scss */
 .clear-left {
   clear: left;
   width: 100%;
 }
 
-/* line 89, ../sass/_utils.scss */
+/* line 111, ../sass/_utils.scss */
 .no-pad-top {
   margin-top: 0 !important;
 }
 
-/* line 93, ../sass/_utils.scss */
+/* line 115, ../sass/_utils.scss */
 ul.unstyled, ul.inline,
 ol.unstyled,
 ol.inline {
@@ -126,37 +152,58 @@ ol.inline {
   list-style: none;
 }
 
-/* line 103, ../sass/_utils.scss */
+/* line 125, ../sass/_utils.scss */
 .inline > li {
   display: inline-block;
 }
-/* line 106, ../sass/_utils.scss */
+/* line 128, ../sass/_utils.scss */
 .inline > li:first-child {
   padding-left: 0;
 }
-/* line 110, ../sass/_utils.scss */
+/* line 132, ../sass/_utils.scss */
 .inline > li > a {
   display: inline-block;
 }
 
-/* line 116, ../sass/_utils.scss */
+/* line 138, ../sass/_utils.scss */
+.link {
+  color: #368de8;
+}
+/* line 140, ../sass/_utils.scss */
+.link:hover {
+  color: #0e4177;
+}
+
+/* line 145, ../sass/_utils.scss */
 .error {
   color: #f20d2e;
   font-weight: normal;
 }
 
-/* line 121, ../sass/_utils.scss */
+/* line 150, ../sass/_utils.scss */
+.segregated-box {
+  border: 1px solid grey;
+  padding: 20px 42px 20px 0px;
+}
+/* line 154, ../sass/_utils.scss */
+.segregated-box .box-title {
+  margin-bottom: 10px;
+  margin-left: 20px;
+  font-weight: bold;
+}
+
+/* line 161, ../sass/_utils.scss */
 .no-items {
   font-style: italic;
   font-weight: 100;
 }
 
-/* line 126, ../sass/_utils.scss */
+/* line 166, ../sass/_utils.scss */
 .loading {
   text-align: center;
 }
 
-/* line 130, ../sass/_utils.scss */
+/* line 170, ../sass/_utils.scss */
 .align-bottom {
   position: absolute;
   right: 0;
@@ -164,19 +211,24 @@ ol.inline {
   text-align: right;
 }
 
+/* line 177, ../sass/_utils.scss */
+.angular-multiline {
+  white-space: pre-wrap;
+}
+
 /** todo revise james' css **/
-/* line 139, ../sass/_utils.scss */
+/* line 182, ../sass/_utils.scss */
 input.ng-pristine + ul#strength {
   display: none;
 }
 
 /** TODO review this, has effect across all input fields */
-/* line 144, ../sass/_utils.scss */
+/* line 187, ../sass/_utils.scss */
 input.ng-dirty.ng-invalid {
   border: 1px solid Red;
 }
 
-/* line 148, ../sass/_utils.scss */
+/* line 191, ../sass/_utils.scss */
 ul#strength {
   display: inline;
   list-style: none;
@@ -186,12 +238,12 @@ ul#strength {
   vertical-align: 2px;
 }
 
-/* line 156, ../sass/_utils.scss */
+/* line 199, ../sass/_utils.scss */
 .point:last {
   margin: 0 !important;
 }
 
-/* line 159, ../sass/_utils.scss */
+/* line 202, ../sass/_utils.scss */
 .point {
   background: #DDD;
   border-radius: 2px;
@@ -201,7 +253,7 @@ ul#strength {
   width: 20px;
 }
 
-/* line 167, ../sass/_utils.scss */
+/* line 210, ../sass/_utils.scss */
 #footer {
   position: fixed;
   bottom: 5px;
