@@ -4,20 +4,22 @@ import org.patientview.api.service.InsDiaryService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.InsDiaryRecord;
+import org.patientview.persistence.model.Relapse;
+import org.patientview.persistence.model.RelapseMedication;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.InsDiaryRepository;
+import org.patientview.persistence.repository.RelapseMedicationRepository;
+import org.patientview.persistence.repository.RelapseRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.List;
 
 /**
- * Food Diary service, used when patient's enter foods that disagree with them
- *
- * Created by jamesr@solidstategroup.com
- * Created on 21/12/2015
+ * INS Diary service to handle IDS diary recordings functionality.
  */
 @Service
 @Transactional
@@ -26,19 +28,61 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     @Inject
     private InsDiaryRepository insDiaryRepository;
     @Inject
+    private RelapseRepository relapseRepository;
+    @Inject
+    private RelapseMedicationRepository relapseMedication;
+    @Inject
     private UserRepository userRepository;
 
     @Override
-    public void add(Long userId, InsDiaryRecord record) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
+    public InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException {
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        record.setUser(user);
-        record.setCreator(user);
+        // check if admin is viewing patient, otherwise editor is patient
+        User editor;
+        if (adminId != null && !adminId.equals(userId)) {
+            editor = userRepository.findOne(adminId);
+        } else {
+            editor = patientUser;
+        }
 
-        insDiaryRepository.save(record);
+        if (record.getRelapse() != null) {
+            Relapse relapseData = record.getRelapse();
+            Relapse relapseToAdd = new Relapse();
+            relapseToAdd.setUser(patientUser);
+            relapseToAdd.setRelapseDate(relapseData.getRelapseDate());
+            relapseToAdd.setRemissionDate(relapseData.getRemissionDate());
+            relapseToAdd.setViralInfection(relapseData.getViralInfection());
+            relapseToAdd.setCommonCold(relapseData.isCommonCold());
+            relapseToAdd.setHayFever(relapseData.isHayFever());
+            relapseToAdd.setAllergicReaction(relapseData.isAllergicReaction());
+            relapseToAdd.setAllergicSkinRash(relapseData.isAllergicSkinRash());
+            relapseToAdd.setFoodIntolerance(relapseData.isFoodIntolerance());
+            relapseToAdd.setCreator(editor);
+
+
+            Relapse savedRelapse = relapseRepository.save(relapseToAdd);
+            record.setRelapse(savedRelapse);
+
+            if (!CollectionUtils.isEmpty(relapseData.getMedications())) {
+                // save relapse medications
+                for (RelapseMedication medication : relapseData.getMedications()) {
+                    medication.setRelapse(savedRelapse);
+                    RelapseMedication savedMedication = relapseMedication.save(medication);
+                    savedRelapse.getMedications().add(savedMedication);
+                }
+            }
+        }
+
+        // save results into fhir db as well
+
+        record.setUser(patientUser);
+        record.setCreator(editor);
+
+        return insDiaryRepository.save(record);
     }
 
     @Override
