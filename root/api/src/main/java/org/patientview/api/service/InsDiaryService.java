@@ -16,11 +16,12 @@ public interface InsDiaryService {
      * Add an InsDiaryRecord entry for a patient User
      *
      * @param userId Long User ID of patient to add InsDiaryRecord for
+     * @param adminId ID of admin User(viewing patient) or patient User
      * @param record InsDiaryRecord object containing diary information
      * @throws ResourceNotFoundException
      */
     @UserOnly
-    void add(Long userId, InsDiaryRecord record) throws ResourceNotFoundException;
+    InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException;
 
     /**
      * Get an InsDiaryRecord object for patient

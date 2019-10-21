@@ -20,6 +20,8 @@ import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.HospitalisationService;
+import org.patientview.api.service.ImmunisationService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
@@ -95,7 +97,7 @@ import javax.persistence.Query;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -212,6 +214,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private AuthenticationService authenticationService;
+
+    @Inject
+    private HospitalisationService hospitalisationService;
+
+    @Inject
+    private ImmunisationService immunisationService;
 
     @Inject
     private DeletePatientTask deletePatientTask;
@@ -921,6 +929,17 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 deleteApiKeys(patient.getId());
                 LOG.info("user: " + patient.getId() + ", delete identifiers");
                 deleteIdentifiers(patient.getId());
+
+                // delete hospitalisation records
+                LOG.info("user: " + patient.getId() + ", delete hospitalisations");
+                hospitalisationService.deleteRecordsForUser(patient);
+
+                // delete immunisation records
+                LOG.info("user: " + patient.getId() + ", delete immunisations");
+                immunisationService.deleteRecordsForUser(patient);
+
+                // delete ins diary records
+
                 LOG.info("user: " + patient.getId() + ", delete user");
                 userRepository.delete(patient);
 

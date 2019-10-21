@@ -1,0 +1,22 @@
+package org.patientview.persistence.model.enums;
+
+/**
+ * Enum Codelist types for Immunisation records
+ */
+public enum ImmunisationCodelist {
+    OTHER("Other"),
+    MMR("MMR"),
+    PNEUMOCCAL("Pneumoccal"),
+    ROTAVIRUS("Rotavirus"),
+    MEN_B("MenB"),
+    MEN_ASWY("MenACWY"),
+    VERICELLA("Varicella"),
+    HIB_MENC("Hib/MenC"),
+    FLU("Flu"),
+    HPV("HPV");
+
+    private String name;
+    ImmunisationCodelist(String name) { this.name = name; }
+    public String getName() { return this.name; }
+    public String getId() { return this.name(); }
+}
