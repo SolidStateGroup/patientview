@@ -3,6 +3,25 @@ VALUES (16, 'INS_DIARY', 'INS Diary Recording', now(), now(), 1);
 
 INSERT INTO pv_feature_feature_type (id, feature_id, type_id) values (22, 16, 14);
 
+CREATE TABLE pv_relapse
+(
+  id                          BIGINT NOT NULL,
+  user_id                     BIGINT NOT NULL REFERENCES pv_user (id),
+  relapse_date                DATE,
+  remission_date              DATE,
+  viral_infection             VARCHAR(200),
+  common_cold                 BOOLEAN      NOT NULL,
+  hay_fever                   BOOLEAN      NOT NULL,
+  allergic_reaction           BOOLEAN      NOT NULL,
+  allergic_skin_rash          BOOLEAN      NOT NULL,
+  food_intolerance            BOOLEAN      NOT NULL,
+  created_by                  BIGINT       REFERENCES pv_user (id) NOT NULL,
+  creation_date               TIMESTAMP    NOT NULL,
+  last_update_date            TIMESTAMP,
+  last_updated_by             BIGINT REFERENCES pv_user (Id),
+  PRIMARY KEY (Id)
+);
+
 CREATE TABLE pv_ins_diary
 (
   id                          BIGINT NOT NULL,
@@ -25,24 +44,7 @@ CREATE TABLE pv_ins_diary
   PRIMARY KEY (Id)
 );
 
-CREATE TABLE pv_relapse
-(
-  id                          BIGINT NOT NULL,
-  user_id                     BIGINT NOT NULL REFERENCES pv_user (id),
-  relapse_date                DATE,
-  remission_date              DATE,
-  viral_infection             VARCHAR(200),
-  common_cold                 BOOLEAN      NOT NULL,
-  hay_fever                   BOOLEAN      NOT NULL,
-  allergic_reaction           BOOLEAN      NOT NULL,
-  allergic_skin_rash          BOOLEAN      NOT NULL,
-  food_intolerance            BOOLEAN      NOT NULL,
-  created_by                  BIGINT       REFERENCES pv_user (id) NOT NULL,
-  creation_date               TIMESTAMP    NOT NULL,
-  last_update_date            TIMESTAMP,
-  last_updated_by             BIGINT REFERENCES pv_user (Id),
-  PRIMARY KEY (Id)
-);
+
 
 CREATE TABLE pv_relapse_medication
 (
