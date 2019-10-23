@@ -3,7 +3,10 @@
   "version": "2.4.0",
   "private": true,
   "dependencies": {
-    "angular-inview": "^3.0.0"
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "angular-inview": "^3.0.0",
+    "grunt-babel": "^8.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
