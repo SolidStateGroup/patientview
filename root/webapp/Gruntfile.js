@@ -231,7 +231,7 @@ module.exports = function (grunt) {
                 flow: {
                     html: {
                         steps: {
-                            js: ['concat', 'terserjs'],
+                            js: ['concat', 'uglifyjs'],
                             css: ['cssmin']
                         },
                         post: {}
@@ -385,7 +385,7 @@ module.exports = function (grunt) {
         //     }
         //   }
         // },
-        // terser: {
+        // uglify: {
         //   dist: {
         //     files: {
         //       '<%= yeoman.dist %>/scripts/scripts.js': [
@@ -583,7 +583,7 @@ module.exports = function (grunt) {
         'copy:dist',
         'cdnify',
         'cssmin',
-        'terser',
+        'uglify',
         'rev',
         'usemin',
         'htmlmin',
@@ -602,7 +602,7 @@ module.exports = function (grunt) {
         'copy:dist',
         'cdnify',
         'cssmin',
-        'terser',
+        'uglify',
         'rev',
         'usemin',
         'htmlmin',
@@ -622,7 +622,7 @@ module.exports = function (grunt) {
         'copy:minimal',
         /*'useminPrepare',
         'concat',
-        'terser',
+        'uglify',
         'cssmin',
         'usemin',*/
         'war'
@@ -649,7 +649,7 @@ module.exports = function (grunt) {
         'copy:minimal',
         'useminPrepare',
         'concat',
-        'terser',
+        'uglify',
         'cssmin',
         'usemin',
         'war'
@@ -661,7 +661,7 @@ module.exports = function (grunt) {
         'copy:minimal',
         'useminPrepare',
         'concat',
-        'terser',
+        'uglify',
         'cssmin',
         'rev',
         'usemin'
@@ -672,7 +672,7 @@ module.exports = function (grunt) {
         'copy:minimal',
         'useminPrepare',
         'concat',
-        'terser',
+        'uglify',
         'cssmin',
         'rev',
         'usemin'
