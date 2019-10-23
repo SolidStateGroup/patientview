@@ -14,7 +14,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
     }
 
     function getDateDropdownVals(date){
-        const vals = {};
+        var vals = {};
         for (var i=0;i<$scope.days.length;i++) {
             if (parseInt($scope.days[i]) === date.getDate()) {
                 vals.day = $scope.days[i];
@@ -160,7 +160,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
     }
 
     $scope.validate = function (form) {
-        const errors = {};
+        var errors = {};
 
         if (!UtilService.validationDate(form.dateAdmitted.day,
             form.dateAdmitted.month, form.dateAdmitted.year)) {
