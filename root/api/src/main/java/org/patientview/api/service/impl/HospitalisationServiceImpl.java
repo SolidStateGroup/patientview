@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.patientview.api.service.HospitalisationService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -163,11 +165,27 @@ public class HospitalisationServiceImpl extends
             throw new ResourceInvalidException("Please enter Date Admitted.");
         }
 
-        // check end date is not before start date
-        if (record.getDateDischarged() != null &&
-                record.getDateAdmitted().after(record.getDateDischarged())) {
-            LOG.error("Hospitalisation record discharged date must be < then admitted date.");
-            throw new ResourceInvalidException("Prescription Date Admitted must be before Date Discharged.");
+
+        LocalDate localNow = DateTime.now().toLocalDate();
+
+        // can not be in the future
+        if (new DateTime(record.getDateAdmitted()).toLocalDate().isAfter(localNow)) {
+            throw new ResourceInvalidException("Date Admitted can not be in the future.");
+        }
+
+        if (record.getDateDischarged() != null) {
+
+            // cannot be in the future
+            if (new DateTime(record.getDateDischarged()).toLocalDate().isAfter(localNow)) {
+                LOG.error("Hospitalisation record discharged date is in the future.");
+                throw new ResourceInvalidException("Date Discharged can not be in the future.");
+            }
+
+            // check date discharged is not before date admitted
+            if (record.getDateAdmitted().after(record.getDateDischarged())) {
+                LOG.error("Hospitalisation record discharged date must be < then admitted date.");
+                throw new ResourceInvalidException("Hospitalisation Date Admitted must be before Date Discharged.");
+            }
         }
 
         List<Hospitalisation> records = hospitalisationRepository.findByUser(patientUser);
