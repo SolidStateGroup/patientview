@@ -176,7 +176,7 @@ public class HospitalisationServiceImpl extends
             if (!existing.getId().equals(record.getId())) {
 
                 if (existing.getDateAdmitted().before(endDateMask(record.getDateDischarged()))
-                        || record.getDateAdmitted().before(endDateMask(existing.getDateDischarged()))) {
+                        && record.getDateAdmitted().before(endDateMask(existing.getDateDischarged()))) {
                     throw new ResourceInvalidException("Hospitalisation records cannot overlap");
                 }
 
