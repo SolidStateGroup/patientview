@@ -13,8 +13,12 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         return d;
     }
 
+    function is1dp(val){
+        return /^(\d+)?([.]?\d?)?$/g.test('' + val);
+    }
+
     function getDateDropdownVals(date){
-        const vals = {};
+        var vals = {};
         for (var i=0;i<$scope.days.length;i++) {
             if (parseInt($scope.days[i]) === date.getDate()) {
                 vals.day = $scope.days[i];
@@ -43,6 +47,25 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         return vals;
     }
 
+    function getDateFromDropdowns(dropdownSet){
+        var date = new Date();
+        date.setFullYear(
+            dropdownSet.year,
+            dropdownSet.month - 1,
+            dropdownSet.day);
+        return date;
+    }
+
+    function getDateTimeFromDropdowns(dropdownSet){
+        return new Date(
+            dropdownSet.year,
+            dropdownSet.month - 1,
+            dropdownSet.day,
+            dropdownSet.hrs,
+            dropdownSet.mins,
+            0);
+    }
+
     $scope.addMedication = function(form){
         form.newMedicationCount ++;
         form.medications.push({
@@ -50,7 +73,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             name: null,
             other: null,
             doseQty: null,
-            doseUnits: null,
+            doseUnits: 'MG',
             doseFrequency: null,
             route: null,
             started: getDateDropdownVals(new Date()),
@@ -65,8 +88,15 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         });
     }
 
-    $scope.addOedema = function(form){
+    $scope.canAddNewOedema = function(form) {
         if(form.oedema.filter(function(o){return o === form.newOedema}).length === 0){
+            return true;
+        }
+        return false;
+    };
+
+    $scope.addOedema = function(form) {
+        if($scope.canAddNewOedema(form)){
             form.oedema.push(form.newOedema);
             delete form.errors.newOedema;
         } else {
@@ -76,7 +106,16 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
      $scope.removeOedema = function(form, oedem){
         form.oedema = form.oedema.filter(function(o){return o !== oedem});
+        if(form.oedema.length === 0){
+            form.newOedema = 'NONE';
+        }
         delete form.errors.newOedema;
+    };
+
+    $scope.newOedemaChanged = function(form) {
+        if(form.oedema.length === 0 && form.newOedema !== 'NONE'){
+            $scope.addOedema(form);
+        }
     };
 
     $scope.init = function(){
@@ -99,8 +138,8 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
         /* - Diary Options - */
 
-        $scope.proteinDipsticks = [{val: 'NEGATIVE', key:'Negative'}, {val: 'TRACE', key:'Trace'}, {val: 'ONE_PLUS', key:'One+'},
-            {val: 'TWO_PLUS', key:'Two+'}, {val: 'THREE_PLUS', key:'Three+'}, {val: 'FOUR_PLUS', key:'Four+'}];
+        $scope.proteinDipsticks = [{val: 'NEGATIVE', key:'Negative'}, {val: 'TRACE', key:'Trace'}, {val: 'ONE', key:'One+'},
+            {val: 'TWO', key:'Two+'}, {val: 'THREE', key:'Three+'}, {val: 'FOUR', key:'Four+'}];
 
         $scope.oedemas = [{val: 'NONE', key:'None'}, {val: 'ANKLES', key:'Ankles'}, {val: 'LEGS', key:'Legs'}, {val: 'HANDS', key:'Hands'}, 
             {val: 'ABDOMEN', key:'Abdomen'}, {val: 'NECK', key:'Neck'}, {val: 'EYES', key:'Eyes'}];
@@ -113,7 +152,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
         /*  - Medication Options - */
 
-        $scope.doseUnits = ['Mg', 'g', 'iU'];
+        $scope.doseUnits = [{key: 'Mg', val: 'MG'}, {key: 'g', val: 'G'}, {key:'iU', val:'IU'}];
 
         $scope.medicationNames = [{val: 'ORAL_PREDNISOLONE', key: 'Oral Prednisolone'}, {val: 'METHYL_ORAL_PREDNISOLONE', key: 'Methyl Prednisolone'}, {val: 'OTHER', key: 'Other'}]; 
 
@@ -123,7 +162,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
         $scope.weightChanged = function(){
             // tests for 1 d.p.
-            if(! /^(\d+)?([.]?\d?)?$/g.test($scope.newForm.weight + '')){
+            if(!is1dp($scope.newForm.weight)){
                 $scope.newForm.errors.weight = 'Must be 1dp'
             } else {
                 delete $scope.newForm.errors.weight;
@@ -139,10 +178,13 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             date: getDateDropdownVals(new Date()),
             ongoing: false,
             weight: '0.0',
-            relapse: false,
 
             oedema: [],
-            newOedema: 'NONE',
+            newOedema: null,
+
+            relapse: null,
+            relapseDate: getDateDropdownVals(new Date()),
+            remissionDate: getDateDropdownVals(new Date()),
 
             commonCold: false,
             hayFever: false,
@@ -152,7 +194,6 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
             medications: [],
 
-            remissionDate: getDateDropdownVals(new Date()),
         }
 
 
@@ -265,30 +306,108 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
     }
 
     $scope.validate = function (form) {
-        const errors = {};
+        var errors = {};
 
-        if (!UtilService.validationDate(form.dateAdmitted.day,
-            form.dateAdmitted.month, form.dateAdmitted.year)) {
-            errors.dateAdmitted = 'Non-existent date';
+
+        /* Main Recording Validation */
+
+        if (!UtilService.validationDate(form.date.day,
+            form.date.month, form.date.year)) {
+            errors.date = 'Non-existent date';
+        }
+        else if(!form.date.hrs || !form.date.mins) {
+            errors.time = 'Invalid'
+        }
+        // TODO: < last entry's date
+        else if (false && getDateTimeFromDropdowns(form.date)){
+            errors.date = 'Date/Time must be after last diary entry';
         }
 
-        if (!form.ongoing && !UtilService.validationDate(form.dateDischarged.day,
-            form.dateDischarged.month, form.dateDischarged.year)) {
-                errors.dateDischarged =  'Non-existant date';
+        if(!form.protein){
+            errors.protein = "Required";
+        }
+
+        if(!!form.systolic && !+form.systolic){
+            errors.systolic = "Must be number or empty";
+        }
+
+        if(!!form.diastolic && !+form.diastolic){
+            errors.diastolic = "Must be number or empty";
+        }
+
+        if(!!form.weight && !is1dp(form.weight)){
+            errors.weight = "Must be 1dp";
         }
         
-        if (
-            new Date(form.dateDischarged.month + '/' + form.dateDischarged.day + '/' + form.dateDischarged.year) < 
-                new Date(form.dateAdmitted.month + '/' + form.dateAdmitted.day + '/' + form.dateAdmitted.year)) {
-                    errors.dateDischarged =  'After admission date';
+        if((!form.oedema || form.oedema.length === 0) && form.newOedema !== 'NONE'){
+            errors.newOedema = "Required";
         }
 
-        if(!form.reason || form.reason.length === 0){
-            errors.reason = 'Required';
+        if(form.relapse === null){
+            errors.relapse = "Required";
         }
+
+
+        /* Relapse Validation */
+
+        if(form.relapse) {
+
+            if (!UtilService.validationDate(form.relapseDate.day,
+                form.relapseDate.month, form.relapseDate.year)) {
+                errors.relapseDate = 'Non-existant Date';
+            }
+            else if (getDateFromDropdowns(form.relapseDate) > new Date()) {
+                errors.relapseDate = 'Date must be in past';
+            }
+
+            if(!form.relapseOngoing){
+                if (!UtilService.validationDate(form.remissionDate.day,
+                    form.remissionDate.month, form.remissionDate.year)) {
+                    errors.remissionDate = 'Non-existant Date';
+                }
+                else if (getDateFromDropdowns(form.relapseDate) > getDateFromDropdowns(form.remissionDate)) {
+                    errors.remissionDate = 'Must be after Relapse';
+                }
+                else if (getDateFromDropdowns(form.remissionDate) > new Date()) {
+                    errors.remissionDate = 'Date must be in past';
+                }
+            }
+
+            //TODO overlap
+
+        }
+
+
+        /* Medication Validation */
+        
+        for( var i = 0; i < form.medications.length; i++ ){
+            var medication = form.medications[i];
+            medication.errors = {};
+
+            if (!medication.name) {
+                medication.errors.name = 'Required';
+            }
+
+            if (medication.name === 'OTHER' && !medication.other) {
+                medication.errors.other = 'Required';
+            }
+
+            if (!UtilService.validationDate(medication.started.day,
+                medication.started, medication.started.year)) {
+                errors.relapseDate = 'Non-existant Date';
+            }
+
+            if (!UtilService.validationDate(medication.stopped.day,
+                medication.stopped, medication.stopped.year)) {
+                errors.relapseDate = 'Non-existant Date';
+            }
+        } 
+
 
         errors.isValid = Object.keys(errors).length === 0;
+        console.log(errors);
 
+        form.errors = errors;
         return errors;
     };
 
