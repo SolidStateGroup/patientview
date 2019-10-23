@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.HospitalisationService;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Hospitalisation;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class HospitalisationController extends BaseController<HospitalisationCon
     public Hospitalisation add(@PathVariable("userId") Long userId,
                                @RequestParam(required = false) Long adminId,
                                @RequestBody Hospitalisation record)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
 
         if (adminId == null || adminId == -1) {
             adminId = null;
@@ -76,7 +77,7 @@ public class HospitalisationController extends BaseController<HospitalisationCon
                                     @PathVariable("recordId") Long recordId,
                                     @RequestParam(required = false) Long adminId,
                                     @RequestBody Hospitalisation record)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         if (adminId == null || adminId == -1) {
             adminId = null;
         }

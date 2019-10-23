@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Hospitalisation;
 import org.patientview.persistence.model.User;
@@ -26,7 +27,7 @@ public interface HospitalisationService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException,
-            ResourceForbiddenException;
+            ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Get an Hospitalisation object for patient
@@ -55,7 +56,7 @@ public interface HospitalisationService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     Hospitalisation update(Long userId, Long recordId, Long adminId, Hospitalisation record)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Delete a Hospitalisation associated with a User
