@@ -6,7 +6,7 @@ package org.patientview.persistence.model.enums;
 public enum DoseUnitTypes {
     MG("Mg"),
     G("g"),
-    UI("Ui");
+    IU("iU");
 
     private String name;
     DoseUnitTypes(String name) { this.name = name; }
