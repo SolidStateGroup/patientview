@@ -61,18 +61,6 @@ module.exports = function (grunt) {
             dist: 'dist'
         },
 
-        babel: {
-            options: {
-                sourceMap: true,
-                presets: ["@babel/preset-es2015"]
-            },
-            dist: {
-                files: {
-                'dist/app.js': 'src/app.js'
-                }
-            }
-        },
-
         // Watches files for changes and runs tasks based on the changed files
         watch: {
             bower: {
@@ -450,7 +438,6 @@ module.exports = function (grunt) {
                     ENV: {
                         name: 'production',
                         apiEndpoint: 'https://test.patientview.org/api',
-                        //apiEndpoint: 'http://192.168.1.249:8080/api',
                         reCaptchaPublicKey: '',
                         buildDateTime: Date.now()
                     }
@@ -596,7 +583,6 @@ module.exports = function (grunt) {
         'copy:dist',
         'cdnify',
         'cssmin',
-        'babel',
         'uglify',
         'rev',
         'usemin',
@@ -616,7 +602,6 @@ module.exports = function (grunt) {
         'copy:dist',
         'cdnify',
         'cssmin',
-        'babel',
         'uglify',
         'rev',
         'usemin',
@@ -676,7 +661,6 @@ module.exports = function (grunt) {
         'copy:minimal',
         'useminPrepare',
         'concat',
-        'babel',
         'uglify',
         'cssmin',
         'rev',
@@ -688,7 +672,6 @@ module.exports = function (grunt) {
         'copy:minimal',
         'useminPrepare',
         'concat',
-        'babel',
         'uglify',
         'cssmin',
         'rev',
@@ -702,4 +685,3 @@ module.exports = function (grunt) {
         'war'
     ]);
 };
-
