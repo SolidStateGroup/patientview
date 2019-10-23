@@ -1,7 +1,10 @@
 package org.patientview.api.service.impl;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.patientview.api.service.ImmunisationService;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Immunisation;
 import org.patientview.persistence.model.User;
@@ -27,7 +30,8 @@ public class ImmunisationServiceImpl extends
     private UserRepository userRepository;
 
     @Override
-    public Immunisation add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException {
+    public Immunisation add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException,
+            ResourceInvalidException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -44,6 +48,8 @@ public class ImmunisationServiceImpl extends
         if (editor == null) {
             throw new ResourceNotFoundException("Editor User does not exist");
         }
+
+        validateRecord(record);
 
         record.setUser(patientUser);
         record.setCreator(editor);
@@ -69,7 +75,7 @@ public class ImmunisationServiceImpl extends
 
     @Override
     public Immunisation update(Long userId, Long recordId, Long adminId, Immunisation record)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -95,6 +101,8 @@ public class ImmunisationServiceImpl extends
         if (!foundRecord.getUser().equals(patientUser)) {
             throw new ResourceForbiddenException("Forbidden");
         }
+
+        validateRecord(record);
 
         foundRecord.setCodelist(record.getCodelist());
         foundRecord.setImmunisationDate(record.getImmunisationDate());
@@ -138,6 +146,27 @@ public class ImmunisationServiceImpl extends
     @Override
     public void deleteRecordsForUser(User user) {
         immunisationRepository.deleteByUser(user.getId());
+    }
+
+
+    /**
+     * Helper to validate dates .
+     *
+     * @param record a Immunisation record to check
+     */
+    private void validateRecord(Immunisation record) throws ResourceInvalidException {
+
+        if (record.getImmunisationDate() == null) {
+            throw new ResourceInvalidException("Please enter Immunisation date.");
+        }
+
+
+        LocalDate localNow = DateTime.now().toLocalDate();
+
+        // can not be in the future
+        if (new DateTime(record.getImmunisationDate()).toLocalDate().isAfter(localNow)) {
+            throw new ResourceInvalidException("Date Admitted can not be in the future.");
+        }
     }
 
 }
