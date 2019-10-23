@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.patientview.api.service.HospitalisationService;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Hospitalisation;
 import org.patientview.persistence.model.User;
@@ -9,9 +10,9 @@ import org.patientview.persistence.repository.HospitalisationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,7 +29,8 @@ public class HospitalisationServiceImpl extends
     private UserRepository userRepository;
 
     @Override
-    public Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException, ResourceForbiddenException {
+    public Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException,
+            ResourceForbiddenException, ResourceInvalidException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -46,12 +48,8 @@ public class HospitalisationServiceImpl extends
             throw new ResourceNotFoundException("Editor User does not exist");
         }
 
-        // before adding new Hospitalisation record make sure
-        // no active hospitalisation, eg without discharged date
-        List<Hospitalisation> activeList = hospitalisationRepository.findActiveByUser(patientUser);
-        if (!CollectionUtils.isEmpty(activeList)) {
-            throw new ResourceForbiddenException("Please complete currently active hospitalisation.");
-        }
+        // check make sure records not overlapping and set
+        validateRecords(record, patientUser);
 
         record.setUser(patientUser);
         record.setCreator(editor);
@@ -77,7 +75,7 @@ public class HospitalisationServiceImpl extends
 
     @Override
     public Hospitalisation update(Long userId, Long recordId, Long adminId, Hospitalisation record)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -104,9 +102,14 @@ public class HospitalisationServiceImpl extends
             throw new ResourceForbiddenException("Forbidden");
         }
 
+
         foundRecord.setDateAdmitted(record.getDateAdmitted());
         foundRecord.setReason(record.getReason());
         foundRecord.setDateDischarged(record.getDateDischarged());
+
+        // check make sure records not overlapping and set
+        validateRecords(foundRecord, patientUser);
+
 
         return hospitalisationRepository.save(foundRecord);
     }
@@ -145,6 +148,56 @@ public class HospitalisationServiceImpl extends
     @Override
     public void deleteRecordsForUser(User user) {
         hospitalisationRepository.deleteByUser(user.getId());
+    }
+
+
+    /**
+     * Helper to validate dates and check Hospitalisation record not overlapping existing records.
+     *
+     * @param record      a hospitalisation record to check
+     * @param patientUser a patient user to check hospitalisation records for
+     */
+    private void validateRecords(Hospitalisation record, User patientUser) throws ResourceInvalidException {
+
+        if (record.getDateAdmitted() == null) {
+            throw new ResourceInvalidException("Please enter Date Admitted.");
+        }
+
+        // check end date is not before start date
+        if (record.getDateDischarged() != null &&
+                record.getDateAdmitted().after(record.getDateDischarged())) {
+            LOG.error("Hospitalisation record discharged date must be < then admitted date.");
+            throw new ResourceInvalidException("Prescription Date Admitted must be before Date Discharged.");
+        }
+
+        List<Hospitalisation> records = hospitalisationRepository.findByUser(patientUser);
+        for (Hospitalisation existing : records) {
+            // If editing remove from check
+            if (!existing.getId().equals(record.getId())) {
+
+                if (existing.getDateAdmitted().before(endDateMask(record.getDateDischarged()))
+                        || record.getDateAdmitted().before(endDateMask(existing.getDateDischarged()))) {
+                    throw new ResourceInvalidException("Hospitalisation records cannot overlap");
+                }
+
+            }
+        }
+    }
+
+    /**
+     * If date has been set return date, but if date object is null return the maximum
+     * date.
+     *
+     * @param date Data to check
+     * @return either set date or the maximum date provided by {@link Date}
+     */
+    private Date endDateMask(Date date) {
+
+        if (date == null) {
+            return new Date(Long.MAX_VALUE);
+        }
+
+        return date;
     }
 
 }
