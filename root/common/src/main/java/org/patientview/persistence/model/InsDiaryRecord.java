@@ -1,11 +1,8 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 import org.patientview.persistence.model.enums.OedemaTypes;
 import org.patientview.persistence.model.enums.ProteinDipstickTypes;
 
@@ -26,10 +23,6 @@ import java.util.List;
 /**
  * InsDiaryRecord entity to store Ins diary records.
  */
-@TypeDefs({
-        @TypeDef(name = "json", typeClass = JsonStringType.class),
-        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-})
 @Entity
 @Table(name = "pv_ins_diary")
 public class InsDiaryRecord extends AuditModel {
@@ -43,8 +36,10 @@ public class InsDiaryRecord extends AuditModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date entryDate;
 
-    @Type(type = "jsonb")
-    @Column(name = "oedema", columnDefinition = "jsonb")
+    @Column(name = "oedema")
+    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
+        parameters = {@Parameter(name = "classType",
+                value = "java.util.List")})
     private List<OedemaTypes> oedema = new ArrayList<>();
 
     @Column(name = "urine_protein_dipstick_type")
