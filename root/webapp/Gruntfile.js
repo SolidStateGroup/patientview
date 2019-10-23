@@ -64,14 +64,14 @@ module.exports = function (grunt) {
         babel: {
             options: {
                 sourceMap: true,
-                presets: ['@babel/preset-env']
+                presets: ["@babel/preset-es2015"]
             },
             dist: {
                 files: {
                 'dist/app.js': 'src/app.js'
                 }
             }
-        }
+        },
 
         // Watches files for changes and runs tasks based on the changed files
         watch: {
