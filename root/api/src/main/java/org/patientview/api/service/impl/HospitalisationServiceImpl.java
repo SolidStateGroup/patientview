@@ -104,14 +104,12 @@ public class HospitalisationServiceImpl extends
             throw new ResourceForbiddenException("Forbidden");
         }
 
-
         foundRecord.setDateAdmitted(record.getDateAdmitted());
         foundRecord.setReason(record.getReason());
         foundRecord.setDateDischarged(record.getDateDischarged());
 
         // check make sure records not overlapping and set
         validateRecords(foundRecord, patientUser);
-
 
         return hospitalisationRepository.save(foundRecord);
     }
@@ -164,7 +162,6 @@ public class HospitalisationServiceImpl extends
         if (record.getDateAdmitted() == null) {
             throw new ResourceInvalidException("Please enter Date Admitted.");
         }
-
 
         LocalDate localNow = DateTime.now().toLocalDate();
 
