@@ -174,10 +174,17 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             errors: {},
             newMedicationCount: 0,
 
-            reason: '',
             date: getDateDropdownVals(new Date()),
-            ongoing: false,
-            weight: '0.0',
+            protein: null,
+
+            systolic: null,
+            systolicNotMeasured: true,
+
+            diastolic: null,
+            diastolicNotMeasured: true,
+
+            weight: null,
+            weightNotMeasured: true,
 
             oedema: [],
             newOedema: null,
@@ -307,6 +314,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
     $scope.validate = function (form) {
         var errors = {};
+        var errorCount = 0;
 
 
         /* Main Recording Validation */
@@ -318,6 +326,9 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         else if(!form.date.hrs || !form.date.mins) {
             errors.time = 'Invalid'
         }
+        else if (getDateTimeFromDropdowns(form.date) > moment().add(1, 'm').toDate()){
+            errors.date = 'Date/Time cannot be in the future';
+        }
         // TODO: < last entry's date
         else if (false && getDateTimeFromDropdowns(form.date)){
             errors.date = 'Date/Time must be after last diary entry';
@@ -327,15 +338,24 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             errors.protein = "Required";
         }
 
-        if(!!form.systolic && !+form.systolic){
+        if(!form.systolic && !form.systolicNotMeasured){
+            errors.systolic = "No value specified";
+        }
+        else if(!!form.systolic && !+form.systolic){
             errors.systolic = "Must be number or empty";
         }
 
-        if(!!form.diastolic && !+form.diastolic){
-            errors.diastolic = "Must be number or empty";
+        if(!form.diastolic && !form.diastolicNotMeasured){
+            errors.diastolic = "No value specified";
+        }
+        else if(!!form.diastolic && !+form.diastolic){
+            errors.diastolic = "Must be number";
         }
 
-        if(!!form.weight && !is1dp(form.weight)){
+        if(!form.weight && !form.weightNotMeasured){
+            errors.weight = "No value specified";
+        }
+        else if(!!form.weight && !is1dp(form.weight)){
             errors.weight = "Must be 1dp";
         }
         
@@ -375,36 +395,38 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
             //TODO overlap
 
+            /* Medication Validation */
+            
+            for( var i = 0; i < form.medications.length; i++ ){
+                var medication = form.medications[i];
+                medication.errors = {};
+
+                if (!medication.name) {
+                    medication.errors.name = 'Required';
+                }
+
+                if (medication.name === 'OTHER' && !medication.other) {
+                    medication.errors.other = 'Required';
+                }
+
+                if (!UtilService.validationDate(medication.started.day,
+                    medication.started, medication.started.year)) {
+                    medication.errors.started = 'Non-existant Date';
+                }
+
+                if (!UtilService.validationDate(medication.stopped.day,
+                    medication.stopped, medication.stopped.year)) {
+                    medication.errors.stopped = 'Non-existant Date';
+                }
+                if(medication.errors) console.log(medication.errors);
+                errorCount += Object.keys(errors).length;
+            } 
+
         }
 
-
-        /* Medication Validation */
+        errorCount += Object.keys(errors).length;
         
-        for( var i = 0; i < form.medications.length; i++ ){
-            var medication = form.medications[i];
-            medication.errors = {};
-
-            if (!medication.name) {
-                medication.errors.name = 'Required';
-            }
-
-            if (medication.name === 'OTHER' && !medication.other) {
-                medication.errors.other = 'Required';
-            }
-
-            if (!UtilService.validationDate(medication.started.day,
-                medication.started, medication.started.year)) {
-                errors.relapseDate = 'Non-existant Date';
-            }
-
-            if (!UtilService.validationDate(medication.stopped.day,
-                medication.stopped, medication.stopped.year)) {
-                errors.relapseDate = 'Non-existant Date';
-            }
-        } 
-
-
-        errors.isValid = Object.keys(errors).length === 0;
+        errors.isValid = errorCount === 0;
         console.log(errors);
 
         form.errors = errors;
