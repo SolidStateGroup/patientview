@@ -191,19 +191,23 @@ ol.inline {
   margin-left: 20px;
   font-weight: bold;
 }
+/* line 160, ../sass/_utils.scss */
+.segregated-box select.form-control {
+  padding: 0px;
+}
 
-/* line 161, ../sass/_utils.scss */
+/* line 165, ../sass/_utils.scss */
 .no-items {
   font-style: italic;
   font-weight: 100;
 }
 
-/* line 166, ../sass/_utils.scss */
+/* line 170, ../sass/_utils.scss */
 .loading {
   text-align: center;
 }
 
-/* line 170, ../sass/_utils.scss */
+/* line 174, ../sass/_utils.scss */
 .align-bottom {
   position: absolute;
   right: 0;
@@ -211,24 +215,24 @@ ol.inline {
   text-align: right;
 }
 
-/* line 177, ../sass/_utils.scss */
+/* line 181, ../sass/_utils.scss */
 .angular-multiline {
   white-space: pre-wrap;
 }
 
 /** todo revise james' css **/
-/* line 182, ../sass/_utils.scss */
+/* line 186, ../sass/_utils.scss */
 input.ng-pristine + ul#strength {
   display: none;
 }
 
 /** TODO review this, has effect across all input fields */
-/* line 187, ../sass/_utils.scss */
+/* line 191, ../sass/_utils.scss */
 input.ng-dirty.ng-invalid {
   border: 1px solid Red;
 }
 
-/* line 191, ../sass/_utils.scss */
+/* line 195, ../sass/_utils.scss */
 ul#strength {
   display: inline;
   list-style: none;
@@ -238,12 +242,12 @@ ul#strength {
   vertical-align: 2px;
 }
 
-/* line 199, ../sass/_utils.scss */
+/* line 203, ../sass/_utils.scss */
 .point:last {
   margin: 0 !important;
 }
 
-/* line 202, ../sass/_utils.scss */
+/* line 206, ../sass/_utils.scss */
 .point {
   background: #DDD;
   border-radius: 2px;
@@ -253,7 +257,7 @@ ul#strength {
   width: 20px;
 }
 
-/* line 210, ../sass/_utils.scss */
+/* line 214, ../sass/_utils.scss */
 #footer {
   position: fixed;
   bottom: 5px;
