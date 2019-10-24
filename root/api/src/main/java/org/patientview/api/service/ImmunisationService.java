@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Immunisation;
 import org.patientview.persistence.model.User;
@@ -25,7 +26,8 @@ public interface ImmunisationService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    Immunisation add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException;
+    Immunisation add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException,
+            ResourceInvalidException;
 
     /**
      * Get an Immunisation object for patient
@@ -53,7 +55,7 @@ public interface ImmunisationService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     Immunisation update(Long userId, Long recordId, Long adminId, Immunisation record)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Delete a Immunisation associated with a User

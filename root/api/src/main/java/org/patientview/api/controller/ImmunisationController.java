@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.ImmunisationService;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Immunisation;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,8 @@ public class ImmunisationController extends BaseController<ImmunisationControlle
     @PostMapping(value = "/user/{userId}/immunisations", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Immunisation add(@PathVariable("userId") Long userId,
                             @RequestParam(required = false) Long adminId,
-                            @RequestBody Immunisation record) throws ResourceNotFoundException {
+                            @RequestBody Immunisation record)
+            throws ResourceNotFoundException, ResourceInvalidException {
         if (adminId == null || adminId == -1) {
             adminId = null;
         }
@@ -74,7 +76,7 @@ public class ImmunisationController extends BaseController<ImmunisationControlle
                                     @PathVariable("recordId") Long recordId,
                                     @RequestParam(required = false) Long adminId,
                                     @RequestBody Immunisation record)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         if (adminId == null || adminId == -1) {
             adminId = null;
         }
