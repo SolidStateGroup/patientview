@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 mb-min">
+        <div class="col-md-12 mt">
             <div class="col-md-3">
                 <div class="col-md-12 p-min">
                     Urine Protein Dipstick*
@@ -79,33 +79,43 @@
             </div>
             <div class="col-md-2">
                 <div class="col-md-12 p-min">
-                    Systolic BP (mm Hg)
-                    <span data-ng-show="newForm.errors.systolic" class="error"> *{{newForm.errors.systolic}} </span>
+                    Systolic BP (mm Hg)*
+                    <span data-ng-show="newForm.errors.systolic" class="error"> {{newForm.errors.systolic}} </span>
                 </div>
                 <div class="col-md-12 p-min">
-                    <input type="number" class="form-control" data-ng-model="newForm.systolic"/>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="col-md-12 p-min">
-                    Diastolic BP (mm Hg)
-                    <span data-ng-show="newForm.errors.diastolic" class="error"> *{{newForm.errors.diastolic}} </span>
+                    <input type="number" class="form-control" data-ng-disabled="newForm.systolicNotMeasured" data-ng-model="newForm.systolic"/>
                 </div>
                 <div class="col-md-12 p-min">
-                    <input type="number" class="form-control" data-ng-model="newForm.diastolic"/>
+                    <input type="checkbox" data-ng-model="newForm.systolicNotMeasured" data-ng-change="newForm.systolic=null"/>&nbsp; Not Measured
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="col-md-12 p-min">
-                    Weight (kg)
-                    <span class="error" data-ng-show="newForm.errors.weight"> {{newForm.errors.weight}}</span>
+                    Diastolic BP(mm Hg)*
+                    <span data-ng-show="newForm.errors.diastolic" class="error"><br/>{{newForm.errors.diastolic}} </span>
+                </div>
+                <div class="col-md-12 p-min">
+                    <input type="number" class="form-control" data-ng-disabled="newForm.diastolicNotMeasured" data-ng-model="newForm.diastolic"/>
+                </div>
+                <div class="col-md-12 p-min">
+                    <input type="checkbox" data-ng-model="newForm.diastolicNotMeasured" data-ng-change="newForm.diastolic=null"/>&nbsp; Not Measured
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="col-md-12 p-min">
+                    Weight (kg)*
+                    <span class="error" data-ng-show="newForm.errors.weight"><br/>{{newForm.errors.weight}}</span>
                 </div>
                 <div class="col-md-12 p-min">
                     <input
                         class="form-control"
                         type="text"
                         data-ng-model="newForm.weight"
-                        data-ng-change="weightChanged()"/>
+                        data-ng-change="weightChanged()"
+                        data-ng-disabled="newForm.weightNotMeasured" />
+                </div>
+                <div class="col-md-12 p-min">
+                    <input type="checkbox" data-ng-model="newForm.weightNotMeasured" data-ng-change="newForm.weight=null"/>&nbsp; Not Measured
                 </div>
             </div>
             <div class="col-md-3">

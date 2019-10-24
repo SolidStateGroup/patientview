@@ -166,13 +166,21 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             form.dateAdmitted.month, form.dateAdmitted.year)) {
             errors.dateAdmitted = 'Non-existent date';
         }
+        else if (!UtilService.validationDateNoFuture(form.dateAdmitted.day,
+            form.dateAdmitted.month, form.dateAdmitted.year)) {
+            errors.dateAdmitted = 'Date cannot be in future';
+        }
 
         if (!form.ongoing && !UtilService.validationDate(form.dateDischarged.day,
             form.dateDischarged.month, form.dateDischarged.year)) {
                 errors.dateDischarged =  'Non-existant date';
         }
+        else if (!form.ongoing && !UtilService.validationDateNoFuture(form.dateDischarged.day,
+            form.dateDischarged.month, form.dateDischarged.year)) {
+                errors.dateDischarged =  'Date cannot be in future';
+        }
         
-        if (
+        if ( !form.ongoing && 
             new Date(form.dateDischarged.month + '/' + form.dateDischarged.day + '/' + form.dateDischarged.year) < 
                 new Date(form.dateAdmitted.month + '/' + form.dateAdmitted.day + '/' + form.dateAdmitted.year)) {
                     errors.dateDischarged =  'After admission date';
