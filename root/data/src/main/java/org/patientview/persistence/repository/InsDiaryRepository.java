@@ -22,7 +22,7 @@ public interface InsDiaryRepository extends CrudRepository<InsDiaryRecord, Long>
 
     @Query("SELECT d FROM InsDiaryRecord d WHERE d.user = :user ORDER BY entryDate DESC")
     Page<InsDiaryRecord> findByUser(@Param("user") User user, Pageable pageable);
-    
+
     // used internally
     @Query(value = "SELECT d FROM InsDiaryRecord d WHERE d.user = :user ORDER BY entryDate DESC")
     List<InsDiaryRecord> findListByUser(@Param("user") User user, Pageable pageable);
