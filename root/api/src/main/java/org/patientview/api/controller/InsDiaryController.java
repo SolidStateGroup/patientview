@@ -2,8 +2,11 @@ package org.patientview.api.controller;
 
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.service.InsDiaryService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.InsDiaryRecord;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,7 +43,7 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
     public InsDiaryRecord add(@PathVariable("userId") Long userId,
                               @RequestParam(required = false) Long adminId,
                               @RequestBody InsDiaryRecord record)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceInvalidException, FhirResourceException {
         if (adminId == null || adminId == -1) {
             adminId = null;
         }
@@ -90,15 +93,16 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
     }
 
     /**
-     * Get a List of all a User's InsDiaryRecord objects
+     * Get a Page of a User's InsDiaryRecord objects
      *
-     * @param userId Long User ID of patient to get Food Diary objects for
+     * @param userId        Long User ID of patient to get Food Diary objects for
+     * @param getParameters GetParameters object containing filters, page size, number etc
      * @return a List of InsDiaryRecord
      * @throws ResourceNotFoundException
      */
     @GetMapping(value = "/user/{userId}/insdiary")
-    public ResponseEntity<?> get(@PathVariable("userId") Long userId) throws ResourceNotFoundException {
-        return new ResponseEntity<>(insDiaryService.getList(userId), HttpStatus.OK);
+    public ResponseEntity<?> get(@PathVariable("userId") Long userId, GetParameters getParameters) throws ResourceNotFoundException {
+        return new ResponseEntity<>(insDiaryService.findByUser(userId, getParameters), HttpStatus.OK);
     }
 
 }
