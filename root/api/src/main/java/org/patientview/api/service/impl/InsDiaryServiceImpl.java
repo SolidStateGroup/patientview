@@ -17,7 +17,6 @@ import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Relapse;
 import org.patientview.persistence.model.RelapseMedication;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.InsDiaryRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RelapseMedicationRepository;
@@ -32,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,6 +41,9 @@ import java.util.List;
 @Transactional
 public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl> implements InsDiaryService {
 
+    private static final String SYSTOLIC_BP_CODE = "bpsys";
+    private static final String DISATOLIC_BP_CODE = "bpdia";
+    private static final String WEIGHT_CODE = "weight";
     @Inject
     private InsDiaryRepository insDiaryRepository;
     @Inject
@@ -49,32 +52,20 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     private RelapseMedicationRepository relapseMedication;
     @Inject
     private UserRepository userRepository;
-
     @Inject
     private ObservationService observationService;
-
     @Inject
     private ObservationHeadingRepository observationHeadingRepository;
-
-    @Inject
-    private GroupRepository groupRepository;
-
-
     @Inject
     private ApiObservationService apiObservationService;
-
-    private static final String SYSTOLIC_BP_CODE = "bpsys";
-    private static final String DISATOLIC_BP_CODE = "bpdia";
-    private static final String WEIGHT_CODE = "weight";
-
 
     private void validateRecord(InsDiaryRecord record, List<InsDiaryRecord> existingRecords) throws ResourceInvalidException {
 
         LocalDate localNow = DateTime.now().toLocalDate();
 
         // is new record in relapse
-        //if (record.isInRelapse() && record.getRelapse() == null) {
-        if (record.getRelapse() == null) {
+        if (record.isInRelapse() && record.getRelapse() == null) {
+//        if (record.getRelapse() == null) {
             throw new ResourceInvalidException("Missing Relapse information.");
         }
 
@@ -111,20 +102,6 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             throw new ResourceInvalidException("Please select at least one Oedema.");
         }
 
-        // we should always have relapse info
-        if (record.getRelapse() == null) {
-            throw new ResourceInvalidException("Please provide Relapse information.");
-        }
-
-        // can not be in the future
-        if (new DateTime(record.getRelapse().getRelapseDate()).toLocalDate().isAfter(localNow)) {
-            throw new ResourceInvalidException("Date of Relapse can not be in the future.");
-        }
-        if (record.getRelapse().getRemissionDate() != null &&
-                new DateTime(record.getRelapse().getRemissionDate()).toLocalDate().isAfter(localNow)) {
-            throw new ResourceInvalidException("Date of Relapse can not be in the future.");
-        }
-
         if (previousRecord != null) {
 
             // new diary entry date must be greater to "Date" of previous diary entry
@@ -133,24 +110,59 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             }
         }
 
-        // "Date of Relapse" must be greater or equal to last saved diary entry "Date" where Relapse "N" was entered
-        if (!CollectionUtils.isEmpty(existingRecords)) {
-
+        if (record.getRelapse() != null) {
             DateTime relapseDate = new DateTime(record.getRelapse().getRelapseDate());
+            DateTime remissionDate = new DateTime(record.getRelapse().getRemissionDate());
 
-            // find the last one with N
-            for (InsDiaryRecord previousN : existingRecords) {
-                if (!previousN.isInRelapse() &&
-                        new DateTime(previousN.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
-                    throw new ResourceInvalidException("Date of Relapse must be greater or equal " +
-                            "to last saved diary entry without Relapse.");
+            // can not be in the future
+            if (relapseDate.toLocalDate().isAfter(localNow)) {
+                throw new ResourceInvalidException("Date of Relapse can not be in the future.");
+            }
+            if (remissionDate != null && remissionDate.toLocalDate().isAfter(localNow)) {
+                throw new ResourceInvalidException("Date of Remission can not be in the future.");
+            }
 
+            if (!CollectionUtils.isEmpty(existingRecords)) {
+
+                Date noneRalapseEntryDate = null;
+                Date ralapseEntryDate = null;
+
+
+                for (InsDiaryRecord previousN : existingRecords) {
+                    if (!previousN.isInRelapse() &&
+                            new DateTime(previousN.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                        noneRalapseEntryDate = previousN.getEntryDate();
+                    }
+
+                    if (previousN.isInRelapse()) {
+                        ralapseEntryDate = previousN.getEntryDate();
+                    }
+
+                    // both dates found
+                    if (noneRalapseEntryDate != null && ralapseEntryDate != null) {
+                        break;
+                    }
+                }
+
+                // "Date of Relapse" must be greater or equal to last saved diary
+                // entry "Date" where Relapse "N" was entered
+                if (noneRalapseEntryDate != null &&
+                        new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                    throw new ResourceInvalidException("The Date of Relapse that you've entered must be later than " +
+                            " your most recent non-relapse diary recording of " + noneRalapseEntryDate +
+                            " (where a Relapse value of 'N' was saved).");
+                }
+
+                // "Date of Remission" must be greater or equal to last saved diary
+                // entry "Date" where Relapse "Y" was entered.
+                if (ralapseEntryDate != null &&
+                        new DateTime(ralapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                    throw new ResourceInvalidException("The Date of Relapse that you've entered must be later than " +
+                            " your most recent non-relapse diary recording of " + ralapseEntryDate +
+                            " (where a Relapse value of 'N' was saved).");
                 }
             }
         }
-
-        // "Date of Remission" must be greater or equal to last saved diary entry "Date" where Relapse "Y" was entered.
-
 
         // validate medication data
         if (!CollectionUtils.isEmpty(record.getRelapse().getMedications())) {
@@ -240,8 +252,6 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 }
             }
         }
-
-        // save results into fhir db as well
 
         record.setUser(patientUser);
         record.setCreator(editor);
