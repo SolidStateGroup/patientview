@@ -3,13 +3,11 @@ package org.patientview.persistence.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.patientview.persistence.model.enums.OedemaTypes;
 import org.patientview.persistence.model.enums.ProteinDipstickTypes;
-import org.patientview.persistence.model.types.StringArrayJsonUserType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
