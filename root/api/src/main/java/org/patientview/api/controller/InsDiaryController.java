@@ -8,6 +8,7 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.InsDiaryRecord;
+import org.patientview.persistence.model.RelapseMedication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
     private InsDiaryService insDiaryService;
 
     /**
-     * Add a Food Diary entry for a User
+     * Add a Ins Diary entry for a User
      *
      * @param userId Long User ID of patient to add INS Diary record for
      * @param record InsDiaryRecord object containing diary information
@@ -64,7 +65,7 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
     }
 
     /**
-     * Update a FoodDiary
+     * Update a InsDiary
      *
      * @param userId an ID of User associated with InsDiaryRecord
      * @param record InsDiaryRecord object to update
@@ -73,9 +74,14 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
      * @throws ResourceForbiddenException
      */
     @PutMapping(value = "/user/{userId}/insdiary")
-    public ResponseEntity<?> update(@PathVariable("userId") Long userId, @RequestBody InsDiaryRecord record)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        return new ResponseEntity<>(insDiaryService.update(userId, record), HttpStatus.OK);
+    public ResponseEntity<?> update(@PathVariable("userId") Long userId,
+                                    @RequestParam(required = false) Long adminId,
+                                    @RequestBody InsDiaryRecord record)
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
+        if (adminId == null || adminId == -1) {
+            adminId = null;
+        }
+        return new ResponseEntity<>(insDiaryService.update(userId, adminId, record), HttpStatus.OK);
     }
 
     /**
@@ -101,8 +107,46 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
      * @throws ResourceNotFoundException
      */
     @GetMapping(value = "/user/{userId}/insdiary")
-    public ResponseEntity<?> get(@PathVariable("userId") Long userId, GetParameters getParameters) throws ResourceNotFoundException {
+    public ResponseEntity<?> get(@PathVariable("userId") Long userId,
+                                 GetParameters getParameters) throws ResourceNotFoundException {
         return new ResponseEntity<>(insDiaryService.findByUser(userId, getParameters), HttpStatus.OK);
+    }
+
+
+    /**
+     * Add a RelapseMedication for a User
+     *
+     * @param userId     Long User ID of patient to add medication record for
+     * @param relapseId  an id of Relapse object to add medication for
+     * @param medication RelapseMedication object containing medication information
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws ResourceInvalidException
+     */
+    @PostMapping(value = "/user/{userId}/relapses/{relapseId}/medications", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public RelapseMedication addRelapseMedication(@PathVariable("userId") Long userId,
+                                                  @PathVariable("relapseId") Long relapseId,
+                                                  @RequestBody RelapseMedication medication)
+            throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException {
+        return insDiaryService.addRelapseMedication(userId, relapseId, medication);
+    }
+
+    /**
+     * Delete a RelapseMedication record from Relapse
+     *
+     * @param userId       Long User ID of patient to delete medication record from
+     * @param relapseId    an id of Relapse object to delete medication from
+     * @param medicationId an id of RelapseMedication to remove
+     * @throws ResourceNotFoundException
+     * @throws ResourceForbiddenException
+     * @throws ResourceInvalidException
+     */
+    @DeleteMapping(value = "/user/{userId}/relapses/{relapseId}/medications/")
+    public void delete(@PathVariable("userId") Long userId,
+                       @PathVariable("recordId") Long relapseId,
+                       @PathVariable("medicationId") Long medicationId)
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
+        insDiaryService.deleteRelapseMedication(userId, relapseId, medicationId);
     }
 
 }
