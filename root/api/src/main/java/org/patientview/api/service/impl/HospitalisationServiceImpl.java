@@ -160,14 +160,14 @@ public class HospitalisationServiceImpl extends
     private void validateRecords(Hospitalisation record, User patientUser) throws ResourceInvalidException {
 
         if (record.getDateAdmitted() == null) {
-            throw new ResourceInvalidException("Please enter Date Admitted.");
+            throw new ResourceInvalidException("Please enter Hospitalisation Date.");
         }
 
         LocalDate localNow = DateTime.now().toLocalDate();
 
         // can not be in the future
         if (new DateTime(record.getDateAdmitted()).toLocalDate().isAfter(localNow)) {
-            throw new ResourceInvalidException("Date Admitted can not be in the future.");
+            throw new ResourceInvalidException("Hospitalisation Date can not be in the future.");
         }
 
         if (record.getDateDischarged() != null) {
@@ -180,8 +180,9 @@ public class HospitalisationServiceImpl extends
 
             // check date discharged is not before date admitted
             if (record.getDateAdmitted().after(record.getDateDischarged())) {
-                LOG.error("Hospitalisation record discharged date must be < then admitted date.");
-                throw new ResourceInvalidException("Hospitalisation Date Admitted must be before Date Discharged.");
+                LOG.error("Hospitalisation record discharged date must be < then Hospitalisation date.");
+                throw new ResourceInvalidException("Hospitalisation Hospitalisation Date " +
+                        " must be before Date Discharged.");
             }
         }
 

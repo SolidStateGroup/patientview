@@ -1,8 +1,11 @@
 package org.patientview.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Parameter;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import org.patientview.persistence.model.enums.OedemaTypes;
 import org.patientview.persistence.model.enums.ProteinDipstickTypes;
 
@@ -25,6 +28,10 @@ import java.util.List;
  */
 @Entity
 @Table(name = "pv_ins_diary")
+@TypeDefs({
+        @TypeDef(name = "json", typeClass = JsonStringType.class),
+        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+})
 public class InsDiaryRecord extends AuditModel {
 
     @JsonIgnore
@@ -36,10 +43,8 @@ public class InsDiaryRecord extends AuditModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date entryDate;
 
-    @Column(name = "oedema")
-    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
-        parameters = {@Parameter(name = "classType",
-                value = "java.util.List")})
+    @Type(type = "jsonb")
+    @Column(name = "oedema", columnDefinition = "jsonb")
     private List<OedemaTypes> oedema = new ArrayList<>();
 
     @Column(name = "urine_protein_dipstick_type")
@@ -59,11 +64,11 @@ public class InsDiaryRecord extends AuditModel {
     @Column(name = "diastolic_bp_exclude")
     private Boolean diastolicBPExclude;
 
-    @Column(name = "weight")
-    private Integer weight;
+    @Column(name = "weight", columnDefinition = "numeric", precision = 19, scale = 2)
+    private Double weight;
 
     @Column(name = "weight_exclude")
-    private boolean weightExclude = false;
+    private Boolean weightExclude;
 
     @Column(name = "is_relapse", nullable = false)
     private boolean inRelapse = false;
@@ -136,19 +141,19 @@ public class InsDiaryRecord extends AuditModel {
         this.diastolicBPExclude = diastolicBPExclude;
     }
 
-    public Integer getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
-    public void setWeight(Integer weight) {
+    public void setWeight(Double weight) {
         this.weight = weight;
     }
 
-    public boolean isWeightExclude() {
+    public Boolean getWeightExclude() {
         return weightExclude;
     }
 
-    public void setWeightExclude(boolean weightExclude) {
+    public void setWeightExclude(Boolean weightExclude) {
         this.weightExclude = weightExclude;
     }
 

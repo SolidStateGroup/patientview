@@ -1,21 +1,37 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.patientview.api.model.IdValue;
+import org.patientview.api.model.UserResultCluster;
+import org.patientview.api.service.ApiObservationService;
 import org.patientview.api.service.InsDiaryService;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.InsDiaryRecord;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Relapse;
 import org.patientview.persistence.model.RelapseMedication;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.repository.InsDiaryRepository;
+import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RelapseMedicationRepository;
 import org.patientview.persistence.repository.RelapseRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.ObservationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +41,9 @@ import java.util.List;
 @Transactional
 public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl> implements InsDiaryService {
 
+    private static final String SYSTOLIC_BP_CODE = "bpsys";
+    private static final String DISATOLIC_BP_CODE = "bpdia";
+    private static final String WEIGHT_CODE = "weight";
     @Inject
     private InsDiaryRepository insDiaryRepository;
     @Inject
@@ -33,9 +52,154 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     private RelapseMedicationRepository relapseMedication;
     @Inject
     private UserRepository userRepository;
+    @Inject
+    private ObservationService observationService;
+    @Inject
+    private ObservationHeadingRepository observationHeadingRepository;
+    @Inject
+    private ApiObservationService apiObservationService;
+
+    private void validateRecord(InsDiaryRecord record, List<InsDiaryRecord> existingRecords) throws ResourceInvalidException {
+
+        LocalDate localNow = DateTime.now().toLocalDate();
+
+        // is new record in relapse
+        if (record.isInRelapse() && record.getRelapse() == null) {
+//        if (record.getRelapse() == null) {
+            throw new ResourceInvalidException("Missing Relapse information.");
+        }
+
+        InsDiaryRecord previousRecord = null;
+        if (!CollectionUtils.isEmpty(existingRecords)) {
+            previousRecord = existingRecords.get(0);
+        }
+
+        if (record.getEntryDate() == null) {
+            throw new ResourceInvalidException("Please provide Date for diary recording.");
+        }
+
+        // diary specific validation
+        if (record.getDipstickType() == null) {
+            throw new ResourceInvalidException("Please select Urine Protein Dipstick.");
+        }
+
+        if ((record.getSystolicBPExclude() == null || !record.getSystolicBPExclude()) &&
+                record.getSystolicBP() == null) {
+            throw new ResourceInvalidException("Please enter value for Systolic BP.");
+        }
+
+        if ((record.getDiastolicBPExclude() == null || !record.getDiastolicBPExclude()) &&
+                record.getDiastolicBP() == null) {
+            throw new ResourceInvalidException("Please enter value for Diastolic BP.");
+        }
+
+        if ((record.getWeightExclude() == null || !record.getWeightExclude()) &&
+                record.getWeight() == null) {
+            throw new ResourceInvalidException("Please enter value for Weight.");
+        }
+
+        if (CollectionUtils.isEmpty(record.getOedema())) {
+            throw new ResourceInvalidException("Please select at least one Oedema.");
+        }
+
+        if (previousRecord != null) {
+
+            // new diary entry date must be greater to "Date" of previous diary entry
+            if (!record.getEntryDate().after(previousRecord.getEntryDate())) {
+                throw new ResourceInvalidException("Diary entry Date must be later then previous diary entry date.");
+            }
+        }
+
+        if (record.getRelapse() != null) {
+            DateTime relapseDate = new DateTime(record.getRelapse().getRelapseDate());
+            DateTime remissionDate = new DateTime(record.getRelapse().getRemissionDate());
+
+            // can not be in the future
+            if (relapseDate.toLocalDate().isAfter(localNow)) {
+                throw new ResourceInvalidException("Date of Relapse can not be in the future.");
+            }
+            if (remissionDate != null && remissionDate.toLocalDate().isAfter(localNow)) {
+                throw new ResourceInvalidException("Date of Remission can not be in the future.");
+            }
+
+            if (!CollectionUtils.isEmpty(existingRecords)) {
+
+                Date noneRalapseEntryDate = null;
+                Date ralapseEntryDate = null;
+
+
+                for (InsDiaryRecord previousN : existingRecords) {
+                    if (!previousN.isInRelapse() &&
+                            new DateTime(previousN.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                        noneRalapseEntryDate = previousN.getEntryDate();
+                    }
+
+                    if (previousN.isInRelapse()) {
+                        ralapseEntryDate = previousN.getEntryDate();
+                    }
+
+                    // both dates found
+                    if (noneRalapseEntryDate != null && ralapseEntryDate != null) {
+                        break;
+                    }
+                }
+
+                // "Date of Relapse" must be greater or equal to last saved diary
+                // entry "Date" where Relapse "N" was entered
+                if (noneRalapseEntryDate != null &&
+                        new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                    throw new ResourceInvalidException("The Date of Relapse that you've entered must be later than " +
+                            " your most recent non-relapse diary recording of " + noneRalapseEntryDate +
+                            " (where a Relapse value of 'N' was saved).");
+                }
+
+                // "Date of Remission" must be greater or equal to last saved diary
+                // entry "Date" where Relapse "Y" was entered.
+                if (ralapseEntryDate != null &&
+                        new DateTime(ralapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                    throw new ResourceInvalidException("The Date of Relapse that you've entered must be later than " +
+                            " your most recent non-relapse diary recording of " + ralapseEntryDate +
+                            " (where a Relapse value of 'N' was saved).");
+                }
+            }
+        }
+
+        // validate medication data
+        if (!CollectionUtils.isEmpty(record.getRelapse().getMedications())) {
+            // save relapse medications
+            for (RelapseMedication medication : record.getRelapse().getMedications()) {
+
+
+                if (medication.getName() == null) {
+                    throw new ResourceInvalidException("Please select Name for Medication");
+                }
+
+                if (medication.getStarted() != null &&
+                        new DateTime(medication.getStarted()).toLocalDate().isAfter(localNow)) {
+                    throw new ResourceInvalidException("Medication Date Started can not be in the future.");
+                }
+
+                if (medication.getStopped() != null &&
+                        new DateTime(medication.getStopped()).toLocalDate().isAfter(localNow)) {
+                    throw new ResourceInvalidException("Medication Date Stopped can not be in the future.");
+                }
+
+                // check date discharged is not before date admitted
+                if (medication.getStarted() != null && medication.getStopped() != null &&
+                        medication.getStarted().after(medication.getStopped())) {
+                    LOG.error("Medication Date Started must be < then Date Stopped.");
+                    throw new ResourceInvalidException("Medication Date Started must be before Date Stopped.");
+                }
+
+            }
+
+        }
+
+    }
 
     @Override
-    public InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException {
+    public InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record)
+            throws ResourceNotFoundException, ResourceInvalidException, FhirResourceException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -48,6 +212,17 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         } else {
             editor = patientUser;
         }
+
+        // check for previous records
+        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser,
+                new PageRequest(0, 100));
+
+        // validate form
+        validateRecord(record, existingRecords);
+
+        // create fhir results
+        createFhirRecords(record, patientUser);
+
 
         if (record.getRelapse() != null) {
             Relapse relapseData = record.getRelapse();
@@ -70,14 +245,13 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             if (!CollectionUtils.isEmpty(relapseData.getMedications())) {
                 // save relapse medications
                 for (RelapseMedication medication : relapseData.getMedications()) {
+
                     medication.setRelapse(savedRelapse);
                     RelapseMedication savedMedication = relapseMedication.save(medication);
                     savedRelapse.getMedications().add(savedMedication);
                 }
             }
         }
-
-        // save results into fhir db as well
 
         record.setUser(patientUser);
         record.setCreator(editor);
@@ -144,13 +318,100 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     }
 
     @Override
-    public List<InsDiaryRecord> getList(Long userId) throws ResourceNotFoundException {
+    public Page<InsDiaryRecord> findByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException {
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
-        return insDiaryRepository.findByUser(user);
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, null, null);
+
+        return insDiaryRepository.findByUser(user, pageable);
     }
+
+
+    /**
+     * Adds patient's own results for INS Diary record.
+     *
+     * @param record
+     * @param patientUser
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    private void createFhirRecords(InsDiaryRecord record, User patientUser)
+            throws ResourceNotFoundException, FhirResourceException {
+
+        List<UserResultCluster> userResultClusters = new ArrayList<>();
+
+        DateTime entryDate = new DateTime(record.getEntryDate());
+
+        // create Systolic BP User
+        if (record.getSystolicBP() != null) {
+            ObservationHeading observationHeading = observationHeadingRepository.findOneByCode(SYSTOLIC_BP_CODE);
+            if (observationHeading == null) {
+                throw new ResourceNotFoundException("Observation Heading not found for code " + SYSTOLIC_BP_CODE);
+            }
+            IdValue value = new IdValue();
+            value.setId(observationHeading.getId());
+            value.setValue(record.getSystolicBP().toString());
+
+
+            UserResultCluster userResultCluster = new UserResultCluster();
+            userResultCluster.setDay(String.valueOf(entryDate.getDayOfMonth()));
+            userResultCluster.setMonth(String.valueOf(entryDate.getDayOfMonth()));
+            userResultCluster.setYear(String.valueOf(entryDate.getYear()));
+            userResultCluster.setValues(new ArrayList<IdValue>());
+            userResultCluster.getValues().add(value);
+
+            userResultClusters.add(userResultCluster);
+        }
+
+        // create Diastolic BP User
+        if (record.getDiastolicBP() != null) {
+            ObservationHeading observationHeading = observationHeadingRepository.findOneByCode(DISATOLIC_BP_CODE);
+            if (observationHeading == null) {
+                throw new ResourceNotFoundException("Observation Heading not found for code " + DISATOLIC_BP_CODE);
+            }
+            IdValue value = new IdValue();
+            value.setId(observationHeading.getId());
+            value.setValue(record.getDiastolicBP().toString());
+
+            UserResultCluster userResultCluster = new UserResultCluster();
+            userResultCluster.setDay(String.valueOf(entryDate.getDayOfMonth()));
+            userResultCluster.setMonth(String.valueOf(entryDate.getMonthOfYear()));
+            userResultCluster.setYear(String.valueOf(entryDate.getYear()));
+            userResultCluster.setValues(new ArrayList<IdValue>());
+            userResultCluster.getValues().add(value);
+
+            userResultClusters.add(userResultCluster);
+        }
+
+        // create weight
+        if (record.getWeight() != null) {
+            ObservationHeading observationHeading = observationHeadingRepository.findOneByCode(WEIGHT_CODE);
+            if (observationHeading == null) {
+                throw new ResourceNotFoundException("Observation Heading not found for code " + WEIGHT_CODE);
+            }
+            IdValue value = new IdValue();
+            value.setId(observationHeading.getId());
+            value.setValue(record.getWeight().toString());
+
+            UserResultCluster userResultCluster = new UserResultCluster();
+            userResultCluster.setDay(String.valueOf(entryDate.getDayOfMonth()));
+            userResultCluster.setMonth(String.valueOf(entryDate.getMonthOfYear()));
+            userResultCluster.setYear(String.valueOf(entryDate.getYear()));
+            userResultCluster.setValues(new ArrayList<IdValue>());
+            userResultCluster.getValues().add(value);
+
+            userResultClusters.add(userResultCluster);
+        }
+
+        apiObservationService.addUserResultClusters(patientUser.getId(), userResultClusters);
+    }
+
 
 }

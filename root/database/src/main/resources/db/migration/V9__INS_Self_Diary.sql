@@ -34,7 +34,7 @@ CREATE TABLE pv_ins_diary
   systolic_bp_exclude         BOOLEAN,
   diastolic_bp                INTEGER,
   diastolic_bp_exclude        BOOLEAN,
-  weight                      INTEGER,
+  weight                      NUMERIC(19, 2),
   weight_exclude              BOOLEAN,
   oedema                      JSONB,
   created_by                  BIGINT       REFERENCES pv_user (id) NOT NULL,
