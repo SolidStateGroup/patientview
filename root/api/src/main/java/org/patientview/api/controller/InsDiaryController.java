@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.inject.Inject;
 
 /**
- * RESTful interface for managing patient INS Diary recordings
+ * RESTful interface for managing patient INS Diary recordings.
  */
 @RestController
 @ExcludeFromApiDoc
@@ -141,7 +141,7 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
      * @throws ResourceForbiddenException
      * @throws ResourceInvalidException
      */
-    @DeleteMapping(value = "/user/{userId}/relapses/{relapseId}/medications/")
+    @DeleteMapping(value = "/user/{userId}/relapses/{relapseId}/medications/{medicationId}")
     public void delete(@PathVariable("userId") Long userId,
                        @PathVariable("recordId") Long relapseId,
                        @PathVariable("medicationId") Long medicationId)
