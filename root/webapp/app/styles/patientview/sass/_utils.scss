@@ -147,6 +147,14 @@ ol.unstyled {
     font-weight:normal;
 }
 
+.no-select-padding{
+
+    select.form-control{
+        padding:0px;
+    }
+    
+}
+
 .segregated-box{
     border: 1px solid grey;
     padding:20px 42px 20px 0px;
@@ -155,10 +163,6 @@ ol.unstyled {
         margin-bottom: 10px;
         margin-left: 20px;
         font-weight:bold
-    }
-
-    select.form-control{
-        padding:0px;
     }
 }
 
