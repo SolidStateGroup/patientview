@@ -8,6 +8,7 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.InsDiaryRecord;
+import org.patientview.persistence.model.RelapseMedication;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 
@@ -26,7 +27,8 @@ public interface InsDiaryService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException, ResourceInvalidException, FhirResourceException;
+    InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException,
+            ResourceInvalidException, FhirResourceException;
 
     /**
      * Get an InsDiaryRecord object for patient
@@ -53,7 +55,8 @@ public interface InsDiaryService {
      */
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
-    InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
+    InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException,
+            ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Delete a InsDiaryRecord associated with a User
@@ -78,6 +81,36 @@ public interface InsDiaryService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     Page<InsDiaryRecord> findByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException;
+
+    /**
+     * Add an RelapseMedication entry for a patient User
+     *
+     * @param userId     Long User ID of patient to add medication record for
+     * @param relapseId  an id of Relapse object to add medication for
+     * @param medication RelapseMedication object containing medication information
+     * @throws ResourceNotFoundException
+     * @throws ResourceInvalidException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
+    RelapseMedication addRelapseMedication(Long userId, Long relapseId, RelapseMedication medication)
+            throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException;
+
+    /**
+     * Remove RelapseMedication record from Relapse
+     *
+     * @param userId       Long User ID of patient to delete medication record from
+     * @param relapseId    an id of Relapse object to delete medication from
+     * @param medicationId an id of RelapseMedication to remove
+     * @throws ResourceNotFoundException
+     * @throws ResourceInvalidException
+     * @throws ResourceForbiddenException
+     */
+    @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
+    void deleteRelapseMedication(Long userId, Long relapseId, Long medicationId)
+            throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException;
 
 
 }

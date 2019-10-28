@@ -49,7 +49,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     @Inject
     private RelapseRepository relapseRepository;
     @Inject
-    private RelapseMedicationRepository relapseMedication;
+    private RelapseMedicationRepository relapseMedicationRepository;
     @Inject
     private UserRepository userRepository;
     @Inject
@@ -209,6 +209,66 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         return insDiaryRepository.findByUser(user, pageable);
     }
 
+    @Override
+    public RelapseMedication addRelapseMedication(Long userId, Long relapseId, RelapseMedication medication)
+            throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException {
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Relapse existingRelapse = relapseRepository.findOne(relapseId);
+        if (existingRelapse == null) {
+            throw new ResourceNotFoundException("Could not find Relapse record");
+        }
+
+        if (!existingRelapse.getUser().equals(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        validateRelapseMedication(medication);
+
+        medication.setRelapse(existingRelapse);
+        RelapseMedication savedMedication = relapseMedicationRepository.save(medication);
+
+        existingRelapse.getMedications().add(savedMedication);
+        relapseRepository.save(existingRelapse);
+
+        return savedMedication;
+    }
+
+    @Override
+    public void deleteRelapseMedication(Long userId, Long relapseId, Long medicationId)
+            throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException {
+
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        Relapse existingRelapse = relapseRepository.findOne(relapseId);
+        if (existingRelapse == null) {
+            throw new ResourceNotFoundException("Could not find Relapse record");
+        }
+
+        if (!existingRelapse.getUser().equals(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        RelapseMedication existingMedication = relapseMedicationRepository.findOne(medicationId);
+        if (existingRelapse == null) {
+            throw new ResourceNotFoundException("Could not find RelapseMedication record");
+        }
+
+        if (!existingMedication.getRelapse().equals(existingRelapse)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        existingRelapse.getMedications().remove(existingMedication);
+        relapseRepository.save(existingRelapse);
+
+        relapseMedicationRepository.delete(existingMedication);
+    }
 
     /**
      * Helper to validate InsDiaryRecord
@@ -217,7 +277,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
      * @param existingRecords
      * @throws ResourceInvalidException
      */
-    private void validateRecord(InsDiaryRecord record, List<InsDiaryRecord> existingRecords) throws ResourceInvalidException {
+    private void validateRecord(InsDiaryRecord record, List<InsDiaryRecord> existingRecords)
+            throws ResourceInvalidException {
 
         LocalDate localNow = DateTime.now().toLocalDate();
 
@@ -349,6 +410,42 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
     }
 
+    /**
+     * Helper to validate RelapseMedication details
+     *
+     * @param medication a RelapseMedication to validate
+     * @throws ResourceInvalidException
+     */
+    private void validateRelapseMedication(RelapseMedication medication)
+            throws ResourceInvalidException {
+
+        LocalDate localNow = DateTime.now().toLocalDate();
+
+        if (medication == null) {
+            throw new ResourceInvalidException("Missing Relapse Medication details");
+        }
+
+        if (medication.getName() == null) {
+            throw new ResourceInvalidException("Please select Name for Medication");
+        }
+
+        if (medication.getStarted() != null &&
+                new DateTime(medication.getStarted()).toLocalDate().isAfter(localNow)) {
+            throw new ResourceInvalidException("Medication Date Started can not be in the future.");
+        }
+
+        if (medication.getStopped() != null &&
+                new DateTime(medication.getStopped()).toLocalDate().isAfter(localNow)) {
+            throw new ResourceInvalidException("Medication Date Stopped can not be in the future.");
+        }
+
+        // check date stopped is not before date started
+        if (medication.getStarted() != null && medication.getStopped() != null &&
+                medication.getStarted().after(medication.getStopped())) {
+            LOG.error("Medication Date Started must be < then Date Stopped.");
+            throw new ResourceInvalidException("Medication Date Started must be before Date Stopped.");
+        }
+    }
 
     /**
      * Helper to create or update Relapse details.
@@ -387,7 +484,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                     for (RelapseMedication medication : relapseData.getMedications()) {
 
                         medication.setRelapse(savedRelapse);
-                        RelapseMedication savedMedication = relapseMedication.save(medication);
+                        RelapseMedication savedMedication = relapseMedicationRepository.save(medication);
                         savedRelapse.getMedications().add(savedMedication);
                     }
                 }
