@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -7,6 +8,7 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.InsDiaryRecord;
+import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 
 /**
@@ -23,6 +25,7 @@ public interface InsDiaryService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
     InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException, ResourceInvalidException, FhirResourceException;
 
     /**
@@ -34,20 +37,22 @@ public interface InsDiaryService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
     InsDiaryRecord get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException;
 
 
     /**
      * Update a InsDiaryRecord
      *
-     * @param userId an ID of User associated with InsDiaryRecord
+     * @param userId  an ID of User associated with InsDiaryRecord
      * @param adminId ID of admin User(viewing patient) or patient User
-     * @param record InsDiaryRecord object to update
+     * @param record  InsDiaryRecord object to update
      * @return InsDiaryRecord object that has been updated
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
     @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
     InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 
     /**
@@ -59,6 +64,7 @@ public interface InsDiaryService {
      * @throws ResourceForbiddenException
      */
     @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
     void delete(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException;
 
     /**
@@ -70,6 +76,7 @@ public interface InsDiaryService {
      * @throws ResourceNotFoundException
      */
     @UserOnly
+    @RoleOnly(roles = {RoleName.PATIENT})
     Page<InsDiaryRecord> findByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException;
 
 
