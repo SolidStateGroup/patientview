@@ -59,13 +59,170 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     @Inject
     private ApiObservationService apiObservationService;
 
+
+    @Override
+    public InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record)
+            throws ResourceNotFoundException, ResourceInvalidException, FhirResourceException {
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        // check if admin is viewing patient, otherwise editor is patient
+        User editor;
+        if (adminId != null && !adminId.equals(userId)) {
+            editor = userRepository.findOne(adminId);
+        } else {
+            editor = patientUser;
+        }
+
+        // check for previous records
+        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser,
+                new PageRequest(0, 100));
+
+        // validate form
+        validateRecord(record, existingRecords);
+
+        // we can have diary record without Relapse
+        if (record.getRelapse() != null) {
+            Relapse relapseData = record.getRelapse();
+
+            // create or update Relapse
+            Relapse savedRelapse = saveOrUpdateRelapse(patientUser, editor, relapseData);
+            record.setRelapse(savedRelapse);
+        }
+
+        // create fhir results
+        createFhirRecords(record, patientUser);
+
+        record.setUser(patientUser);
+        record.setCreator(editor);
+
+        return insDiaryRepository.save(record);
+    }
+
+    @Override
+    public InsDiaryRecord get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        InsDiaryRecord record = insDiaryRepository.findOne(recordId);
+        // make sure the same user
+        if (!record.getUser().equals(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        return record;
+    }
+
+    @Override
+    public InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record)
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
+        User patientUser = userRepository.findOne(userId);
+        if (patientUser == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        // check if admin is viewing patient, otherwise editor is patient
+        User editor;
+        if (adminId != null && !adminId.equals(userId)) {
+            editor = userRepository.findOne(adminId);
+        } else {
+            editor = patientUser;
+        }
+
+        InsDiaryRecord foundRecord = insDiaryRepository.findOne(record.getId());
+        if (foundRecord == null) {
+            throw new ResourceNotFoundException("Could not find INS diary record");
+        }
+
+        if (!foundRecord.getUser().equals(patientUser)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        // check for previous records
+        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser,
+                new PageRequest(0, 100));
+
+        // validate form
+        validateRecord(record, existingRecords);
+
+        // we can have diary record without Relapse
+        if (record.getRelapse() != null) {
+            Relapse relapseData = record.getRelapse();
+
+            // create or update Relapse
+            Relapse savedRelapse = saveOrUpdateRelapse(patientUser, editor, relapseData);
+            foundRecord.setRelapse(savedRelapse);
+        }
+
+        // TODO: update fhir results
+
+        foundRecord.setEntryDate(record.getEntryDate());
+        foundRecord.setDipstickType(record.getDipstickType());
+        foundRecord.setSystolicBP(record.getSystolicBP());
+        foundRecord.setSystolicBPExclude(record.getSystolicBPExclude());
+        foundRecord.setDiastolicBP(record.getDiastolicBP());
+        foundRecord.setDiastolicBPExclude(record.getDiastolicBPExclude());
+        foundRecord.setWeight(record.getWeight());
+        foundRecord.setWeightExclude(record.getWeightExclude());
+        foundRecord.setOedema(foundRecord.getOedema());
+
+
+        return insDiaryRepository.save(foundRecord);
+    }
+
+    @Override
+    public void delete(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        InsDiaryRecord foundRecord = insDiaryRepository.findOne(recordId);
+        if (foundRecord == null) {
+            throw new ResourceNotFoundException("Could not find INS diary record");
+        }
+
+        if (!foundRecord.getUser().equals(user)) {
+            throw new ResourceForbiddenException("Forbidden");
+        }
+
+        insDiaryRepository.delete(recordId);
+    }
+
+    @Override
+    public Page<InsDiaryRecord> findByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("Could not find user");
+        }
+
+        String size = getParameters.getSize();
+        String page = getParameters.getPage();
+        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
+        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, null, null);
+
+        return insDiaryRepository.findByUser(user, pageable);
+    }
+
+
+    /**
+     * Helper to validate InsDiaryRecord
+     *
+     * @param record          a record to validate
+     * @param existingRecords
+     * @throws ResourceInvalidException
+     */
     private void validateRecord(InsDiaryRecord record, List<InsDiaryRecord> existingRecords) throws ResourceInvalidException {
 
         LocalDate localNow = DateTime.now().toLocalDate();
 
         // is new record in relapse
         if (record.isInRelapse() && record.getRelapse() == null) {
-//        if (record.getRelapse() == null) {
             throw new ResourceInvalidException("Missing Relapse information.");
         }
 
@@ -148,27 +305,25 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 // entry "Date" where Relapse "N" was entered
                 if (noneRalapseEntryDate != null &&
                         new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
-                    throw new ResourceInvalidException("The Date of Relapse that you've entered must be later than " +
-                            " your most recent non-relapse diary recording of " + noneRalapseEntryDate +
-                            " (where a Relapse value of 'N' was saved).");
+                    throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
+                            "must be later than your most recent non-relapse diary recording of %s " +
+                            "(where a Relapse value of 'N' was saved).", noneRalapseEntryDate));
                 }
 
                 // "Date of Remission" must be greater or equal to last saved diary
                 // entry "Date" where Relapse "Y" was entered.
                 if (ralapseEntryDate != null &&
                         new DateTime(ralapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
-                    throw new ResourceInvalidException("The Date of Relapse that you've entered must be later than " +
-                            " your most recent non-relapse diary recording of " + ralapseEntryDate +
-                            " (where a Relapse value of 'N' was saved).");
+                    throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
+                            "must be later than your most recent non-relapse diary recording of %s" +
+                            " (where a Relapse value of 'N' was saved).", ralapseEntryDate));
                 }
             }
         }
 
-        // validate medication data
         if (!CollectionUtils.isEmpty(record.getRelapse().getMedications())) {
-            // save relapse medications
+            // validate relapse medications
             for (RelapseMedication medication : record.getRelapse().getMedications()) {
-
 
                 if (medication.getName() == null) {
                     throw new ResourceInvalidException("Please select Name for Medication");
@@ -184,155 +339,80 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                     throw new ResourceInvalidException("Medication Date Stopped can not be in the future.");
                 }
 
-                // check date discharged is not before date admitted
+                // check date stopped is not before date started
                 if (medication.getStarted() != null && medication.getStopped() != null &&
                         medication.getStarted().after(medication.getStopped())) {
                     LOG.error("Medication Date Started must be < then Date Stopped.");
                     throw new ResourceInvalidException("Medication Date Started must be before Date Stopped.");
                 }
-
             }
-
         }
-
     }
 
-    @Override
-    public InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record)
-            throws ResourceNotFoundException, ResourceInvalidException, FhirResourceException {
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
 
-        // check if admin is viewing patient, otherwise editor is patient
-        User editor;
-        if (adminId != null && !adminId.equals(userId)) {
-            editor = userRepository.findOne(adminId);
-        } else {
-            editor = patientUser;
-        }
+    /**
+     * Helper to create or update Relapse details.
+     *
+     * @param patient     a patient user associated with Relapse
+     * @param editor      an admin user (viewing patient) or patient User
+     * @param relapseData a Relapse data to create ot update
+     * @return
+     * @throws ResourceNotFoundException
+     */
+    private Relapse saveOrUpdateRelapse(User patient, User editor, Relapse relapseData)
+            throws ResourceNotFoundException {
+        Relapse savedRelapse = null;
 
-        // check for previous records
-        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser,
-                new PageRequest(0, 100));
+        // we can have diary record without Relapse
+        if (relapseData != null) {
+            // creating new relapse record
+            if (relapseData.getId() == null) {
 
-        // validate form
-        validateRecord(record, existingRecords);
+                Relapse relapseToAdd = new Relapse();
+                relapseToAdd.setUser(patient);
+                relapseToAdd.setRelapseDate(relapseData.getRelapseDate());
+                relapseToAdd.setRemissionDate(relapseData.getRemissionDate());
+                relapseToAdd.setViralInfection(relapseData.getViralInfection());
+                relapseToAdd.setCommonCold(relapseData.isCommonCold());
+                relapseToAdd.setHayFever(relapseData.isHayFever());
+                relapseToAdd.setAllergicReaction(relapseData.isAllergicReaction());
+                relapseToAdd.setAllergicSkinRash(relapseData.isAllergicSkinRash());
+                relapseToAdd.setFoodIntolerance(relapseData.isFoodIntolerance());
+                relapseToAdd.setCreator(editor);
 
-        // create fhir results
-        createFhirRecords(record, patientUser);
+                savedRelapse = relapseRepository.save(relapseToAdd);
 
+                if (!CollectionUtils.isEmpty(relapseData.getMedications())) {
+                    // save relapse medications
+                    for (RelapseMedication medication : relapseData.getMedications()) {
 
-        if (record.getRelapse() != null) {
-            Relapse relapseData = record.getRelapse();
-            Relapse relapseToAdd = new Relapse();
-            relapseToAdd.setUser(patientUser);
-            relapseToAdd.setRelapseDate(relapseData.getRelapseDate());
-            relapseToAdd.setRemissionDate(relapseData.getRemissionDate());
-            relapseToAdd.setViralInfection(relapseData.getViralInfection());
-            relapseToAdd.setCommonCold(relapseData.isCommonCold());
-            relapseToAdd.setHayFever(relapseData.isHayFever());
-            relapseToAdd.setAllergicReaction(relapseData.isAllergicReaction());
-            relapseToAdd.setAllergicSkinRash(relapseData.isAllergicSkinRash());
-            relapseToAdd.setFoodIntolerance(relapseData.isFoodIntolerance());
-            relapseToAdd.setCreator(editor);
-
-
-            Relapse savedRelapse = relapseRepository.save(relapseToAdd);
-            record.setRelapse(savedRelapse);
-
-            if (!CollectionUtils.isEmpty(relapseData.getMedications())) {
-                // save relapse medications
-                for (RelapseMedication medication : relapseData.getMedications()) {
-
-                    medication.setRelapse(savedRelapse);
-                    RelapseMedication savedMedication = relapseMedication.save(medication);
-                    savedRelapse.getMedications().add(savedMedication);
+                        medication.setRelapse(savedRelapse);
+                        RelapseMedication savedMedication = relapseMedication.save(medication);
+                        savedRelapse.getMedications().add(savedMedication);
+                    }
                 }
+            } else {
+                // update details
+                Relapse existingRelapse = relapseRepository.findOne(relapseData.getId());
+                if (existingRelapse == null) {
+                    throw new ResourceNotFoundException("Could not find Relapse record");
+                }
+
+                existingRelapse.setRelapseDate(relapseData.getRelapseDate());
+                existingRelapse.setRemissionDate(relapseData.getRemissionDate());
+                existingRelapse.setViralInfection(relapseData.getViralInfection());
+                existingRelapse.setCommonCold(relapseData.isCommonCold());
+                existingRelapse.setHayFever(relapseData.isHayFever());
+                existingRelapse.setAllergicReaction(relapseData.isAllergicReaction());
+                existingRelapse.setAllergicSkinRash(relapseData.isAllergicSkinRash());
+                existingRelapse.setFoodIntolerance(relapseData.isFoodIntolerance());
+
+                savedRelapse = relapseRepository.save(existingRelapse);
             }
         }
 
-        record.setUser(patientUser);
-        record.setCreator(editor);
-
-        return insDiaryRepository.save(record);
+        return savedRelapse;
     }
-
-    @Override
-    public InsDiaryRecord get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        InsDiaryRecord record = insDiaryRepository.findOne(recordId);
-        // make sure the same user
-        if (!record.getUser().equals(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        return record;
-    }
-
-    @Override
-    public InsDiaryRecord update(Long userId, InsDiaryRecord record)
-            throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        InsDiaryRecord foundRecord = insDiaryRepository.findOne(record.getId());
-        if (foundRecord == null) {
-            throw new ResourceNotFoundException("Could not find INS diary record");
-        }
-
-        if (!foundRecord.getUser().equals(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        // todo: update details
-        //foundRecord.setSomething(record.getSomething());
-
-        return insDiaryRepository.save(foundRecord);
-    }
-
-    @Override
-    public void delete(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        InsDiaryRecord foundRecord = insDiaryRepository.findOne(recordId);
-        if (foundRecord == null) {
-            throw new ResourceNotFoundException("Could not find INS diary record");
-        }
-
-        if (!foundRecord.getUser().equals(user)) {
-            throw new ResourceForbiddenException("Forbidden");
-        }
-
-        insDiaryRepository.delete(recordId);
-    }
-
-    @Override
-    public Page<InsDiaryRecord> findByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        String size = getParameters.getSize();
-        String page = getParameters.getPage();
-        Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
-        Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
-        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, null, null);
-
-        return insDiaryRepository.findByUser(user, pageable);
-    }
-
 
     /**
      * Adds patient's own results for INS Diary record.

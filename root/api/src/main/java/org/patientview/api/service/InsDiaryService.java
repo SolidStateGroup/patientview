@@ -41,13 +41,14 @@ public interface InsDiaryService {
      * Update a InsDiaryRecord
      *
      * @param userId an ID of User associated with InsDiaryRecord
+     * @param adminId ID of admin User(viewing patient) or patient User
      * @param record InsDiaryRecord object to update
      * @return InsDiaryRecord object that has been updated
      * @throws ResourceNotFoundException
      * @throws ResourceForbiddenException
      */
     @UserOnly
-    InsDiaryRecord update(Long userId, InsDiaryRecord record) throws ResourceNotFoundException, ResourceForbiddenException;
+    InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Delete a InsDiaryRecord associated with a User
