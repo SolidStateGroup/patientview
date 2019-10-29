@@ -139,6 +139,11 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        // new diary entry date must be greater to "Date" of previous diary entry
+        if (!foundRecord.getEntryDate().equals(record.getEntryDate())) {
+            throw new ResourceInvalidException("Diary entry Date can not be updated.");
+        }
+
         // check for previous records
         PageRequest pageable = createPageRequest(0, 100, "entryDate", "ASC");
         List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser, pageable);
