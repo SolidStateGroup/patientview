@@ -2,10 +2,20 @@
 
 angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restangular', 'UtilService', function ($q, Restangular, UtilService) {
     return {
-        getAll: function (userid) {
+        /*getAll: function (userid) {
             var deferred = $q.defer(); 
             // POST /user/{userId}/hospitalisations?adminId=123
-            Restangular.one('user', userid).all('hospitalisations').getList().then(function(successResult) {
+            Restangular.one('user', userid).all('insdiary').getList().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },*/
+        getPaged: function (userid, page, size) {
+            var deferred = $q.defer(); 
+            // POST /user/{userId}/insdiary?page=0&size=10
+            Restangular.one('user', userid).one('insdiary').get({page: page, size: size}).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -15,17 +25,17 @@ angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restan
         // GET /user/{userId}/hospitalisations/{recordId}
         get: function (userid, recordid) {
             var deferred = $q.defer();
-            Restangular.one('user', userid).one('hospitalisations', recordid).get().then(function(successResult) {
+            Restangular.one('user', userid).one('insdiary', recordid).get().then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
             });
             return deferred.promise;
         },
-        save: function (userid, recordid, record, adminid) {
+        save: function (userid, record, adminid) {
             var deferred = $q.defer();
-            // PUT /user/{userId}/hospitalisations/{recordId}?adminId=123 
-            Restangular.one('user', userid).one('hospitalisations', recordid).customPUT(record, '?adminId=' + adminid).then(function(successResult) {
+            // PUT /user/{userId}/insdiary?adminId=123 
+            Restangular.one('user', userid).one('insdiary').customPUT(record, '?adminId=' + adminid).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -34,8 +44,8 @@ angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restan
         },
         post: function (userid, record, adminid) {
             var deferred = $q.defer();
-            // POST /user/{userId}/hospitalisations?adminId=123 
-            Restangular.one('user', userid).one('hospitalisations').customPOST(record, '?adminId=' + adminid).then(function(successResult) {
+            // POST /user/{userId}/insdiary?adminId=123
+            Restangular.one('user', userid).one('insdiary').customPOST(record, '?adminId=' + adminid).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -44,8 +54,8 @@ angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restan
         },
         remove: function (userid, recordid, adminid) {
             var deferred = $q.defer();
-            // DELETE /user/{userId}/hospitalisations/{recordId}?adminId=123 
-            Restangular.one('user', userid).one('hospitalisations', recordid).remove({ 'adminId': adminid }).then(function(successResult) {
+            // DELETE /user/{userId}/insdiary/{recordId}?adminId=123 
+            Restangular.one('user', userid).one('insdiary', recordid).remove({ 'adminId': adminid }).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
