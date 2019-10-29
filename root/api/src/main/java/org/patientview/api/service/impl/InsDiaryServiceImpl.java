@@ -53,8 +53,6 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     @Inject
     private UserRepository userRepository;
     @Inject
-    private ObservationService observationService;
-    @Inject
     private ObservationHeadingRepository observationHeadingRepository;
     @Inject
     private ApiObservationService apiObservationService;
@@ -232,7 +230,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         RelapseMedication savedMedication = relapseMedicationRepository.save(medication);
 
         existingRelapse.getMedications().add(savedMedication);
-        relapseRepository.save(existingRelapse);
+        relapseRepository.save(existingRelapse); // TODO: check if we need to re save this
 
         return savedMedication;
     }
@@ -265,7 +263,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         existingRelapse.getMedications().remove(existingMedication);
-        relapseRepository.save(existingRelapse);
+        relapseRepository.save(existingRelapse); // TODO: check if we need to re save this
 
         relapseMedicationRepository.delete(existingMedication);
     }
@@ -380,31 +378,31 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                             " (where a Relapse value of 'N' was saved).", ralapseEntryDate));
                 }
             }
-        }
 
-        if (!CollectionUtils.isEmpty(record.getRelapse().getMedications())) {
-            // validate relapse medications
-            for (RelapseMedication medication : record.getRelapse().getMedications()) {
+            if (!CollectionUtils.isEmpty(record.getRelapse().getMedications())) {
+                // validate relapse medications
+                for (RelapseMedication medication : record.getRelapse().getMedications()) {
 
-                if (medication.getName() == null) {
-                    throw new ResourceInvalidException("Please select Name for Medication");
-                }
+                    if (medication.getName() == null) {
+                        throw new ResourceInvalidException("Please select Name for Medication");
+                    }
 
-                if (medication.getStarted() != null &&
-                        new DateTime(medication.getStarted()).toLocalDate().isAfter(localNow)) {
-                    throw new ResourceInvalidException("Medication Date Started can not be in the future.");
-                }
+                    if (medication.getStarted() != null &&
+                            new DateTime(medication.getStarted()).toLocalDate().isAfter(localNow)) {
+                        throw new ResourceInvalidException("Medication Date Started can not be in the future.");
+                    }
 
-                if (medication.getStopped() != null &&
-                        new DateTime(medication.getStopped()).toLocalDate().isAfter(localNow)) {
-                    throw new ResourceInvalidException("Medication Date Stopped can not be in the future.");
-                }
+                    if (medication.getStopped() != null &&
+                            new DateTime(medication.getStopped()).toLocalDate().isAfter(localNow)) {
+                        throw new ResourceInvalidException("Medication Date Stopped can not be in the future.");
+                    }
 
-                // check date stopped is not before date started
-                if (medication.getStarted() != null && medication.getStopped() != null &&
-                        medication.getStarted().after(medication.getStopped())) {
-                    LOG.error("Medication Date Started must be < then Date Stopped.");
-                    throw new ResourceInvalidException("Medication Date Started must be before Date Stopped.");
+                    // check date stopped is not before date started
+                    if (medication.getStarted() != null && medication.getStopped() != null &&
+                            medication.getStarted().after(medication.getStopped())) {
+                        LOG.error("Medication Date Started must be < then Date Stopped.");
+                        throw new ResourceInvalidException("Medication Date Started must be before Date Stopped.");
+                    }
                 }
             }
         }
@@ -539,7 +537,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
             UserResultCluster userResultCluster = new UserResultCluster();
             userResultCluster.setDay(String.valueOf(entryDate.getDayOfMonth()));
-            userResultCluster.setMonth(String.valueOf(entryDate.getDayOfMonth()));
+            userResultCluster.setMonth(String.valueOf(entryDate.getMonthOfYear()));
             userResultCluster.setYear(String.valueOf(entryDate.getYear()));
             userResultCluster.setValues(new ArrayList<IdValue>());
             userResultCluster.getValues().add(value);
@@ -589,6 +587,5 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         apiObservationService.addUserResultClusters(patientUser.getId(), userResultClusters);
     }
-
 
 }
