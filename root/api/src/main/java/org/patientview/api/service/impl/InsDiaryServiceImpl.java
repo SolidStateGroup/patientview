@@ -22,7 +22,6 @@ import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.RelapseMedicationRepository;
 import org.patientview.persistence.repository.RelapseRepository;
 import org.patientview.persistence.repository.UserRepository;
-import org.patientview.service.ObservationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -75,8 +74,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         // check for previous records
-        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser,
-                new PageRequest(0, 100));
+        PageRequest pageable = createPageRequest(0, 100, "entryDate", "ASC");
+        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser, pageable);
 
         // validate form
         validateRecord(record, existingRecords);
@@ -141,10 +140,10 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         // check for previous records
-        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser,
-                new PageRequest(0, 100));
+        PageRequest pageable = createPageRequest(0, 100, "entryDate", "ASC");
+        List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser, pageable);
 
-        // validate form
+        // validate form details
         validateRecord(record, existingRecords);
 
         // we can have diary record without Relapse
@@ -166,7 +165,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         foundRecord.setDiastolicBPExclude(record.getDiastolicBPExclude());
         foundRecord.setWeight(record.getWeight());
         foundRecord.setWeightExclude(record.getWeightExclude());
-        foundRecord.setOedema(foundRecord.getOedema());
+        foundRecord.setOedema(record.getOedema());
 
 
         return insDiaryRepository.save(foundRecord);
@@ -202,7 +201,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         String page = getParameters.getPage();
         Integer pageConverted = (StringUtils.isNotEmpty(page)) ? Integer.parseInt(page) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : Integer.MAX_VALUE;
-        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, null, null);
+        PageRequest pageable = createPageRequest(pageConverted, sizeConverted, "entryDate", "DESC");
 
         return insDiaryRepository.findByUser(user, pageable);
     }
@@ -280,6 +279,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         LocalDate localNow = DateTime.now().toLocalDate();
 
+        boolean isNewRecord = record.getId() == null;
+
         // is new record in relapse
         if (record.isInRelapse() && record.getRelapse() == null) {
             throw new ResourceInvalidException("Missing Relapse information.");
@@ -287,7 +288,22 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         InsDiaryRecord previousRecord = null;
         if (!CollectionUtils.isEmpty(existingRecords)) {
-            previousRecord = existingRecords.get(0);
+
+            // creating new record, get the last one from the list
+            if (isNewRecord) {
+                previousRecord = existingRecords.get(0);
+            } else {
+
+                // when updating check last entry before current one
+                for (InsDiaryRecord previous : existingRecords) {
+                    // find last previous diary record
+                    if (!previous.getId().equals(record.getId())
+                            && previous.getId().longValue() > record.getId().longValue()) {
+                        previousRecord = previous;
+                        break;
+                    }
+                }
+            }
         }
 
         if (record.getEntryDate() == null) {
@@ -318,8 +334,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             throw new ResourceInvalidException("Please select at least one Oedema.");
         }
 
-        if (previousRecord != null) {
-
+        if (previousRecord != null && isNewRecord) {
             // new diary entry date must be greater to "Date" of previous diary entry
             if (!record.getEntryDate().after(previousRecord.getEntryDate())) {
                 throw new ResourceInvalidException("Diary entry Date must be later then previous diary entry date.");
@@ -343,14 +358,15 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 Date noneRalapseEntryDate = null;
                 Date ralapseEntryDate = null;
 
-
                 for (InsDiaryRecord previousN : existingRecords) {
-                    if (!previousN.isInRelapse() &&
-                            new DateTime(previousN.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                    if (!previousN.isInRelapse() && !previousN.getId().equals(record.getId())
+                            && previousN.getId().longValue() > record.getId().longValue()
+                            && new DateTime(previousN.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
                         noneRalapseEntryDate = previousN.getEntryDate();
                     }
 
-                    if (previousN.isInRelapse()) {
+                    if (previousN.isInRelapse() && !previousN.getId().equals(record.getId())
+                            && previousN.getId().longValue() > record.getId().longValue()) {
                         ralapseEntryDate = previousN.getEntryDate();
                     }
 
