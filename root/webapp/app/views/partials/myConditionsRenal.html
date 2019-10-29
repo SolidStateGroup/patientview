@@ -13,6 +13,7 @@
             <li data-ng-class="{active:activeTab === 'SURVEYS'}" data-ng-show="showRenalHealthSurveys"><a data-ng-click="activeTab = 'SURVEYS'">My Health Surveys</a></li>
             <li data-ng-class="{active:activeTab === 'OPTEPRO'}" data-ng-show="showOptEPro"><a data-ng-click="activeTab = 'OPTEPRO'">My Consultation</a></li>
             <li data-ng-class="{active:activeTab === 'INS_DIARY'}" data-ng-show="showInsDiary"><a data-ng-click="activeTab = 'INS_DIARY'">INS Diary Recording</a></li>
+            <li data-ng-class="{active:activeTab === 'HOSP_IMMUN'}" data-ng-show="showInsDiary"><a data-ng-click="activeTab = 'HOSP_IMMUN'">Hospitalisations & Immunisations</a></li>
             <li data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}" data-ng-show="showEnterConditions"><a data-ng-click="activeTab = 'MY_CONDITIONS_GENERIC'">Entered Diagnoses</a></li>
         </ul>
         <div class="tab-content">
@@ -198,6 +199,9 @@
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'INS_DIARY'}" data-ng-show="showInsDiary">
                 <div data-ng-include src="'views/partials/ins-diary.html'" data-ng-controller="MyConditionsSurveysCtrl"></div>
+            </div>
+            <div class="tab-pane" data-ng-class="{active:activeTab === 'HOSP_IMMUN'}" data-ng-show="showInsDiary">
+                <div data-ng-include src="'views/partials/hospitalisatinsAndImmunisations.html'" data-ng-controller="MyConditionsSurveysCtrl"></div>
             </div>
             <div class="tab-pane" data-ng-class="{active:activeTab === 'MY_CONDITIONS_GENERIC'}" data-ng-show="showEnterConditions">
                 <div data-ng-include src="'views/partials/myConditionsGeneric.html'"></div>

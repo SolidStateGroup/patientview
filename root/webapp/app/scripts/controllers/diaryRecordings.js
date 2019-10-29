@@ -1,16 +1,73 @@
 'use strict';
 
 angular.module('patientviewApp').controller('DiaryRecordingsCtrl', ['$scope', 'UtilService', 'DiaryRecordingService', '$rootScope',
-function ($scope, UtilService, HostpitalisationService, $rootScope) {
+function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
-    function formatHostpitalisation(d){
-        d.originalAdmitted = d.dateAdmitted;
-        d.originalDischarged = d.dateDischarged;
+    $scope.formFuncs = {};
 
-        d.dateAdmitted = moment(new Date(d.dateAdmitted)).format('ll');
-        d.dateDischarged = d.dateDischarged ? moment(new Date(d.dateDischarged)).format('ll') : '(Ongoing)';
+    function formatForForm(val){
+        var x = {
+            errors: {},
 
-        return d;
+            id: val.id,
+            newMedicationCount: 0,
+
+            date: console.log(getDateDropdownVals(new Date(val.entryDate))) || getDateDropdownVals(new Date(val.entryDate)),
+            protein: val.dipstickType,
+
+            systolic: val.systolicBP,
+            systolicNotMeasured: val.systolicBPExclude,
+
+            diastolic: val.diastolicBP,
+            diastolicNotMeasured: val.diastolicBPExclude,
+
+            weight: val.weight,
+            weightNotMeasured: val.weightExclude,
+
+            oedema: val.oedema,
+            newOedema: val.oedema && val.oedema.length > 0 ? val.oedema[0] : null,
+
+            relapse: val.inRelapse,
+            relapseDate: getDateDropdownVals(val.inRelapse? new Date(val.relapse.relapseDate) : new Date() ),
+            remissionDate: getDateDropdownVals(val.inRelapse? new Date(val.relapse.remissionDate) : new Date()),
+
+            viralInfection: val.inRelapse ? val.relapse.viralInfection : null,
+            commonCold: val.inRelapse ? val.relapse.commonCold : null,
+            hayFever: val.inRelapse ? val.relapse.hayFever : null,
+            allergicReaction: val.inRelapse ? val.relapse.allergicReaction : null,
+            allergicSkinRash: val.inRelapse ? val.relapse.allergicSkinRash : null,
+            foodIntolerance: val.inRelapse ? val.relapse.foodIntolerance : null,
+
+            //TODO
+            medications: [],
+        };
+        $scope.initNewMedication(x);
+        return x;
+    }
+
+    function formatForPost(form){
+        return {
+            "entryDate": getDateTimeFromDropdowns(form.date).toISOString(),
+            "dipstickType": form.protein,
+            "oedema": form.newOedema === 'NONE' ? ['NONE'] : form.oedema,
+            "systolicBP": form.systolic,
+            "systolicBPExclude": form.systolicNotMeasured,
+            "diastolicBP": form.diastolic,
+            "diastolicBPExclude": form.diastolicNotMeasured,
+            "weight": form.weight,
+            "weightExclude": form.weightNotMeasured,
+            "inRelapse": form.relapse,
+            "relapse": form.relapse ? {
+                "relapseDate": getDateFromDropdowns(form.relapseDate).toISOString(), 
+                "remissionDate": getDateFromDropdowns(form.remissionDate).toISOString() || null, 
+                "viralInfection": form.viralInfection, 
+                "commonCold": form.commonCold, 
+                "hayFever": form.hayFever, 
+                "allergicReaction": form.allergicReaction, 
+                "allergicSkinRash": form.allergicSkinRash,
+                "foodIntolerance": form.foodIntolerance,
+            } : null,
+        };
     }
 
     function is1dp(val){
@@ -19,29 +76,29 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
     function getDateDropdownVals(date){
         var vals = {};
-        for (var i=0;i<$scope.days.length;i++) {
-            if (parseInt($scope.days[i]) === date.getDate()) {
-                vals.day = $scope.days[i];
+        for (var i=0;i<$scope.options.days.length;i++) {
+            if (parseInt($scope.options.days[i]) === date.getDate()) {
+                vals.day = $scope.options.days[i];
             }
         }
-        for (var i=0;i<$scope.months.length;i++) {
-            if (parseInt($scope.months[i]) === date.getMonth() + 1) {
-                vals.month = $scope.months[i];
+        for (var i=0;i<$scope.options.months.length;i++) {
+            if (parseInt($scope.options.months[i]) === date.getMonth() + 1) {
+                vals.month = $scope.options.months[i];
             }
         }
-        for (var i=0;i<$scope.years.length;i++) {
-            if (parseInt($scope.years[i]) === date.getFullYear()) {
-                vals.year = $scope.years[i];
+        for (var i=0;i<$scope.options.years.length;i++) {
+            if (parseInt($scope.options.years[i]) === date.getFullYear()) {
+                vals.year = $scope.options.years[i];
             }
         }
-        for (var i=0;i<$scope.mins.length;i++) {
-            if (parseInt($scope.mins[i]) === date.getMinutes() + 1) {
-                vals.mins = $scope.mins[i];
+        for (var i=0;i<$scope.options.mins.length;i++) {
+            if (parseInt($scope.options.mins[i]) === date.getMinutes()) {
+                vals.mins = $scope.options.mins[i];
             }
         }
-        for (var i=0;i<$scope.hrs.length;i++) {
-            if (parseInt($scope.hrs[i]) === date.getHours()) {
-                vals.hrs = $scope.hrs[i];
+        for (var i=0;i<$scope.options.hrs.length;i++) {
+            if (parseInt($scope.options.hrs[i]) === date.getHours()) {
+                vals.hrs = $scope.options.hrs[i];
             }
         }
         return vals;
@@ -66,37 +123,37 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             0);
     }
 
-    $scope.addMedication = function(form){
-        form.newMedicationCount ++;
-        form.medications.push({
-            id: form.newMedicationCount,
-            name: null,
-            other: null,
-            doseQty: null,
-            doseUnits: 'MG',
-            doseFrequency: null,
-            route: null,
-            started: getDateDropdownVals(new Date()),
-            stopped: getDateDropdownVals(new Date()),
-        });
+    $scope.formatDateFromDropdowns = function(date) {
+        return moment(getDateFromDropdowns(date)).format('DD-MMM-YYYY');
     }
 
-    $scope.removeMedication = function(form, id){
+    $scope.formatTimeFromDropdowns = function(date) {
+        return moment(getDateTimeFromDropdowns(date)).format('HH:mm')
+    }
+
+    $scope.formFuncs.addMedication = function(form){
+        var errors = $scope.validateMedication(form);
+        if(!errors.isValid) return;
+        form.newMedicationCount ++;
+        form.medications.push(Object.assign({}, form.newMedication));
+        $scope.initNewMedication(form);
+    }
+
+    $scope.formFuncs.removeMedication = function(form, id){
         form.medications = form.medications.filter(function(m){
-            console.log(m.id, id);
             return m.id !== id;
         });
     }
 
-    $scope.canAddNewOedema = function(form) {
+    $scope.formFuncs.canAddNewOedema = function(form) {
         if(form.oedema.filter(function(o){return o === form.newOedema}).length === 0){
             return true;
         }
         return false;
     };
 
-    $scope.addOedema = function(form) {
-        if($scope.canAddNewOedema(form)){
+    $scope.formFuncs.addOedema = function(form) {
+        if($scope.formFuncs.canAddNewOedema(form)){
             form.oedema.push(form.newOedema);
             delete form.errors.newOedema;
         } else {
@@ -104,7 +161,9 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         }
     };
 
-     $scope.removeOedema = function(form, oedem){
+    $scope.formFuncs.test = "sdhfhdgf";
+
+     $scope.formFuncs.removeOedema = function(form, oedem){
         form.oedema = form.oedema.filter(function(o){return o !== oedem});
         if(form.oedema.length === 0){
             form.newOedema = 'NONE';
@@ -112,53 +171,62 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         delete form.errors.newOedema;
     };
 
-    $scope.newOedemaChanged = function(form) {
+    $scope.formFuncs.newOedemaChanged = function(form) {
         if(form.oedema.length === 0 && form.newOedema !== 'NONE'){
-            $scope.addOedema(form);
+            $scope.formFuncs.addOedema(form);
         }
     };
 
     $scope.init = function(){
+
         $scope.showEdit = null;
 
         $scope.recordings = [];
 
+        $scope.options = {};
 
         /*  ---- SELECT OPTIONS  ---- */
 
-        $scope.days = UtilService.generateDays().filter(function(x){return !!x});
-        $scope.months = UtilService.generateMonths().filter(function(x){return !!x});
-        $scope.years = UtilService.generateYears2000().filter(function(x){return !!x});
+        $scope.options.days = UtilService.generateDays().filter(function(x){return !!x});
+        $scope.options.months = UtilService.generateMonths().filter(function(x){return !!x});
+        $scope.options.years = UtilService.generateYears2000().filter(function(x){return !!x});
 
-        $scope.hrs = UtilService.generateHours().filter(function(x){return !!x});
-        $scope.mins = UtilService.generateMinutes().filter(function(x){return !!x});
+        $scope.options.hrs = UtilService.generateHours().filter(function(x){return !!x});
+        $scope.options.mins = UtilService.generateMinutes().filter(function(x){return !!x});
 
-        $scope.yesNo = [{key: 'Yes', val: true}, {key: 'No', val: false}];
+        $scope.options.yesNo = [{key: 'Yes', val: true}, {key: 'No', val: false}];
 
 
         /* - Diary Options - */
 
-        $scope.proteinDipsticks = [{val: 'NEGATIVE', key:'Negative'}, {val: 'TRACE', key:'Trace'}, {val: 'ONE', key:'One+'},
+        $scope.options.proteinDipsticks = [{val: 'NEGATIVE', key:'Negative'}, {val: 'TRACE', key:'Trace'}, {val: 'ONE', key:'One+'},
             {val: 'TWO', key:'Two+'}, {val: 'THREE', key:'Three+'}, {val: 'FOUR', key:'Four+'}];
 
-        $scope.oedemas = [{val: 'NONE', key:'None'}, {val: 'ANKLES', key:'Ankles'}, {val: 'LEGS', key:'Legs'}, {val: 'HANDS', key:'Hands'}, 
+        $scope.options.proteinLookup = {};
+
+        $scope.options.proteinDipsticks.forEach(function(obj){
+            $scope.options.proteinLookup[obj.val] = obj.key;
+        });
+
+        $scope.options.oedemas = [{val: 'NONE', key:'None'}, {val: 'ANKLES', key:'Ankles'}, {val: 'LEGS', key:'Legs'}, {val: 'HANDS', key:'Hands'}, 
             {val: 'ABDOMEN', key:'Abdomen'}, {val: 'NECK', key:'Neck'}, {val: 'EYES', key:'Eyes'}];
         
-        $scope.oedemasLookup = {};
 
-        $scope.oedemas.forEach(function(obj){
-            $scope.oedemasLookup[obj.val] = obj.key;
+        $scope.options.oedemasLookup = {};
+
+        $scope.options.oedemas.forEach(function(obj){
+            $scope.options.oedemasLookup[obj.val] = obj.key;
         });
 
         /*  - Medication Options - */
 
-        $scope.doseUnits = [{key: 'Mg', val: 'MG'}, {key: 'g', val: 'G'}, {key:'iU', val:'IU'}];
+        $scope.options.doseUnits = [{key: 'Mg', val: 'MG'}, {key: 'g', val: 'G'}, {key:'iU', val:'IU'}];
 
-        $scope.medicationNames = [{val: 'ORAL_PREDNISOLONE', key: 'Oral Prednisolone'}, {val: 'METHYL_ORAL_PREDNISOLONE', key: 'Methyl Prednisolone'}, {val: 'OTHER', key: 'Other'}]; 
+        $scope.options.medicationNames = [{val: 'ORAL_PREDNISOLONE', key: 'Oral Prednisolone'}, {val: 'METHYL_ORAL_PREDNISOLONE', key: 'Methyl Prednisolone'}, {val: 'OTHER', key: 'Other'}]; 
 
-        $scope.doseFrequencies = [{val: 'ONE_DAY', key: 'once a day'}, {val: 'TWO_DAY', key: 'X2 a day'}, {val: 'THREE_DAY', key: 'X2 a day'}, {val: 'FOUR_DAY', key: 'X4 a day'}]; 
+        $scope.options.doseFrequencies = [{val: 'ONE_DAY', key: 'once a day'}, {val: 'TWO_DAY', key: 'X2 a day'}, {val: 'THREE_DAY', key: 'X2 a day'}, {val: 'FOUR_DAY', key: 'X4 a day'}]; 
 
-        $scope.routes = [{val: 'ORAL', key: 'Oral'}, {val: 'IV', key: 'IV'}, {val: 'IM', key: 'IM'}]; 
+        $scope.options.routes = [{val: 'ORAL', key: 'Oral'}, {val: 'IV', key: 'IV'}, {val: 'IM', key: 'IM'}]; 
 
         $scope.weightChanged = function(){
             // tests for 1 d.p.
@@ -171,6 +239,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
 
         $scope.newForm = {
+
             errors: {},
             newMedicationCount: 0,
 
@@ -193,6 +262,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             relapseDate: getDateDropdownVals(new Date()),
             remissionDate: getDateDropdownVals(new Date()),
 
+            viralInfection: null,
             commonCold: false,
             hayFever: false,
             allergicReaction: false,
@@ -200,7 +270,6 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             foodIntolerance: false,
 
             medications: [],
-
         }
 
 
@@ -211,16 +280,31 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             ongoing: false,
         }
 
+        $scope.initNewMedication($scope.newForm);
         $scope.getRecordings();
     }
 
+    $scope.initNewMedication = function (form){
+        form.newMedication = {
+            id: form.newMedicationCount,
+            name: null,
+            other: null,
+            doseQty: null,
+            doseUnits: 'MG',
+            doseFrequency: null,
+            route: null,
+            started: getDateDropdownVals(new Date()),
+            stopped: getDateDropdownVals(new Date()),
+        };
+    }
     
     $scope.getRecordings = function() {
         $scope.loading = true;
 
-        HostpitalisationService.getAll($scope.loggedInUser.id).then(function(data) {
-            data.forEach(function(d){
-                $scope.recordings.push(formatHostpitalisation(d));
+        DiaryRecordingService.getPaged($scope.loggedInUser.id, 0, 20).then(function(data) {
+            data.content.forEach(function(d){
+                $scope.recordings.push(formatForForm(d));
+                $scope.recordings[$scope.recordings.length - 1].editForm = formatForForm(d);
             });
             $scope.loading = false;
 
@@ -231,86 +315,6 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         });
     }
     
-    $scope.postHostpitalisation = function() {
-        $scope.newForm.errors = $scope.validate($scope.newForm);
-        if($scope.recordings.filter(function(h){
-                return !h.originalDischarged && (!$scope.newForm.dateDischarged || new Date(h.originalAdmitted) <= new Date($scope.newForm.dateAdmitted));
-            }).length > 0){
-                $scope.newForm.errors.existingOngoing = 'Please complete currently active recording first';
-                $scope.newForm.errors.isValid = false;
-        }
-        if(!$scope.newForm.errors.isValid) return;
-
-        $scope.loading = true;
-        var dateAdmitted = new Date(), dateDischarged = new Date();
-
-        dateAdmitted.setFullYear(
-            $scope.newForm.dateAdmitted.year,
-            $scope.newForm.dateAdmitted.month - 1,
-            $scope.newForm.dateAdmitted.day);
-
-        dateDischarged.setFullYear(
-            $scope.newForm.dateDischarged.year,
-            $scope.newForm.dateDischarged.month - 1,
-            $scope.newForm.dateDischarged.day);
-
-        HostpitalisationService.post($scope.loggedInUser.id, {
-            dateAdmitted: dateAdmitted.toISOString(),
-            dateDischarged: $scope.newForm.ongoing ? null : dateDischarged.toISOString(),
-            reason: $scope.newForm.reason,
-        }, $rootScope.previousLoggedInUser.id).then(function(data) {
-            $scope.loading = false;
-            $scope.recordings.push(formatHostpitalisation(data));
-
-            delete $scope.errorMessage;
-        }, function(error) {
-            $scope.loading = false;
-            $scope.errorMessage = error.data;
-        });
-    }
-
-    $scope.updateHostpitalisation = function(id) {
-        $scope.editForm.errors = $scope.validate($scope.editForm);
-        if(!$scope.editForm.errors.isValid) return;
-
-        $scope.loading = true;
-
-        var dateAdmitted = new Date(), dateDischarged = new Date();
-
-        dateAdmitted.setFullYear(
-            $scope.editForm.dateAdmitted.year,
-            $scope.editForm.dateAdmitted.month - 1,
-            $scope.editForm.dateAdmitted.day);
-
-        dateDischarged.setFullYear(
-            $scope.editForm.dateDischarged.year,
-            $scope.editForm.dateDischarged.month - 1,
-            $scope.editForm.dateDischarged.day);
-
-        HostpitalisationService.save($scope.loggedInUser.id, id, {
-            dateAdmitted: dateAdmitted.toISOString(),
-            dateDischarged: $scope.editForm.ongoing ? null : dateDischarged.toISOString(),
-            reason: $scope.editForm.reason,
-        }, $rootScope.previousLoggedInUser.id).then(function(data) {
-            $scope.loading = false;
-            $scope.recordings = $scope.recordings.filter(function(val){
-                return val.id !== id;
-            });
-            $scope.recordings.push(formatHostpitalisation(data));
-            $scope.openEdit(null);
-            
-            $('.faux-row').removeClass('highlight');
-            $('.highlight').removeClass('highlight');
-            $('.item-header').removeClass('open');
-            $('.faux-row').removeClass('dull');
-            $('.edit-button').removeClass('editing');
-
-            delete $scope.errorMessage;
-        }, function(error) {
-            $scope.loading = false;
-            $scope.errorMessage = error.data;
-        });
-    }
 
     $scope.validate = function (form) {
         var errors = {};
@@ -392,36 +396,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
                     errors.remissionDate = 'Date must be in past';
                 }
             }
-
-            //TODO overlap
-
-            /* Medication Validation */
-            
-            for( var i = 0; i < form.medications.length; i++ ){
-                var medication = form.medications[i];
-                medication.errors = {};
-
-                if (!medication.name) {
-                    medication.errors.name = 'Required';
-                }
-
-                if (medication.name === 'OTHER' && !medication.other) {
-                    medication.errors.other = 'Required';
-                }
-
-                if (!UtilService.validationDate(medication.started.day,
-                    medication.started, medication.started.year)) {
-                    medication.errors.started = 'Non-existant Date';
-                }
-
-                if (!UtilService.validationDate(medication.stopped.day,
-                    medication.stopped, medication.stopped.year)) {
-                    medication.errors.stopped = 'Non-existant Date';
-                }
-                if(medication.errors) console.log(medication.errors);
-                errorCount += Object.keys(errors).length;
-            } 
-
+            //TODO Overlap
         }
 
         errorCount += Object.keys(errors).length;
@@ -430,15 +405,84 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         console.log(errors);
 
         form.errors = errors;
+
         return errors;
     };
 
-    $scope.deleteHostpitalisation = function(id) {
+    /* Medication Validation */
+
+    $scope.validateMedication = function(form){
+        var medication = form.newMedication;
+        medication.errors = {};
+
+        if (!medication.name) {
+            medication.errors.name = 'Required';
+        }
+
+        if (medication.name === 'OTHER' && !medication.other) {
+            medication.errors.other = 'Required';
+        }
+
+        if (!UtilService.validationDate(medication.started.day,
+            medication.started.month, medication.started.year)) {
+            medication.errors.started = 'Non-existant Date';
+        }
+
+        if (!UtilService.validationDate(medication.stopped.day,
+            medication.stopped.month, medication.stopped.year)) {
+            medication.errors.stopped = 'Non-existant Date';
+        }
+        if(medication.errors) console.log(medication.errors);
+
+        medication.errors.isValid = Object.keys(medication.errors).length === 0;
+
+        return medication.errors;
+    }
+
+    $scope.postEntry = function(form){
+        var errors = $scope.validate(form);
+        if(errors.isValid){
+            var entry = formatForPost(form);
+            $scope.loading = true;
+            DiaryRecordingService.post($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser.id).then(function(data){
+                $scope.loading = false;
+                $scope.recordings.push(formatForForm(data));
+                $scope.recordings[$scope.recordings.length-1].editForm = formatForForm(data);
+                delete $scope.errorMessage;
+            }, function(error){
+                $scope.loading = false;
+                $scope.errorMessage = error.data;
+            });
+        }
+    }
+    
+    $scope.updateEntry = function(form){
+        var errors = $scope.validate(form);
+        if(errors.isValid){
+            var entry = formatForPost(form);
+            entry.id = form.id;
+            $scope.loading = true;
+            DiaryRecordingService.save($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser.id).then(function(data){
+                $scope.loading = false;
+                $scope.recordings = $scope.recordings.filter(function(x){
+                    return x.id !== form.id;
+                });
+                $scope.recordings.push(formatForForm(data));
+                $scope.recordings[$scope.recordings.length-1].editForm = formatForForm(data);
+                delete $scope.errorMessage;
+            }, function(error){
+                $scope.loading = false;
+                $scope.errorMessage = error.data;
+            });
+        }
+    }
+
+    $scope.deleteEntry = function(id) {
         if(!confirm('Permanantly Delete Record?')) return; 
 
         $scope.loading = true;
 
-        HostpitalisationService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser.id).then(function(data) {
+        DiaryRecordingService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             $scope.recordings = $scope.recordings.filter(function(val){
                 return val.id !== id;
@@ -448,7 +492,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             $scope.loading = false;
             $scope.errorMessage = error.data;
         });
-    }
+    }/*
 
     $scope.getHostpitalisation = function(id) {
         $scope.loading = true;
@@ -460,16 +504,11 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             $scope.loading = false;
             $scope.errorMessage = error.data;
         });
-    }
+    }*/
 
-    $scope.openEdit = function(row){
+    $scope.editEntry = function(row){
         if(row && row.id !== $scope.showEdit) {
             $scope.showEdit = row ? row.id : null;
-            $scope.editForm.dateAdmitted = getDateDropdownVals(new Date(row.originalAdmitted));
-            $scope.editForm.dateDischarged = getDateDropdownVals(row.originalDischarged ? new Date(row.originalDischarged) : new Date());
-            $scope.editForm.reason = row.reason;
-            $scope.editForm.ongoing = !row.originalDischarged;
-            delete $scope.errorMessage;
         } else {
             $scope.showEdit = null;
         }

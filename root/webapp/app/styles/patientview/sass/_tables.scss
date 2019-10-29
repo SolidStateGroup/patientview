@@ -201,6 +201,12 @@ table{
             width:12.5%;
         }
     }
+
+    &.nine-col{
+        .row-item,.head-item{
+            width:11.1%;
+        }
+    }
 }
 
 .visible-for-col{

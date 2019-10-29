@@ -190,8 +190,9 @@ ol.inline {
   border: 1px solid grey;
   padding: 20px 42px 20px 0px;
 }
-/* line 162, ../sass/_utils.scss */
-.segregated-box .box-title {
+
+/* line 163, ../sass/_utils.scss */
+.box-title {
   margin-bottom: 10px;
   margin-left: 20px;
   font-weight: bold;
@@ -2172,17 +2173,21 @@ table tr td .filetype-icon {
 .faux-table.eight-col .row-item, .faux-table.eight-col .head-item {
   width: 12.5%;
 }
-
 /* line 206, ../sass/_tables.scss */
+.faux-table.nine-col .row-item, .faux-table.nine-col .head-item {
+  width: 11.1%;
+}
+
+/* line 212, ../sass/_tables.scss */
 .visible-for-col {
   padding-top: 20px;
 }
-/* line 208, ../sass/_tables.scss */
+/* line 214, ../sass/_tables.scss */
 .visible-for-col h5 {
   text-align: left;
   float: left;
 }
-/* line 212, ../sass/_tables.scss */
+/* line 218, ../sass/_tables.scss */
 .visible-for-col input[type="checkbox"] {
   height: auto;
   float: left;
@@ -2190,17 +2195,17 @@ table tr td .filetype-icon {
   width: auto;
 }
 
-/* line 220, ../sass/_tables.scss */
+/* line 226, ../sass/_tables.scss */
 .date-th {
   min-width: 100px;
 }
 
-/* line 223, ../sass/_tables.scss */
+/* line 229, ../sass/_tables.scss */
 .button-th {
   min-width: 160px;
 }
 
-/* line 228, ../sass/_tables.scss */
+/* line 234, ../sass/_tables.scss */
 .result-link a {
   /*temp wrapping fix */
   white-space: -moz-pre-wrap !important;
@@ -2217,7 +2222,7 @@ table tr td .filetype-icon {
   white-space: normal;
 }
 
-/* line 240, ../sass/_tables.scss */
+/* line 246, ../sass/_tables.scss */
 .cleared-row {
   float: left;
   clear: left;
@@ -2225,17 +2230,17 @@ table tr td .filetype-icon {
   width: 100%;
 }
 
-/* line 246, ../sass/_tables.scss */
+/* line 252, ../sass/_tables.scss */
 .log-container {
   margin-top: 20px;
 }
-/* line 250, ../sass/_tables.scss */
+/* line 256, ../sass/_tables.scss */
 .log-container table thead {
   background: #f3f6f9;
   height: 40px;
   border-bottom: 1px solid #e4e9f0;
 }
-/* line 254, ../sass/_tables.scss */
+/* line 260, ../sass/_tables.scss */
 .log-container table thead th {
   height: 100%;
   border-right: 1px solid #e4e9f0;
@@ -2245,13 +2250,13 @@ table tr td .filetype-icon {
   padding: 10px;
   font-weight: bold;
 }
-/* line 263, ../sass/_tables.scss */
+/* line 269, ../sass/_tables.scss */
 .log-container table thead th a {
   color: #585858;
 }
 
 @media (max-width: 767px) {
-  /* line 275, ../sass/_tables.scss */
+  /* line 281, ../sass/_tables.scss */
   .details-container table tr td {
     width: 50%;
   }

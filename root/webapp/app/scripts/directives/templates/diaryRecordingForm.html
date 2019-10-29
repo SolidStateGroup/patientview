@@ -1,0 +1,468 @@
+<div class="col-md-12 mb" data-ng-show="form.errors.existingOngoing">
+    <div class="col-md-12">
+        <span class="error"> &nbsp;*{{form.errors.existingOngoing}} </span>
+    </div>
+</div>
+<div class="col-md-12 mb-min">
+    <div class="col-md-3">
+        <div class="col-md-12 p-min">
+            Date*
+            <span data-ng-show="form.errors.date" class="error"> *{{form.errors.date}} </span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min">
+            Time*
+            <span data-ng-show="form.errors.time" class="error"> *{{form.errors.time}} </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="col-md-3">
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.date.day"
+                    data-ng-options="day as day for day in options.days" data-ng-disabled="editMode === true">
+            </select>
+        </div>
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.date.month"
+                    data-ng-options="month for month in options.months" data-ng-disabled="editMode === true">
+            </select>
+        </div>
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.date.year"
+                    data-ng-options="year for year in options.years" data-ng-disabled="editMode === true">
+            </select>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.date.hrs"
+                    data-ng-options="hr for hr in options.hrs" data-ng-disabled="editMode === true">
+            </select>
+        </div>
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.date.mins"
+                    data-ng-options="min for min in options.mins" data-ng-disabled="editMode === true">
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12 mt">
+    <div class="col-md-3">
+        <div class="col-md-12 p-min">
+            Urine Protein Dipstick*
+            <span data-ng-show="form.errors.protein" class="error"> {{form.errors.protein}} </span>
+        </div>
+        <div class="col-md-12 p-min">
+            <select class="form-control" data-ng-model="form.protein"
+                data-ng-options="opt.val as opt.key for opt in options.proteinDipsticks" >
+            </select>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="col-md-12 p-min">
+            Systolic BP (mm Hg)*
+            <span data-ng-show="form.errors.systolic" class="error"> {{form.errors.systolic}} </span>
+        </div>
+        <div class="col-md-12 p-min">
+            <input type="number" class="form-control" data-ng-disabled="form.systolicNotMeasured" data-ng-model="form.systolic"/>
+        </div>
+        <div class="col-md-12 p-min">
+            <input type="checkbox" data-ng-model="form.systolicNotMeasured" data-ng-change="form.systolic=null" data-ng-disabled="editMode === true"/>&nbsp; Not Measured
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="col-md-12 p-min">
+            Diastolic BP(mm Hg)*
+            <span data-ng-show="form.errors.diastolic" class="error"><br/>{{form.errors.diastolic}} </span>
+        </div>
+        <div class="col-md-12 p-min">
+            <input type="number" class="form-control" data-ng-disabled="form.diastolicNotMeasured" data-ng-model="form.diastolic"/>
+        </div>
+        <div class="col-md-12 p-min">
+            <input type="checkbox" data-ng-model="form.diastolicNotMeasured" data-ng-change="form.diastolic=null" data-ng-disabled="editMode === true"/>&nbsp; Not Measured
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="col-md-12 p-min">
+            Weight (kg)*
+            <span class="error" data-ng-show="form.errors.weight"><br/>{{form.errors.weight}}</span>
+        </div>
+        <div class="col-md-12 p-min">
+            <input
+                class="form-control"
+                type="text"
+                data-ng-model="form.weight"
+                data-ng-change="weightChanged()"
+                data-ng-disabled="form.weightNotMeasured" />
+        </div>
+        <div class="col-md-12 p-min">
+            <input type="checkbox" data-ng-model="form.weightNotMeasured" data-ng-change="form.weight=null" data-ng-disabled="editMode === true"/>&nbsp; Not Measured
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min">
+            {{ !form.newOedema || form.newOedema === 'NONE' ? 'Oedema *' : 'Add Oedema' }} 
+            <span data-ng-show="form.errors.newOedema" class="error">&nbsp;&nbsp;{{form.errors.newOedema}} </span>
+        </div>
+        <div class="col-md-8 p-min">
+            <select class="form-control" data-ng-model="form.newOedema" data-ng-change="formFuncs.newOedemaChanged(form)"
+                data-ng-options="opt.val as opt.key for opt in options.oedemas" >
+            </select>
+        </div>
+        <div class="col-md-3 p-min" data-ng-show="form.newOedema && form.newOedema !== 'NONE'">
+            <button type="button" class="btn blue col-md-12" data-ng-click="formFuncs.addOedema(form)" data-ng-show="formFuncs.canAddNewOedema(form)">
+                +
+            </button>
+            <button type="button" class="btn negative col-md-12" data-ng-click="formFuncs.removeOedema(form, form.newOedema)" data-ng-show="!formFuncs.canAddNewOedema(form)">
+                -
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12 mb-min" data-ng-show="form.newOedema && form.newOedema !== 'NONE'">
+    <div class="col-md-12">
+        <div class="col-md-12 p-min">
+            Oedema
+        </div>
+        
+        <div class="row p-min">
+            <div class="col-md-12 table-filter-container" style="padding-top:none">
+                <ul class="feature-list unstyled name-action-list">
+                    <li class="feature-list-item pull-left" data-ng-repeat="oedem in form.oedema">
+                        <div class="feature-list-name pull-left">
+                            <span class="feature-list-name">&nbsp;&nbsp;{{options.oedemasLookup[oedem]}} </span>
+                        </div>
+                        <div class="feature-list-delete pull-left">
+                            <a href="" data-ng-click="formFuncs.removeOedema(form, oedem)" >
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TODO content -->
+
+<div class="col-md-12">
+
+    <div class="col-md-3">
+        <div class="col-md-12 p-min">
+            Relapse*
+            <span data-ng-show="form.errors.relapse" class="error"> {{form.errors.relapse}} </span>
+        </div>
+        <div class="col-md-12 p-min">
+            <select class="form-control" data-ng-model="form.relapse"
+                data-ng-options="opt.val as opt.key for opt in options.yesNo" data-ng-disabled="editMode === true" >
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3" data-ng-show="true || !form.relapse">
+        <div class="col-md-12 p-min">
+            &nbsp;
+        </div>
+        <div class="col-md-12 p-min">
+            <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- TODO Content -->
+
+<div data-ng-show="form.relapse">
+
+    <hr/>
+
+    <div class="col-md-12">
+
+        <div class="col-md-3" data-ng-show="form.relapse">
+            <div class="col-md-12 p-min">
+                &nbsp;Date of Relapse*
+                <span data-ng-show="form.errors.relapseDate" class="error">{{form.errors.relapseDate}} </span>
+            </div>
+            <div class="col-md-4 p-min">
+                <select class="form-control" data-ng-model="form.relapseDate.day"
+                        data-ng-options="day as day for day in options.days" >
+                </select>
+            </div>
+            <div class="col-md-4 p-min">
+                <select class="form-control" data-ng-model="form.relapseDate.month"
+                        data-ng-options="month for month in options.months" >
+                </select>
+            </div>
+            <div class="col-md-4 p-min">
+                <select class="form-control" data-ng-model="form.relapseDate.year"
+                        data-ng-options="year for year in options.years" >
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-md-offset-1" data-ng-show="form.relapse">
+            <div class="col-md-12 p-min">
+                Date of Remission* <span class="link" data-ng-show="!form.relapseOngoing" data-ng-click="form.relapseOngoing = true">(Ongoing?)</span>
+                <span data-ng-show="form.errors.remissionDate" class="error">{{form.errors.remissionDate}} </span>
+            </div>
+
+            <div class="col-md-12 p-min" data-ng-show="form.relapseOngoing">
+                <span class="strong">Ongoing</span>
+                &nbsp;&nbsp;
+                <span class="link" data-ng-click="form.relapseOngoing = false">(Enter Date)</span>
+            </div>
+
+            <div data-ng-show="!form.relapseOngoing">
+                <div class="col-md-4 p-min">
+                <select class="form-control" data-ng-model="form.remissionDate.day"
+                    data-ng-options="day as day for day in options.days" >
+                </select>
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.remissionDate.month"
+                        data-ng-options="month for month in options.months" >
+                    </select>
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.remissionDate.year"
+                        data-ng-options="year for year in options.years" >
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 box-title mt">
+        Triggers for Relapse
+    </div>
+    <span data-ng-show="form.errors.triggers" class="error"> *{{form.errors.triggers}} </span>
+
+    <div class="col-md-12">
+        <div class="col-md-2">
+            <div class="col-md-12 p-min">
+                Viral Infection
+            </div>
+            <div class="col-md-12 p-min">
+                <input class="form-control" data-ng-model="form.viralInfection"/>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="col-md-12 p-min">
+                Common Cold
+            </div>
+            <div class="col-md-12 p-min">
+                <select class="form-control" data-ng-model="form.commonCold"
+                    data-ng-options="opt.val as opt.key for opt in options.yesNo" >
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="col-md-12 p-min">
+                Hay Fever
+            </div>
+            <div class="col-md-12 p-min">
+                <select class="form-control" data-ng-model="form.hayFever"
+                    data-ng-options="opt.val as opt.key for opt in options.yesNo" >
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="col-md-12 p-min">
+                Allergic Reaction
+            </div>
+            <div class="col-md-12 p-min">
+                <select class="form-control" data-ng-model="form.allergicReaction"
+                    data-ng-options="opt.val as opt.key for opt in options.yesNo" >
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="col-md-12 p-min">
+                Allergic Skin Rash
+            </div>
+            <div class="col-md-12 p-min">
+                <select class="form-control" data-ng-model="form.allergicSkinRash"
+                    data-ng-options="opt.val as opt.key for opt in options.yesNo" >
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="col-md-12 p-min">
+                Food Intolerance
+            </div>
+            <div class="col-md-12 p-min">
+                <select class="form-control" data-ng-model="form.foodIntolerance"
+                    data-ng-options="opt.val as opt.key for opt in options.yesNo" >
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relapse-->
+
+    <hr/>
+
+    <div>
+        <div class="col-md-12 box-title">
+                Medication Taken Specifically for Relapse
+        </div>
+
+        <div class="col-md-12" data-ng-show="form.medications.length > 0">
+            <div class="col-md-12">
+                <div class="faux-table nine-col" >
+                    <div class="accordion-title-row table-head">
+                        <div class="hidden">ID</div>
+                        <div class="head-item accordion-title-text">Medication</div>
+                        <div class="head-item accordion-title-text">Dose</div>
+                        <div class="head-item accordion-title-text">Frequency</div>
+                        <div class="head-item accordion-title-text">Route</div>
+                        <div class="head-item accordion-title-text">Date Started</div>
+                        <div class="head-item accordion-title-text">Date Stopped</div>
+                        <div class="head-item accordion-title-text"></div>
+                    </div>
+
+                    <div class="item-header" data-ng-repeat="medication in form.medications">
+                        <div class="faux-row">
+                            <div class="row-item hidden"></div>
+                            <div class="row-item accordion-heading-text">{{ medication.name === 'OTHER' ? medication.other : medication.name }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.doseQty ? medication.doseQty + medication.doseUnits : '-' }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.doseFrequency ? medication.doseFrequency : '-' }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.route ? medication.route : '-' }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.started.day + "-" + medication.started.month + "-" + medication.started.year }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.stopped.day + "-" + medication.stopped.month + "-" + medication.stopped.year }}</div>
+                            <div class="row-item actions">
+                                <button type="button" class="statistics-button btn negative" data-ng-click="deleteMedication(medication.id)"> Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 box-title mt">
+                Add Medication
+        </div>
+        <span data-ng-show="form.errors.medication" class="error"> *{{form.errors.medication}} </span>
+
+        <div class="col-md-12">
+            <div data-ng-class="form.newMedication.name === 'OTHER' ? 'col-md-2' : 'col-md-3'">
+                <div class="col-md-12 p-min">
+                    Medication*
+                    <span data-ng-show="form.newMedication.errors.name" class="error">&nbsp;&nbsp;{{form.newMedication.errors.name}} </span>
+                </div>
+                <div class="col-md-12 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.name"
+                        data-ng-options="opt.val as opt.key for opt in options.medicationNames" >
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3" data-ng-show="form.newMedication.name === 'OTHER'">
+                <div class="col-md-12 p-min">
+                    Medication Name*
+                    <span data-ng-show="form.newMedication.errors.other" class="error">&nbsp;&nbsp;{{form.newMedication.errors.other}} </span>
+                </div>
+                <div class="col-md-12 p-min">
+                    <input type="text" class="form-control" data-ng-model="form.newMedication.other"/>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="col-md-6 p-min">
+                    Dose Qty.
+                </div>
+                <div class="col-md-6 p-min">
+                    &nbsp;Units
+                </div>
+                <div class="col-md-12 p-min" data-ng-show="form.newMedication.errors.dose">
+                    <span class="error">{{form.newMedication.errors.dose}} </span>
+                </div>
+                <div class="col-md-6 p-min">
+                    <input type="number" class="form-control" data-ng-model="form.newMedication.doseQty"/>
+                </div>
+                <div class="col-md-6 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.doseUnits"
+                        data-ng-options="opt.val as opt.key for opt in options.doseUnits" >
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="col-md-12 p-min">
+                    Dose Frequency
+                </div>
+                <div class="col-md-12 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.doseFrequency"
+                        data-ng-options="opt.val as opt.key for opt in options.doseFrequencies" >
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="col-md-12 p-min">
+                    Route
+                </div>
+                <div class="col-md-12 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.route"
+                        data-ng-options="opt.val as opt.key for opt in options.routes" >
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- TODO content-->
+
+        <div class="col-md-12">
+            <div class="col-md-3">
+                <div class="col-md-12 p-min">
+                    Date Started
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.started.day"
+                            data-ng-options="day as day for day in options.days" >
+                    </select>
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.started.month"
+                            data-ng-options="month for month in options.months" >
+                    </select>
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.started.year"
+                            data-ng-options="year for year in options.years" >
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="col-md-12 p-min">
+                    Date Stopped
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.stopped.day"
+                            data-ng-options="day as day for day in options.days" >
+                    </select>
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.stopped.month"
+                            data-ng-options="month for month in options.months" >
+                    </select>
+                </div>
+                <div class="col-md-4 p-min">
+                    <select class="form-control" data-ng-model="form.newMedication.stopped.year"
+                            data-ng-options="year for year in options.years" >
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2 col-md-offset-0">
+                <div class="col-md-12 p-min">
+                    &nbsp;
+                </div>
+                <div class="col-md-12 p-min">
+                    <button type="button" class="btn blue" data-ng-click="addMedication(form)">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
