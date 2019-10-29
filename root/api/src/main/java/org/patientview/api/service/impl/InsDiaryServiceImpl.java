@@ -140,7 +140,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         // new diary entry date must be greater to "Date" of previous diary entry
-        if (!foundRecord.getEntryDate().equals(record.getEntryDate())) {
+        if (foundRecord.getEntryDate().compareTo(record.getEntryDate()) != 0) {
             throw new ResourceInvalidException("Diary entry Date can not be updated.");
         }
 
