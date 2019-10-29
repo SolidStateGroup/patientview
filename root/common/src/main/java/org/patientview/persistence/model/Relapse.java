@@ -38,7 +38,7 @@ public class Relapse extends AuditModel {
     @Temporal(TemporalType.DATE)
     private Date remissionDate;
 
-    @Column(name = "viral_infection", nullable = false)
+    @Column(name = "viral_infection", length = 200)
     private String viralInfection;
 
     @Column(name = "common_cold")
