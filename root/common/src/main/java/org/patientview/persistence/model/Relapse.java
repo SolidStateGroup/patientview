@@ -56,7 +56,7 @@ public class Relapse extends AuditModel {
     @Column(name = "food_intolerance")
     private boolean foodIntolerance = false;
 
-    @OneToMany(mappedBy = "relapse", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "relapse", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<RelapseMedication> medications = new ArrayList();
 
     public User getUser() {
