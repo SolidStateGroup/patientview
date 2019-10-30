@@ -10,6 +10,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
     var newFormInitialRelapseInitial, newFormInitialRelapse;
 
+    /* format functions */
 
     function formatMedicationForForm(m){
         return {
@@ -129,6 +130,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         return /^(\d+)?([.]?\d?)?$/g.test('' + val);
     }
 
+    /* Date dropdown functions */
+
     function getDateDropdownVals(date){
         var vals = {};
         for (var i=0;i<$scope.options.days.length;i++) {
@@ -186,6 +189,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         return moment(getDateTimeFromDropdowns(date)).format('HH:mm')
     }
 
+    /* Local medication maipulation functions */
+
     $scope.addMedicationLocal = function(form){
         var errors = $scope.validateMedication(form);
         if(!errors.isValid) return;
@@ -199,6 +204,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             return m.id !== id;
         });
     }
+
+    /* Oedema manipulation functions */
 
     $scope.formFuncs.canAddNewOedema = function(form) {
         if(form.oedema.filter(function(o){return o === form.newOedema}).length === 0){
@@ -229,6 +236,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             $scope.formFuncs.addOedema(form);
         }
     };
+
+    /* General Initialisation */
 
     $scope.init = function(){
 
@@ -323,6 +332,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         $scope.getRecordings();
     }
 
+    /* Sub-initialisation functions */
+
     $scope.initNewMedication = function (form){
         form.newMedication = {
             id: form.newMedicationCount,
@@ -361,6 +372,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
         }, newFormInitialRelapse);
     }
+
+    /* General Validation */
 
     $scope.validate = function (form) {
         var errors = {};
@@ -486,6 +499,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
     }
 
 
+    /* Service handlers */
+
     $scope.getRecordings = function() {
 
         $scope.loading = true;
@@ -549,14 +564,6 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         }
     }
 
-    function scrollToError(){
-        setTimeout(function(){
-            if($("insError").length === 1){
-                $([document.documentElement, document.body]).scrollTop( $("#insError").offset().top - 20);
-            }
-        }, 50);
-    }
-
     $scope.deleteMedication = function(form, id){
         $scope.loading = true;
         console.log('id:', id);
@@ -613,6 +620,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         });
     }
 
+    /* Misc. */
+
     $scope.editEntry = function(row){
         if(row && row.id !== $scope.showEdit) {
             $scope.showEdit = row ? row.id : null;
@@ -621,6 +630,15 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         }
         setTimeout(function(){$('.faux-table .faux-table .dull').removeClass('dull');}, 50);
     };
+
+
+    function scrollToError(){
+        setTimeout(function(){
+            if($("insError").length === 1){
+                $([document.documentElement, document.body]).scrollTop( $("#insError").offset().top - 20);
+            }
+        }, 50);
+    }
 
     $scope.debugThing = function(){
         console.log($scope)
