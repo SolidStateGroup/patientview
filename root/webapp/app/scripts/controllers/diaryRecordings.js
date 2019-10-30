@@ -508,7 +508,6 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         DiaryRecordingService.getPaged($scope.loggedInUser.id, $scope.page, pageSize).then(function(data) {
             data.content.forEach(function(d, i){
                 if(i === 0 && $scope.page === 0){
-                    console.log('jhgjh', d.inRelapse, d.relapse.remissionDate)
                     if(d.inRelapse && !d.relapse.remissionDate){
                         newFormInitialRelapse = formatRelapseForForm(d);
                     } else {
