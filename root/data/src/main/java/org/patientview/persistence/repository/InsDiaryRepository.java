@@ -4,6 +4,7 @@ import org.patientview.persistence.model.InsDiaryRecord;
 import org.patientview.persistence.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +27,8 @@ public interface InsDiaryRepository extends CrudRepository<InsDiaryRecord, Long>
     // used internally
     @Query(value = "SELECT d FROM InsDiaryRecord d WHERE d.user = :user")
     List<InsDiaryRecord> findListByUser(@Param("user") User user, Pageable pageable);
+
+    @Modifying(clearAutomatically = true) // note: clearAutomatically required to flush changes straight away
+    @Query("DELETE FROM InsDiaryRecord WHERE user.id = :userId")
+    void deleteInsDiaryByUser(@Param("userId") Long userId);
 }
