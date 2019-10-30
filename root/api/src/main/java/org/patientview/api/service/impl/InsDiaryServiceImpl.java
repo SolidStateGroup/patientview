@@ -124,8 +124,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
     @Override
     public InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record)
-            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException,
-            FhirResourceException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -173,41 +172,41 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         // we can update results only if value was added originally
 
         // update SystolicBP
-        if (foundRecord.getSystolicBPExclude() == null ||
-                !foundRecord.getSystolicBPExclude()) {
-            foundRecord.setSystolicBP(record.getSystolicBP());
+        if (foundRecord.getSystolicBPExclude() == null || !foundRecord.getSystolicBPExclude()) {
 
             // check if any changes
             if (foundRecord.getSystolicBP().intValue() != record.getSystolicBP().intValue()) {
-                // update result
+                // update fhir result
                 updateFhirObservation(patientUser.getId(), editor.getId(), foundRecord.getSystolicBPResourceId(),
                         foundRecord.getEntryDate(), String.valueOf(record.getSystolicBP()));
+
+                foundRecord.setSystolicBP(record.getSystolicBP());
             }
         }
 
         // update DiastolicBP
-        if (foundRecord.getDiastolicBPExclude() == null ||
-                !foundRecord.getDiastolicBPExclude()) {
-            foundRecord.setDiastolicBP(record.getDiastolicBP());
+        if (foundRecord.getDiastolicBPExclude() == null || !foundRecord.getDiastolicBPExclude()) {
 
             // check if any changes
             if (foundRecord.getDiastolicBP().intValue() != record.getDiastolicBP().intValue()) {
-                // update result
+                // update fhir result
                 updateFhirObservation(patientUser.getId(), editor.getId(), foundRecord.getDiastolicBPResourceId(),
                         foundRecord.getEntryDate(), String.valueOf(record.getDiastolicBP()));
+
+                foundRecord.setDiastolicBP(record.getDiastolicBP());
             }
         }
 
         // update weight
-        if (foundRecord.getWeightExclude() == null ||
-                !foundRecord.getWeightExclude()) {
-            foundRecord.setWeight(record.getWeight());
+        if (foundRecord.getWeightExclude() == null || !foundRecord.getWeightExclude()) {
 
             // check if any changes
             if (foundRecord.getWeight().doubleValue() != record.getWeight().doubleValue()) {
                 // update result
                 updateFhirObservation(patientUser.getId(), editor.getId(), foundRecord.getWeightResourceId(),
                         foundRecord.getEntryDate(), String.valueOf(record.getDiastolicBP()));
+
+                foundRecord.setWeight(record.getWeight());
             }
         }
 
@@ -319,7 +318,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     }
 
     @Override
-    public void deleteRelapseRecordsForUser(User user){
+    public void deleteRelapseRecordsForUser(User user) {
         relapseRepository.deleteByUser(user.getId());
     }
 
@@ -672,13 +671,19 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
      * @throws FhirResourceException
      */
     private void updateFhirObservation(Long userId, Long editorId, UUID uuid, Date date, String value)
-            throws ResourceNotFoundException, FhirResourceException {
-        FhirObservation fhirObservation = new FhirObservation();
-        fhirObservation.setLogicalId(uuid);
-        fhirObservation.setApplies(date);
-        fhirObservation.setValue(value);
+            throws ResourceNotFoundException, ResourceInvalidException {
 
-        apiObservationService.updatePatientEnteredResult(userId, editorId, fhirObservation);
+        try {
+            FhirObservation fhirObservation = new FhirObservation();
+            fhirObservation.setLogicalId(uuid);
+            fhirObservation.setApplies(date);
+            fhirObservation.setValue(value);
+
+            apiObservationService.updatePatientEnteredResult(userId, editorId, fhirObservation);
+        } catch (FhirResourceException e) {
+            LOG.error("FhirResourceException thrown : ", e);
+            throw new ResourceInvalidException("Failed to update result.");
+        }
     }
 
 }

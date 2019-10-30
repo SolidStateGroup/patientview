@@ -78,7 +78,7 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
                                     @RequestParam(required = false) Long adminId,
                                     @RequestBody InsDiaryRecord record)
             throws ResourceNotFoundException, ResourceForbiddenException,
-            ResourceInvalidException, FhirResourceException {
+            ResourceInvalidException {
         if (adminId == null || adminId == -1) {
             adminId = null;
         }

@@ -57,7 +57,7 @@ public interface InsDiaryService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException,
-            ResourceForbiddenException, ResourceInvalidException, FhirResourceException;
+            ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Delete a InsDiaryRecord associated with a User
