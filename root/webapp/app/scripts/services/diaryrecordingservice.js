@@ -61,6 +61,27 @@ angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restan
                 deferred.reject(failureResult);
             });
             return deferred.promise;
-        }
+        },
+
+        postMedication: function (userid, relapseId, medication) {
+            var deferred = $q.defer();
+            // POST /user/{userId}/relapses/{relapseId}/medications
+            Restangular.one('user', userid).one('relapses', relapseId).one('medications').customPOST(medication).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
+        removeMedication: function (userid, relapseId, medicationId) {
+            var deferred = $q.defer();
+            // DELETE /user/{userId}/relapses/{relapseId}/medications/{medicationId}
+            Restangular.one('user', userid).one('relapses', relapseId).one('medications', medicationId).remove().then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
     };
 }]);
