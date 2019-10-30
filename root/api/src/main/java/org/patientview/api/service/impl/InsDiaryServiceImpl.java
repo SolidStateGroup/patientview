@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ApiObservationService;
@@ -32,6 +33,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * INS Diary service to handle IDS diary recordings functionality.
@@ -74,7 +77,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         // check for previous records
-        PageRequest pageable = createPageRequest(0, 100, "entryDate", "ASC");
+        PageRequest pageable = createPageRequest(0, 100, "entryDate", "DESC");
         List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser, pageable);
 
         // validate form
@@ -89,8 +92,13 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             record.setRelapse(savedRelapse);
         }
 
-        // create fhir results
-        createFhirRecords(record, patientUser);
+        // create fhir observation and get logical ids back
+        Map<String, UUID> resourceMapIds = createFhirRecords(record, patientUser);
+        if (!CollectionUtils.isEmpty(resourceMapIds)) {
+            record.setSystolicBPResourceId(resourceMapIds.get(SYSTOLIC_BP_CODE));
+            record.setDiastolicBPResourceId(resourceMapIds.get(DISATOLIC_BP_CODE));
+            record.setWeightResourceId(resourceMapIds.get(WEIGHT_CODE));
+        }
 
         record.setUser(patientUser);
         record.setCreator(editor);
@@ -116,7 +124,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
     @Override
     public InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record)
-            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException,
+            FhirResourceException {
         User patientUser = userRepository.findOne(userId);
         if (patientUser == null) {
             throw new ResourceNotFoundException("Could not find user");
@@ -145,7 +154,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         // check for previous records
-        PageRequest pageable = createPageRequest(0, 100, "entryDate", "ASC");
+        PageRequest pageable = createPageRequest(0, 100, "entryDate", "DESC");
         List<InsDiaryRecord> existingRecords = insDiaryRepository.findListByUser(patientUser, pageable);
 
         // validate form details
@@ -160,18 +169,50 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             foundRecord.setRelapse(savedRelapse);
         }
 
-        // TODO: update fhir results
+        // update fhir results
+        // we can update results only if value was added originally
 
-        foundRecord.setEntryDate(record.getEntryDate());
+        // update SystolicBP
+        if (foundRecord.getSystolicBPExclude() == null ||
+                !foundRecord.getSystolicBPExclude()) {
+            foundRecord.setSystolicBP(record.getSystolicBP());
+
+            // check if any changes
+            if (foundRecord.getSystolicBP().intValue() != record.getSystolicBP().intValue()) {
+                // update result
+                updateFhirObservation(patientUser.getId(), editor.getId(), foundRecord.getSystolicBPResourceId(),
+                        foundRecord.getEntryDate(), String.valueOf(record.getSystolicBP()));
+            }
+        }
+
+        // update DiastolicBP
+        if (foundRecord.getDiastolicBPExclude() == null ||
+                !foundRecord.getDiastolicBPExclude()) {
+            foundRecord.setDiastolicBP(record.getDiastolicBP());
+
+            // check if any changes
+            if (foundRecord.getDiastolicBP().intValue() != record.getDiastolicBP().intValue()) {
+                // update result
+                updateFhirObservation(patientUser.getId(), editor.getId(), foundRecord.getDiastolicBPResourceId(),
+                        foundRecord.getEntryDate(), String.valueOf(record.getDiastolicBP()));
+            }
+        }
+
+        // update weight
+        if (foundRecord.getWeightExclude() == null ||
+                !foundRecord.getWeightExclude()) {
+            foundRecord.setWeight(record.getWeight());
+
+            // check if any changes
+            if (foundRecord.getWeight().doubleValue() != record.getWeight().doubleValue()) {
+                // update result
+                updateFhirObservation(patientUser.getId(), editor.getId(), foundRecord.getWeightResourceId(),
+                        foundRecord.getEntryDate(), String.valueOf(record.getDiastolicBP()));
+            }
+        }
+
         foundRecord.setDipstickType(record.getDipstickType());
-        foundRecord.setSystolicBP(record.getSystolicBP());
-        foundRecord.setSystolicBPExclude(record.getSystolicBPExclude());
-        foundRecord.setDiastolicBP(record.getDiastolicBP());
-        foundRecord.setDiastolicBPExclude(record.getDiastolicBPExclude());
-        foundRecord.setWeight(record.getWeight());
-        foundRecord.setWeightExclude(record.getWeightExclude());
         foundRecord.setOedema(record.getOedema());
-
 
         return insDiaryRepository.save(foundRecord);
     }
@@ -365,13 +406,13 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
                 for (InsDiaryRecord previousN : existingRecords) {
                     if (!previousN.isInRelapse() && !previousN.getId().equals(record.getId())
-                            && previousN.getId().longValue() > record.getId().longValue()
+                            //&& previousN.getId().longValue() > record.getId().longValue()
                             && new DateTime(previousN.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
                         noneRalapseEntryDate = previousN.getEntryDate();
                     }
 
-                    if (previousN.isInRelapse() && !previousN.getId().equals(record.getId())
-                            && previousN.getId().longValue() > record.getId().longValue()) {
+                    if (previousN.isInRelapse() && !previousN.getId().equals(record.getId())) {
+                        //&& previousN.getId().longValue() > record.getId().longValue()) {
                         ralapseEntryDate = previousN.getEntryDate();
                     }
 
@@ -538,7 +579,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
      * @throws ResourceNotFoundException
      * @throws FhirResourceException
      */
-    private void createFhirRecords(InsDiaryRecord record, User patientUser)
+    private Map<String, UUID> createFhirRecords(InsDiaryRecord record, User patientUser)
             throws ResourceNotFoundException, FhirResourceException {
 
         List<UserResultCluster> userResultClusters = new ArrayList<>();
@@ -606,7 +647,28 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             userResultClusters.add(userResultCluster);
         }
 
-        apiObservationService.addUserResultClusters(patientUser.getId(), userResultClusters);
+        return apiObservationService.addUserResultClusters(patientUser.getId(), userResultClusters);
+    }
+
+    /**
+     * Update fhir observation result for patient
+     *
+     * @param userId   an id of the patient to update result for
+     * @param editorId an id of the editor
+     * @param uuid     a logical id of the Observation
+     * @param date
+     * @param value    new value to set
+     * @throws ResourceNotFoundException
+     * @throws FhirResourceException
+     */
+    private void updateFhirObservation(Long userId, Long editorId, UUID uuid, Date date, String value)
+            throws ResourceNotFoundException, FhirResourceException {
+        FhirObservation fhirObservation = new FhirObservation();
+        fhirObservation.setLogicalId(uuid);
+        fhirObservation.setApplies(date);
+        fhirObservation.setValue(value);
+
+        apiObservationService.updatePatientEnteredResult(userId, editorId, fhirObservation);
     }
 
 }
