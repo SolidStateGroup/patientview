@@ -9,6 +9,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.InsDiaryRecord;
 import org.patientview.persistence.model.RelapseMedication;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 
@@ -56,7 +57,7 @@ public interface InsDiaryService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record) throws ResourceNotFoundException,
-            ResourceForbiddenException, ResourceInvalidException;
+            ResourceForbiddenException, ResourceInvalidException, FhirResourceException;
 
     /**
      * Delete a InsDiaryRecord associated with a User
@@ -112,5 +113,24 @@ public interface InsDiaryService {
     void deleteRelapseMedication(Long userId, Long relapseId, Long medicationId)
             throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException;
 
+
+    /**
+     * Hard delete all InsDiaryRecord entries associated with a User.
+     *
+     * Used internally when hard deleting patient from the system
+     *
+     * @param user User to delete InsDiaryRecord entries for
+     */
+    void deleteInsDiaryRecordsForUser(User user);
+
+    /**
+     * Hard delete all Relapse records associated with a User. This will also delete
+     * associated RelapseMedication records.
+     *
+     * Used internally when hard deleting patient from the system.
+     *
+     * @param user User to delete InsDiaryRecord entries for
+     */
+    void deleteRelapseRecordsForUser(User user);
 
 }

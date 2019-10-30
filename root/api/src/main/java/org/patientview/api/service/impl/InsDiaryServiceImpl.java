@@ -313,6 +313,16 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         relapseMedicationRepository.delete(existingMedication);
     }
 
+    @Override
+    public void deleteInsDiaryRecordsForUser(User user) {
+        insDiaryRepository.deleteByUser(user.getId());
+    }
+
+    @Override
+    public void deleteRelapseRecordsForUser(User user){
+        relapseRepository.deleteByUser(user.getId());
+    }
+
     /**
      * Helper to validate InsDiaryRecord
      *
