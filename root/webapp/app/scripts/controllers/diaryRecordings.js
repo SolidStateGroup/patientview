@@ -111,6 +111,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             "weightExclude": form.weightNotMeasured,
             "inRelapse": form.relapse,
             "relapse": form.relapse ? {
+                "id": form.relapseId || undefined,
                 "relapseDate": getDateFromDropdowns(form.relapseDate).toISOString(), 
                 "remissionDate": !form.relapseOngoing ? getDateFromDropdowns(form.remissionDate).toISOString() : null, 
                 "viralInfection": form.viralInfection, 
