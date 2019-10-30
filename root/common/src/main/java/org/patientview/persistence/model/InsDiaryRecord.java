@@ -22,9 +22,13 @@ import javax.persistence.TemporalType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * InsDiaryRecord entity to store Ins diary records.
+ *
+ * Record also stores fhir resource ids for each of the result heading to
+ * help interact with data easier.
  */
 @Entity
 @Table(name = "pv_ins_diary")
@@ -58,17 +62,26 @@ public class InsDiaryRecord extends AuditModel {
     @Column(name = "systolic_bp_exclude")
     private Boolean systolicBPExclude;
 
+    @Column(name = "systolic_bp_resource_id")
+    private UUID systolicBPResourceId;
+
     @Column(name = "diastolic_bp")
     private Integer diastolicBP;
 
     @Column(name = "diastolic_bp_exclude")
     private Boolean diastolicBPExclude;
 
+    @Column(name = "diastolic_bp_resource_id")
+    private UUID diastolicBPResourceId;
+
     @Column(name = "weight", columnDefinition = "numeric", precision = 19, scale = 2)
     private Double weight;
 
     @Column(name = "weight_exclude")
     private Boolean weightExclude;
+
+    @Column(name = "weight_resource_id")
+    private UUID weightResourceId;
 
     @Column(name = "is_relapse", nullable = false)
     private boolean inRelapse = false;
@@ -125,6 +138,14 @@ public class InsDiaryRecord extends AuditModel {
         this.systolicBPExclude = systolicBPExclude;
     }
 
+    public UUID getSystolicBPResourceId() {
+        return systolicBPResourceId;
+    }
+
+    public void setSystolicBPResourceId(UUID systolicBPResourceId) {
+        this.systolicBPResourceId = systolicBPResourceId;
+    }
+
     public Integer getDiastolicBP() {
         return diastolicBP;
     }
@@ -141,6 +162,14 @@ public class InsDiaryRecord extends AuditModel {
         this.diastolicBPExclude = diastolicBPExclude;
     }
 
+    public UUID getDiastolicBPResourceId() {
+        return diastolicBPResourceId;
+    }
+
+    public void setDiastolicBPResourceId(UUID diastolicBPResourceId) {
+        this.diastolicBPResourceId = diastolicBPResourceId;
+    }
+
     public Double getWeight() {
         return weight;
     }
@@ -155,6 +184,14 @@ public class InsDiaryRecord extends AuditModel {
 
     public void setWeightExclude(Boolean weightExclude) {
         this.weightExclude = weightExclude;
+    }
+
+    public UUID getWeightResourceId() {
+        return weightResourceId;
+    }
+
+    public void setWeightResourceId(UUID weightResourceId) {
+        this.weightResourceId = weightResourceId;
     }
 
     public boolean isInRelapse() {
