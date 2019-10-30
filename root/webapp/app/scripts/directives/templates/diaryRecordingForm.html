@@ -337,7 +337,7 @@
                             <div class="row-item accordion-heading-text">{{ medication.started.day + "-" + medication.started.month + "-" + medication.started.year }}</div>
                             <div class="row-item accordion-heading-text">{{ medication.stopped.day + "-" + medication.stopped.month + "-" + medication.stopped.year }}</div>
                             <div class="row-item actions">
-                                <button type="button" class="statistics-button btn negative" data-ng-click="deleteMedication(medication.id)"> Delete</button>
+                                <button type="button" class="statistics-button btn negative" data-ng-click="removeMedication(form, medication.id)"> Delete</button>
                             </div>
                         </div>
                     </div>
