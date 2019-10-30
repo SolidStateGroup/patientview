@@ -30,5 +30,5 @@ public interface InsDiaryRepository extends CrudRepository<InsDiaryRecord, Long>
 
     @Modifying(clearAutomatically = true) // note: clearAutomatically required to flush changes straight away
     @Query("DELETE FROM InsDiaryRecord WHERE user.id = :userId")
-    void deleteInsDiaryByUser(@Param("userId") Long userId);
+    void deleteByUser(@Param("userId") Long userId);
 }
