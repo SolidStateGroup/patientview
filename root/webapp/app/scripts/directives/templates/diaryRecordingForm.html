@@ -165,12 +165,12 @@
         </div>
     </div>
 
-    <div class="col-md-3" data-ng-show="true || !form.relapse">
+    <div class="col-md-3" data-ng-show="!form.relapse">
         <div class="col-md-12 p-min">
             &nbsp;
         </div>
         <div class="col-md-12 p-min">
-            <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save</button>
+            <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save Diary Entry</button>
         </div>
     </div>
 
@@ -461,6 +461,16 @@
                 </div>
                 <div class="col-md-12 p-min">
                     <button type="button" class="btn blue" data-ng-click="addMedication(form)">Add</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12"  data-ng-show="form.relapse">
+            <div class="col-md-3">
+                <div class="col-md-12 p-min">
+                    &nbsp;
+                </div>
+                <div class="col-md-12 p-min">
+                    <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save Diary Entry</button>
                 </div>
             </div>
         </div>
