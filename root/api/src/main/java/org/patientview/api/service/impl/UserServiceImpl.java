@@ -22,6 +22,7 @@ import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.HospitalisationService;
 import org.patientview.api.service.ImmunisationService;
+import org.patientview.api.service.InsDiaryService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
@@ -97,7 +98,7 @@ import javax.persistence.Query;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.awt.*;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -220,6 +221,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private ImmunisationService immunisationService;
+
+    @Inject
+    private InsDiaryService insDiaryService;
 
     @Inject
     private DeletePatientTask deletePatientTask;
@@ -939,6 +943,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 immunisationService.deleteRecordsForUser(patient);
 
                 // delete ins diary records
+                LOG.info("user: " + patient.getId() + ", delete ins diary");
+                insDiaryService.deleteInsDiaryRecordsForUser(patient);
+
+                // delete ins relapse records
+                LOG.info("user: " + patient.getId() + ", delete relapse");
+                insDiaryService.deleteRelapseRecordsForUser(patient);
 
                 LOG.info("user: " + patient.getId() + ", delete user");
                 userRepository.delete(patient);
