@@ -33,10 +33,19 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         return vals;
     }
 
+
+    function scrollToError(){
+        setTimeout(function(){
+            if($("#hospError").length === 1){
+                $([document.documentElement, document.body]).scrollTop( $("#hospError").offset().top - 20);
+            }
+        }, 50);
+    }
+
     $scope.init = function(){
         $scope.showEdit = null;
 
-        $scope.hospitalisations = [];
+        if(!$scope.hospitalisations) $scope.hospitalisations = [];
 
         $scope.days = UtilService.generateDays().filter(function(x){return !!x});
         $scope.months = UtilService.generateMonths().filter(function(x){return !!x});
@@ -58,7 +67,6 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             ongoing: false,
         }
 
-        $scope.getHospitalisations();
     }
 
     
@@ -75,6 +83,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         }, function() {
             $scope.loading = false;
             $scope.errorMessage = error.data;
+            scrollToError();
         });
     }
     
@@ -109,10 +118,13 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             $scope.loading = false;
             $scope.hospitalisations.push(formatHostpitalisation(data));
 
+            $scope.init();
+
             delete $scope.errorMessage;
         }, function(error) {
             $scope.loading = false;
             $scope.errorMessage = error.data;
+            scrollToError();
         });
     }
 
@@ -156,6 +168,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         }, function(error) {
             $scope.loading = false;
             $scope.errorMessage = error.data;
+            scrollToError();
         });
     }
 
@@ -209,6 +222,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         }, function() {
             $scope.loading = false;
             $scope.errorMessage = error.data;
+            scrollToError();
         });
     }
 
@@ -221,6 +235,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
         }, function() {
             $scope.loading = false;
             $scope.errorMessage = error.data;
+            scrollToError();
         });
     }
 
@@ -242,4 +257,5 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
     };
 
     $scope.init();
+    $scope.getHospitalisations();
 }]);
