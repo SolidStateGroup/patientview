@@ -215,8 +215,10 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     }
 
     @Override
-    public void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
+    public Map<String, UUID> addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException {
+
+        Map<String, UUID> resourceMapIds = new HashMap<>();
 
         // Patient adds his own results
         User patientUser = userRepository.findOne(userId);
@@ -304,9 +306,13 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                     if (!(userResultCluster.getComments() == null || userResultCluster.getComments().isEmpty())) {
                         observation.setCommentsSimple(userResultCluster.getComments());
                     }
+                    FhirDatabaseObservation fhirDatabaseObservation =
+                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation));
 
-                    fhirDatabaseObservations.add(
-                            new FhirDatabaseObservation(fhirResource.marshallFhirRecord(observation)));
+                    fhirDatabaseObservations.add(fhirDatabaseObservation);
+
+                    // add to map to return observation heading code and fhir logical id
+                    resourceMapIds.put(observation.getName().getTextSimple(), fhirDatabaseObservation.getLogicalId());
                 }
 
                 // create comment observation based on patient entered comments
@@ -324,6 +330,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
             }
         }
+
+        return resourceMapIds;
     }
 
     @Override

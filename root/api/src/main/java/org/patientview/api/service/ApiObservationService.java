@@ -18,6 +18,7 @@ import org.patientview.persistence.model.enums.RoleName;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Observation service, for management and retrieval of observations (test results), stored in FHIR.
@@ -53,7 +54,7 @@ public interface ApiObservationService {
      */
     @UserOnly
     @RoleOnly(roles = { RoleName.PATIENT })
-    void addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
+    Map<String, UUID> addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException;
 
     /**
