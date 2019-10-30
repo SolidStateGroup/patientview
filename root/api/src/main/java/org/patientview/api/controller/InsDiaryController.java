@@ -77,7 +77,8 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
     public ResponseEntity<?> update(@PathVariable("userId") Long userId,
                                     @RequestParam(required = false) Long adminId,
                                     @RequestBody InsDiaryRecord record)
-            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
+            throws ResourceNotFoundException, ResourceForbiddenException,
+            ResourceInvalidException, FhirResourceException {
         if (adminId == null || adminId == -1) {
             adminId = null;
         }
@@ -143,7 +144,7 @@ public class InsDiaryController extends BaseController<InsDiaryController> {
      */
     @DeleteMapping(value = "/user/{userId}/relapses/{relapseId}/medications/{medicationId}")
     public void delete(@PathVariable("userId") Long userId,
-                       @PathVariable("recordId") Long relapseId,
+                       @PathVariable("relapseId") Long relapseId,
                        @PathVariable("medicationId") Long medicationId)
             throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         insDiaryService.deleteRelapseMedication(userId, relapseId, medicationId);
