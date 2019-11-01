@@ -32,6 +32,7 @@ import org.springframework.util.CollectionUtils;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -319,6 +320,12 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
     @Override
     public void deleteRelapseRecordsForUser(User user) {
+        List<Relapse> relapseList = relapseRepository.findByUser(user);
+
+        for (Relapse relapse : relapseList) {
+            relapseMedicationRepository.deleteByRelapse(relapse.getId());
+        }
+
         relapseRepository.deleteByUser(user.getId());
     }
 
@@ -396,6 +403,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             }
         }
 
+
+        // validate Relapse data
         if (record.getRelapse() != null) {
             DateTime relapseDate = new DateTime(record.getRelapse().getRelapseDate());
             DateTime remissionDate = new DateTime(record.getRelapse().getRemissionDate());
@@ -413,16 +422,19 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 Date noneRalapseEntryDate = null;
                 Date ralapseEntryDate = null;
 
-                for (InsDiaryRecord previousN : existingRecords) {
-                    if (!previousN.isInRelapse() && !previousN.getId().equals(record.getId())
+
+                // find last None Relapse and In Relapse INS diary dates.
+                for (InsDiaryRecord previous : existingRecords) {
+
+                    if (!previous.isInRelapse() && !previous.getId().equals(record.getId())
                             //&& previousN.getId().longValue() > record.getId().longValue()
-                            && new DateTime(previousN.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
-                        noneRalapseEntryDate = previousN.getEntryDate();
+                            && new DateTime(previous.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                        noneRalapseEntryDate = previous.getEntryDate();
                     }
 
-                    if (previousN.isInRelapse() && !previousN.getId().equals(record.getId())) {
+                    if (previous.isInRelapse() && !previous.getId().equals(record.getId())) {
                         //&& previousN.getId().longValue() > record.getId().longValue()) {
-                        ralapseEntryDate = previousN.getEntryDate();
+                        ralapseEntryDate = previous.getEntryDate();
                     }
 
                     // both dates found
@@ -433,8 +445,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
                 // "Date of Relapse" must be greater or equal to last saved diary
                 // entry "Date" where Relapse "N" was entered
-                if (noneRalapseEntryDate != null &&
-                        new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                if (noneRalapseEntryDate != null && remissionDate != null &&
+                        new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(remissionDate.toLocalDate())) {
                     throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
                             "must be later than your most recent non-relapse diary recording of %s " +
                             "(where a Relapse value of 'N' was saved).", noneRalapseEntryDate));
@@ -444,9 +456,9 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 // entry "Date" where Relapse "Y" was entered.
                 if (ralapseEntryDate != null &&
                         new DateTime(ralapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
-                    throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
-                            "must be later than your most recent non-relapse diary recording of %s" +
-                            " (where a Relapse value of 'N' was saved).", ralapseEntryDate));
+                    throw new ResourceInvalidException(String.format("The Date of Remission that you've entered " +
+                            "must be later than your most recent relapse diary recording of %s" +
+                            " (where a Relapse value of 'Y' was saved).", ralapseEntryDate));
                 }
             }
 
@@ -661,7 +673,12 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             userResultClusters.add(userResultCluster);
         }
 
-        return apiObservationService.addUserResultClusters(patientUser.getId(), userResultClusters);
+        // save results if not empty
+        if (!CollectionUtils.isEmpty(userResultClusters)) {
+            return apiObservationService.addUserResultClusters(patientUser.getId(), userResultClusters);
+        }
+
+        return new HashMap<>();
     }
 
     /**
