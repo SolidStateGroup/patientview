@@ -371,18 +371,18 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         if ((record.getSystolicBPExclude() == null || !record.getSystolicBPExclude()) &&
-                record.getSystolicBP() == null) {
-            throw new ResourceInvalidException("Please enter value for Systolic BP.");
+                record.getSystolicBP() < 1) {
+            throw new ResourceInvalidException("Systolic BP must be greater the 0.");
         }
 
         if ((record.getDiastolicBPExclude() == null || !record.getDiastolicBPExclude()) &&
-                record.getDiastolicBP() == null) {
-            throw new ResourceInvalidException("Please enter value for Diastolic BP.");
+                record.getDiastolicBP() < 1) {
+            throw new ResourceInvalidException("Diastolic BP must be greater the 0.");
         }
 
         if ((record.getWeightExclude() == null || !record.getWeightExclude()) &&
-                record.getWeight() == null) {
-            throw new ResourceInvalidException("Please enter value for Weight.");
+                record.getWeight() < 1) {
+            throw new ResourceInvalidException("Weight must be greater the 0.");
         }
 
         if (CollectionUtils.isEmpty(record.getOedema())) {
@@ -473,6 +473,11 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                             medication.getStarted().after(medication.getStopped())) {
                         LOG.error("Medication Date Started must be < then Date Stopped.");
                         throw new ResourceInvalidException("Medication Date Started must be before Date Stopped.");
+                    }
+
+                    if (medication.getDoseQuantity() != null &&
+                            medication.getDoseQuantity() < 1) {
+                        throw new ResourceInvalidException("Dose Quantity must be greater then 0.");
                     }
                 }
             }
