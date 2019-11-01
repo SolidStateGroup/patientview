@@ -175,14 +175,13 @@ public class HospitalisationServiceImpl extends
             // cannot be in the future
             if (new DateTime(record.getDateDischarged()).toLocalDate().isAfter(localNow)) {
                 LOG.error("Hospitalisation record discharged date is in the future.");
-                throw new ResourceInvalidException("Date Discharged can not be in the future.");
+                throw new ResourceInvalidException("Discharge Date can not be in the future.");
             }
 
             // check date discharged is not before date admitted
             if (record.getDateAdmitted().after(record.getDateDischarged())) {
                 LOG.error("Hospitalisation record discharged date must be < then Hospitalisation date.");
-                throw new ResourceInvalidException("Hospitalisation Hospitalisation Date " +
-                        " must be before Date Discharged.");
+                throw new ResourceInvalidException("Hospitalisation Date must be before Discharge Date.");
             }
         }
 
