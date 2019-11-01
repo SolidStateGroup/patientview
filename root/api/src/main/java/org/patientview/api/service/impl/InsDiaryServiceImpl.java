@@ -417,6 +417,12 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 throw new ResourceInvalidException("Date of Remission can not be in the future.");
             }
 
+            // check date stopped is not before date started
+            if (relapseDate != null && remissionDate != null &&
+                    relapseDate.toLocalDate().isAfter(remissionDate.toLocalDate())) {
+                throw new ResourceInvalidException("Date of Relapse must be before the Date of Remission.");
+            }
+
             if (!CollectionUtils.isEmpty(existingRecords)) {
 
                 Date noneRalapseEntryDate = null;
@@ -445,8 +451,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
                 // "Date of Relapse" must be greater or equal to last saved diary
                 // entry "Date" where Relapse "N" was entered
-                if (noneRalapseEntryDate != null && remissionDate != null &&
-                        new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(remissionDate.toLocalDate())) {
+                if (noneRalapseEntryDate != null && relapseDate != null &&
+                        new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
                     throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
                             "must be later than your most recent non-relapse diary recording of %s " +
                             "(where a Relapse value of 'N' was saved).", noneRalapseEntryDate));
@@ -454,8 +460,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
                 // "Date of Remission" must be greater or equal to last saved diary
                 // entry "Date" where Relapse "Y" was entered.
-                if (ralapseEntryDate != null &&
-                        new DateTime(ralapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
+                if (!record.isInRelapse() && remissionDate != null &&
+                        new DateTime(ralapseEntryDate).toLocalDate().isAfter(remissionDate.toLocalDate())) {
                     throw new ResourceInvalidException(String.format("The Date of Remission that you've entered " +
                             "must be later than your most recent relapse diary recording of %s" +
                             " (where a Relapse value of 'Y' was saved).", ralapseEntryDate));
