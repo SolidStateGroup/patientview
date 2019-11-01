@@ -204,7 +204,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             if (foundRecord.getWeight().doubleValue() != record.getWeight().doubleValue()) {
                 // update result
                 updateFhirObservation(patientUser.getId(), editor.getId(), foundRecord.getWeightResourceId(),
-                        foundRecord.getEntryDate(), String.valueOf(record.getDiastolicBP()));
+                        foundRecord.getEntryDate(), String.valueOf(record.getWeight()));
 
                 foundRecord.setWeight(record.getWeight());
             }
