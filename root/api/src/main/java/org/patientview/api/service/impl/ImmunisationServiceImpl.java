@@ -160,12 +160,11 @@ public class ImmunisationServiceImpl extends
             throw new ResourceInvalidException("Please enter Immunisation date.");
         }
 
-
         LocalDate localNow = DateTime.now().toLocalDate();
 
         // can not be in the future
         if (new DateTime(record.getImmunisationDate()).toLocalDate().isAfter(localNow)) {
-            throw new ResourceInvalidException("Date Admitted can not be in the future.");
+            throw new ResourceInvalidException("Immunisation Date can not be in the future.");
         }
     }
 
