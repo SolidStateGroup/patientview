@@ -356,11 +356,10 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 previousRecord = existingRecords.get(0);
             } else {
 
-                // when updating check last entry before current one
+                // when updating find last entry before current one
                 for (InsDiaryRecord previous : existingRecords) {
-                    // find last previous diary record
                     if (!previous.getId().equals(record.getId())
-                            && previous.getId().longValue() > record.getId().longValue()) {
+                            && previous.getId().longValue() < record.getId().longValue()) {
                         previousRecord = previous;
                         break;
                     }
@@ -396,78 +395,116 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             throw new ResourceInvalidException("Please select at least one Oedema.");
         }
 
-        if (previousRecord != null && isNewRecord) {
-            // new diary entry date must be greater to "Date" of previous diary entry
+        // new diary entry date must be greater to "Date" of previous diary entry
+        if (previousRecord != null) {
             if (!record.getEntryDate().after(previousRecord.getEntryDate())) {
                 throw new ResourceInvalidException("Diary entry Date must be later then previous diary entry date.");
             }
         }
 
+        /**
+         * Rules for relapse checks:
+         * - A relapse episode is a sequence of Relapse Y entries -> check on Relapse date only
+         * - The end of a relapse episode is a switch from Y to N -> check on Relapse and Remission dates
+         * - Non-relapse state is a sequence of Relapse N entries outside of a relapse episode
+         * (outside of YYYYYN) -> no checks since no dates sent.
+         **/
+
+        // is switching from Y to N
+        boolean isEndOfEpisode = (!record.isInRelapse() && (previousRecord != null && previousRecord.isInRelapse()));
+        if (isEndOfEpisode) {
+            if (record.getRelapse() == null) {
+                throw new ResourceInvalidException("You must provide Relapse data for the End of Relapse episode.");
+            }
+            if (record.getRelapse().getRemissionDate() == null) {
+                throw new ResourceInvalidException("Missing Date of Remission for the End of Relapse episode.");
+            }
+        }
 
         // validate Relapse data
         if (record.getRelapse() != null) {
             DateTime relapseDate = new DateTime(record.getRelapse().getRelapseDate());
             DateTime remissionDate = new DateTime(record.getRelapse().getRemissionDate());
 
-            // can not be in the future
-            if (relapseDate.toLocalDate().isAfter(localNow)) {
-                throw new ResourceInvalidException("Date of Relapse can not be in the future.");
-            }
-            if (remissionDate != null && remissionDate.toLocalDate().isAfter(localNow)) {
-                throw new ResourceInvalidException("Date of Remission can not be in the future.");
-            }
+            // ins diary record is In Relapse (Y)
+            if (record.isInRelapse()) {
 
-            // check date stopped is not before date started
-            if (relapseDate != null && remissionDate != null &&
-                    relapseDate.toLocalDate().isAfter(remissionDate.toLocalDate())) {
-                throw new ResourceInvalidException("Date of Relapse must be before the Date of Remission.");
-            }
-
-            if (!CollectionUtils.isEmpty(existingRecords)) {
-
-                Date noneRalapseEntryDate = null;
-                Date ralapseEntryDate = null;
-
-
-                // find last None Relapse and In Relapse INS diary dates.
-                for (InsDiaryRecord previous : existingRecords) {
-
-                    if (!previous.isInRelapse() && !previous.getId().equals(record.getId())
-                            //&& previousN.getId().longValue() > record.getId().longValue()
-                            && new DateTime(previous.getEntryDate()).toLocalDate().isAfter(relapseDate.toLocalDate())) {
-                        noneRalapseEntryDate = previous.getEntryDate();
-                    }
-
-                    if (previous.isInRelapse() && !previous.getId().equals(record.getId())) {
-                        //&& previousN.getId().longValue() > record.getId().longValue()) {
-                        ralapseEntryDate = previous.getEntryDate();
-                    }
-
-                    // both dates found
-                    if (noneRalapseEntryDate != null && ralapseEntryDate != null) {
-                        break;
-                    }
+                // Date of Relapse can not be null or in the future
+                if (relapseDate == null) {
+                    throw new ResourceInvalidException("Please enter Date of Relapse.");
+                }
+                if (relapseDate.toLocalDate().isAfter(localNow)) {
+                    throw new ResourceInvalidException("Date of Relapse can not be in the future.");
                 }
 
                 // "Date of Relapse" must be greater or equal to last saved diary
                 // entry "Date" where Relapse "N" was entered
-                if (noneRalapseEntryDate != null && relapseDate != null &&
-                        new DateTime(noneRalapseEntryDate).toLocalDate().isAfter(relapseDate.toLocalDate())) {
-                    throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
-                            "must be later than your most recent non-relapse diary recording of %s " +
-                            "(where a Relapse value of 'N' was saved).", noneRalapseEntryDate));
+                if (!CollectionUtils.isEmpty(existingRecords)) {
+                    Date noneRelapseEntryDate = null;
+
+                    // find last None Relapse(N) INS diary record.
+                    for (InsDiaryRecord previous : existingRecords) {
+
+                        // adding new Y record
+                        if (isNewRecord) {
+                            if (!previous.isInRelapse()) {
+                                noneRelapseEntryDate = previous.getEntryDate();
+                                break;
+                            }
+                        } else {
+                            // Editing existing Y record
+                            if (!previous.isInRelapse() && !previous.getId().equals(record.getId())
+                                    && previous.getId().longValue() < record.getId().longValue()) {
+                                noneRelapseEntryDate = previous.getEntryDate();
+                                break;
+                            }
+                        }
+
+                    }
+
+                    if (noneRelapseEntryDate != null &&
+                            !relapseDate.toLocalDate().isAfter(new DateTime(noneRelapseEntryDate).toLocalDate())) {
+                        throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
+                                "must be later than your most recent non-relapse diary recording of %s " +
+                                "(where a Relapse value of 'N' was saved).", noneRelapseEntryDate));
+                    }
+                }
+            }
+
+            //  check if end of relapse episode, switching Y to N
+            if (isEndOfEpisode) {
+
+                // Date of Relapse can not be null or in the future
+                if (relapseDate == null) {
+                    throw new ResourceInvalidException("Please enter Date of Relapse.");
+                }
+                if (relapseDate.toLocalDate().isAfter(localNow)) {
+                    throw new ResourceInvalidException("Date of Relapse can not be in the future.");
+                }
+
+                // Date of Remission can not be null or in the future
+                if (remissionDate == null) {
+                    throw new ResourceInvalidException("Please enter Date of Remission.");
+                }
+                if (remissionDate.toLocalDate().isAfter(localNow)) {
+                    throw new ResourceInvalidException("Date of Remission can not be in the future.");
+                }
+
+                // check Date of Remission is not before Date of Relapse
+                if (relapseDate.toLocalDate().isAfter(remissionDate.toLocalDate())) {
+                    throw new ResourceInvalidException("Date of Relapse must be before the Date of Remission.");
                 }
 
                 // "Date of Remission" must be greater or equal to last saved diary
                 // entry "Date" where Relapse "Y" was entered.
-                if (!record.isInRelapse() && remissionDate != null &&
-                        new DateTime(ralapseEntryDate).toLocalDate().isAfter(remissionDate.toLocalDate())) {
+                if (new DateTime(previousRecord.getEntryDate()).toLocalDate().isAfter(remissionDate.toLocalDate())) {
                     throw new ResourceInvalidException(String.format("The Date of Remission that you've entered " +
                             "must be later than your most recent relapse diary recording of %s" +
-                            " (where a Relapse value of 'Y' was saved).", ralapseEntryDate));
+                            " (where a Relapse value of 'Y' was saved).", previousRecord.getEntryDate()));
                 }
             }
 
+            // Validate Relapse Medication records
             if (!CollectionUtils.isEmpty(record.getRelapse().getMedications())) {
                 // validate relapse medications
                 for (RelapseMedication medication : record.getRelapse().getMedications()) {
