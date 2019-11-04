@@ -12,7 +12,7 @@
 
         <div class="item-header" data-ng-repeat="recording in recordings">
             <div class="faux-row">
-                <div class="row-item hidden"></div>
+                <div class="row-item hidden">{{recording.id}}</div>
                 <div class="row-item accordion-heading-text">{{formatDateFromDropdowns(recording.date)}}</div>
                 <div class="row-item accordion-heading-text">{{formatTimeFromDropdowns(recording.date)}}</div>
                 <div class="row-item accordion-heading-text">{{options.proteinLookup[recording.protein]}}</div>
