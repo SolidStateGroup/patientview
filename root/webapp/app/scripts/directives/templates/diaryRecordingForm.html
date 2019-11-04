@@ -330,12 +330,12 @@
                     <div class="item-header" data-ng-repeat="medication in form.medications">
                         <div class="faux-row">
                             <div class="row-item hidden"></div>
-                            <div class="row-item accordion-heading-text">{{ medication.name === 'OTHER' ? medication.other : medication.name }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.name === 'OTHER' ? medication.other : options.medicationsLookup[medication.name] }}</div>
                             <div class="row-item accordion-heading-text">{{ medication.doseQty ? medication.doseQty + medication.doseUnits : '-' }}</div>
-                            <div class="row-item accordion-heading-text">{{ medication.doseFrequency ? medication.doseFrequency : '-' }}</div>
-                            <div class="row-item accordion-heading-text">{{ medication.route ? medication.route : '-' }}</div>
-                            <div class="row-item accordion-heading-text">{{ medication.started.day + "-" + medication.started.month + "-" + medication.started.year }}</div>
-                            <div class="row-item accordion-heading-text">{{ medication.stopped.day + "-" + medication.stopped.month + "-" + medication.stopped.year }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.doseFrequency ? options.doseFrequenciesLookup[medication.doseFrequency] : '-' }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.route ? options.routesLookup[medication.route] : '-' }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.started.day && medication.started.month && medication.started.year ? medication.started.day + "-" + medication.started.month + "-" + medication.started.year : '-' }}</div>
+                            <div class="row-item accordion-heading-text">{{ medication.stopped.day && medication.started.month && medication.started.year ? medication.stopped.day + "-" + medication.stopped.month + "-" + medication.stopped.year : '-' }}</div>
                             <div class="row-item actions">
                                 <button type="button" class="statistics-button btn negative" data-ng-click="removeMedication(form, medication.id)"> Delete</button>
                             </div>
@@ -418,6 +418,7 @@
             <div class="col-md-3">
                 <div class="col-md-12 p-min">
                     Date Started
+                    <span data-ng-show="form.newMedication.errors.started" class="error">&nbsp;&nbsp;{{form.newMedication.errors.started}} </span>
                 </div>
                 <div class="col-md-4 p-min">
                     <select class="form-control" data-ng-model="form.newMedication.started.day"
@@ -438,6 +439,7 @@
             <div class="col-md-3">
                 <div class="col-md-12 p-min">
                     Date Stopped
+                    <span data-ng-show="form.newMedication.errors.stopped" class="error">&nbsp;&nbsp;{{form.newMedication.errors.stopped}} </span>
                 </div>
                 <div class="col-md-4 p-min">
                     <select class="form-control" data-ng-model="form.newMedication.stopped.day"
@@ -455,22 +457,28 @@
                     </select>
                 </div>
             </div>
-            <div class="col-md-2 col-md-offset-0">
+            <div class="col-md-5 col-md-offset-0">
                 <div class="col-md-12 p-min">
                     &nbsp;
                 </div>
-                <div class="col-md-12 p-min">
+                <div class="col-md-2 p-min">
                     <button type="button" class="btn blue" data-ng-click="addMedication(form)">Add</button>
+                </div>
+                <div class="col-md-7 p-min" data-ng-show="!editMode">
+                    * Click Add to include Medication in the list. Once complete, click Save Diary Entry to confirm.
                 </div>
             </div>
         </div>
         <div class="col-md-12"  data-ng-show="form.relapse">
-            <div class="col-md-3">
+            <div class="col-md-10">
                 <div class="col-md-12 p-min">
                     &nbsp;
                 </div>
-                <div class="col-md-12 p-min">
+                <div class="col-md-2 p-min">
                     <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save Diary Entry</button>
+                </div>
+                <div class="col-md-5 p-min">
+                    * You must click this button to finalise and save your entry. Any changes made without clicking this button will be discarded.
                 </div>
             </div>
         </div>

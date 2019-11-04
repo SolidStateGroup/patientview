@@ -5,8 +5,21 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
     $scope.formFuncs = {};
 
-    var pageSize = 10;
-    $scope.page = 0;
+    $scope.itemsPerPage = 10;
+    $scope.currentPage = 0;
+    $scope.totalPages = 0;
+
+    // update page when currentPage is changed (and at start)
+    $scope.$watch('currentPage', function(value) {
+        console.log(value)
+        $scope.count = value;
+        $scope.currentPage = value;
+        $scope.getRecordings();
+    });
+
+    $scope.buttonClicked = function (){
+        $scope.currentPage = ($scope.currentPage+1) % 2;
+    }
 
     var newFormInitialRelapseInitial, newFormInitialRelapse;
 
@@ -21,8 +34,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             "doseUnits": m.doseUnits, 
             "doseFrequency": m.doseFrequency, 
             "route": m.route, 
-            "started": getDateDropdownVals(new Date(m.started)),
-            "stopped": getDateDropdownVals(new Date(m.stopped)),
+            "started": m.started ? getDateDropdownVals(new Date(m.started)) : {day: null, month: null, year: null},
+            "stopped": m.stopped ? getDateDropdownVals(new Date(m.stopped)) : {day: null, month: null, year: null},
         };
     }
 
@@ -35,6 +48,20 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             });
         }
         return {
+            protein: val.dipstickType,
+
+            systolic: val.systolicBP,
+            systolicNotMeasured: val.systolicBPExclude,
+
+            diastolic: val.diastolicBP,
+            diastolicNotMeasured: val.diastolicBPExclude,
+
+            weight: val.weight,
+            weightNotMeasured: val.weightExclude,
+
+            oedema: val.oedema,
+            newOedema: val.oedema && val.oedema.length > 0 ? val.oedema[0] : null,
+
             relapse: val.inRelapse,
             relapseId: val.inRelapse ? val.relapse.id : null,
             relapseDate: getDateDropdownVals(val.inRelapse? new Date(val.relapse.relapseDate) : new Date() ),
@@ -60,20 +87,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             id: val.id,
             newMedicationCount: 0,
 
-            date: console.log(getDateDropdownVals(new Date(val.entryDate))) || getDateDropdownVals(new Date(val.entryDate)),
-            protein: val.dipstickType,
-
-            systolic: val.systolicBP,
-            systolicNotMeasured: val.systolicBPExclude,
-
-            diastolic: val.diastolicBP,
-            diastolicNotMeasured: val.diastolicBPExclude,
-
-            weight: val.weight,
-            weightNotMeasured: val.weightExclude,
-
-            oedema: val.oedema,
-            newOedema: val.oedema && val.oedema.length > 0 ? val.oedema[0] : null,
+            date: getDateDropdownVals(new Date(val.entryDate)),
 
         }, formatRelapseForForm(val));
 
@@ -89,8 +103,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             "doseUnits": m.doseUnits, 
             "doseFrequency": m.doseFrequency, 
             "route": m.route, 
-            "started": getDateFromDropdowns(m.started).toISOString(),
-            "stopped": getDateFromDropdowns(m.stopped).toISOString(),
+            "started": m.started.day && m.started.month && m.started.year ? getDateFromDropdowns(m.started).toISOString() : null,
+            "stopped": m.stopped.day && m.stopped.month && m.stopped.year ? getDateFromDropdowns(m.stopped).toISOString() : null,
         };
     }
 
@@ -182,7 +196,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
     }
 
     $scope.formatDateFromDropdowns = function(date) {
-        return moment(getDateFromDropdowns(date)).format('DD-MMM-YYYY');
+        return date.day && date.month && date.year ? moment(getDateFromDropdowns(date)).format('DD-MMM-YYYY') : '-';
     }
 
     $scope.formatTimeFromDropdowns = function(date) {
@@ -243,7 +257,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
         $scope.showEdit = null;
 
-        $scope.recordings = [];
+        $scope.pagedItems = [];
 
         $scope.options = {};
 
@@ -286,9 +300,27 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
         $scope.options.medicationNames = [{val: 'ORAL_PREDNISOLONE', key: 'Oral Prednisolone'}, {val: 'METHYL_ORAL_PREDNISOLONE', key: 'Methyl Prednisolone'}, {val: 'OTHER', key: 'Other'}]; 
 
-        $scope.options.doseFrequencies = [{val: 'ONE_DAY', key: 'once a day'}, {val: 'TWO_DAY', key: 'X2 a day'}, {val: 'THREE_DAY', key: 'X2 a day'}, {val: 'FOUR_DAY', key: 'X4 a day'}]; 
+        $scope.options.medicationsLookup = {};
 
+        $scope.options.medicationNames.forEach(function(obj){
+            $scope.options.medicationsLookup[obj.val] = obj.key;
+        });
+
+        $scope.options.doseFrequencies = [{val: 'ONE_DAY', key: 'once a day'}, {val: 'TWO_DAY', key: 'X2 a day'}, {val: 'THREE_DAY', key: 'X3 a day'}, {val: 'FOUR_DAY', key: 'X4 a day'}]; 
+
+        $scope.options.doseFrequenciesLookup = {};
+
+        $scope.options.doseFrequencies.forEach(function(obj){
+            $scope.options.doseFrequenciesLookup[obj.val] = obj.key;
+        });
+        
         $scope.options.routes = [{val: 'ORAL', key: 'Oral'}, {val: 'IV', key: 'IV'}, {val: 'IM', key: 'IM'}]; 
+
+        $scope.options.routesLookup = {};
+
+        $scope.options.routes.forEach(function(obj){
+            $scope.options.routesLookup[obj.val] = obj.key;
+        });
 
         $scope.weightChanged = function(){
             // tests for 1 d.p.
@@ -302,6 +334,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         newFormInitialRelapseInitial = {
             relapse: null,
             relapseDate: getDateDropdownVals(new Date()),
+
+            relapseOngoing: true,
             remissionDate: getDateDropdownVals(new Date()),
     
             viralInfection: null,
@@ -327,9 +361,6 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             dateDischarged: {},
             ongoing: false,
         }
-
-        $scope.initNewMedication($scope.newForm);
-        $scope.getRecordings();
     }
 
     /* Sub-initialisation functions */
@@ -343,8 +374,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             doseUnits: 'MG',
             doseFrequency: null,
             route: null,
-            started: getDateDropdownVals(new Date()),
-            stopped: getDateDropdownVals(new Date()),
+            started: {day: null, month: null, year: null},
+            stopped: {day: null, month: null, year: null},
         };
     }
     
@@ -359,18 +390,20 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             protein: null,
 
             systolic: null,
-            systolicNotMeasured: true,
+            systolicNotMeasured: false,
 
             diastolic: null,
-            diastolicNotMeasured: true,
+            diastolicNotMeasured: false,
 
             weight: null,
-            weightNotMeasured: true,
+            weightNotMeasured: false,
 
             oedema: [],
             newOedema: null,
 
         }, newFormInitialRelapse);
+
+        $scope.initNewMedication($scope.newForm);
     }
 
     /* General Validation */
@@ -471,6 +504,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
     /* Medication Validation */
 
     $scope.validateMedication = function(form){
+        console.log(form);
         var medication = form.newMedication;
         medication.errors = {};
 
@@ -482,15 +516,20 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             medication.errors.other = 'Required';
         }
 
-        if (!UtilService.validationDate(medication.started.day,
+        if (medication.started.day && medication.started.month && medication.started.year && !UtilService.validationDate(medication.started.day,
             medication.started.month, medication.started.year)) {
             medication.errors.started = 'Non-existant Date';
         }
 
-        if (!UtilService.validationDate(medication.stopped.day,
-            medication.stopped.month, medication.stopped.year)) {
-            medication.errors.stopped = 'Non-existant Date';
+        if (medication.stopped.day && medication.stopped.month && medication.stopped.year){
+            if(!UtilService.validationDate(medication.stopped.day, medication.stopped.month, medication.stopped.year)) {
+                medication.errors.stopped = 'Non-existant Date';
+            } else if( !(medication.started.day && medication.started.month && medication.started.year) ||
+                getDateFromDropdowns(medication.started) > getDateFromDropdowns(medication.stopped) ){
+                    medication.errors.stopped = 'Date must be after started';
+            }
         }
+
         if(medication.errors) console.log(medication.errors);
 
         medication.errors.isValid = Object.keys(medication.errors).length === 0;
@@ -498,16 +537,18 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         return medication.errors;
     }
 
-
     /* Service handlers */
 
     $scope.getRecordings = function() {
 
         $scope.loading = true;
 
-        DiaryRecordingService.getPaged($scope.loggedInUser.id, $scope.page, pageSize).then(function(data) {
+        DiaryRecordingService.getPaged($scope.loggedInUser.id, $scope.currentPage, $scope.itemsPerPage).then(function(data) {
+            $scope.totalPages = data.totalPages;
+            $scope.total = data.totalElements;
+            $scope.pagedItems = [];
             data.content.forEach(function(d, i){
-                if(i === 0 && $scope.page === 0){
+                if(i === 0 && $scope.currentPage === 0){
                     if(d.inRelapse && !d.relapse.remissionDate){
                         newFormInitialRelapse = formatRelapseForForm(d);
                     } else {
@@ -515,8 +556,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
                     }
                     $scope.initNewForm();
                 }
-                $scope.recordings.push(formatForForm(d));
-                $scope.recordings[$scope.recordings.length - 1].editForm = formatForForm(d);
+                $scope.pagedItems.push(formatForForm(d));
+                $scope.pagedItems[$scope.pagedItems.length - 1].editForm = formatForForm(d);
             });
             $scope.loading = false;
 
@@ -535,8 +576,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             $scope.loading = true;
             DiaryRecordingService.post($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser.id).then(function(data){
                 $scope.loading = false;
-                $scope.recordings.push(formatForForm(data));
-                $scope.recordings[$scope.recordings.length-1].editForm = formatForForm(data);
+                $scope.pagedItems.push(formatForForm(data));
+                $scope.pagedItems[$scope.pagedItems.length-1].editForm = formatForForm(data);
                 delete $scope.errorMessage;
                 $scope.init();
             }, function(error){
@@ -554,6 +595,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             DiaryRecordingService.postMedication($scope.loggedInUser.id, form.relapseId, formatMedicationForPost(form.newMedication)).then(function(data){
                 $scope.loading = false;
                 form.medications.push(formatMedicationForForm(data));
+                $scope.initNewMedication(form);
                 delete $scope.errorMessage;
             }, function(error){
                 $scope.loading = false;
@@ -565,7 +607,6 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
     $scope.deleteMedication = function(form, id){
         $scope.loading = true;
-        console.log('id:', id);
         DiaryRecordingService.removeMedication($scope.loggedInUser.id, form.relapseId, id).then(function(data){
             $scope.loading = false;
             form.medications = form.medications.filter(function(m){
@@ -587,11 +628,11 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             $scope.loading = true;
             DiaryRecordingService.save($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser.id).then(function(data){
                 $scope.loading = false;
-                $scope.recordings = $scope.recordings.filter(function(x){
+                $scope.pagedItems = $scope.pagedItems.filter(function(x){
                     return x.id !== form.id;
                 });
-                $scope.recordings.push(formatForForm(data));
-                $scope.recordings[$scope.recordings.length-1].editForm = formatForForm(data);
+                $scope.pagedItems.push(formatForForm(data));
+                $scope.pagedItems[$scope.pagedItems.length-1].editForm = formatForForm(data);
                 delete $scope.errorMessage;
             }, function(error){
                 $scope.loading = false;
@@ -608,7 +649,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
         DiaryRecordingService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
-            $scope.recordings = $scope.recordings.filter(function(val){
+            $scope.pagedItems = $scope.pagedItems.filter(function(val){
                 return val.id !== id;
             });
             delete $scope.errorMessage;
