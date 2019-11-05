@@ -2145,54 +2145,49 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
 
         if (groupRole.getUser().getIdentifiers() != null) {
-            String currentMRN = null;
-            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
 
+            // build a map of existing identifiers
+            Map<String, Identifier> identifierMap = new HashMap<>();
+            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
                 // We ignore NON_UK_UNIQUE, HOSPITAL_NUMBER and RADAR_NUMBER identifiers
                 if (identifier.getIdentifierType().getValue().equals("NON_UK_UNIQUE") ||
                         identifier.getIdentifierType().getValue().equals("HOSPITAL_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("RADAR_NUMBER")) {
                     continue;
                 }
+                identifierMap.put(identifier.getIdentifierType().getValue(), identifier);
+            }
 
-                // MRN rule
-                // We need an additional, duplicate identifier to be added with a NumberType of MRN.
-                // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "HSC"
-                // if someone has more than one. The identifier chosen as MRN should also be included
-                // as an NI type identifier. For example. If a patient has an NHS_NO and a CHI_NO
-                // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
+            // Add MRN type Identifier
+            // MRN rule: if a patient has multiple NHS identifiers the one to be used should
+            // be selected using the order NHS -> CHI -> HSC.
+            if (!CollectionUtils.isEmpty(identifierMap)) {
+                xml.append("<PatientNumber><Number>");
+                xml.append(identifierMap.get("NHS_NUMBER"));
+                xml.append("</Number>");
+                xml.append("<Organization>");
+                // selection should be in this order NHS -> CHI -> HSC
+                if (identifierMap.get("NHS_NUMBER") != null) {
+                    xml.append("NHS");
+                } else if (identifierMap.get("CHI_NUMBER") != null) {
+                    xml.append("CHI");
+                } else if (identifierMap.get("CHI_NUMBER") != null) {
+                    xml.append("HSC");
+                }
+                xml.append("</Organization>");
+                xml.append("<NumberType>MRN</NumberType>");
+                xml.append("</PatientNumber>");
+            }
+
+            // add none MRN type Identifiers
+            // If a patient has an NHS_NO and a CHI_NO
+            // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
+            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
+
                 if (identifier.getIdentifierType().getValue().equals("HSC_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("NHS_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("CHI_NUMBER")) {
-                    // If we already have an nhs number,
-                    // ignore, if we already have a CHI and this is a H&S, ignore
-                    if (currentMRN != "NHS" &&
-                            !(currentMRN == "CHI" && identifier.getIdentifierType().getValue().equals("HSC_NUMBER"))) {
-                        xml.append("<PatientNumber><Number>");
-                        xml.append(identifier.getIdentifier());
-                        xml.append("</Number>");
-                        xml.append("<Organization>");
-                        switch (identifier.getIdentifierType().getValue()) {
-                            case "HSC_NUMBER":
-                                currentMRN = "HSC";
-                                xml.append("HSC");
-                                break;
-                            case "NHS_NUMBER":
-                                currentMRN = "NHS";
-                                xml.append("NHS");
-                                break;
-                            case "CHI_NUMBER":
-                                currentMRN = "CHI";
-                                xml.append("CHI");
-                                break;
-                        }
-                        xml.append("</Organization>");
 
-                        xml.append("<NumberType>MRN</NumberType>");
-                        xml.append("</PatientNumber>");
-                    }
-
-                    // add none MRN type Identifiers
                     xml.append("<PatientNumber><Number>");
                     xml.append(identifier.getIdentifier());
                     xml.append("</Number>");
