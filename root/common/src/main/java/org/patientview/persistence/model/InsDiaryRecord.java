@@ -211,13 +211,18 @@ public class InsDiaryRecord extends AuditModel {
     }
 
     // need to display to FE
-    @Override
-    public User getCreator() {
-        return super.getCreator();
+    public String getCreatedBy() {
+        if (super.getCreator() != null) {
+            return super.getCreator().getForename() + " " + super.getCreator().getSurname();
+        }
+
+        return null;
     }
 
-    @Override
-    public User getLastUpdater() {
-        return super.getLastUpdater();
+    public String getLastUpdatedBy() {
+        if (super.getLastUpdater() != null) {
+            return super.getLastUpdater().getForename() + " " + super.getLastUpdater().getSurname();
+        }
+        return null;
     }
 }
