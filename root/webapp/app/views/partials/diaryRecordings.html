@@ -1,8 +1,4 @@
 <div>
-    <div pv-pagination use-parent-scope="true"></div>
-
-    <!--<button data-ng-click="buttonClicked()">{{count}}</button>
-    <Button data-ng-click="debugThing()">Debug</Button>-->
     <div class="faux-table five-col" >
         <div class="accordion-title-row table-head">
             <div class="hidden">ID</div>
@@ -55,11 +51,12 @@
         <div class="col-md-12">
             <br/>
             <!--<h4>No records found</h4>-->
-
             
             </div>
         </div>
     </div>
+
+    <div pv-pagination use-parent-scope="true" data-ng-show="!loading"></div>
 
     <div id="insError" class="alert alert-danger" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
 

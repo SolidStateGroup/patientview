@@ -11,8 +11,6 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
     // update page when currentPage is changed (and at start)
     $scope.$watch('currentPage', function(value) {
-        console.log(value)
-        $scope.count = value;
         $scope.currentPage = value;
         $scope.getRecordings();
     });

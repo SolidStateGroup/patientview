@@ -25,7 +25,6 @@
 
             <!-- edit pane -->
             <div class="panel-body" data-ng-show="showEdit === immunisation.id">
-                <div class="alert alert-danger" data-ng-show="immunisation.errorMessage && !immunisation.editLoading">There was an error {{errorMessage}}</div>
                 <div data-ng-show="immunisation.loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
                 <div data-ng-show="!immunisation.loading">
                     <div class="col-md-12 mb-min">
@@ -86,6 +85,9 @@
                     <h4>No Immunisation records found</h4>
                 </div>
             </div>
+
+
+            <div class="alert alert-danger mt" data-ng-show="errorMessage && !immunisation.editLoading">There was an error - {{errorMessage}}</div>
 
             <div class="col-md-12 segregated-box mt-big">
                 <div class="col-md-12 box-title">
