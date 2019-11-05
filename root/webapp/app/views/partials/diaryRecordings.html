@@ -1,5 +1,8 @@
 <div>
-    <div id="insError" class="alert alert-danger" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
+    <!--<div pv-pagination></div>
+
+    <button data-ng-click="buttonClicked()">{{count}}</button>
+    <Button data-ng-click="debugThing()">Debug</Button> -->
     <div class="faux-table five-col" >
         <div class="accordion-title-row table-head">
             <div class="hidden">ID</div>
@@ -10,7 +13,7 @@
             <div class="head-item accordion-title-text"></div>
         </div>
 
-        <div class="item-header" data-ng-repeat="recording in recordings">
+        <div class="item-header" data-ng-repeat="recording in pagedItems">
             <div class="faux-row">
                 <div class="row-item hidden">{{recording.id}}</div>
                 <div class="row-item accordion-heading-text">{{formatDateFromDropdowns(recording.date)}}</div>
@@ -52,6 +55,8 @@
             </div>
         </div>
     </div>
+
+    <div id="insError" class="alert alert-danger" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
 
     <div class="col-md-12 segregated-box mt-big">
         <div class="col-md-12 box-title">
