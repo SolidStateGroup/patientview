@@ -213,6 +213,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         foundRecord.setDipstickType(record.getDipstickType());
         foundRecord.setOedema(record.getOedema());
+        foundRecord.setLastUpdate(DateTime.now().toDate());
+        foundRecord.setLastUpdater(editor);
 
         return insDiaryRepository.save(foundRecord);
     }
@@ -378,17 +380,17 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         if ((record.getSystolicBPExclude() == null || !record.getSystolicBPExclude()) &&
                 record.getSystolicBP() < 1) {
-            throw new ResourceInvalidException("Systolic BP must be greater the 0.");
+            throw new ResourceInvalidException("Systolic BP must be greater then 0.");
         }
 
         if ((record.getDiastolicBPExclude() == null || !record.getDiastolicBPExclude()) &&
                 record.getDiastolicBP() < 1) {
-            throw new ResourceInvalidException("Diastolic BP must be greater the 0.");
+            throw new ResourceInvalidException("Diastolic BP must be greater then 0.");
         }
 
         if ((record.getWeightExclude() == null || !record.getWeightExclude()) &&
                 record.getWeight() < 1) {
-            throw new ResourceInvalidException("Weight must be greater the 0.");
+            throw new ResourceInvalidException("Weight must be greater then 0.");
         }
 
         if (CollectionUtils.isEmpty(record.getOedema())) {
@@ -632,6 +634,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 existingRelapse.setAllergicReaction(relapseData.isAllergicReaction());
                 existingRelapse.setAllergicSkinRash(relapseData.isAllergicSkinRash());
                 existingRelapse.setFoodIntolerance(relapseData.isFoodIntolerance());
+                existingRelapse.setLastUpdate(DateTime.now().toDate());
+                existingRelapse.setLastUpdater(editor);
 
                 savedRelapse = relapseRepository.save(existingRelapse);
             }

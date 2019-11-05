@@ -209,4 +209,20 @@ public class InsDiaryRecord extends AuditModel {
     public void setRelapse(Relapse relapse) {
         this.relapse = relapse;
     }
+
+    // need to display to FE
+    public String getCreatedBy() {
+        if (super.getCreator() != null) {
+            return super.getCreator().getForename() + " " + super.getCreator().getSurname();
+        }
+
+        return null;
+    }
+
+    public String getLastUpdatedBy() {
+        if (super.getLastUpdater() != null) {
+            return super.getLastUpdater().getForename() + " " + super.getLastUpdater().getSurname();
+        }
+        return null;
+    }
 }
