@@ -109,7 +109,7 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        linkRepository.delete(linkId);
+        linkRepository.deleteById(link.getId());
     }
 
     public Link save(final Link link) throws ResourceNotFoundException, ResourceForbiddenException {
