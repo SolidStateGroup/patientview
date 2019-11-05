@@ -378,17 +378,17 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         if ((record.getSystolicBPExclude() == null || !record.getSystolicBPExclude()) &&
                 record.getSystolicBP() < 1) {
-            throw new ResourceInvalidException("Systolic BP must be greater the 0.");
+            throw new ResourceInvalidException("Systolic BP must be greater then 0.");
         }
 
         if ((record.getDiastolicBPExclude() == null || !record.getDiastolicBPExclude()) &&
                 record.getDiastolicBP() < 1) {
-            throw new ResourceInvalidException("Diastolic BP must be greater the 0.");
+            throw new ResourceInvalidException("Diastolic BP must be greater then 0.");
         }
 
         if ((record.getWeightExclude() == null || !record.getWeightExclude()) &&
                 record.getWeight() < 1) {
-            throw new ResourceInvalidException("Weight must be greater the 0.");
+            throw new ResourceInvalidException("Weight must be greater then 0.");
         }
 
         if (CollectionUtils.isEmpty(record.getOedema())) {
