@@ -1,3 +1,41 @@
+
+<div class="col-md-12 mb-min" data-ng-show="editMode === true">
+    <hr/>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min bold">
+            <b>Created User</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.createdBy}}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min ">
+            <b>Created Date</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.created}}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min ">
+            <b>Modified User</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.updatedBy}}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min">
+            <b>Modified Date</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.updated}}
+        </div>
+    </div>
+    <hr/>
+</div>
+
 <div class="col-md-12 mb" data-ng-show="form.errors.existingOngoing">
     <div class="col-md-12">
         <span class="error"> &nbsp;*{{form.errors.existingOngoing}} </span>
@@ -68,7 +106,7 @@
             <span data-ng-show="form.errors.systolic" class="error"> {{form.errors.systolic}} </span>
         </div>
         <div class="col-md-12 p-min">
-            <input type="number" class="form-control" data-ng-disabled="form.systolicNotMeasured" data-ng-model="form.systolic"/>
+            <input type="number" class="form-control" data-ng-disabled="form.systolicNotMeasured" data-ng-model="form.systolic" min='0' oninput="validity.valid||(value='');"/>
         </div>
         <div class="col-md-12 p-min">
             <input type="checkbox" data-ng-model="form.systolicNotMeasured" data-ng-change="form.systolic=null" data-ng-disabled="editMode === true"/>&nbsp; Not Measured
@@ -80,7 +118,7 @@
             <span data-ng-show="form.errors.diastolic" class="error"><br/>{{form.errors.diastolic}} </span>
         </div>
         <div class="col-md-12 p-min">
-            <input type="number" class="form-control" data-ng-disabled="form.diastolicNotMeasured" data-ng-model="form.diastolic"/>
+            <input type="number" class="form-control" data-ng-disabled="form.diastolicNotMeasured" data-ng-model="form.diastolic" min='0' oninput="validity.valid||(value='');"/>
         </div>
         <div class="col-md-12 p-min">
             <input type="checkbox" data-ng-model="form.diastolicNotMeasured" data-ng-change="form.diastolic=null" data-ng-disabled="editMode === true"/>&nbsp; Not Measured
@@ -94,7 +132,7 @@
         <div class="col-md-12 p-min">
             <input
                 class="form-control"
-                type="text"
+                type="number"
                 data-ng-model="form.weight"
                 data-ng-change="weightChanged()"
                 data-ng-disabled="form.weightNotMeasured" />
@@ -165,7 +203,7 @@
         </div>
     </div>
 
-    <div class="col-md-3" data-ng-show="!form.relapse">
+    <div class="col-md-3" data-ng-show="!form.relapse && !form.initiallyInRelapse">
         <div class="col-md-12 p-min">
             &nbsp;
         </div>
@@ -174,69 +212,63 @@
         </div>
     </div>
 
+    <div class="col-md-3" data-ng-show="form.relapse || form.initiallyInRelapse">
+        <div class="col-md-12 p-min">
+            &nbsp;Date of Relapse*
+            <span data-ng-show="form.errors.relapseDate" class="error">{{form.errors.relapseDate}} </span>
+        </div>
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.relapseDate.day"
+                    data-ng-options="day as day for day in options.days" >
+            </select>
+        </div>
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.relapseDate.month"
+                    data-ng-options="month for month in options.months" >
+            </select>
+        </div>
+        <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.relapseDate.year"
+                    data-ng-options="year for year in options.years" >
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-md-offset-1"data-ng-show="form.relapse || form.initiallyInRelapse">
+        <div class="col-md-12 p-min">
+            Date of Remission*
+            <span data-ng-show="form.errors.remissionDate" class="error">{{form.errors.remissionDate}} </span>
+        </div>
+
+        <div class="col-md-12 p-min" data-ng-show="form.relapseOngoing">
+            <span class="strong">Ongoing</span>
+        </div>
+
+        <div data-ng-show="!form.relapseOngoing">
+            <div class="col-md-4 p-min">
+            <select class="form-control" data-ng-model="form.remissionDate.day"
+                data-ng-options="day as day for day in options.days" >
+            </select>
+            </div>
+            <div class="col-md-4 p-min">
+                <select class="form-control" data-ng-model="form.remissionDate.month"
+                    data-ng-options="month for month in options.months" >
+                </select>
+            </div>
+            <div class="col-md-4 p-min">
+                <select class="form-control" data-ng-model="form.remissionDate.year"
+                    data-ng-options="year for year in options.years" >
+                </select>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- TODO Content -->
 
-<div data-ng-show="form.relapse">
+<div data-ng-show="form.relapse || form.initiallyInRelapse">
 
     <hr/>
-
-    <div class="col-md-12">
-
-        <div class="col-md-3" data-ng-show="form.relapse">
-            <div class="col-md-12 p-min">
-                &nbsp;Date of Relapse*
-                <span data-ng-show="form.errors.relapseDate" class="error">{{form.errors.relapseDate}} </span>
-            </div>
-            <div class="col-md-4 p-min">
-                <select class="form-control" data-ng-model="form.relapseDate.day"
-                        data-ng-options="day as day for day in options.days" >
-                </select>
-            </div>
-            <div class="col-md-4 p-min">
-                <select class="form-control" data-ng-model="form.relapseDate.month"
-                        data-ng-options="month for month in options.months" >
-                </select>
-            </div>
-            <div class="col-md-4 p-min">
-                <select class="form-control" data-ng-model="form.relapseDate.year"
-                        data-ng-options="year for year in options.years" >
-                </select>
-            </div>
-        </div>
-
-        <div class="col-md-3 col-md-offset-1" data-ng-show="form.relapse">
-            <div class="col-md-12 p-min">
-                Date of Remission* <span class="link" data-ng-show="!form.relapseOngoing" data-ng-click="form.relapseOngoing = true">(Ongoing?)</span>
-                <span data-ng-show="form.errors.remissionDate" class="error">{{form.errors.remissionDate}} </span>
-            </div>
-
-            <div class="col-md-12 p-min" data-ng-show="form.relapseOngoing">
-                <span class="strong">Ongoing</span>
-                &nbsp;&nbsp;
-                <span class="link" data-ng-click="form.relapseOngoing = false">(Enter Date)</span>
-            </div>
-
-            <div data-ng-show="!form.relapseOngoing">
-                <div class="col-md-4 p-min">
-                <select class="form-control" data-ng-model="form.remissionDate.day"
-                    data-ng-options="day as day for day in options.days" >
-                </select>
-                </div>
-                <div class="col-md-4 p-min">
-                    <select class="form-control" data-ng-model="form.remissionDate.month"
-                        data-ng-options="month for month in options.months" >
-                    </select>
-                </div>
-                <div class="col-md-4 p-min">
-                    <select class="form-control" data-ng-model="form.remissionDate.year"
-                        data-ng-options="year for year in options.years" >
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="col-md-12 box-title mt">
         Triggers for Relapse
@@ -382,7 +414,7 @@
                     <span class="error">{{form.newMedication.errors.dose}} </span>
                 </div>
                 <div class="col-md-6 p-min">
-                    <input type="number" class="form-control" data-ng-model="form.newMedication.doseQty"/>
+                    <input type="number" class="form-control" data-ng-model="form.newMedication.doseQty" min='0' oninput="validity.valid||(value='');"/>
                 </div>
                 <div class="col-md-6 p-min">
                     <select class="form-control" data-ng-model="form.newMedication.doseUnits"
@@ -469,7 +501,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-12"  data-ng-show="form.relapse">
+        <div class="col-md-12"  data-ng-show="form.relapse || form.initiallyInRelapse">
             <div class="col-md-10">
                 <div class="col-md-12 p-min">
                     &nbsp;
