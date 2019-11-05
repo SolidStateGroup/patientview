@@ -213,6 +213,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         foundRecord.setDipstickType(record.getDipstickType());
         foundRecord.setOedema(record.getOedema());
+        foundRecord.setLastUpdate(DateTime.now().toDate());
+        foundRecord.setLastUpdater(editor);
 
         return insDiaryRepository.save(foundRecord);
     }
@@ -632,6 +634,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 existingRelapse.setAllergicReaction(relapseData.isAllergicReaction());
                 existingRelapse.setAllergicSkinRash(relapseData.isAllergicSkinRash());
                 existingRelapse.setFoodIntolerance(relapseData.isFoodIntolerance());
+                existingRelapse.setLastUpdate(DateTime.now().toDate());
+                existingRelapse.setLastUpdater(editor);
 
                 savedRelapse = relapseRepository.save(existingRelapse);
             }
