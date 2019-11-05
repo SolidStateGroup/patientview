@@ -2162,16 +2162,23 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             // MRN rule: if a patient has multiple NHS identifiers the one to be used should
             // be selected using the order NHS -> CHI -> HSC.
             if (!CollectionUtils.isEmpty(identifierMap)) {
+
                 xml.append("<PatientNumber><Number>");
-                xml.append(identifierMap.get("NHS_NUMBER"));
-                xml.append("</Number>");
-                xml.append("<Organization>");
                 // selection should be in this order NHS -> CHI -> HSC
                 if (identifierMap.get("NHS_NUMBER") != null) {
+                    xml.append(identifierMap.get("NHS_NUMBER").getIdentifier());
+                    xml.append("</Number>");
+                    xml.append("<Organization>");
                     xml.append("NHS");
                 } else if (identifierMap.get("CHI_NUMBER") != null) {
+                    xml.append(identifierMap.get("CHI_NUMBER").getIdentifier());
+                    xml.append("</Number>");
+                    xml.append("<Organization>");
                     xml.append("CHI");
-                } else if (identifierMap.get("CHI_NUMBER") != null) {
+                } else if (identifierMap.get("HSC_NUMBER") != null) {
+                    xml.append(identifierMap.get("HSC_NUMBER").getIdentifier());
+                    xml.append("</Number>");
+                    xml.append("<Organization>");
                     xml.append("HSC");
                 }
                 xml.append("</Organization>");
