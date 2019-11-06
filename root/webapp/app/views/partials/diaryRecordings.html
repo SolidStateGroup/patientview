@@ -1,8 +1,4 @@
 <div>
-    <!--<div pv-pagination></div>
-
-    <button data-ng-click="buttonClicked()">{{count}}</button>
-    <Button data-ng-click="debugThing()">Debug</Button> -->
     <div class="faux-table five-col" >
         <div class="accordion-title-row table-head">
             <div class="hidden">ID</div>
@@ -13,7 +9,12 @@
             <div class="head-item accordion-title-text"></div>
         </div>
 
-        <div class="item-header" data-ng-repeat="recording in pagedItems">
+        <div data-ng-show="loading" class="row"><br/>
+            <div class="col-md-12">
+                <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
+            </div>
+        </div>
+        <div class="item-header" data-ng-repeat="recording in pagedItems" data-ng-show="!loading">
             <div class="faux-row">
                 <div class="row-item hidden">{{recording.id}}</div>
                 <div class="row-item accordion-heading-text">{{formatDateFromDropdowns(recording.date)}}</div>
@@ -50,11 +51,12 @@
         <div class="col-md-12">
             <br/>
             <!--<h4>No records found</h4>-->
-
             
             </div>
         </div>
     </div>
+
+    <div pv-pagination use-parent-scope="true" data-ng-show="!loading"></div>
 
     <div id="insError" class="alert alert-danger" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
 
@@ -82,11 +84,5 @@
             </div>
         </div> -->
 
-    </div>
-</div>
-
-<div data-ng-show="loading" class="row"><br/>
-    <div class="col-md-12">
-        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
     </div>
 </div>

@@ -1,5 +1,4 @@
 <div>
-        <div id="hospError" class="alert alert-danger" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
         <div class="faux-table four-col" > <!--data-ng-show="pagedItems.length  > 0"-->
             <!-- header -->
             <div class="accordion-title-row table-head">
@@ -110,6 +109,8 @@
                         <h4>No Hostpitalisation records found</h4>
                     </div>
                 </div>
+
+                <div id="hospError" class="alert alert-danger mt" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
     
                 <div class="col-md-12 segregated-box mt-big">
                     <div class="col-md-12 box-title">
@@ -157,7 +158,7 @@
                             </div>
                         </div>
                         <div class="col-md-5">
-                            <textarea class="form-control" data-ng-model="newForm.reason" ></textarea>
+                            <textarea class="form-control big" data-ng-model="newForm.reason" ></textarea>
                         </div>
                         <div class="col-md-3" data-ng-show="!newForm.ongoing">
                             <div class="col-md-4 p-min">

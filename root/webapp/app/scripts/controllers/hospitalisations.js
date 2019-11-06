@@ -57,7 +57,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             reason: '',
             dateAdmitted: getDateDropdownVals(new Date()),
             dateDischarged: getDateDropdownVals(new Date()),
-            ongoing: false,
+            ongoing: true,
         }
 
         $scope.editForm = {
@@ -231,6 +231,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
         HostpitalisationService.get($scope.loggedInUser.id, id).then(function(data) {
             $scope.loading = false;
+            $scope.init();
             delete $scope.errorMessage;
         }, function() {
             $scope.loading = false;

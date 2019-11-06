@@ -11,10 +11,16 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
     // update page when currentPage is changed (and at start)
     $scope.$watch('currentPage', function(value) {
-        console.log(value)
-        $scope.count = value;
         $scope.currentPage = value;
         $scope.getRecordings();
+    });
+
+    // update page when currentPage is changed (and at start)
+    $scope.$watch('newForm.relapse', function(value) {
+        if($scope.newForm.initiallyInRelapse === true){
+            $scope.newForm.relapseOngoing = value;
+        }
+        $scope.newForm.relapse = value;
     });
 
     $scope.buttonClicked = function (){
@@ -63,6 +69,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             newOedema: val.oedema && val.oedema.length > 0 ? val.oedema[0] : null,
 
             relapse: val.inRelapse,
+            initiallyInRelapse: val.inRelapse,
+
             relapseId: val.inRelapse ? val.relapse.id : null,
             relapseDate: getDateDropdownVals(val.inRelapse? new Date(val.relapse.relapseDate) : new Date() ),
             relapseOngoing: val.inRelapse && !val.relapse.remissionDate ? true  : false,
@@ -88,6 +96,12 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             newMedicationCount: 0,
 
             date: getDateDropdownVals(new Date(val.entryDate)),
+
+            created: moment(val.created).format('DD-MMM-YYYY'),
+            createdBy: val.createdBy,
+
+            updated: moment(val.lastUpdate).format('DD-MMM-YYYY'),
+            updatedBy: val.lastUpdatedBy,
 
         }, formatRelapseForForm(val));
 
@@ -125,7 +139,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             "weight": form.weight,
             "weightExclude": form.weightNotMeasured,
             "inRelapse": form.relapse,
-            "relapse": form.relapse ? {
+            "relapse": form.relapse || form.initiallyInRelapse ? {
                 "id": form.relapseId || undefined,
                 "relapseDate": getDateFromDropdowns(form.relapseDate).toISOString(), 
                 "remissionDate": !form.relapseOngoing ? getDateFromDropdowns(form.remissionDate).toISOString() : null, 
@@ -576,10 +590,11 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             $scope.loading = true;
             DiaryRecordingService.post($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser.id).then(function(data){
                 $scope.loading = false;
-                $scope.pagedItems.push(formatForForm(data));
-                $scope.pagedItems[$scope.pagedItems.length-1].editForm = formatForForm(data);
+                $scope.pagedItems.unshift(formatForForm(data));
+                $scope.pagedItems[0].editForm = formatForForm(data);
                 delete $scope.errorMessage;
-                $scope.init();
+                $scope.getRecordings();
+                $scope.initNewForm();
             }, function(error){
                 $scope.loading = false;
                 $scope.errorMessage = error.data;
@@ -633,6 +648,8 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
                 });
                 $scope.pagedItems.push(formatForForm(data));
                 $scope.pagedItems[$scope.pagedItems.length-1].editForm = formatForForm(data);
+                $scope.showEdit = null;
+                $scope.getRecordings();
                 delete $scope.errorMessage;
             }, function(error){
                 $scope.loading = false;
@@ -652,6 +669,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             $scope.pagedItems = $scope.pagedItems.filter(function(val){
                 return val.id !== id;
             });
+            $scope.getRecordings();
             delete $scope.errorMessage;
         }, function() {
             $scope.loading = false;
