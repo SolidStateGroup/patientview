@@ -12,6 +12,7 @@ import org.patientview.persistence.repository.HospitalisationRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -48,6 +49,13 @@ public class HospitalisationServiceImpl extends
 
         if (editor == null) {
             throw new ResourceNotFoundException("Editor User does not exist");
+        }
+
+        // check ongoing hospitalisation, make sure we cannot have more then one ongoing
+        List<Hospitalisation> activeList = hospitalisationRepository.findActiveByUser(patientUser);
+        if (!CollectionUtils.isEmpty(activeList) && record.getDateDischarged() == null) {
+            throw new ResourceInvalidException("Please enter Discharge Date for last hospitalisation " +
+                    "entry before creating a new one.");
         }
 
         // check make sure records not overlapping and set
