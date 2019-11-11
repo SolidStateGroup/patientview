@@ -439,6 +439,12 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                     throw new ResourceInvalidException("Date of Relapse can not be in the future.");
                 }
 
+                // Relapse date must always be less or equal to current diary entry "Date".
+                if (relapseDate.toLocalDate().isAfter(new DateTime(record.getEntryDate()).toLocalDate())) {
+                    throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
+                            "must be less or equal to Diary entry Date of %s.", record.getEntryDate()));
+                }
+
                 // "Date of Relapse" must be greater or equal to last saved diary
                 // entry "Date" where Relapse "N" was entered
                 if (!CollectionUtils.isEmpty(existingRecords)) {
@@ -465,7 +471,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                     }
 
                     if (noneRelapseEntryDate != null &&
-                            !relapseDate.toLocalDate().isAfter(new DateTime(noneRelapseEntryDate).toLocalDate())) {
+                            relapseDate.toLocalDate().isBefore(new DateTime(noneRelapseEntryDate).toLocalDate())) {
                         throw new ResourceInvalidException(String.format("The Date of Relapse that you've entered " +
                                 "must be later than your most recent non-relapse diary recording of %s " +
                                 "(where a Relapse value of 'N' was saved).", noneRelapseEntryDate));
@@ -495,6 +501,12 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 // check Date of Remission is not before Date of Relapse
                 if (relapseDate.toLocalDate().isAfter(remissionDate.toLocalDate())) {
                     throw new ResourceInvalidException("Date of Relapse must be before the Date of Remission.");
+                }
+
+                // Remission date must always be less or equal to current diary entry "Date".
+                if (remissionDate.toLocalDate().isAfter(new DateTime(record.getEntryDate()).toLocalDate())) {
+                    throw new ResourceInvalidException(String.format("The Date of Remission that you've entered " +
+                            "must be less or equal to Diary entry Date of %s.", record.getEntryDate()));
                 }
 
                 // "Date of Remission" must be greater or equal to last saved diary
