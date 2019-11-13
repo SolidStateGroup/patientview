@@ -931,8 +931,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 deleteFhirLinks(patient.getId());
                 LOG.info("user: " + patient.getId() + ", delete apiKeys");
                 deleteApiKeys(patient.getId());
-                LOG.info("user: " + patient.getId() + ", delete identifiers");
-                deleteIdentifiers(patient.getId());
 
                 // delete hospitalisation records
                 LOG.info("user: " + patient.getId() + ", delete hospitalisations");
@@ -949,6 +947,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 // delete ins relapse records
                 LOG.info("user: " + patient.getId() + ", delete relapse");
                 insDiaryService.deleteRelapseRecordsForUser(patient);
+
+                LOG.info("user: " + patient.getId() + ", delete identifiers");
+                deleteIdentifiers(patient.getId());
 
                 LOG.info("user: " + patient.getId() + ", delete user");
                 userRepository.delete(patient);
