@@ -1,41 +1,4 @@
 
-<div class="col-md-12 mb-min" data-ng-show="editMode === true">
-    <hr/>
-    <div class="col-md-3">
-        <div class="col-md-12 p-min bold">
-            <b>Created User</b>
-        </div>
-        <div class="col-md-12 p-min">
-            {{form.createdBy}}
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="col-md-12 p-min ">
-            <b>Created Date</b>
-        </div>
-        <div class="col-md-12 p-min">
-            {{form.created}}
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="col-md-12 p-min ">
-            <b>Modified User</b>
-        </div>
-        <div class="col-md-12 p-min">
-            {{form.updatedBy}}
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="col-md-12 p-min">
-            <b>Modified Date</b>
-        </div>
-        <div class="col-md-12 p-min">
-            {{form.updated}}
-        </div>
-    </div>
-    <hr/>
-</div>
-
 <div class="col-md-12 mb" data-ng-show="form.errors.existingOngoing">
     <div class="col-md-12">
         <span class="error"> &nbsp;*{{form.errors.existingOngoing}} </span>
@@ -187,8 +150,6 @@
     </div>
 </div>
 
-<!-- TODO content -->
-
 <div class="col-md-12">
 
     <div class="col-md-3">
@@ -203,16 +164,19 @@
         </div>
     </div>
 
-    <div class="col-md-3" data-ng-show="!form.relapse && !form.initiallyInRelapse">
+    <div class="col-md-8" data-ng-show="!form.relapse && (!form.initiallyInRelapse || editMode)">
         <div class="col-md-12 p-min">
             &nbsp;
         </div>
-        <div class="col-md-12 p-min">
+        <div class="col-md-3 p-min">
             <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save Diary Entry</button>
+        </div>
+        <div class="col-md-6 p-min">
+            * You must click this button to finalise and save your entry. Any changes made without clicking this button will be discarded.
         </div>
     </div>
 
-    <div class="col-md-3" data-ng-show="form.relapse || form.initiallyInRelapse">
+    <div class="col-md-3" data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
         <div class="col-md-12 p-min">
             &nbsp;Date of Relapse*
             <span data-ng-show="form.errors.relapseDate" class="error">{{form.errors.relapseDate}} </span>
@@ -234,7 +198,7 @@
         </div>
     </div>
 
-    <div class="col-md-3 col-md-offset-1"data-ng-show="form.relapse || form.initiallyInRelapse">
+    <div class="col-md-3 col-md-offset-1"data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
         <div class="col-md-12 p-min">
             Date of Remission*
             <span data-ng-show="form.errors.remissionDate" class="error">{{form.errors.remissionDate}} </span>
@@ -264,9 +228,8 @@
     </div>
 </div>
 
-<!-- TODO Content -->
 
-<div data-ng-show="form.relapse || form.initiallyInRelapse">
+<div data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
 
     <hr/>
 
@@ -444,8 +407,6 @@
             </div>
         </div>
 
-        <!-- TODO content-->
-
         <div class="col-md-12">
             <div class="col-md-3">
                 <div class="col-md-12 p-min">
@@ -501,18 +462,53 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-12"  data-ng-show="form.relapse || form.initiallyInRelapse">
-            <div class="col-md-10">
-                <div class="col-md-12 p-min">
-                    &nbsp;
-                </div>
-                <div class="col-md-2 p-min">
-                    <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save Diary Entry</button>
-                </div>
-                <div class="col-md-5 p-min">
-                    * You must click this button to finalise and save your entry. Any changes made without clicking this button will be discarded.
-                </div>
-            </div>
+    </div>
+</div>
+
+<div class="col-md-12" data-ng-show="editMode === true">
+    <hr/>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min bold">
+            <b>Created User</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.createdBy}}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min ">
+            <b>Created Date</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.created}}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min ">
+            <b>Modified User</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.updatedBy || '-'}}
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="col-md-12 p-min">
+            <b>Modified Date</b>
+        </div>
+        <div class="col-md-12 p-min">
+            {{form.updated || '-'}}
+        </div>
+    </div>
+    <hr data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)"/>
+</div>
+
+<div class="col-md-12"  data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
+    <div class="col-md-10">
+        <div class="col-md-2 p-min">
+            <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save Diary Entry</button>
+        </div>
+        <div class="col-md-5 p-min">
+            * You must click this button to finalise and save your entry. Any changes made without clicking this button will be discarded.
         </div>
     </div>
 </div>

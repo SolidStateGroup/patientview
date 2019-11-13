@@ -47,6 +47,7 @@
             </div>
         </div>
     </div>
+    <div pv-pagination use-parent-scope="true" data-ng-show="!loading" class="col-md-12"></div>
     <div class="col-md-12">
         <div class="col-md-12">
             <br/>
@@ -56,11 +57,13 @@
         </div>
     </div>
 
-    <div pv-pagination use-parent-scope="true" data-ng-show="!loading"></div>
 
     <div id="insError" class="alert alert-danger" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
+    <div class="col-md-4 p-min">
+        <button class="col-md-5 btn blue" data-ng-click="addRecordingSelected = !addRecordingSelected">{{addRecordingSelected ? 'Hide Form' : 'Add Recording'}}</button>
+    </div>
 
-    <div class="col-md-12 segregated-box mt-big">
+    <div class="col-md-12 segregated-box mt" data-ng-show="addRecordingSelected === true">
         <div class="col-md-12 box-title">
             New Recording
         </div>

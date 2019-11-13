@@ -116,7 +116,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             reason: $scope.newForm.reason,
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
-            $scope.hospitalisations.push(formatHostpitalisation(data));
+            $scope.hospitalisations.unshift(formatHostpitalisation(data));
 
             $scope.init();
 
@@ -152,10 +152,9 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             reason: $scope.editForm.reason,
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
-            $scope.hospitalisations = $scope.hospitalisations.filter(function(val){
-                return val.id !== id;
+            $scope.hospitalisations.forEach(function(val, i){
+                if(val.id === id) $scope.hospitalisations[i] = formatHostpitalisation(data);
             });
-            $scope.hospitalisations.push(formatHostpitalisation(data));
             $scope.openEdit(null);
             
             $('.faux-row').removeClass('highlight');

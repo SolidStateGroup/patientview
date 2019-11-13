@@ -15,6 +15,11 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         $scope.getRecordings();
     });
 
+    $scope.$watch('errorMessage', function(value) {
+        if(value) alert(value);
+        delete $scope.errorMessage;
+    });
+
     // update page when currentPage is changed (and at start)
     $scope.$watch('newForm.relapse', function(value) {
         if($scope.newForm.initiallyInRelapse === true){
@@ -69,19 +74,19 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             newOedema: val.oedema && val.oedema.length > 0 ? val.oedema[0] : null,
 
             relapse: val.inRelapse,
-            initiallyInRelapse: val.inRelapse,
+            initiallyInRelapse: !!val.relapse,
 
-            relapseId: val.inRelapse ? val.relapse.id : null,
-            relapseDate: getDateDropdownVals(val.inRelapse? new Date(val.relapse.relapseDate) : new Date() ),
-            relapseOngoing: val.inRelapse && !val.relapse.remissionDate ? true  : false,
-            remissionDate: getDateDropdownVals(val.inRelapse && val.relapse.remissionDate ? new Date(val.relapse.remissionDate) : new Date()),
+            relapseId: val.relapse ? val.relapse.id : null,
+            relapseDate: getDateDropdownVals(val.relapse? new Date(val.relapse.relapseDate) : new Date() ),
+            relapseOngoing: val.relapse && !val.relapse.remissionDate ? true  : false,
+            remissionDate: getDateDropdownVals(val.relapse && val.relapse.remissionDate ? new Date(val.relapse.remissionDate) : new Date()),
 
-            viralInfection: val.inRelapse ? val.relapse.viralInfection : null,
-            commonCold: val.inRelapse ? val.relapse.commonCold : null,
-            hayFever: val.inRelapse ? val.relapse.hayFever : null,
-            allergicReaction: val.inRelapse ? val.relapse.allergicReaction : null,
-            allergicSkinRash: val.inRelapse ? val.relapse.allergicSkinRash : null,
-            foodIntolerance: val.inRelapse ? val.relapse.foodIntolerance : null,
+            viralInfection: val.relapse ? val.relapse.viralInfection : null,
+            commonCold: val.relapse ? val.relapse.commonCold : null,
+            hayFever: val.relapse ? val.relapse.hayFever : null,
+            allergicReaction: val.relapse ? val.relapse.allergicReaction : null,
+            allergicSkinRash: val.relapse ? val.relapse.allergicSkinRash : null,
+            foodIntolerance: val.relapse ? val.relapse.foodIntolerance : null,
 
             medications: medications,
         };
@@ -100,7 +105,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             created: moment(val.created).format('DD-MMM-YYYY'),
             createdBy: val.createdBy,
 
-            updated: moment(val.lastUpdate).format('DD-MMM-YYYY'),
+            updated: val.lastUpdate && moment(val.lastUpdate).format('DD-MMM-YYYY'),
             updatedBy: val.lastUpdatedBy,
 
         }, formatRelapseForForm(val));
@@ -592,6 +597,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
                 $scope.loading = false;
                 $scope.pagedItems.unshift(formatForForm(data));
                 $scope.pagedItems[0].editForm = formatForForm(data);
+                alert('Entry Saved!');
                 delete $scope.errorMessage;
                 $scope.getRecordings();
                 $scope.initNewForm();
@@ -610,6 +616,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             DiaryRecordingService.postMedication($scope.loggedInUser.id, form.relapseId, formatMedicationForPost(form.newMedication)).then(function(data){
                 $scope.loading = false;
                 form.medications.push(formatMedicationForForm(data));
+                alert('Medication Saved!');
                 $scope.initNewMedication(form);
                 delete $scope.errorMessage;
             }, function(error){
@@ -627,6 +634,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             form.medications = form.medications.filter(function(m){
                 return m.id !== id;
             });
+            alert('Medication Deleted');
             delete $scope.errorMessage;
         }, function(error){
             $scope.loading = false;
@@ -650,6 +658,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
                 $scope.pagedItems[$scope.pagedItems.length-1].editForm = formatForForm(data);
                 $scope.showEdit = null;
                 $scope.getRecordings();
+                alert('Entry Updated!');
                 delete $scope.errorMessage;
             }, function(error){
                 $scope.loading = false;
@@ -670,6 +679,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
                 return val.id !== id;
             });
             $scope.getRecordings();
+            alert('Entry Deleted');
             delete $scope.errorMessage;
         }, function() {
             $scope.loading = false;

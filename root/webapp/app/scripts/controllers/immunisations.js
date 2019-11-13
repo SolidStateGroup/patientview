@@ -103,7 +103,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             delete $scope.errorMessage;
-            $scope.immunisations.push(formatImmunisation(data));
+            $scope.immunisations.unshift(formatImmunisation(data));
         }, function(error) {
             $scope.loading = false;
             $scope.errorMessage = error.data;
@@ -125,10 +125,9 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             delete $scope.errorMessage;
-            $scope.immunisations = $scope.immunisations.filter(function(val){
-                return val.id !== id;
+            $scope.immunisations.forEach(function(val, i){
+                if(val.id === id) $scope.immunisations[i] = formatImmunisation(data);
             });
-            $scope.immunisations.push(formatImmunisation(data));
             $scope.openEdit(null);
             
             $('.faux-row').removeClass('highlight');
