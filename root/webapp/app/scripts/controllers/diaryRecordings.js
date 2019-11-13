@@ -53,7 +53,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
     function formatRelapseForForm(val){
         var medications = [];
 
-        if(val.inRelapse && val.relapse.medications){
+        if(val.relapse && val.relapse.medications){
             val.relapse.medications.forEach(function(med){
                 medications.push(formatMedicationForForm(med));
             });
