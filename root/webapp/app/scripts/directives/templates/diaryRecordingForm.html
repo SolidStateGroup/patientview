@@ -164,7 +164,7 @@
         </div>
     </div>
 
-    <div class="col-md-8" data-ng-show="!form.relapse && (!form.initiallyInRelapse || editMode)">
+    <div class="col-md-8" data-ng-show="!form.relapse && !form.initiallyInRelapse">
         <div class="col-md-12 p-min">
             &nbsp;
         </div>
@@ -176,7 +176,7 @@
         </div>
     </div>
 
-    <div class="col-md-3" data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
+    <div class="col-md-3" data-ng-show="form.relapse || form.initiallyInRelapse">
         <div class="col-md-12 p-min">
             &nbsp;Date of Relapse*
             <span data-ng-show="form.errors.relapseDate" class="error">{{form.errors.relapseDate}} </span>
@@ -198,7 +198,7 @@
         </div>
     </div>
 
-    <div class="col-md-3 col-md-offset-1"data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
+    <div class="col-md-3 col-md-offset-1"data-ng-show="form.relapse || form.initiallyInRelapse">
         <div class="col-md-12 p-min">
             Date of Remission*
             <span data-ng-show="form.errors.remissionDate" class="error">{{form.errors.remissionDate}} </span>
@@ -229,7 +229,7 @@
 </div>
 
 
-<div data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
+<div data-ng-show="form.relapse || form.initiallyInRelapse">
 
     <hr/>
 
@@ -499,10 +499,10 @@
             {{form.updated || '-'}}
         </div>
     </div>
-    <hr data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)"/>
+    <hr data-ng-show="form.relapse || form.initiallyInRelapse"/>
 </div>
 
-<div class="col-md-12"  data-ng-show="form.relapse || (form.initiallyInRelapse && !editMode)">
+<div class="col-md-12"  data-ng-show="form.relapse || form.initiallyInRelapse">
     <div class="col-md-10">
         <div class="col-md-2 p-min">
             <button type="button" class="btn aquamarine" data-ng-click="submit(form)">Save Diary Entry</button>
