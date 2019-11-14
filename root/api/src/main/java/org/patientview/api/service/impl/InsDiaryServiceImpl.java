@@ -277,7 +277,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         RelapseMedication savedMedication = relapseMedicationRepository.save(medication);
 
         existingRelapse.getMedications().add(savedMedication);
-        relapseRepository.save(existingRelapse); // TODO: check if we need to re save this
+        relapseRepository.save(existingRelapse);
 
         return savedMedication;
     }
@@ -648,20 +648,19 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 existingRelapse.setFoodIntolerance(relapseData.isFoodIntolerance());
                 existingRelapse.setLastUpdate(DateTime.now().toDate());
                 existingRelapse.setLastUpdater(editor);
-                // remove all medication records and re add
-                existingRelapse.getMedications().clear();
-
-                savedRelapse = relapseRepository.save(existingRelapse);
 
                 // re add medication
                 if (!CollectionUtils.isEmpty(relapseData.getMedications())) {
+                    // remove all medication records and re add
+                    existingRelapse.getMedications().clear();
                     for (RelapseMedication medication : relapseData.getMedications()) {
 
-                        medication.setRelapse(savedRelapse);
+                        medication.setRelapse(existingRelapse);
                         RelapseMedication savedMedication = relapseMedicationRepository.save(medication);
-                        savedRelapse.getMedications().add(savedMedication);
+                        existingRelapse.getMedications().add(savedMedication);
                     }
                 }
+                savedRelapse = relapseRepository.save(existingRelapse);
             }
         }
 
