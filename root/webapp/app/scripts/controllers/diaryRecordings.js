@@ -116,6 +116,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
     function formatMedicationForPost(m){
         return {
+            "id": m.id ? m.id : undefined, 
             "name": m.name, 
             "other": m.name === 'OTHER' ? m.other : null, 
             "doseQuantity": m.doseQty, 
