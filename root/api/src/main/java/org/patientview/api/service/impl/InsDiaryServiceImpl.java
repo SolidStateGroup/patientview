@@ -301,7 +301,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         RelapseMedication existingMedication = relapseMedicationRepository.findOne(medicationId);
-        if (existingRelapse == null) {
+        if (existingMedication == null) {
             throw new ResourceNotFoundException("Could not find RelapseMedication record");
         }
 
@@ -310,7 +310,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         existingRelapse.getMedications().remove(existingMedication);
-        relapseRepository.save(existingRelapse); // TODO: check if we need to re save this
+        relapseRepository.save(existingRelapse);
 
         relapseMedicationRepository.delete(existingMedication);
     }
@@ -648,8 +648,20 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 existingRelapse.setFoodIntolerance(relapseData.isFoodIntolerance());
                 existingRelapse.setLastUpdate(DateTime.now().toDate());
                 existingRelapse.setLastUpdater(editor);
+                // remove all medication records and re add
+                existingRelapse.getMedications().clear();
 
                 savedRelapse = relapseRepository.save(existingRelapse);
+
+                // re add medication
+                if (!CollectionUtils.isEmpty(relapseData.getMedications())) {
+                    for (RelapseMedication medication : relapseData.getMedications()) {
+
+                        medication.setRelapse(savedRelapse);
+                        RelapseMedication savedMedication = relapseMedicationRepository.save(medication);
+                        savedRelapse.getMedications().add(savedMedication);
+                    }
+                }
             }
         }
 
