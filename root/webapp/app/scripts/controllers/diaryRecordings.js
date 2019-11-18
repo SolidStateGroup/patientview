@@ -250,6 +250,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
     $scope.formFuncs.addOedema = function(form) {
         if($scope.formFuncs.canAddNewOedema(form)){
+            form.oedema = form.oedema.filter(function(o){return o !== 'NONE'});
             form.oedema.push(form.newOedema);
             delete form.errors.newOedema;
         } else {
@@ -266,7 +267,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
     };
 
     $scope.formFuncs.newOedemaChanged = function(form) {
-        if(form.oedema.length === 0 && form.newOedema !== 'NONE'){
+        if(form.oedema.filter(function(o) { return o !== 'NONE'}).length === 0 && form.newOedema !== 'NONE'){
             $scope.formFuncs.addOedema(form);
         }
     };
