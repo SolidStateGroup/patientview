@@ -440,8 +440,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, group);
 
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
-            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+            // send membership notification to RDC, UNIT groups only
+            if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
                 sendGroupMemberShipNotification(groupRole, true);
             }
         } else {
@@ -1131,9 +1131,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Override
     public void sendUserUpdatedGroupNotification(User user, boolean adding) {
         for (GroupRole groupRole : user.getGroupRoles()) {
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
+
+            // send membership notification to RDC, Units only
             if (groupRole.getGroup().getGroupType() != null &&
-                    !groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                    groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
                 sendGroupMemberShipNotification(groupRole, adding);
             }
         }
@@ -1183,8 +1184,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, entityUser.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
 
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
-            if (!entityGroupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+            // send membership notification to RDC, UNIT groups only
+            if (entityGroupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
                 sendGroupMemberShipNotification(entityGroupRole, false);
             }
         } else {
@@ -2122,7 +2123,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     /**
      * Builds group membership XML and adds it to the queue to be processed.
      *
-     * This should only be called for Patient users.
+     * This should only be called for Patient users who are members of Renal speciality.
+     * Also needs to be sending to UNIT groups only
      *
      * @param groupRole
      * @param adding
@@ -2132,6 +2134,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean validIdentifierFound = false;
         DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
+            LOG.info("Group {} is not UNIT type, ignoring sending notification", groupRole.getGroup().getCode());
+            return;
+        }
 
         // make sure the Group we are sending to is part of the Renal Specialty
         // need to re fetch to get all relationship
