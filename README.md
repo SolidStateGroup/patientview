@@ -45,7 +45,19 @@ The main SQL files used to build the 'patientview' and 'fhir' databases prior to
 
 Note that migration is a one time task from PV1 and is not required to set up PV2.
 
+Front-end
+========
 
+To start front end, from the project directory
+
+```sh
+cd root/webapp/
+npm install
+npm start  // to connect to local api
+npm run startLocal  // to connect to dev api
+```
+
+Front end will be available on http://localhost:9000
 
 RabbitMQ
 ========

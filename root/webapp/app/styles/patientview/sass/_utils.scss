@@ -26,12 +26,29 @@
     padding-right:15px;
 }
 
+.p-min{
+    padding:5px;
+}
+
+
 .mb{
     margin-bottom:15px;
 }
 
+.mb-min{
+    margin-bottom:5px;
+}
+
+.mb-big{
+    margin-bottom:50px;
+}
+
 .mt{
     margin-top:15px;
+}
+
+.mt-big{
+    margin-top:50px;
 }
 
 // Toggling content
@@ -65,6 +82,11 @@
 
 .no-pad {
     padding: 0;
+}
+
+.strong {
+    font-weight:bold;
+    font-style: italic;
 }
 
 // Adds a ... when text overflowing container
@@ -113,9 +135,35 @@ ol.unstyled {
     }
 }
 
+.link{
+    color: $primary;
+    &:hover{
+        color: darken($primary, 30%);
+    }
+}
+
 .error{
     color:$error;
     font-weight:normal;
+}
+
+.no-select-padding{
+
+    select.form-control{
+        padding:0px;
+    }
+    
+}
+
+.segregated-box{
+    border: 1px solid grey;
+    padding:20px 42px 20px 0px;
+}
+
+.box-title{
+    margin-bottom: 10px;
+    margin-left: 20px;
+    font-weight:bold
 }
 
 .no-items{
@@ -134,6 +182,9 @@ ol.unstyled {
     text-align: right;
 }
 
+.angular-multiline{
+    white-space: pre-wrap;
+}
 /** todo revise james' css **/
 
 input.ng-pristine + ul#strength {

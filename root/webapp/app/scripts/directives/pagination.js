@@ -14,6 +14,9 @@ angular.module('patientviewApp').directive('pvPagination', ['$compile', function
             '<li data-ng-class="lastPageDisabled()"><a href data-ng-click="lastPage()">Last »</a></li>' +
             '</ul></div>',
         link: function($scope, element, attrs) {
+            if (attrs['useParentScope'] === 'true') {
+                $scope = $scope.$parent;
+            }
             $scope.pageCount = function() {
                 return Math.ceil($scope.total / $scope.itemsPerPage);
             };

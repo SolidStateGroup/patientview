@@ -462,7 +462,9 @@ textarea.form-control {
         height: 200px;
     }
 }
-
+textarea.form-control.big {
+    height:120px;
+}
 //ENTER RESULTS
 .input-comments {
     width: 100%;

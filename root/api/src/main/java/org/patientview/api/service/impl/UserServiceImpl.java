@@ -20,6 +20,9 @@ import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.HospitalisationService;
+import org.patientview.api.service.ImmunisationService;
+import org.patientview.api.service.InsDiaryService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
@@ -212,6 +215,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private AuthenticationService authenticationService;
+
+    @Inject
+    private HospitalisationService hospitalisationService;
+
+    @Inject
+    private ImmunisationService immunisationService;
+
+    @Inject
+    private InsDiaryService insDiaryService;
 
     @Inject
     private DeletePatientTask deletePatientTask;
@@ -919,8 +931,26 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 deleteFhirLinks(patient.getId());
                 LOG.info("user: " + patient.getId() + ", delete apiKeys");
                 deleteApiKeys(patient.getId());
+
+                // delete hospitalisation records
+                LOG.info("user: " + patient.getId() + ", delete hospitalisations");
+                hospitalisationService.deleteRecordsForUser(patient);
+
+                // delete immunisation records
+                LOG.info("user: " + patient.getId() + ", delete immunisations");
+                immunisationService.deleteRecordsForUser(patient);
+
+                // delete ins diary records
+                LOG.info("user: " + patient.getId() + ", delete ins diary");
+                insDiaryService.deleteInsDiaryRecordsForUser(patient);
+
+                // delete ins relapse records
+                LOG.info("user: " + patient.getId() + ", delete relapse");
+                insDiaryService.deleteRelapseRecordsForUser(patient);
+
                 LOG.info("user: " + patient.getId() + ", delete identifiers");
                 deleteIdentifiers(patient.getId());
+
                 LOG.info("user: " + patient.getId() + ", delete user");
                 userRepository.delete(patient);
 

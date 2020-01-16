@@ -1,0 +1,91 @@
+<div>
+    <div class="faux-table five-col" >
+        <div class="accordion-title-row table-head">
+            <div class="hidden">ID</div>
+            <div class="head-item accordion-title-text">Date</div>
+            <div class="head-item accordion-title-text">Time</div>
+            <div class="head-item accordion-title-text">Urine Protein Dipstick</div>
+            <div class="head-item accordion-title-text">Relapse</div>
+            <div class="head-item accordion-title-text"></div>
+        </div>
+
+        <div data-ng-show="loading" class="row"><br/>
+            <div class="col-md-12">
+                <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
+            </div>
+        </div>
+        <div class="item-header" data-ng-repeat="recording in pagedItems" data-ng-show="!loading">
+            <div class="faux-row">
+                <div class="row-item hidden">{{recording.id}}</div>
+                <div class="row-item accordion-heading-text">{{formatDateFromDropdowns(recording.date)}}</div>
+                <div class="row-item accordion-heading-text">{{formatTimeFromDropdowns(recording.date)}}</div>
+                <div class="row-item accordion-heading-text">{{options.proteinLookup[recording.protein]}}</div>
+                <div class="row-item accordion-heading-text">{{recording.relapse ? 'Yes' : 'No'}}</div>
+                <div class="row-item actions">
+                    <div class="btn-group">
+                        <button type="button" class="edit-button btn blue" data-ng-click="editEntry(recording)"> Edit</button>
+                        <button type="button" class="statistics-button btn negative" data-ng-click="deleteEntry(recording.id)"> Delete</button>
+                    </div>
+                </div>
+            </div>
+            <!-- edit pane -->
+            <div class="panel-body mb-big" data-ng-show="showEdit === recording.id">
+                <div data-ng-show="recording.loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                <div data-ng-show="!recording.loading">
+                    <diaryform
+                      form="recording.editForm"
+                      options="options"
+                      funcs="formFuncs"
+                      submit="updateEntry"
+                      addmed="postMedication"
+                      remmed="deleteMedication"
+                      edit="true">
+                    </diaryform>
+                    <hr>
+                    <div class="panel-body-footer"><button class="btn btn-grey close-edit pull-right" ng-click="editEntry(null)">Close</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div pv-pagination use-parent-scope="true" data-ng-show="!loading" class="col-md-12"></div>
+    <div class="col-md-12">
+        <div class="col-md-12">
+            <br/>
+            <!--<h4>No records found</h4>-->
+            
+            </div>
+        </div>
+    </div>
+
+
+    <div id="insError" class="alert alert-danger" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
+    <div class="col-md-4 p-min">
+        <button class="col-md-5 btn blue" data-ng-click="addRecordingSelected = !addRecordingSelected">{{addRecordingSelected ? 'Hide Form' : 'Add Recording'}}</button>
+    </div>
+
+    <div class="col-md-12 segregated-box mt" data-ng-show="addRecordingSelected === true">
+        <div class="col-md-12 box-title">
+            New Recording
+        </div>
+
+        <diaryform
+          form="newForm"
+          options="options"
+          funcs="formFuncs"
+          submit="postEntry"
+          addmed="addMedicationLocal"
+          remmed="removeMedicationLocal">
+        </diaryform>
+
+        <!--<<div data-ng-show="newForm.relapse" class="col-md-12 mt">
+                <div data-ng-show="newForm.relapse" class="col-md-12">
+                    <div class="col-md-12 p-min">
+                        <button type="button" class="btn blue" data-ng-click="addMedication(newForm)">New Medication</button>
+                        button type="button" class="btn aquamarine" data-ng-click="validate(newForm)">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+    </div>
+</div>
