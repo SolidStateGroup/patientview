@@ -37,4 +37,12 @@ public interface SurveyFeedbackService {
     @UserOnly
     List<org.patientview.api.model.SurveyFeedback> getByUserIdAndSurveyId(Long userId, Long surveyId)
             throws ResourceNotFoundException;
+
+
+    /**
+     * Hard delete all SurveyFeedback entries associated with a User.
+     *
+     * @param userId a User ID to delete SurveyFeedback entries for
+     */
+    void deleteForUser(Long userId);
 }

@@ -3,6 +3,7 @@ package org.patientview.persistence.repository;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyFeedback;
 import org.patientview.persistence.model.User;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +23,8 @@ public interface SurveyFeedbackRepository extends CrudRepository<SurveyFeedback,
 
     @Query("SELECT sf FROM SurveyFeedback sf WHERE sf.survey = :survey AND sf.user = :user")
     List<SurveyFeedback> findBySurveyAndUser(@Param("survey") Survey survey, @Param("user") User user);
+
+    @Modifying(clearAutomatically = true) // note: clearAutomatically required to flush changes straight away
+    @Query("DELETE FROM SurveyFeedback WHERE user.id = :userId")
+    void deleteSurveyFeedbackByUser(@Param("userId") Long userId);
 }
