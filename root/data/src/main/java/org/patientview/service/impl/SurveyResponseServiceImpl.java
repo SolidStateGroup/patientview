@@ -12,7 +12,9 @@ import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ScoreSeverity;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.QuestionAnswerRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
+import org.patientview.persistence.repository.SurveyResponseScoreRepository;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.service.SurveyService;
 import org.patientview.util.Util;
@@ -39,6 +41,12 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
 
     @Inject
     SurveyResponseRepository surveyResponseRepository;
+
+    @Inject
+    SurveyResponseScoreRepository surveyResponseScoreRepository;
+
+    @Inject
+    QuestionAnswerRepository questionAnswerRepository;
 
     @Inject
     SurveyService surveyService;
@@ -182,7 +190,21 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
     }
 
     @Override
+    @Transactional
     public void deleteForUser(Long userId) {
-        surveyResponseRepository.deleteSurveyByUser(userId);
+        List<SurveyResponse> responses = surveyResponseRepository.findSurveyByUser(userId);
+        if (!CollectionUtils.isEmpty(responses)) {
+            for (SurveyResponse re : responses) {
+                // remove survey response scores
+                LOG.info("removing survey response scores for survey response id: " + re.getId());
+                surveyResponseScoreRepository.deleteBySurveyResponse(re.getId());
+
+                // remove survey response scores
+                LOG.info("removing questions answers for survey response id: " + re.getId());
+                questionAnswerRepository.deleteBySurveyResponse(re.getId());
+            }
+
+            surveyResponseRepository.deleteSurveyByUser(userId);
+        }
     }
 }
