@@ -46,4 +46,7 @@ public interface SurveyResponseRepository extends CrudRepository<SurveyResponse,
     @Modifying(clearAutomatically = true) // note: clearAutomatically required to flush changes straight away
     @Query("DELETE FROM SurveyResponse WHERE user.id = :userId")
     void deleteSurveyByUser(@Param("userId") Long userId);
+
+    @Query("SELECT s FROM SurveyResponse s WHERE s.user.id = :userId")
+    List<SurveyResponse> findSurveyByUser(@Param("userId") Long userId);
 }
