@@ -4,6 +4,7 @@ import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -41,4 +42,8 @@ public interface SurveyResponseRepository extends CrudRepository<SurveyResponse,
                                                              @Param("end") Date end,
                                                              @Param("surveyTypes") List<String> surveyTypes,
                                                              @Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true) // note: clearAutomatically required to flush changes straight away
+    @Query("DELETE FROM SurveyResponse WHERE user.id = :userId")
+    void deleteSurveyByUser(@Param("userId") Long userId);
 }

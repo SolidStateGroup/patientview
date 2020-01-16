@@ -47,4 +47,13 @@ public interface SurveyResponseService {
      * @throws ImportResourceException
      */
     void validate(generated.SurveyResponse surveyResponse) throws ImportResourceException;
+
+    /**
+     * Hard delete all SurveyResponse entries associated with a User.
+     * This will also cascade and delete SurveyResponseScore and QuestionAnswer associated
+     * with deleted SurveyResponse
+     *
+     * @param userId a User ID to delete SurveyResponse entries for
+     */
+    void deleteForUser(Long userId);
 }

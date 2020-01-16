@@ -180,4 +180,9 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
             }
         }
     }
+
+    @Override
+    public void deleteForUser(Long userId) {
+        surveyResponseRepository.deleteSurveyByUser(userId);
+    }
 }
