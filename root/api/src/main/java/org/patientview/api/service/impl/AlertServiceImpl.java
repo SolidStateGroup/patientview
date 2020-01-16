@@ -177,6 +177,13 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     }
 
     @Override
+    public org.patientview.api.model.Alert saveAlert(Alert alert) {
+
+        Alert saved = alertRepository.save(alert);
+        return new org.patientview.api.model.Alert(saved, alert.getUser());
+    }
+
+    @Override
     public List<org.patientview.api.model.Alert> getAlerts(Long userId, AlertTypes alertType)
             throws ResourceNotFoundException {
 

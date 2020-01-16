@@ -96,4 +96,9 @@ public class SurveyFeedbackServiceImpl extends AbstractServiceImpl<SurveyFeedbac
 
         return convertSurveyFeedback(surveyFeedbackRepository.findBySurveyAndUser(survey, user));
     }
+
+    @Override
+    public void deleteForUser(Long userId) {
+        surveyFeedbackRepository.deleteSurveyFeedbackByUser(userId);
+    }
 }
