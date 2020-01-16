@@ -217,6 +217,10 @@ public class ApiObservationServiceTest {
         entity.setLogicalId(UUID.randomUUID());
 
         Observation observation = new Observation();
+        CodeableConcept nameConcept = new CodeableConcept();
+        nameConcept.setTextSimple(observationHeading1.getCode());
+        nameConcept.addCoding().setDisplaySimple(observationHeading1.getCode());
+        observation.setName(nameConcept);
 
         when(fhirResource.createEntity(eq(fhirPatient), eq(ResourceType.Patient.name()), eq("patient")))
                 .thenReturn(entity);

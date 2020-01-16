@@ -326,6 +326,7 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
             var canGetStaffEnteredDiagnosis = false;
             $scope.showRenalHealthSurveys = false;
             $scope.showOptEPro = false;
+            $scope.showInsDiary = false;
             $scope.showEnterConditions = false;
 
             for (i=0; i<$scope.loggedInUser.groupRoles.length; i++) {
@@ -334,6 +335,9 @@ function ($scope, PatientService, GroupService, ObservationService, $routeParams
                 }
 
                 $scope.loggedInUser.groupRoles[i].group.groupFeatures.forEach(function(feature) {
+                    if (feature.feature.name == 'INS_DIARY') {
+                        $scope.showInsDiary = true;
+                    }
                     if (feature.feature.name == 'OPT_EPRO') {
                         $scope.showOptEPro = true;
                     }
