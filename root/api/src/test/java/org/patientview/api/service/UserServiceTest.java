@@ -290,7 +290,7 @@ public class UserServiceTest {
         Assert.assertNotNull("The returned object should not be null", groupRole);
         verify(groupRoleRepository, times(1)).save(any(GroupRole.class));
 
-        // verify queued to RDC
+        // verify not queued to RDC, as staff
         verify(externalServiceService, times(0))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
                         any(String.class), any(User.class), any(Date.class), any(GroupRole.class));
@@ -322,27 +322,27 @@ public class UserServiceTest {
         group.setGroupType(lookupValue);
 
 
-        User staffUser = TestUtils.createUser("staff");
-        Role staffRole = TestUtils.createRole(RoleName.PATIENT);
-        GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
+        User patientUser = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRoleStaff = TestUtils.createGroupRole(patientRole, group2, patientUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
         groupRolesStaff.add(groupRoleStaff);
-        staffUser.setGroupRoles(groupRolesStaff);
+        patientUser.setGroupRoles(groupRolesStaff);
 
         // new role
-        Role newStaffRole = TestUtils.createRole(RoleName.PATIENT);
+        Role newPatientRole = TestUtils.createRole(RoleName.PATIENT);
         org.patientview.persistence.model.RoleType roleType = new org.patientview.persistence.model.RoleType();
         roleType.setValue(RoleType.PATIENT);
-        newStaffRole.setRoleType(roleType);
+        newPatientRole.setRoleType(roleType);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.findOne(eq(patientUser.getId()))).thenReturn(patientUser);
         when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
         when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(newStaffRole.getId()))).thenReturn(newStaffRole);
+        when(roleRepository.findOne(eq(newPatientRole.getId()))).thenReturn(newPatientRole);
         when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole);
 
         // add GroupRole to staff user
-        groupRole = userService.addGroupRole(staffUser.getId(), group.getId(), newStaffRole.getId());
+        groupRole = userService.addGroupRole(patientUser.getId(), group.getId(), newPatientRole.getId());
 
         Assert.assertNotNull("The returned object should not be null", groupRole);
         verify(groupRoleRepository, times(1)).save(any(GroupRole.class));
@@ -357,6 +357,7 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
@@ -368,15 +369,11 @@ public class UserServiceTest {
 
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
+        group2.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
         Group parent = TestUtils.createGroup("Renal");
         parent.setCode("Renal");
         // create group relationships
-        group2.getGroupRelationships().add(TestUtils.createGroupRelationship(group, parent, RelationshipTypes.PARENT));
-
-        Lookup lookupValue = new Lookup();
-        lookupValue.setValue("");
-        group2.setGroupType(lookupValue);
-        group.setGroupType(lookupValue);
+        group2.getGroupRelationships().add(TestUtils.createGroupRelationship(group2, parent, RelationshipTypes.PARENT));
 
         User patientUser = TestUtils.createUser("test_patient");
         TestUtils.createIdentifier(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
@@ -405,7 +402,7 @@ public class UserServiceTest {
         Assert.assertNotNull("The returned object should not be null", groupRole);
         verify(groupRoleRepository, times(2)).save(any(GroupRole.class));
 
-        // verify queued to RDC
+        // verify queued to RDC, must be members of Renal and UNIT group
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),
                         any(String.class), any(User.class), any(Date.class), any(GroupRole.class));
@@ -489,7 +486,7 @@ public class UserServiceTest {
         Assert.assertNotNull("The returned object should not be null", groupRole);
         verify(groupRoleRepository, times(2)).save(any(GroupRole.class));
 
-        // verify queued to RDC
+        // verify queued to RDC, must be members of Renal and UNIT group
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
                         any(User.class), any(Date.class), any(GroupRole.class));
@@ -1120,7 +1117,7 @@ public class UserServiceTest {
         userService.deleteGroupRole(patientUser.getId(), group.getId(), patientRole.getId());
         verify(groupRoleRepository, times(1)).delete(any(GroupRole.class));
 
-        // verify queued to RDC
+        // verify queued to RDC, must be members of Renal and UNIT group
         verify(externalServiceService, times(1))
                 .addToQueue(eq(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), any(String.class),
                         any(User.class), any(Date.class), any(GroupRole.class));
