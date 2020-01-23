@@ -17,7 +17,7 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:maxLength value="80"/>
+						<xs:maxLength value="60"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -47,14 +47,14 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:maxLength value="220"/>
+						<xs:maxLength value="10"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="use" use="required">
 			<xs:annotation>
-				<xs:documentation>Use codes from PDS L=Usual A=Alias (0..*) PREFERRED=Preferred PREVIOUS-BIRTH=Birth name</xs:documentation>
+				<xs:documentation>L=Official, D=Usual, B=Birth Name - https://www.hl7.org/fhir/v2/0200/index.html</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>

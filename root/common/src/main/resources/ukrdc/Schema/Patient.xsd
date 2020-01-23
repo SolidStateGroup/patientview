@@ -10,6 +10,8 @@
 	<xs:include schemaLocation="Types/PatientNumber.xsd"/>
 	<xs:include schemaLocation="Types/PersonalContactType.xsd"/>
 	<xs:include schemaLocation="Types/CommonMetadata.xsd"/>
+    <xs:include schemaLocation="Types/BloodGroup.xsd"/>
+    <xs:include schemaLocation="Types/BloodRhesus.xsd"/>
 	<xs:complexType name="Patient">
 		<xs:sequence>
 			<xs:element name="PatientNumbers" type="PatientNumbers" minOccurs="0"/>
@@ -67,6 +69,16 @@
 					<xs:documentation>Primary Language</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+            <xs:element name="BloodGroup" type="BloodGroup" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Current Blood Type</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="BloodRhesus" type="BloodRhesus" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Current Blood Rhesus</xs:documentation>
+                </xs:annotation>
+            </xs:element>
 			<xs:element name="Death" type="xs:boolean" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Present only when dead - replaces isDead concept</xs:documentation>

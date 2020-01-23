@@ -65,11 +65,20 @@
                             <xs:annotation>
                                 <xs:documentation>British Association For Paediatric Nephrology</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>                        
+                        </xs:enumeration>
                         <xs:enumeration value="LOCALHOSP">
                             <xs:annotation>
                                 <xs:documentation>Local Hospital Number</xs:documentation>
-                                <!-- TODO: Ideally this would be the Trust ID but this wouldn't allow the enumeration. We could swap LOCALHOSP for that on load? -->
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="UKRR_UID">
+                            <xs:annotation>
+                                <xs:documentation>UKRR Unique Identifier for Refused Consent Patients</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="STUDYNO">
+                            <xs:annotation>
+                                <xs:documentation>Study ID (SendingFacility = Study)</xs:documentation>
                             </xs:annotation>
                         </xs:enumeration>
                     </xs:restriction>
@@ -88,7 +97,7 @@
                             <xs:annotation>
                                 <xs:documentation>For 3rd-Party Identifiers such as NHS Numbers</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>                        
+                        </xs:enumeration>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>

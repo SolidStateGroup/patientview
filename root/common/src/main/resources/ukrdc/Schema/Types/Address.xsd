@@ -1,4 +1,3 @@
-<!-- edited with XMLSpy v2015 rel. 4 (x64) (http://www.altova.com) by Nick Jones (Agiloak Limited) -->
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
 	<xs:simpleType name="PostCode">
 		<xs:restriction base="xs:string">
@@ -34,11 +33,8 @@
 				</xs:simpleType>
 			</xs:element>
 			<xs:element name="Town" type="xs:string" minOccurs="0"/>
-			<!-- SDA: City -->
 			<xs:element name="County" type="xs:string" minOccurs="0"/>
-			<!-- SDA: State -->
 			<xs:element name="Postcode" type="PostCode" minOccurs="0"/>
-			<!-- SDA: Zip -->
 			<xs:element name="Country" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>

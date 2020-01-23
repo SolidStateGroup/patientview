@@ -2,7 +2,6 @@
 	<xs:include schemaLocation="../Types/Clinician.xsd"/>
 	<xs:include schemaLocation="../Types/CF_EDTA_PRD.xsd"/>
 	<xs:include schemaLocation="../Types/CommonMetadata.xsd"/>
-	<!-- SDA: Diagnosis -->
 	<xs:complexType name="RenalDiagnosis">
 		<xs:sequence>
 			<xs:element name="DiagnosisType" type="xs:string" minOccurs="0">

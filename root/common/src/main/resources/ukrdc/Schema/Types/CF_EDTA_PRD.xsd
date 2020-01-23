@@ -1705,14 +1705,24 @@
                             <xs:annotation>
                                 <xs:documentation>Glomerulonephritis - No Histology</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>                        
+                        </xs:enumeration>
+                        <xs:enumeration value="3847">
+                            <xs:annotation>
+                                <xs:documentation>Systemic vasculitis - ANCA negative - no histology</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
+                        <xs:enumeration value="3852">
+                            <xs:annotation>
+                                <xs:documentation>Systemic vasculitis - ANCA positive - histologically proven</xs:documentation>
+                            </xs:annotation>
+                        </xs:enumeration>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
             <xs:element name="Description" minOccurs="0">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
-                        <xs:maxLength value="32000"/>
+                        <xs:maxLength value="255"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
