@@ -15,7 +15,10 @@ import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupFeature;
+import org.patientview.persistence.model.Hospitalisation;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Immunisation;
+import org.patientview.persistence.model.InsDiaryRecord;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionGroup;
@@ -41,14 +44,17 @@ import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import uk.org.rixg.CFSNOMED;
 import uk.org.rixg.CodedField;
 import uk.org.rixg.Document;
+import uk.org.rixg.Encounter;
 import uk.org.rixg.Location;
 import uk.org.rixg.Name;
 import uk.org.rixg.Patient;
 import uk.org.rixg.PatientNumber;
 import uk.org.rixg.PatientNumbers;
 import uk.org.rixg.PatientRecord;
+import uk.org.rixg.Procedure;
 import uk.org.rixg.ProgramMembership;
 import uk.org.rixg.SendingExtract;
 
@@ -78,9 +84,15 @@ import java.util.UUID;
 public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> implements UkrdcService {
 
     private static final String YOUR_HEALTH = "YOUR_HEALTH";
+    private static final String INS_APP_CODE = "INS_APP";
+    private static final String INS_APP_DESC = "INS App";
+    private static final String PV_CODING_STANDARDS = "PV";
+    private static final String INS_HOSP_CODE = "INS_HOSPITALISATION";
+    private static final String INS_HOSP_CODE_DESC = "INS Hospitalisation";
     private static final String ePro = "ePro";
     private static final String eProMembership = "EPro";
     private static final String EPRO_FALLBACK = "optepro";
+    private static final String INS_GROUP_FACILITY = "INS_GROUP";
 
     @Inject
     AuditService auditService;
@@ -470,6 +482,175 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         return xml.toString();
     }
 
+    public String buildInsDiaryXml(InsDiaryRecord insDiaryRecord,
+                                   List<Hospitalisation> hospitalisations,
+                                   List<Immunisation> immunisations)
+            throws DatatypeConfigurationException, JAXBException {
+
+        User user = insDiaryRecord.getUser();
+
+        PatientRecord patientRecord = new PatientRecord();
+
+        PatientRecord.SendingFacility sendingFacility = new PatientRecord.SendingFacility();
+        patientRecord.setSendingFacility(sendingFacility);
+        patientRecord.setSendingExtract(SendingExtract.UKRDC);
+
+        Patient patient = new Patient();
+
+        PatientNumbers patientNumbers = new PatientNumbers();
+        Set<Identifier> identifiers = user.getIdentifiers();
+
+        List<PatientNumber> patientNumberList = new ArrayList<>();
+
+        Group unitCode = null;
+        for (Group group : groupRepository.findGroupByUser(user)) {
+
+            for (GroupFeature groupFeature : group.getGroupFeatures()) {
+                if (groupFeature.getFeature().getName().equals(FeatureType.INS_DIARY.toString())) {
+                    unitCode = group;
+                }
+            }
+        }
+
+        // TODO: needs logic fixing
+        // One NHS identifier should be sent as an MRN type. This is the primary identifier and
+        // should be picked from the available ones in the order NHS -> CHI -> HSC
+        String nhsNumber = null;
+        for (Identifier identifier : identifiers) {
+            String organization = generateOrganization(identifier.getIdentifierType().getValue());
+            if (organization.equals("NHS")) {
+
+                PatientNumber patientNumber = new PatientNumber();
+                patientNumber.setNumber(identifier.getIdentifier());
+                patientNumber.setOrganization(organization);
+
+                nhsNumber = identifier.getIdentifier();
+
+                patientNumber.setNumberType("NI");
+                patientNumberList.add(patientNumber);
+            }
+        }
+
+        if (nhsNumber != null) {
+
+            PatientNumber MRN = new PatientNumber();
+            MRN.setOrganization("NHS");
+            MRN.setNumber(nhsNumber);
+            MRN.setNumberType("MRN");
+
+            patientNumberList.add(MRN);
+        }
+
+        sendingFacility.setValue(unitCode != null ? unitCode.getCode() : INS_GROUP_FACILITY);
+
+        patientNumbers.getPatientNumber().addAll(patientNumberList);
+        patient.setPatientNumbers(patientNumbers);
+        Patient.Names names = new Patient.Names();
+        Name name = new Name();
+        name.setUse("L");
+        name.setFamily(user.getSurname());
+        name.setGiven(user.getForename());
+        names.getName().add(name);
+
+        patient.setNames(names);
+
+        // Hardcode to 9 - UNKNOWN
+        patient.setGender("9");
+
+        GregorianCalendar birthTime = new GregorianCalendar();
+        birthTime.setTime(user.getDateOfBirth());
+        XMLGregorianCalendar birthCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(birthTime);
+        birthCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+        patient.setBirthTime(birthCalendar);
+        patientRecord.setPatient(patient);
+
+//        ProgramMembership programMembership = new ProgramMembership();
+//        programMembership.setProgramName(ePro);
+//        programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
+
+//        GregorianCalendar fromTime = new GregorianCalendar();
+//        fromTime.setTime(surveyResponse.getDate());
+//        XMLGregorianCalendar xMLGregorianCalendar =
+//                DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
+//        xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+//        programMembership.setFromTime(xMLGregorianCalendar);
+//
+//        programMembership.setUpdatedOn(xMLGregorianCalendar);
+
+//        PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
+//        programMemberships.getProgramMembership().add(programMembership);
+//        patientRecord.setProgramMemberships(programMemberships);
+
+        this.buildHospitalisations(patientRecord, hospitalisations);
+        this.buildImmunisation(patientRecord, immunisations);
+
+        uk.org.rixg.Survey survey = new uk.org.rixg.Survey();
+
+        GregorianCalendar surveyTime = new GregorianCalendar();
+        surveyTime.setTime(surveyResponse.getDate());
+        survey.setSurveyTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(surveyTime));
+
+        CodedField surveyType = new CodedField();
+        surveyType.setCode(type);
+        surveyType.setCodingStandard("SURVEY");
+        survey.setSurveyType(surveyType);
+
+        CodedField enteredBy = new CodedField();
+        enteredBy.setCodingStandard("PV_USERS");
+
+        enteredBy.setCode(surveyResponse.getUser().getUsername());
+        enteredBy.setDescription(surveyResponse.getUser().getForename() + " " + surveyResponse.getUser().getSurname());
+        survey.setEnteredBy(enteredBy);
+
+        Location enteredAt = new Location();
+        enteredAt.setCode("PatientView");
+        survey.setEnteredAt(enteredAt);
+
+        List<uk.org.rixg.Question> ukrdcQuestions = new ArrayList<>();
+
+        for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
+
+            uk.org.rixg.Question ukrdcQuestion = new uk.org.rixg.Question();
+
+            CodedField questionType = new CodedField();
+            questionType.setCodingStandard(YOUR_HEALTH);
+            questionType.setCode(questionAnswer.getQuestion().getType());
+            ukrdcQuestion.setQuestionType(questionType);
+
+            if (questionAnswer.getQuestionOption() != null) {
+
+                ukrdcQuestion.setResponse(questionAnswer.getQuestionOption().getType());
+            }
+
+            if (questionAnswer.getValue() != null) {
+
+                ukrdcQuestion.setResponse(questionAnswer.getValue());
+            }
+
+            if (questionAnswer.getQuestionText() != null) {
+
+                ukrdcQuestion.setQuestionText(questionAnswer.getQuestionText());
+            }
+
+            ukrdcQuestions.add(ukrdcQuestion);
+        }
+
+        uk.org.rixg.Survey.Questions questions = new uk.org.rixg.Survey.Questions();
+        questions.getQuestion().addAll(ukrdcQuestions);
+        survey.setQuestions(questions);
+
+        PatientRecord.Surveys surveys = new PatientRecord.Surveys();
+        surveys.getSurvey().add(survey);
+
+        patientRecord.setSurveys(surveys);
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(PatientRecord.class);
+        StringWriter xml = new StringWriter();
+        jaxbContext.createMarshaller().marshal(patientRecord, xml);
+
+        return xml.toString();
+    }
+
     /**
      * Takes an id from the group a survey was taken under and
      * uses the {@link SurveySendingFacility} mapping to generate
@@ -752,5 +933,90 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                 }
             }
         }
+    }
+
+
+    /**
+     * Builds Procedures data for PatientRecord from given list of Immunisation recordings
+     *
+     * @param patientRecord
+     * @param immunisations
+     */
+    private void buildImmunisation(PatientRecord patientRecord, List<Immunisation> immunisations)
+            throws DatatypeConfigurationException {
+
+        Location enteredAt = new Location();
+        enteredAt.setCode("INS_APP");
+        enteredAt.setCodingStandard("PV");
+        enteredAt.setDescription("INS App");
+
+        PatientRecord.Procedures procedures = new PatientRecord.Procedures();
+
+        for (Immunisation record : immunisations) {
+            Procedure procedure = new Procedure();
+            CFSNOMED procedureType = new CFSNOMED();
+            procedureType.setCode(record.getCodelist().getCode()); // SNOMED code;
+            procedureType.setCodingStandard("SNOMED");
+            procedureType.setDescription(record.getCodelist().getDescription());
+
+            procedure.setProcedureType(procedureType);
+
+            GregorianCalendar immunisationTime = new GregorianCalendar();
+            immunisationTime.setTime(record.getImmunisationDate());
+            procedure.setProcedureTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(immunisationTime));
+
+            procedure.setEnteredAt(enteredAt);
+            procedures.getProcedure().add(procedure);
+        }
+
+        patientRecord.setProcedures(procedures);
+    }
+
+    /**
+     * Builds Encounters data for PatientRecord from given list of Hospitalisation recordings.
+     *
+     * @param patientRecord
+     * @param hospitalisations
+     */
+    private void buildHospitalisations(PatientRecord patientRecord, List<Hospitalisation> hospitalisations)
+            throws DatatypeConfigurationException {
+
+        Location enteredAt = new Location();
+        enteredAt.setCode(INS_APP_CODE);
+        enteredAt.setCodingStandard(PV_CODING_STANDARDS);
+        enteredAt.setDescription(INS_APP_DESC);
+
+        CodedField admitReason = new CodedField();
+        admitReason.setCode(INS_HOSP_CODE);
+        admitReason.setCodingStandard(PV_CODING_STANDARDS);
+        admitReason.setDescription(INS_HOSP_CODE_DESC);
+
+        PatientRecord.Encounters encounters = new PatientRecord.Encounters();
+
+        for (Hospitalisation record : hospitalisations) {
+            Encounter encounter = new Encounter();
+            encounter.setEncounterNumber(record.getId().toString());
+            encounter.setEncounterType("N");
+
+            if (record.getDateAdmitted() != null) {
+                GregorianCalendar fromTime = new GregorianCalendar();
+                fromTime.setTime(record.getDateAdmitted());
+                encounter.setFromTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime));
+            }
+
+            if (record.getDateDischarged() != null) {
+                GregorianCalendar toTime = new GregorianCalendar();
+                toTime.setTime(record.getDateDischarged());
+                encounter.setToTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(toTime));
+            }
+
+            encounter.setVisitDescription(record.getReason());
+            encounter.setAdmitReason(admitReason);
+            encounter.setEnteredAt(enteredAt);
+
+            encounters.getEncounter().add(encounter);
+        }
+
+        patientRecord.setEncounters(encounters);
     }
 }
