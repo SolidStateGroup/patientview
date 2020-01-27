@@ -19,6 +19,7 @@ import org.patientview.persistence.model.Hospitalisation;
 import org.patientview.persistence.model.Identifier;
 import org.patientview.persistence.model.Immunisation;
 import org.patientview.persistence.model.InsDiaryRecord;
+import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionGroup;
@@ -32,6 +33,7 @@ import org.patientview.persistence.model.enums.FeatureType;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
+import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.SurveyResponseRepository;
 import org.patientview.persistence.repository.SurveySendingFacilityRepository;
 import org.patientview.persistence.resource.FhirResource;
@@ -50,6 +52,7 @@ import uk.org.rixg.Document;
 import uk.org.rixg.Encounter;
 import uk.org.rixg.Location;
 import uk.org.rixg.Name;
+import uk.org.rixg.Observations;
 import uk.org.rixg.Patient;
 import uk.org.rixg.PatientNumber;
 import uk.org.rixg.PatientNumbers;
@@ -87,12 +90,17 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     private static final String INS_APP_CODE = "INS_APP";
     private static final String INS_APP_DESC = "INS App";
     private static final String PV_CODING_STANDARDS = "PV";
+    private static final String PV_CODE = "PatientView";
     private static final String INS_HOSP_CODE = "INS_HOSPITALISATION";
     private static final String INS_HOSP_CODE_DESC = "INS Hospitalisation";
     private static final String ePro = "ePro";
     private static final String eProMembership = "EPro";
     private static final String EPRO_FALLBACK = "optepro";
     private static final String INS_GROUP_FACILITY = "INS_GROUP";
+
+    private static final String SYSTOLIC_BP_CODE = "bpsys";
+    private static final String DISATOLIC_BP_CODE = "bpdia";
+    private static final String WEIGHT_CODE = "weight";
 
     @Inject
     AuditService auditService;
@@ -120,6 +128,9 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
     @Inject
     SurveyService surveyService;
+
+    @Inject
+    private ObservationHeadingRepository observationHeadingRepository;
 
     static String generateExternalId(String nhsNumber, String membership) {
 
@@ -482,6 +493,16 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         return xml.toString();
     }
 
+    /**
+     * @param insDiaryRecord
+     * @param hospitalisations
+     * @param immunisations
+     *
+     * @return
+     *
+     * @throws DatatypeConfigurationException
+     * @throws JAXBException
+     */
     public String buildInsDiaryXml(InsDiaryRecord insDiaryRecord,
                                    List<Hospitalisation> hospitalisations,
                                    List<Immunisation> immunisations)
@@ -564,31 +585,60 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         patient.setBirthTime(birthCalendar);
         patientRecord.setPatient(patient);
 
-//        ProgramMembership programMembership = new ProgramMembership();
-//        programMembership.setProgramName(ePro);
-//        programMembership.setExternalId(generateExternalId(nhsNumber, eProMembership));
-
-//        GregorianCalendar fromTime = new GregorianCalendar();
-//        fromTime.setTime(surveyResponse.getDate());
-//        XMLGregorianCalendar xMLGregorianCalendar =
-//                DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime);
-//        xMLGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
-//        programMembership.setFromTime(xMLGregorianCalendar);
-//
-//        programMembership.setUpdatedOn(xMLGregorianCalendar);
-
-//        PatientRecord.ProgramMemberships programMemberships = new PatientRecord.ProgramMemberships();
-//        programMemberships.getProgramMembership().add(programMembership);
-//        patientRecord.setProgramMemberships(programMemberships);
 
         this.buildHospitalisations(patientRecord, hospitalisations);
         this.buildImmunisation(patientRecord, immunisations);
 
-        uk.org.rixg.Survey survey = new uk.org.rixg.Survey();
+        Location enteredAt = new Location();
+        enteredAt.setCode(PV_CODE);
+        enteredAt.setCodingStandard(PV_CODING_STANDARDS);
+        enteredAt.setDescription(PV_CODE);
 
-        GregorianCalendar surveyTime = new GregorianCalendar();
-        surveyTime.setTime(surveyResponse.getDate());
-        survey.setSurveyTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(surveyTime));
+        GregorianCalendar dairyEntryTime = new GregorianCalendar();
+        dairyEntryTime.setTime(insDiaryRecord.getEntryDate());
+
+        Observations observations = new Observations();
+
+        // build observations
+        /*
+             <Observations>
+               <Observation>
+                  <ObservationTime>2012-11-07T00:00:00Z</ObservationTime>
+                  <ObservationCode>
+                     <CodingStandard>PV</CodingStandard>
+                     <Code>weight</Code>
+                     <Description>Weight</Description>
+                  </ObservationCode>
+                  <ObservationValue>92.4</ObservationValue>
+                  <EnteredAt>
+                     <CodingStandard>PV</CodingStandard>
+                     <Code>PatientView</Code>
+                     <Description>PatientView</Description>
+                  </EnteredAt>
+               </Observation>
+            </Observations>
+        */
+        // add Systolic BP result
+        if (insDiaryRecord.getSystolicBP() != null) {
+            uk.org.rixg.Observation observation = buildObservation(insDiaryRecord.getSystolicBP().toString(),
+                    SYSTOLIC_BP_CODE, dairyEntryTime, enteredAt);
+            patientRecord.getObservations().getObservation().add(observation);
+        }
+
+        // add Diastolic BP result
+        if (insDiaryRecord.getDiastolicBP() != null) {
+            uk.org.rixg.Observation observation = buildObservation(insDiaryRecord.getSystolicBP().toString(),
+                    DISATOLIC_BP_CODE, dairyEntryTime, enteredAt);
+            patientRecord.getObservations().getObservation().add(observation);
+        }
+
+        // add weight
+        if (insDiaryRecord.getWeight() != null) {
+            uk.org.rixg.Observation observation = buildObservation(insDiaryRecord.getSystolicBP().toString(),
+                    WEIGHT_CODE, dairyEntryTime, enteredAt);
+            patientRecord.getObservations().getObservation().add(observation);
+        }
+
 
         CodedField surveyType = new CodedField();
         surveyType.setCode(type);
@@ -651,12 +701,35 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         return xml.toString();
     }
 
+    private uk.org.rixg.Observation buildObservation(String value, String code,
+                                                     GregorianCalendar time, Location enteredAt)
+            throws DatatypeConfigurationException {
+        uk.org.rixg.Observation observation = new uk.org.rixg.Observation();
+        observation.setObservationTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(time));
+
+        ObservationHeading observationHeading = observationHeadingRepository.findOneByCode(code);
+        if (observationHeading != null) {
+            uk.org.rixg.Observation.ObservationCode observationCode = new uk.org.rixg.Observation.ObservationCode();
+            observationCode.setCodingStandard(PV_CODING_STANDARDS);
+            observationCode.setCode(observationHeading.getCode());
+            observationCode.setDescription(observationHeading.getName());
+            observation.setObservationCode(observationCode);
+        } else {
+            LOG.error("Observation Heading not found for code " + code);
+        }
+        observation.setObservationValue(value);
+        observation.setEnteredAt(enteredAt);
+
+        return observation;
+    }
+
     /**
      * Takes an id from the group a survey was taken under and
      * uses the {@link SurveySendingFacility} mapping to generate
      * a unit code to send to UKRDC.
      *
      * @param surveyGroupId id of the group a survey was taken under.
+     *
      * @return Sending facility code.
      */
     private Group getSendingFacilityCode(Long surveyGroupId) {
@@ -935,6 +1008,41 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         }
     }
 
+
+    /**
+     * Builds Procedures data for PatientRecord from given list of Immunisation recordings
+     *
+     * @param patientRecord
+     * @param immunisations
+     */
+    private void buildRelapse(PatientRecord patientRecord, InsDiaryRecord diaryRecord) throws DatatypeConfigurationException {
+
+        Location enteredAt = new Location();
+        enteredAt.setCode("INS_APP");
+        enteredAt.setCodingStandard("PV");
+        enteredAt.setDescription("INS App");
+
+        PatientRecord.Procedures procedures = new PatientRecord.Procedures();
+
+//        for (Immunisation record : immunisations) {
+//            Procedure procedure = new Procedure();
+//            CFSNOMED procedureType = new CFSNOMED();
+//            procedureType.setCode(record.getCodelist().getCode()); // SNOMED code;
+//            procedureType.setCodingStandard("SNOMED");
+//            procedureType.setDescription(record.getCodelist().getDescription());
+//
+//            procedure.setProcedureType(procedureType);
+//
+//            GregorianCalendar immunisationTime = new GregorianCalendar();
+//            immunisationTime.setTime(record.getImmunisationDate());
+//            procedure.setProcedureTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(immunisationTime));
+//
+//            procedure.setEnteredAt(enteredAt);
+//            procedures.getProcedure().add(procedure);
+//        }
+
+        patientRecord.setProcedures(procedures);
+    }
 
     /**
      * Builds Procedures data for PatientRecord from given list of Immunisation recordings
