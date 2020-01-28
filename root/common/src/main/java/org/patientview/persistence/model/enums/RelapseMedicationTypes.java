@@ -4,7 +4,7 @@ package org.patientview.persistence.model.enums;
  * Enum for Relapse Medication types.
  */
 public enum RelapseMedicationTypes {
-    ORAL_PREDNISOLONE("Oral Prednisolone,"),
+    ORAL_PREDNISOLONE("Oral Prednisolone"),
     METHYL_ORAL_PREDNISOLONE("Methyl Prednisolone"),
     OTHER("Other");
 
