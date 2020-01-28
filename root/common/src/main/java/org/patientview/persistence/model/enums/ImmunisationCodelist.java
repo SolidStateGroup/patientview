@@ -4,7 +4,7 @@ package org.patientview.persistence.model.enums;
  * Enum Codelist types for Immunisation records
  */
 public enum ImmunisationCodelist {
-    OTHER("Other", "NA", "NA"),
+    OTHER("Other", "127785005", "other"),
     MMR("MMR", "38598009", "Measles-mumps-rubella vaccination"),
     PNEUMOCCAL("Pneumoccal", "12866006", "Pneumococcal vaccination"),
     ROTAVIRUS("Rotavirus", "415354003", "Rotavirus vaccination"),
