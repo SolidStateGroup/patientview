@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -147,6 +148,16 @@ public class ImmunisationServiceImpl extends
         User user = userRepository.findOne(userId);
         if (user == null) {
             throw new ResourceNotFoundException("Could not find user");
+        }
+
+        return immunisationRepository.findByUser(user);
+    }
+
+    @Override
+    public List<Immunisation> getListByPatient(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            return new ArrayList<>();
         }
 
         return immunisationRepository.findByUser(user);
