@@ -1,0 +1,30 @@
+<xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+
+<!-- See https://www.datadictionary.nhs.uk/data_dictionary/attributes/p/person/person_blood_group_de.asp -->
+
+<xs:simpleType name="BloodGroup">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="A">
+            <xs:annotation>
+                <xs:documentation>Blood Group A</xs:documentation>
+            </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="B">
+            <xs:annotation>
+                <xs:documentation>Blood Group B</xs:documentation>
+            </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="AB">
+            <xs:annotation>
+                <xs:documentation>Blood Group AB</xs:documentation>
+            </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="O">
+            <xs:annotation>
+                <xs:documentation>Blood Group O</xs:documentation>
+            </xs:annotation>
+        </xs:enumeration>
+    </xs:restriction>
+</xs:simpleType>
+
+</xs:schema>

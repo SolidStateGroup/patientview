@@ -1,4 +1,3 @@
-<!-- edited with XMLSpy v2015 rel. 4 (x64) (http://www.altova.com) by Nick Jones (Agiloak Limited) -->
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
 	<xs:include schemaLocation="../Types/CodedField.xsd"/>
 	<xs:include schemaLocation="../Types/CommonMetadata.xsd"/>

@@ -18,7 +18,7 @@
 			<xs:element name="Description" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:maxLength value="32000"/>
+						<xs:maxLength value="255"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>

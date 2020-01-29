@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.patientview.api.service.HospitalisationService;
+import org.patientview.api.service.InsDiaryAuditService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +32,8 @@ public class HospitalisationServiceImpl extends
     private HospitalisationRepository hospitalisationRepository;
     @Inject
     private UserRepository userRepository;
+    @Inject
+    private InsDiaryAuditService insDiaryAuditService;
 
     @Override
     public Hospitalisation add(Long userId, Long adminId, Hospitalisation record) throws ResourceNotFoundException,
@@ -63,6 +67,8 @@ public class HospitalisationServiceImpl extends
 
         record.setUser(patientUser);
         record.setCreator(editor);
+
+        insDiaryAuditService.add(patientUser.getId());
 
         return hospitalisationRepository.save(record);
     }
@@ -119,6 +125,8 @@ public class HospitalisationServiceImpl extends
         // check make sure records not overlapping and set
         validateRecords(foundRecord, patientUser);
 
+        insDiaryAuditService.add(patientUser.getId());
+
         return hospitalisationRepository.save(foundRecord);
     }
 
@@ -140,6 +148,8 @@ public class HospitalisationServiceImpl extends
 
         LOG.info("Deleting Hospitalisation id: {}, user id {}, admin id {}", recordId, userId, adminId);
 
+        insDiaryAuditService.add(userId);
+
         hospitalisationRepository.delete(recordId);
     }
 
@@ -154,10 +164,20 @@ public class HospitalisationServiceImpl extends
     }
 
     @Override
+    public List<Hospitalisation> getListByPatient(Long userId) {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+
+        return hospitalisationRepository.findByUser(user);
+    }
+
+
+    @Override
     public void deleteRecordsForUser(User user) {
         hospitalisationRepository.deleteByUser(user.getId());
     }
-
 
     /**
      * Helper to validate dates and check Hospitalisation record not overlapping existing records.

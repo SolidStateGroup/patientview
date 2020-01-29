@@ -82,6 +82,16 @@ public interface ImmunisationService {
     List<Immunisation> getList(Long userId) throws ResourceNotFoundException;
 
     /**
+     * Get a List of all a User's Immunisation objects.
+     * No Roles check as used internally by job.
+     *
+     * @param userId an ID of patient to get Immunisation objects for
+     * @return List of Immunisation objects
+     * @throws ResourceNotFoundException
+     */
+    List<Immunisation> getListByPatient(Long userId);
+
+    /**
      * Remove all Immunisation entries associated with a User.
      *
      * @param user User to delete Immunisation entries for

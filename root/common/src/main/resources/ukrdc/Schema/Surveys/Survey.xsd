@@ -4,39 +4,39 @@
 	<xs:include schemaLocation="../Types/CommonMetadata.xsd"/>
 
 
-	<xs:complexType name="Question">
-		<xs:sequence>
-			<xs:element name="QuestionType" type="CodedField" minOccurs="1" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation>Question Type</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Response" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="QuestionText" type="xs:string" minOccurs="0" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>
+    <xs:complexType name="Question">
+        <xs:sequence>
+            <xs:element name="QuestionType" type="CodedField" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Question Type</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Response" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="QuestionText" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
 
-	<xs:complexType name="Score">
-		<xs:sequence>
-			<xs:element name="ScoreType" type="CodedField" minOccurs="1" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation>Score Type</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Value" type="xs:string" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>
+    <xs:complexType name="Score">
+        <xs:sequence>
+            <xs:element name="ScoreType" type="CodedField" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Score Type</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Value" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
 
-	<xs:complexType name="Level">
-		<xs:sequence>
-			<xs:element name="LevelType" type="CodedField" minOccurs="1" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation>Score Type</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Value" type="xs:string" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>
+    <xs:complexType name="Level">
+        <xs:sequence>
+            <xs:element name="LevelType" type="CodedField" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>Score Type</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Value" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
 
 	<xs:complexType name="Survey">
 		<xs:sequence>
@@ -50,7 +50,7 @@
 					<xs:documentation>Survey Type</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Questions">
+			<xs:element name="Questions" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="Question" type="Question" minOccurs="0" maxOccurs="unbounded"/>
@@ -81,7 +81,7 @@
 					<xs:documentation>Where the Survey was completed</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<!-- YourHealth only Fields -->
+            <!-- YourHealth only Fields -->
 			<xs:element name="TypeOfTreatment" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Current Modality</xs:documentation>

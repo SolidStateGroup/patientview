@@ -160,7 +160,7 @@
                             <xs:annotation>
                                 <xs:documentation>Transplant : Live related - child</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>                        
+                        </xs:enumeration>
                         <xs:enumeration value="80">
                             <xs:annotation>
                                 <xs:documentation>Acute Renal Failure not dialysed</xs:documentation>
@@ -200,7 +200,7 @@
                             <xs:annotation>
                                 <xs:documentation>Assisted CAPD</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>                         
+                        </xs:enumeration>
                         <xs:enumeration value="121">
                             <xs:annotation>
                                 <xs:documentation>Assisted APD</xs:documentation>
@@ -210,7 +210,7 @@
                             <xs:annotation>
                                 <xs:documentation>Hybrid CAPD with HD</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>                        
+                        </xs:enumeration>
                         <xs:enumeration value="202">
                             <xs:annotation>
                                 <xs:documentation>Hybrid APD with HD</xs:documentation>
@@ -220,7 +220,7 @@
                             <xs:annotation>
                                 <xs:documentation>Hybrid APD with CAPD</xs:documentation>
                             </xs:annotation>
-                        </xs:enumeration>                            
+                        </xs:enumeration>
                         <xs:enumeration value="900">
                             <xs:annotation>
                                 <xs:documentation>CKD (Not on RRT)</xs:documentation>

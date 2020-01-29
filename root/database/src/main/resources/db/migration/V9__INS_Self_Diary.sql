@@ -91,3 +91,12 @@ CREATE TABLE pv_hospitalisation
   last_updated_by             BIGINT REFERENCES pv_user (Id),
   PRIMARY KEY (Id)
 );
+
+-- store patients who has any changes to they INS diary in the past 24 hour
+CREATE TABLE pv_ins_diary_audit_log
+(
+  id                          BIGINT NOT NULL,
+  user_id                     BIGINT NOT NULL REFERENCES pv_user (id),
+  creation_date               TIMESTAMP,
+  PRIMARY KEY (id)
+);

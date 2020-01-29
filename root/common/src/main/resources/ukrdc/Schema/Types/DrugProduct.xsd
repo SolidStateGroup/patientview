@@ -18,9 +18,9 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:maxLength value="100"/>
+						<xs:maxLength value="255"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="LabelName" minOccurs="0">
 				<xs:annotation>
@@ -29,7 +29,7 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:maxLength value="100"/>
+						<xs:maxLength value="255"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>

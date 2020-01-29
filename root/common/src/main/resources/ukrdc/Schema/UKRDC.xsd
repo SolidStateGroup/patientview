@@ -1,4 +1,5 @@
-<xs:schema targetNamespace="http://www.rixg.org.uk/" xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema targetNamespace="http://www.rixg.org.uk/" version="2.1.0" xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
     <xs:include schemaLocation="Patient.xsd"/>
     <xs:include schemaLocation="LabOrders/LabOrder.xsd"/>
     <xs:include schemaLocation="SocialHistories/SocialHistory.xsd"/>
@@ -80,6 +81,7 @@
                                 <xs:attribute name="channelName"/>
                                 <xs:attribute name="channelId"/>
                                 <xs:attribute name="time"/>
+                                <xs:attribute name="schemaVersion"/>
                             </xs:extension>
                         </xs:simpleContent>
                     </xs:complexType>

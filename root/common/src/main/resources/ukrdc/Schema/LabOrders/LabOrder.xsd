@@ -1,4 +1,3 @@
-<!-- edited with XMLSpy v2015 rel. 4 (x64) (http://www.altova.com) by Nick Jones (Agiloak Limited) -->
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
 	<xs:include schemaLocation="../Types/Clinician.xsd"/>
 	<xs:include schemaLocation="../Types/CF_HL7_0004.xsd"/>
@@ -6,14 +5,14 @@
 	<xs:include schemaLocation="../Types/CodedField.xsd"/>
 	<xs:include schemaLocation="../Types/Location.xsd"/>
     <xs:include schemaLocation="../Types/ServiceId.xsd"/>
-    
+
     <xs:complexType name="LabOrders">
         <xs:sequence>
             <xs:element name="LabOrder" type="LabOrder" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="start" type="xs:date"/>
         <xs:attribute name="stop" type="xs:date"/>
-    </xs:complexType>    
+    </xs:complexType>
     <xs:complexType name="ResultItems">
         <xs:sequence>
             <xs:element name="ResultItem" type="ResultItem" minOccurs="0" maxOccurs="unbounded"/>
@@ -36,7 +35,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="100"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="FillerId" minOccurs="0">
 				<xs:annotation>
@@ -47,7 +46,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="100"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="OrderedBy" type="Clinician" minOccurs="0">
 				<xs:annotation>
@@ -81,7 +80,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="100"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="Priority" type="CodedField" minOccurs="0"/>
 			<xs:element name="SpecimenSource" minOccurs="0">
@@ -93,7 +92,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="50"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="Duration" type="xs:string" minOccurs="0">
 				<xs:annotation>
@@ -108,7 +107,6 @@
 					<xs:documentation>In patient / out patient - equivalent ot PV1:2 Patient Class or derivation thereiof Where can this map to in SDA????</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<!-- Note: UpdatedOn is down here (rather than at the top as usual) in the SDA -->
 			<xs:element name="EnteredOn" type="xs:dateTime" minOccurs="0">
 				<xs:annotation>
                     <xs:appinfo>laborder.enteredon</xs:appinfo>
@@ -128,8 +126,8 @@
 			<xs:group ref="CommonMetadata"/>
 		</xs:sequence>
 	</xs:complexType>
-    
-    
+
+
 	<xs:complexType name="ResultItem">
 		<xs:sequence>
 			<xs:element name="ResultType" minOccurs="0">
@@ -141,7 +139,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="2"/>
 					</xs:restriction>
-				</xs:simpleType> 
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="EnteredOn" type="xs:dateTime" minOccurs="0">
                 <xs:annotation>
@@ -177,7 +175,7 @@
 							</xs:annotation>
 						</xs:enumeration>
                     </xs:restriction>
-                </xs:simpleType>                
+                </xs:simpleType>
 			</xs:element>
 			<xs:element name="ServiceId" type="ServiceId" minOccurs="0">
 				<xs:annotation>
@@ -204,7 +202,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="20"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="ResultValueUnits" minOccurs="0">
 				<xs:annotation>
@@ -228,14 +226,14 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-			<xs:element name="AbnormalFlags" minOccurs="0">
+			<xs:element name="InterpretationCodes" minOccurs="0">
 				<xs:annotation>
-                    <xs:appinfo>resultitem.abnormalflags</xs:appinfo>
-					<xs:documentation>OBX:8 Abnormal Flags</xs:documentation>
+                    <xs:appinfo>resultitem.interpretationcodes</xs:appinfo>
+					<xs:documentation>OBX:8 Interpretation Codes</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:maxLength value="100"/>
+						<xs:maxLength value="50"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -265,7 +263,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="1000"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="ReferenceComment" minOccurs="0">
 				<xs:annotation>

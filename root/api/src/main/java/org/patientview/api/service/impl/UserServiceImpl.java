@@ -23,6 +23,7 @@ import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
 import org.patientview.api.service.HospitalisationService;
 import org.patientview.api.service.ImmunisationService;
+import org.patientview.api.service.InsDiaryAuditService;
 import org.patientview.api.service.InsDiaryService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.SurveyFeedbackService;
@@ -236,6 +237,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private SurveyResponseService surveyResponseService;
+
+    @Inject
+    private InsDiaryAuditService insDiaryAuditService;
 
     @Inject
     private DeletePatientTask deletePatientTask;
@@ -960,6 +964,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 // delete ins diary records
                 LOG.info("user: " + patient.getId() + ", delete ins diary");
                 insDiaryService.deleteInsDiaryRecordsForUser(patient);
+
+                LOG.info("user: " + patient.getId() + ", delete ins diary logs");
+                insDiaryAuditService.deleteByPatient(patient.getId());
 
                 // delete ins relapse records
                 LOG.info("user: " + patient.getId() + ", delete relapse");
