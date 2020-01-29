@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.patientview.api.service.ImmunisationService;
+import org.patientview.api.service.InsDiaryAuditService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -28,6 +29,8 @@ public class ImmunisationServiceImpl extends
     private ImmunisationRepository immunisationRepository;
     @Inject
     private UserRepository userRepository;
+    @Inject
+    private InsDiaryAuditService insDiaryAuditService;
 
     @Override
     public Immunisation add(Long userId, Long adminId, Immunisation record) throws ResourceNotFoundException,
@@ -53,6 +56,8 @@ public class ImmunisationServiceImpl extends
 
         record.setUser(patientUser);
         record.setCreator(editor);
+
+        insDiaryAuditService.add(patientUser.getId());
 
         return immunisationRepository.save(record);
     }
@@ -109,6 +114,8 @@ public class ImmunisationServiceImpl extends
         foundRecord.setOther(record.getOther());
         foundRecord.setLastUpdater(editor);
 
+        insDiaryAuditService.add(patientUser.getId());
+
         return immunisationRepository.save(foundRecord);
     }
 
@@ -129,6 +136,8 @@ public class ImmunisationServiceImpl extends
         }
 
         LOG.info("Deleting Immunisation id: {}, user id {}, admin id {}", recordId, userId, adminId);
+
+        insDiaryAuditService.add(userId);
 
         immunisationRepository.delete(recordId);
     }
