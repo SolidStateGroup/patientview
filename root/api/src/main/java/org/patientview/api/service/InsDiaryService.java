@@ -13,6 +13,8 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 /**
  * Ins Diary service to handle patient's INS diary recordings
  */
@@ -82,6 +84,16 @@ public interface InsDiaryService {
     @UserOnly
     @RoleOnly(roles = {RoleName.PATIENT})
     Page<InsDiaryRecord> findByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException;
+
+    /**
+     * Get a list of InsDiaryRecord objects for a patient user.
+     * No role checks as ised internally by job.
+     *
+     * @param userId an ID of patient to get InsDiaryRecord objects for
+     * @return List of InsDiaryRecord objects
+     * @throws ResourceNotFoundException
+     */
+    List<InsDiaryRecord> getListByUser(Long userId);
 
     /**
      * Add an RelapseMedication entry for a patient User

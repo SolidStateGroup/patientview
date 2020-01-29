@@ -262,6 +262,17 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     }
 
     @Override
+    public List<InsDiaryRecord> getListByUser(Long userId) {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+
+        PageRequest pageable = createPageRequest(0, Integer.MAX_VALUE, "entryDate", "DESC");
+        return insDiaryRepository.findListByUser(user, pageable);
+    }
+
+    @Override
     public RelapseMedication addRelapseMedication(Long userId, Long relapseId, RelapseMedication medication)
             throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException {
         User patientUser = userRepository.findOne(userId);
