@@ -59,7 +59,7 @@ public class INSDiaryUkrdcTask {
     /**
      * Builds XMLs fpr INS diary entries and queue them up to be send to UKRDC
      */
-//    @Scheduled(cron = "0 */5 * * * ?") // every 5 minutes
+    // @Scheduled(cron = "0 */5 * * * ?") // every 5 minutes
     @Scheduled(cron = "0 0 1 * * ?") // every day at 1:00AM
     @Transactional
     public void insDiaryQueue() throws ResourceNotFoundException {
