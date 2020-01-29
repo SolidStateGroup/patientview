@@ -4,7 +4,7 @@ package org.patientview.persistence.model.enums;
  * Enum for Oedema types for InsDiaryRecord recording.
  */
 public enum OedemaTypes {
-    NONE("(none"),
+    NONE("none"),
     ANKLES("ankles"),
     LEGS("legs"),
     HANDS("hands"),
