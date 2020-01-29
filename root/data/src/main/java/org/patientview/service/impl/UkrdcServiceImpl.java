@@ -562,6 +562,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         PatientRecord patientRecord = new PatientRecord();
 
         PatientRecord.SendingFacility sendingFacility = new PatientRecord.SendingFacility();
+        sendingFacility.setValue("PV");
         patientRecord.setSendingFacility(sendingFacility);
         patientRecord.setSendingExtract(SendingExtract.UKRDC);
 
@@ -571,16 +572,6 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         Set<Identifier> identifiers = user.getIdentifiers();
 
         List<PatientNumber> patientNumberList = new ArrayList<>();
-
-        Group unitCode = null;
-        for (Group group : groupRepository.findGroupByUser(user)) {
-
-            for (GroupFeature groupFeature : group.getGroupFeatures()) {
-                if (groupFeature.getFeature().getName().equals(FeatureType.INS_DIARY.toString())) {
-                    unitCode = group;
-                }
-            }
-        }
 
         // TODO: needs logic fixing
         // One NHS identifier should be sent as an MRN type. This is the primary identifier and
@@ -610,8 +601,6 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
             patientNumberList.add(MRN);
         }
-
-        sendingFacility.setValue(unitCode != null ? unitCode.getCode() : INS_GROUP_FACILITY);
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
         patient.setPatientNumbers(patientNumbers);
