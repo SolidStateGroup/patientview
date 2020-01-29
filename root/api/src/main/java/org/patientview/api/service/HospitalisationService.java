@@ -90,7 +90,7 @@ public interface HospitalisationService {
      * @return List of Hospitalisation objects
      * @throws ResourceNotFoundException
      */
-    List<Hospitalisation> getListByPatient(Long userId) throws ResourceNotFoundException;
+    List<Hospitalisation> getListByPatient(Long userId);
 
 
     /**

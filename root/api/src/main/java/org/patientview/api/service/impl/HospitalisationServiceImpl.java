@@ -164,7 +164,7 @@ public class HospitalisationServiceImpl extends
     }
 
     @Override
-    public List<Hospitalisation> getListByPatient(Long userId) throws ResourceNotFoundException {
+    public List<Hospitalisation> getListByPatient(Long userId) {
         User user = userRepository.findOne(userId);
         if (user == null) {
             return new ArrayList<>();

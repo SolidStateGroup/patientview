@@ -89,7 +89,7 @@ public interface ImmunisationService {
      * @return List of Immunisation objects
      * @throws ResourceNotFoundException
      */
-    List<Immunisation> getListByPatient(Long userId) throws ResourceNotFoundException;
+    List<Immunisation> getListByPatient(Long userId);
 
     /**
      * Remove all Immunisation entries associated with a User.

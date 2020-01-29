@@ -154,7 +154,7 @@ public class ImmunisationServiceImpl extends
     }
 
     @Override
-    public List<Immunisation> getListByPatient(Long userId) throws ResourceNotFoundException {
+    public List<Immunisation> getListByPatient(Long userId) {
         User user = userRepository.findOne(userId);
         if (user == null) {
             return new ArrayList<>();
