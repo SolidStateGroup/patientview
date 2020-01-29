@@ -17,10 +17,10 @@ public interface InsDiaryAuditLogRepository extends CrudRepository<InsDiaryAudit
 
     List<InsDiaryAuditLog> findAll();
 
-    @Query("SELECT a InsDiaryAuditLog a WHERE patientId = :patientId")
+    @Query("SELECT a FROM InsDiaryAuditLog a WHERE a.patientId = :patientId")
     List<InsDiaryAuditLog> findByPatientId(@Param("patientId") Long patientId);
 
     @Modifying(clearAutomatically = true)
-    @Query("DELETE InsDiaryAuditLog WHERE patientId = :patientId")
+    @Query("DELETE FROM InsDiaryAuditLog WHERE patientId = :patientId")
     void deleteByPatientId(@Param("patientId") Long patientId);
 }

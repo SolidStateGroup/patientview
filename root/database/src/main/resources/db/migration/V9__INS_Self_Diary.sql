@@ -97,5 +97,6 @@ CREATE TABLE pv_ins_diary_audit_log
 (
   id                          BIGINT NOT NULL,
   user_id                     BIGINT NOT NULL REFERENCES pv_user (id),
+  creation_date               TIMESTAMP,
   PRIMARY KEY (id)
 );
