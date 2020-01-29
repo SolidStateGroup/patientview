@@ -5,6 +5,7 @@ import org.patientview.persistence.model.Hospitalisation;
 import org.patientview.persistence.model.Immunisation;
 import org.patientview.persistence.model.InsDiaryRecord;
 import org.patientview.persistence.model.SurveyResponse;
+import org.patientview.persistence.model.User;
 import uk.org.rixg.PatientRecord;
 
 import javax.xml.bind.JAXBException;
@@ -89,15 +90,17 @@ public interface UkrdcService {
     String buildSurveyXml(SurveyResponse surveyResponse, String type) throws DatatypeConfigurationException, JAXBException;
 
     /**
-     * Given INS diary records builds xml compliant with the UKRDC xsd.
+     * Given INS diary records, hospitalisation records and immunisation records
+     * builds xml compliant with the UKRDC xsd.
      *
-     * @param insDiaryRecord
+     * @param user             a patient user
+     * @param insDiaryRecords
      * @param hospitalisations
      * @param immunisations
-     *
      * @return UKRDC complaint xml
      */
-    String buildInsDiaryXml(InsDiaryRecord insDiaryRecord,
+    String buildInsDiaryXml(User user,
+                            List<InsDiaryRecord> insDiaryRecords,
                             List<Hospitalisation> hospitalisations,
                             List<Immunisation> immunisations) throws DatatypeConfigurationException, JAXBException;
 }

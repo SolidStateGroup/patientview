@@ -24,12 +24,17 @@ import org.patientview.persistence.model.Question;
 import org.patientview.persistence.model.QuestionAnswer;
 import org.patientview.persistence.model.QuestionGroup;
 import org.patientview.persistence.model.QuestionOption;
+import org.patientview.persistence.model.Relapse;
+import org.patientview.persistence.model.RelapseMedication;
 import org.patientview.persistence.model.Survey;
 import org.patientview.persistence.model.SurveyResponse;
 import org.patientview.persistence.model.SurveySendingFacility;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.ImmunisationCodelist;
+import org.patientview.persistence.model.enums.OedemaTypes;
+import org.patientview.persistence.model.enums.RelapseMedicationTypes;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
@@ -48,10 +53,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import uk.org.rixg.CFSNOMED;
 import uk.org.rixg.CodedField;
+import uk.org.rixg.Diagnosis;
 import uk.org.rixg.Document;
+import uk.org.rixg.DrugProduct;
 import uk.org.rixg.Encounter;
 import uk.org.rixg.Location;
+import uk.org.rixg.Medication;
 import uk.org.rixg.Name;
+import uk.org.rixg.Observation;
 import uk.org.rixg.Observations;
 import uk.org.rixg.Patient;
 import uk.org.rixg.PatientNumber;
@@ -69,11 +78,13 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,18 +100,64 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     private static final String YOUR_HEALTH = "YOUR_HEALTH";
     private static final String INS_APP_CODE = "INS_APP";
     private static final String INS_APP_DESC = "INS App";
+    private static final String INS_WEB_CODE = "INS_WEB";
+    private static final String INS_WEB_DESC = "INS Website";
     private static final String PV_CODING_STANDARDS = "PV";
     private static final String PV_CODE = "PatientView";
     private static final String INS_HOSP_CODE = "INS_HOSPITALISATION";
     private static final String INS_HOSP_CODE_DESC = "INS Hospitalisation";
+    private static final String INS_RELAPSE_CODE = "INS_RELAPSE";
+    private static final String INS_RELAPSE_CODE_DESC = "INS Relapse";
     private static final String ePro = "ePro";
     private static final String eProMembership = "EPro";
     private static final String EPRO_FALLBACK = "optepro";
     private static final String INS_GROUP_FACILITY = "INS_GROUP";
 
-    private static final String SYSTOLIC_BP_CODE = "bpsys";
-    private static final String DISATOLIC_BP_CODE = "bpdia";
-    private static final String WEIGHT_CODE = "weight";
+    public static final String SYSTOLIC_BP_CODE = "bpsys";
+    public static final String DISATOLIC_BP_CODE = "bpdia";
+    public static final String WEIGHT_CODE = "weight";
+    public static final String PROTEIN_DIPSTICK_CODE = "updipstick";
+    public static final String ODEMA_CODE = "odema";
+
+
+    /**
+     * Trigger Types for Relapse recording.
+     * Mapping these manually as no PV codes exist.
+     */
+    public enum RelapseTriggerTypes {
+        VIRAL_INFECTION("Viral Infection", "34014006", "Viral Disease"),
+        COMMON_COLD("Common Cold", "82272006", "Common Cold"),
+        HAY_FEVER("Hay Fever", "367498001", "Seasonal allergic rhinitis"),
+        ALLERGIC_REACTION("Allergic Reaction", "419076005", "Allergic Reaction"),
+        ALLERGIC_SKIN_RASH("Allergic Skin Rash", "21626009", "Cutaneous hypersensitivity"),
+        FOOD_INTOLERENCE("Food intolerance", "235719002", "Foot Intolerance");
+
+        private String name;
+        private String code;
+        private String description;
+
+        RelapseTriggerTypes(String name, String code, String description) {
+            this.name = name;
+            this.code = code;
+            this.description = description;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getId() {
+            return this.name();
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 
     @Inject
     AuditService auditService;
@@ -494,21 +551,13 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
     }
 
     /**
-     * @param insDiaryRecord
-     * @param hospitalisations
-     * @param immunisations
-     *
-     * @return
-     *
-     * @throws DatatypeConfigurationException
-     * @throws JAXBException
+     * {@inheritDoc}
      */
-    public String buildInsDiaryXml(InsDiaryRecord insDiaryRecord,
+    public String buildInsDiaryXml(User user,
+                                   List<InsDiaryRecord> insDiaryRecords,
                                    List<Hospitalisation> hospitalisations,
                                    List<Immunisation> immunisations)
             throws DatatypeConfigurationException, JAXBException {
-
-        User user = insDiaryRecord.getUser();
 
         PatientRecord patientRecord = new PatientRecord();
 
@@ -578,121 +627,31 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         // Hardcode to 9 - UNKNOWN
         patient.setGender("9");
 
-        GregorianCalendar birthTime = new GregorianCalendar();
-        birthTime.setTime(user.getDateOfBirth());
-        XMLGregorianCalendar birthCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(birthTime);
-        birthCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
-        patient.setBirthTime(birthCalendar);
-        patientRecord.setPatient(patient);
+        if (user.getDateOfBirth() != null) {
+            GregorianCalendar birthTime = new GregorianCalendar();
+            birthTime.setTime(user.getDateOfBirth());
+            XMLGregorianCalendar birthCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(birthTime);
+            birthCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+            patient.setBirthTime(birthCalendar);
+        }
 
+        patientRecord.setPatient(patient);
 
         this.buildHospitalisations(patientRecord, hospitalisations);
         this.buildImmunisation(patientRecord, immunisations);
 
-        Location enteredAt = new Location();
-        enteredAt.setCode(PV_CODE);
-        enteredAt.setCodingStandard(PV_CODING_STANDARDS);
-        enteredAt.setDescription(PV_CODE);
+        this.buildDiaryRecordings(patientRecord, insDiaryRecords);
 
-        GregorianCalendar dairyEntryTime = new GregorianCalendar();
-        dairyEntryTime.setTime(insDiaryRecord.getEntryDate());
-
-        Observations observations = new Observations();
-
-        // build observations
-        /*
-             <Observations>
-               <Observation>
-                  <ObservationTime>2012-11-07T00:00:00Z</ObservationTime>
-                  <ObservationCode>
-                     <CodingStandard>PV</CodingStandard>
-                     <Code>weight</Code>
-                     <Description>Weight</Description>
-                  </ObservationCode>
-                  <ObservationValue>92.4</ObservationValue>
-                  <EnteredAt>
-                     <CodingStandard>PV</CodingStandard>
-                     <Code>PatientView</Code>
-                     <Description>PatientView</Description>
-                  </EnteredAt>
-               </Observation>
-            </Observations>
-        */
-        // add Systolic BP result
-        if (insDiaryRecord.getSystolicBP() != null) {
-            uk.org.rixg.Observation observation = buildObservation(insDiaryRecord.getSystolicBP().toString(),
-                    SYSTOLIC_BP_CODE, dairyEntryTime, enteredAt);
-            patientRecord.getObservations().getObservation().add(observation);
-        }
-
-        // add Diastolic BP result
-        if (insDiaryRecord.getDiastolicBP() != null) {
-            uk.org.rixg.Observation observation = buildObservation(insDiaryRecord.getSystolicBP().toString(),
-                    DISATOLIC_BP_CODE, dairyEntryTime, enteredAt);
-            patientRecord.getObservations().getObservation().add(observation);
-        }
-
-        // add weight
-        if (insDiaryRecord.getWeight() != null) {
-            uk.org.rixg.Observation observation = buildObservation(insDiaryRecord.getSystolicBP().toString(),
-                    WEIGHT_CODE, dairyEntryTime, enteredAt);
-            patientRecord.getObservations().getObservation().add(observation);
-        }
-
-
-        CodedField surveyType = new CodedField();
-        surveyType.setCode(type);
-        surveyType.setCodingStandard("SURVEY");
-        survey.setSurveyType(surveyType);
-
-        CodedField enteredBy = new CodedField();
-        enteredBy.setCodingStandard("PV_USERS");
-
-        enteredBy.setCode(surveyResponse.getUser().getUsername());
-        enteredBy.setDescription(surveyResponse.getUser().getForename() + " " + surveyResponse.getUser().getSurname());
-        survey.setEnteredBy(enteredBy);
-
-        Location enteredAt = new Location();
-        enteredAt.setCode("PatientView");
-        survey.setEnteredAt(enteredAt);
-
-        List<uk.org.rixg.Question> ukrdcQuestions = new ArrayList<>();
-
-        for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
-
-            uk.org.rixg.Question ukrdcQuestion = new uk.org.rixg.Question();
-
-            CodedField questionType = new CodedField();
-            questionType.setCodingStandard(YOUR_HEALTH);
-            questionType.setCode(questionAnswer.getQuestion().getType());
-            ukrdcQuestion.setQuestionType(questionType);
-
-            if (questionAnswer.getQuestionOption() != null) {
-
-                ukrdcQuestion.setResponse(questionAnswer.getQuestionOption().getType());
+        Set<Relapse> relapses = new HashSet<>();
+        // extract unique Relapse records from InsDiaries
+        for (InsDiaryRecord record : insDiaryRecords) {
+            if (record.getRelapse() != null && !relapses.contains(record.getRelapse())) {
+                relapses.add(record.getRelapse());
             }
-
-            if (questionAnswer.getValue() != null) {
-
-                ukrdcQuestion.setResponse(questionAnswer.getValue());
-            }
-
-            if (questionAnswer.getQuestionText() != null) {
-
-                ukrdcQuestion.setQuestionText(questionAnswer.getQuestionText());
-            }
-
-            ukrdcQuestions.add(ukrdcQuestion);
         }
 
-        uk.org.rixg.Survey.Questions questions = new uk.org.rixg.Survey.Questions();
-        questions.getQuestion().addAll(ukrdcQuestions);
-        survey.setQuestions(questions);
+        this.buildRelapse(patientRecord, relapses);
 
-        PatientRecord.Surveys surveys = new PatientRecord.Surveys();
-        surveys.getSurvey().add(survey);
-
-        patientRecord.setSurveys(surveys);
 
         JAXBContext jaxbContext = JAXBContext.newInstance(PatientRecord.class);
         StringWriter xml = new StringWriter();
@@ -701,35 +660,12 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         return xml.toString();
     }
 
-    private uk.org.rixg.Observation buildObservation(String value, String code,
-                                                     GregorianCalendar time, Location enteredAt)
-            throws DatatypeConfigurationException {
-        uk.org.rixg.Observation observation = new uk.org.rixg.Observation();
-        observation.setObservationTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(time));
-
-        ObservationHeading observationHeading = observationHeadingRepository.findOneByCode(code);
-        if (observationHeading != null) {
-            uk.org.rixg.Observation.ObservationCode observationCode = new uk.org.rixg.Observation.ObservationCode();
-            observationCode.setCodingStandard(PV_CODING_STANDARDS);
-            observationCode.setCode(observationHeading.getCode());
-            observationCode.setDescription(observationHeading.getName());
-            observation.setObservationCode(observationCode);
-        } else {
-            LOG.error("Observation Heading not found for code " + code);
-        }
-        observation.setObservationValue(value);
-        observation.setEnteredAt(enteredAt);
-
-        return observation;
-    }
-
     /**
      * Takes an id from the group a survey was taken under and
      * uses the {@link SurveySendingFacility} mapping to generate
      * a unit code to send to UKRDC.
      *
      * @param surveyGroupId id of the group a survey was taken under.
-     *
      * @return Sending facility code.
      */
     private Group getSendingFacilityCode(Long surveyGroupId) {
@@ -1008,55 +944,202 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         }
     }
 
-
     /**
-     * Builds Procedures data for PatientRecord from given list of Immunisation recordings
+     * InsDiaryRecord are daily recordings converted to Observations.
      *
-     * @param patientRecord
-     * @param immunisations
+     * @param patientRecord a patient record that holds all the data
+     * @param diaryRecords  a list of InsDiaryRecord to build Observations
      */
-    private void buildRelapse(PatientRecord patientRecord, InsDiaryRecord diaryRecord) throws DatatypeConfigurationException {
+    private void buildDiaryRecordings(PatientRecord patientRecord, List<InsDiaryRecord> diaryRecords)
+            throws DatatypeConfigurationException {
+        /*
+             <Observations>
+               <Observation>
+                  <ObservationTime>2012-11-07T00:00:00Z</ObservationTime>
+                  <ObservationCode>
+                     <CodingStandard>PV</CodingStandard>
+                     <Code>weight</Code>
+                     <Description>Weight</Description>
+                  </ObservationCode>
+                  <ObservationValue>92.4</ObservationValue>
+                  <EnteredAt>
+                     <CodingStandard>PV</CodingStandard>
+                     <Code>PatientView</Code>
+                     <Description>PatientView</Description>
+                  </EnteredAt>
+               </Observation>
+            </Observations>
+        */
 
         Location enteredAt = new Location();
-        enteredAt.setCode("INS_APP");
-        enteredAt.setCodingStandard("PV");
-        enteredAt.setDescription("INS App");
+        enteredAt.setCode(PV_CODE);
+        enteredAt.setCodingStandard(PV_CODING_STANDARDS);
+        enteredAt.setDescription(PV_CODE);
 
-        PatientRecord.Procedures procedures = new PatientRecord.Procedures();
+        Observations observations = new Observations();
 
-//        for (Immunisation record : immunisations) {
-//            Procedure procedure = new Procedure();
-//            CFSNOMED procedureType = new CFSNOMED();
-//            procedureType.setCode(record.getCodelist().getCode()); // SNOMED code;
-//            procedureType.setCodingStandard("SNOMED");
-//            procedureType.setDescription(record.getCodelist().getDescription());
-//
-//            procedure.setProcedureType(procedureType);
-//
-//            GregorianCalendar immunisationTime = new GregorianCalendar();
-//            immunisationTime.setTime(record.getImmunisationDate());
-//            procedure.setProcedureTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(immunisationTime));
-//
-//            procedure.setEnteredAt(enteredAt);
-//            procedures.getProcedure().add(procedure);
-//        }
+        for (InsDiaryRecord record : diaryRecords) {
 
-        patientRecord.setProcedures(procedures);
+            GregorianCalendar dairyEntryTime = new GregorianCalendar();
+            dairyEntryTime.setTime(record.getEntryDate());
+
+            // add Systolic BP result
+            if (record.getSystolicBP() != null) {
+                Observation observation = buildObservation(record.getSystolicBP().toString(),
+                        SYSTOLIC_BP_CODE, dairyEntryTime, enteredAt);
+                observations.getObservation().add(observation);
+            }
+
+            // add Diastolic BP result
+            if (record.getDiastolicBP() != null) {
+                Observation observation = buildObservation(record.getDiastolicBP().toString(),
+                        DISATOLIC_BP_CODE, dairyEntryTime, enteredAt);
+                observations.getObservation().add(observation);
+            }
+
+            // add weight
+            if (record.getWeight() != null) {
+                Observation observation = buildObservation(record.getWeight().toString(),
+                        WEIGHT_CODE, dairyEntryTime, enteredAt);
+                observations.getObservation().add(observation);
+            }
+
+            // urine dipstick
+            if (record.getDipstickType() != null) {
+                Observation observation = buildObservation(record.getDipstickType().getName(),
+                        PROTEIN_DIPSTICK_CODE, dairyEntryTime, enteredAt);
+                observations.getObservation().add(observation);
+            }
+
+            if (!CollectionUtils.isEmpty(record.getOedema())) {
+                for (OedemaTypes oedema : record.getOedema()) {
+                    Observation observation = buildObservation(oedema.getName(),
+                            ODEMA_CODE, dairyEntryTime, enteredAt);
+                    observations.getObservation().add(observation);
+                }
+            }
+        }
+
+        patientRecord.setObservations(observations);
     }
 
     /**
-     * Builds Procedures data for PatientRecord from given list of Immunisation recordings
+     * Builds Encounters, Diagnoses, Medications data for PatientRecord from given list of Relapse recordings
+     *
+     * @param patientRecord a patient record that holds all the data
+     * @param relapses      a list of Relapse to build Encounters + Diagnoses + Medications
+     */
+    private void buildRelapse(PatientRecord patientRecord, Set<Relapse> relapses) throws DatatypeConfigurationException {
+
+        // TODO: will need to refactor once we know where recordings came from App or Web.
+        Location enteredAt = new Location();
+        enteredAt.setCode(INS_WEB_CODE);
+        enteredAt.setCodingStandard(PV_CODING_STANDARDS);
+        enteredAt.setDescription(INS_WEB_DESC);
+
+        CodedField admitReason = new CodedField();
+        admitReason.setCode(INS_RELAPSE_CODE);
+        admitReason.setCodingStandard(PV_CODING_STANDARDS);
+        admitReason.setDescription(INS_RELAPSE_CODE_DESC);
+
+        PatientRecord.Diagnoses diagnoses = new PatientRecord.Diagnoses();
+        PatientRecord.Medications medications = new PatientRecord.Medications();
+
+        for (Relapse relapse : relapses) {
+
+            // build Encounters
+
+            Encounter encounter = new Encounter();
+            encounter.setEncounterNumber(relapse.getId().toString());
+            encounter.setEncounterType("N");
+
+            if (relapse.getRelapseDate() != null) {
+                GregorianCalendar fromTime = new GregorianCalendar();
+                fromTime.setTime(relapse.getRelapseDate());
+                encounter.setFromTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime));
+            }
+
+            if (relapse.getRemissionDate() != null) {
+                GregorianCalendar toTime = new GregorianCalendar();
+                toTime.setTime(relapse.getRemissionDate());
+                encounter.setToTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(toTime));
+            }
+            encounter.setAdmitReason(admitReason);
+            encounter.setEnteredAt(enteredAt);
+
+            patientRecord.getEncounters().getEncounter().add(encounter);
+
+            // build Diagnoses
+
+            // Viral Infection
+            if (StringUtils.isNotBlank(relapse.getViralInfection())) {
+                Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
+                        RelapseTriggerTypes.VIRAL_INFECTION, enteredAt);
+                diagnoses.getDiagnosis().add(diagnosis);
+            }
+
+            // Common Cold
+            if (relapse.isCommonCold()) {
+                Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
+                        RelapseTriggerTypes.COMMON_COLD, enteredAt);
+                diagnoses.getDiagnosis().add(diagnosis);
+            }
+
+            // Hay Fever
+            if (relapse.isHayFever()) {
+                Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
+                        RelapseTriggerTypes.HAY_FEVER, enteredAt);
+                diagnoses.getDiagnosis().add(diagnosis);
+            }
+
+            // Allergic Reaction
+            if (relapse.isAllergicReaction()) {
+                Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
+                        RelapseTriggerTypes.ALLERGIC_REACTION, enteredAt);
+                diagnoses.getDiagnosis().add(diagnosis);
+            }
+
+            // Allergic Skin Rash
+            if (relapse.isAllergicSkinRash()) {
+                Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
+                        RelapseTriggerTypes.ALLERGIC_SKIN_RASH, enteredAt);
+                diagnoses.getDiagnosis().add(diagnosis);
+            }
+
+            // Food intolerance
+            if (relapse.isFoodIntolerance()) {
+                Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
+                        RelapseTriggerTypes.FOOD_INTOLERENCE, enteredAt);
+                diagnoses.getDiagnosis().add(diagnosis);
+            }
+
+            // build Medications
+            if (!CollectionUtils.isEmpty(relapse.getMedications())) {
+                List<Medication> medicationList = buildMedications(relapse.getId().toString(),
+                        relapse.getMedications());
+                medications.getMedication().addAll(medicationList);
+            }
+        }
+
+
+        patientRecord.setDiagnoses(diagnoses);
+        patientRecord.setMedications(medications);
+    }
+
+    /**
+     * Builds Procedures data for PatientRecord from given list of Immunisation recordings.
      *
      * @param patientRecord
-     * @param immunisations
+     * @param immunisations a list of Immunisation recordings for the patient
      */
     private void buildImmunisation(PatientRecord patientRecord, List<Immunisation> immunisations)
             throws DatatypeConfigurationException {
 
+        // TODO: will need to refactor once we know where recordings came from App or Web.
         Location enteredAt = new Location();
-        enteredAt.setCode("INS_APP");
-        enteredAt.setCodingStandard("PV");
-        enteredAt.setDescription("INS App");
+        enteredAt.setCode(INS_WEB_CODE);
+        enteredAt.setCodingStandard(PV_CODE);
+        enteredAt.setDescription(INS_WEB_DESC);
 
         PatientRecord.Procedures procedures = new PatientRecord.Procedures();
 
@@ -1065,7 +1148,11 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             CFSNOMED procedureType = new CFSNOMED();
             procedureType.setCode(record.getCodelist().getCode()); // SNOMED code;
             procedureType.setCodingStandard("SNOMED");
-            procedureType.setDescription(record.getCodelist().getDescription());
+            if (record.getCodelist().equals(ImmunisationCodelist.OTHER)) {
+                procedureType.setDescription(record.getOther());
+            } else {
+                procedureType.setDescription(record.getCodelist().getDescription());
+            }
 
             procedure.setProcedureType(procedureType);
 
@@ -1084,23 +1171,31 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
      * Builds Encounters data for PatientRecord from given list of Hospitalisation recordings.
      *
      * @param patientRecord
-     * @param hospitalisations
+     * @param hospitalisations a list of Hospitalisation recordings for the patient
      */
     private void buildHospitalisations(PatientRecord patientRecord, List<Hospitalisation> hospitalisations)
             throws DatatypeConfigurationException {
 
+
+        // TODO: will need to refactor once we know where recordings came from App or Web.
         Location enteredAt = new Location();
-        enteredAt.setCode(INS_APP_CODE);
+        enteredAt.setCode(INS_WEB_CODE);
         enteredAt.setCodingStandard(PV_CODING_STANDARDS);
-        enteredAt.setDescription(INS_APP_DESC);
+        enteredAt.setDescription(INS_WEB_DESC);
 
         CodedField admitReason = new CodedField();
         admitReason.setCode(INS_HOSP_CODE);
         admitReason.setCodingStandard(PV_CODING_STANDARDS);
         admitReason.setDescription(INS_HOSP_CODE_DESC);
 
-        PatientRecord.Encounters encounters = new PatientRecord.Encounters();
+        PatientRecord.Encounters encounters = null;
+        if (patientRecord.getEncounters() == null) {
+            encounters = new PatientRecord.Encounters();
+        } else {
+            encounters = patientRecord.getEncounters();
+        }
 
+        List<Encounter> encounterList = new ArrayList<>();
         for (Hospitalisation record : hospitalisations) {
             Encounter encounter = new Encounter();
             encounter.setEncounterNumber(record.getId().toString());
@@ -1122,9 +1217,142 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             encounter.setAdmitReason(admitReason);
             encounter.setEnteredAt(enteredAt);
 
-            encounters.getEncounter().add(encounter);
+            encounterList.add(encounter);
         }
 
+        encounters.getEncounter().addAll(encounterList);
         patientRecord.setEncounters(encounters);
+    }
+
+
+    /**
+     * Builds Observation from given values
+     *
+     * @param value     a value for this observation
+     * @param code      a code for observation heading
+     * @param time      a time when observation was recorded
+     * @param enteredAt
+     * @return an Observation object
+     * @throws DatatypeConfigurationException
+     */
+    private Observation buildObservation(String value, String code,
+                                         GregorianCalendar time, Location enteredAt)
+            throws DatatypeConfigurationException {
+        Observation observation = new Observation();
+        observation.setObservationTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(time));
+
+        ObservationHeading observationHeading = observationHeadingRepository.findOneByCode(code);
+        if (observationHeading != null) {
+            Observation.ObservationCode observationCode = new Observation.ObservationCode();
+            observationCode.setCodingStandard(PV_CODING_STANDARDS);
+            observationCode.setCode(observationHeading.getCode());
+            observationCode.setDescription(observationHeading.getName());
+            observation.setObservationCode(observationCode);
+        } else {
+            LOG.error("Observation Heading not found for code " + code);
+        }
+        observation.setObservationValue(value);
+        observation.setEnteredAt(enteredAt);
+
+        return observation;
+    }
+
+    /**
+     * Builds Diagnosis from Relapse record
+     *
+     * @param encounterId an id of the Relapse record
+     * @param trigger     a type of the Relapse trigger
+     * @param enteredAt
+     * @return a Diagnosis
+     */
+    private Diagnosis buildDiagnosis(String encounterId,
+                                     RelapseTriggerTypes trigger,
+                                     Location enteredAt) {
+        Diagnosis diagnosis = new Diagnosis();
+        diagnosis.setEncounterNumber(encounterId);
+        diagnosis.setEnteredAt(enteredAt);
+
+        CFSNOMED diagnosisCode = new CFSNOMED();
+        diagnosisCode.setCode(trigger.getCode()); // SNOMED code;
+        diagnosisCode.setCodingStandard("SNOMED");
+        diagnosisCode.setDescription(trigger.getDescription());
+        diagnosis.setDiagnosis(diagnosisCode);
+
+        return diagnosis;
+    }
+
+    /**
+     * Builds Medications from Relapse record
+     *
+     * @param encounterId        an id of the Relapse record
+     * @param relapseMedications a lust of relapse medication records
+     * @return a list of Medication
+     */
+    private List<Medication> buildMedications(String encounterId,
+                                                          List<RelapseMedication> relapseMedications)
+            throws DatatypeConfigurationException {
+        List<Medication> medications = new ArrayList<>();
+
+        Location enteringOrganization = new Location();
+        enteringOrganization.setCode(INS_WEB_CODE);
+        enteringOrganization.setCodingStandard(PV_CODING_STANDARDS);
+        enteringOrganization.setDescription(INS_WEB_DESC);
+
+        for (RelapseMedication relapseMedication : relapseMedications) {
+            Medication medicationToAdd = new Medication();
+            medicationToAdd.setEnteringOrganization(enteringOrganization);
+            medicationToAdd.setEncounterNumber(encounterId);
+
+            if (relapseMedication.getStarted() != null) {
+                GregorianCalendar fromTime = new GregorianCalendar();
+                fromTime.setTime(relapseMedication.getStarted());
+                medicationToAdd.setFromTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(fromTime));
+            }
+            if (relapseMedication.getStopped() != null) {
+                GregorianCalendar toTime = new GregorianCalendar();
+                toTime.setTime(relapseMedication.getStopped());
+                medicationToAdd.setToTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(toTime));
+            }
+
+            // Medication Route
+            if (relapseMedication.getRoute() != null) {
+                Medication.Route route = new Medication.Route();
+                route.setCode(relapseMedication.getRoute().getCode());
+                route.setCodingStandard("SNOMED");
+                route.setDescription(relapseMedication.getRoute().getDescription());
+                medicationToAdd.setRoute(route);
+            }
+
+            // Drug Name
+            if (relapseMedication.getName() != null) {
+                DrugProduct product = new DrugProduct();
+                if (relapseMedication.getName().equals(RelapseMedicationTypes.OTHER)) {
+                    product.setGeneric(relapseMedication.getOther());
+                } else {
+                    product.setGeneric(relapseMedication.getName().getName());
+                }
+                medicationToAdd.setDrugProduct(product);
+            }
+
+            if (relapseMedication.getDoseFrequency() != null) {
+                medicationToAdd.setFrequency(relapseMedication.getDoseFrequency().getValue());
+            }
+
+            if (relapseMedication.getDoseQuantity() != null) {
+                medicationToAdd.setDoseQuantity(new BigDecimal(relapseMedication.getDoseQuantity()));
+            }
+
+            if (relapseMedication.getDoseUnits() != null) {
+                CodedField doseUntit = new CodedField();
+                doseUntit.setCode(relapseMedication.getDoseUnits().getCode());
+                doseUntit.setCodingStandard("SNOMED");
+                doseUntit.setDescription(relapseMedication.getDoseUnits().getDescription());
+                medicationToAdd.setDoseUoM(doseUntit);
+            }
+
+            medications.add(medicationToAdd);
+        }
+
+        return medications;
     }
 }
