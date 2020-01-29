@@ -7,6 +7,7 @@ import org.patientview.api.model.FhirObservation;
 import org.patientview.api.model.IdValue;
 import org.patientview.api.model.UserResultCluster;
 import org.patientview.api.service.ApiObservationService;
+import org.patientview.api.service.InsDiaryAuditService;
 import org.patientview.api.service.InsDiaryService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -59,7 +60,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     private ObservationHeadingRepository observationHeadingRepository;
     @Inject
     private ApiObservationService apiObservationService;
-
+    @Inject
+    private InsDiaryAuditService insDiaryAuditService;
 
     @Override
     public InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record)
@@ -104,6 +106,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         record.setUser(patientUser);
         record.setCreator(editor);
 
+        insDiaryAuditService.add(patientUser.getId());
         return insDiaryRepository.save(record);
     }
 
@@ -216,6 +219,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         foundRecord.setLastUpdate(DateTime.now().toDate());
         foundRecord.setLastUpdater(editor);
 
+        insDiaryAuditService.add(patientUser.getId());
+
         return insDiaryRepository.save(foundRecord);
     }
 
@@ -234,6 +239,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         if (!foundRecord.getUser().equals(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
+
+        insDiaryAuditService.add(userId);
 
         insDiaryRepository.delete(recordId);
     }
@@ -279,6 +286,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         existingRelapse.getMedications().add(savedMedication);
         relapseRepository.save(existingRelapse);
 
+        insDiaryAuditService.add(userId);
+
         return savedMedication;
     }
 
@@ -311,6 +320,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         existingRelapse.getMedications().remove(existingMedication);
         relapseRepository.save(existingRelapse);
+
+        insDiaryAuditService.add(userId);
 
         relapseMedicationRepository.delete(existingMedication);
     }
