@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -161,6 +162,17 @@ public class HospitalisationServiceImpl extends
 
         return hospitalisationRepository.findByUser(user);
     }
+
+    @Override
+    public List<Hospitalisation> getListByPatient(Long userId) throws ResourceNotFoundException {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+
+        return hospitalisationRepository.findByUser(user);
+    }
+
 
     @Override
     public void deleteRecordsForUser(User user) {

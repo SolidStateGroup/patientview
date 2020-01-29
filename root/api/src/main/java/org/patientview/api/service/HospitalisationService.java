@@ -82,6 +82,16 @@ public interface HospitalisationService {
     @RoleOnly(roles = {RoleName.PATIENT})
     List<Hospitalisation> getList(Long userId) throws ResourceNotFoundException;
 
+    /**
+     * Get a List of all a User's Hospitalisation objects.
+     * No Roles check as used internally by job.
+     *
+     * @param userId an ID of patient to get Hospitalisation objects for
+     * @return List of Hospitalisation objects
+     * @throws ResourceNotFoundException
+     */
+    List<Hospitalisation> getListByPatient(Long userId) throws ResourceNotFoundException;
+
 
     /**
      * Remove all Hospitalisation entries associated with a User.
