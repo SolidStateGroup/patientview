@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.patientview.api.job.DeletePatientTask;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
+import org.patientview.api.service.AlertService;
 import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.CaptchaService;
@@ -25,6 +26,7 @@ import org.patientview.api.service.ImmunisationService;
 import org.patientview.api.service.InsDiaryAuditService;
 import org.patientview.api.service.InsDiaryService;
 import org.patientview.api.service.PatientManagementService;
+import org.patientview.api.service.SurveyFeedbackService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
@@ -78,6 +80,7 @@ import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.service.AuditService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
+import org.patientview.service.SurveyResponseService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -135,6 +138,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private AlertRepository alertRepository;
+
+    @Inject
+    private AlertService alertService;
 
     @Inject
     private ApiKeyRepository apiKeyRepository;
@@ -225,6 +231,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private InsDiaryService insDiaryService;
+
+    @Inject
+    private SurveyFeedbackService surveyFeedbackService;
+
+    @Inject
+    private SurveyResponseService surveyResponseService;
 
     @Inject
     private InsDiaryAuditService insDiaryAuditService;
@@ -936,6 +948,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 LOG.info("user: " + patient.getId() + ", delete apiKeys");
                 deleteApiKeys(patient.getId());
 
+                LOG.info("user: " + patient.getId() + ", delete SurveyFeedback");
+                surveyFeedbackService.deleteForUser(patient.getId());
+                LOG.info("user: " + patient.getId() + ", delete SurveyResponse");
+                surveyResponseService.deleteForUser(patient.getId());
+
                 // delete hospitalisation records
                 LOG.info("user: " + patient.getId() + ", delete hospitalisations");
                 hospitalisationService.deleteRecordsForUser(patient);
@@ -980,7 +997,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // create Patient Delete alert
-        alertRepository.save(newAlert);
+        alertService.saveAlert(newAlert);
         LOG.info("TIMING patient delete took " + (System.currentTimeMillis() - start));
     }
 

@@ -39,6 +39,15 @@ public interface AlertService {
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
+     * Persist given entity Alert.
+     * Used internally
+     *
+     * @param alert an Alert to save
+     * @return an Alert dto
+     */
+    org.patientview.api.model.Alert saveAlert(org.patientview.persistence.model.Alert alert);
+
+    /**
      * Get a User's Alerts, given the AlertTypes type of Alert.
      * @param userId ID of User to retrieve Alerts for
      * @param alertType Type of the Alert, AlertTypes.RESULT or AlertTypes.LETTER
