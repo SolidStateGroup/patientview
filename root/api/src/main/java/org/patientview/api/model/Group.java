@@ -41,6 +41,7 @@ public class Group extends BaseGroup {
         setShortName(group.getShortName());
         setVisible(group.getVisible());
         setVisibleToJoin(group.getVisibleToJoin());
+        setNoDataFeed(group.getNoDataFeed());
 
         if (!CollectionUtils.isEmpty(group.getGroupFeatures())) {
             setGroupFeatures(group.getGroupFeatures());
