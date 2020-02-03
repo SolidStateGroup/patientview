@@ -98,6 +98,9 @@ public class Group extends AuditModel {
     @OneToMany(mappedBy = "sourceGroup", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<GroupRelationship> groupRelationships;
 
+    @Column(name = "no_data_feed")
+    private Boolean noDataFeed = false; // if to ignore Data Submission Alerts on dashboard
+
     public String getName() {
         return name;
     }
@@ -284,5 +287,13 @@ public class Group extends AuditModel {
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
+    }
+
+    public Boolean getNoDataFeed() {
+        return noDataFeed;
+    }
+
+    public void setNoDataFeed(Boolean noDataFeed) {
+        this.noDataFeed = noDataFeed;
     }
 }
