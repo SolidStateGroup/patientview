@@ -149,6 +149,8 @@ function ($scope, $timeout, $modal, GroupService, StaticDataService, FeatureServ
             $scope.permissions.canEditFeatures = true;
             $scope.permissions.canCreateGroup = true;
             $scope.permissions.canEditParentGroups = true;
+            $scope.permissions.canEditVisibleToJoin = true;
+            $scope.permissions.canEditNoDataFeed = true;
         }
 
         if ($scope.permissions.isSuperAdmin) {

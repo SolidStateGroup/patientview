@@ -51,7 +51,11 @@
     <div class="form-horizontal" role="form">
         <div class="col-md-3 visible-for-col">
             <h5 for="group-visible-to-join pull-left" class="control-label">Visible For Patients to Join</h5>
-            <input type="checkbox" class="form-control" id="group-visible-to-join" name="visible-to-join" data-ng-model="editGroup.visibleToJoin"/>
+            <input type="checkbox" data-ng-disabled="!permissions.canEditVisibleToJoin" class="form-control" id="group-visible-to-join" name="visible-to-join" data-ng-model="editGroup.visibleToJoin"/>
+        </div>
+        <div class="col-md-3 visible-for-col">
+            <h5 for="group-no-data-feed pull-left" class="control-label">Has no data feed</h5>
+            <input type="checkbox" data-ng-disabled="!permissions.canEditNoDataFeed" class="form-control" id="group-no-data-feed" name="no-data-feed" data-ng-model="editGroup.noDataFeed"/>
         </div>
     </div>
 </div>
