@@ -332,9 +332,9 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         existingRelapse.getMedications().remove(existingMedication);
         relapseRepository.save(existingRelapse);
 
-        insDiaryAuditService.add(userId);
-
         relapseMedicationRepository.delete(existingMedication);
+
+        insDiaryAuditService.add(userId);
     }
 
     @Override

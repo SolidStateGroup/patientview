@@ -953,7 +953,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
                   <ObservationValue>92.4</ObservationValue>
                   <EnteredAt>
                      <CodingStandard>PV</CodingStandard>
-                     <Code>PatientView</Code>
+                     <Code>PV</Code>
                      <Description>PatientView</Description>
                   </EnteredAt>
                </Observation>
@@ -961,7 +961,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         */
 
         Location enteredAt = new Location();
-        enteredAt.setCode(PV_CODE);
+        enteredAt.setCode(PV_CODING_STANDARDS);
         enteredAt.setCodingStandard(PV_CODING_STANDARDS);
         enteredAt.setDescription(PV_CODE);
 
@@ -1062,8 +1062,15 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
             // Viral Infection
             if (StringUtils.isNotBlank(relapse.getViralInfection())) {
-                Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
-                        RelapseTriggerTypes.VIRAL_INFECTION, enteredAt);
+                Diagnosis diagnosis = new Diagnosis();
+                diagnosis.setEncounterNumber(relapse.getId().toString());
+                diagnosis.setEnteredAt(enteredAt);
+
+                CFSNOMED diagnosisCode = new CFSNOMED();
+                diagnosisCode.setCode(RelapseTriggerTypes.VIRAL_INFECTION.getCode()); // SNOMED code;
+                diagnosisCode.setCodingStandard("SNOMED");
+                diagnosisCode.setDescription(relapse.getViralInfection());
+                diagnosis.setDiagnosis(diagnosisCode);
                 diagnoses.getDiagnosis().add(diagnosis);
             }
 
@@ -1278,7 +1285,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
      * @return a list of Medication
      */
     private List<Medication> buildMedications(String encounterId,
-                                                          List<RelapseMedication> relapseMedications)
+                                              List<RelapseMedication> relapseMedications)
             throws DatatypeConfigurationException {
         List<Medication> medications = new ArrayList<>();
 
