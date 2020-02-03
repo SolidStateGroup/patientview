@@ -1,0 +1,1 @@
+ALTER TABLE pv_group ADD COLUMN no_data_feed BOOLEAN DEFAULT FALSE;

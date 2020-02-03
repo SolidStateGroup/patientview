@@ -20,6 +20,7 @@ public class BaseGroup {
     private String code;
     private Boolean visible;
     private Boolean visibleToJoin;
+    private Boolean noDataFeed;
     private Lookup groupType;
     private Date lastImportDate;
     private List<String> parentCodes = new ArrayList<>();
@@ -35,6 +36,7 @@ public class BaseGroup {
         setVisible(group.getVisible());
         setGroupType(group.getGroupType());
         setVisibleToJoin(group.getVisibleToJoin());
+        setNoDataFeed(group.getNoDataFeed());
         setLastImportDate(group.getLastImportDate());
 
         // add parent group codes, used in UI to show or hide elements for specific specialties
@@ -55,6 +57,7 @@ public class BaseGroup {
         setVisible(group.getVisible());
         setGroupType(group.getGroupType());
         setVisibleToJoin(group.getVisibleToJoin());
+        setNoDataFeed(group.getNoDataFeed());
         setLastImportDate(group.getLastImportDate());
     }
 
@@ -96,6 +99,14 @@ public class BaseGroup {
 
     public void setVisible(Boolean visible) {
         this.visible = visible;
+    }
+
+    public Boolean getNoDataFeed() {
+        return noDataFeed;
+    }
+
+    public void setNoDataFeed(Boolean noDataFeed) {
+        this.noDataFeed = noDataFeed;
     }
 
     public Lookup getGroupType() {
