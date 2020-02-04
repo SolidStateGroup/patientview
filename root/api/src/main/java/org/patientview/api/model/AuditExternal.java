@@ -1,14 +1,13 @@
 package org.patientview.api.model;
 
 import org.patientview.persistence.model.BaseModel;
-import org.patientview.persistence.model.enums.AuditActions;
 
 /**
  * AuditExternal TO to handle creation of the AuditLog by external systems.
  */
 public class AuditExternal extends BaseModel {
 
-    private AuditActions auditAction;
+    private String auditAction;
     private String groupCode;
     private String identifier;
     private String information;
@@ -17,11 +16,11 @@ public class AuditExternal extends BaseModel {
     public AuditExternal() {
     }
 
-    public AuditActions getAuditAction() {
+    public String getAuditAction() {
         return auditAction;
     }
 
-    public void setAuditAction(AuditActions auditAction) {
+    public void setAuditAction(String auditAction) {
         this.auditAction = auditAction;
     }
 
