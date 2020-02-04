@@ -130,7 +130,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         HAY_FEVER("Hay Fever", "367498001", "Seasonal allergic rhinitis"),
         ALLERGIC_REACTION("Allergic Reaction", "419076005", "Allergic Reaction"),
         ALLERGIC_SKIN_RASH("Allergic Skin Rash", "21626009", "Cutaneous hypersensitivity"),
-        FOOD_INTOLERENCE("Food intolerance", "235719002", "Foot Intolerance");
+        FOOD_INTOLERANCE("Food intolerance", "235719002", "Food intolerance");
 
         private String name;
         private String code;
@@ -1105,7 +1105,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
             // Food intolerance
             if (relapse.isFoodIntolerance()) {
                 Diagnosis diagnosis = buildDiagnosis(relapse.getId().toString(),
-                        RelapseTriggerTypes.FOOD_INTOLERENCE, enteredAt);
+                        RelapseTriggerTypes.FOOD_INTOLERANCE, enteredAt);
                 diagnoses.getDiagnosis().add(diagnosis);
             }
 

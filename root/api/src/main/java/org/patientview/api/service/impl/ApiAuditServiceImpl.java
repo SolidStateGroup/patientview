@@ -2,25 +2,35 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.Audit;
+import org.patientview.api.model.AuditExternal;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.User;
 import org.patientview.api.service.ApiAuditService;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
+import org.patientview.persistence.model.ServerResponse;
+import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.patientview.persistence.repository.ApiKeyRepository;
 import org.patientview.persistence.repository.AuditRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.UserRepository;
+import org.patientview.service.AuditService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -49,6 +59,12 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private ApiKeyRepository apiKeyRepository;
+
+    @Inject
+    AuditService auditService;
 
     /**
      * Convert a List of persistence Audit to api Audit for display in UI, adds details on source object if User or
@@ -207,5 +223,62 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
         // convert to transport objects, create Page and return
         List<Audit> transportContent = convertToTransport(audits.getContent());
         return new PageImpl<>(transportContent, pageable, audits.getTotalElements());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public ServerResponse addExternalAudit(AuditExternal externalAudit) {
+
+        if (StringUtils.isEmpty(externalAudit.getToken())) {
+            throw new AuthenticationServiceException("token not found");
+        }
+
+        // validate api key
+        List<ApiKey> apiKeys
+                = apiKeyRepository.findByKeyAndType(externalAudit.getToken(), ApiKeyTypes.EXTERNAL_AUDIT);
+
+        if (CollectionUtils.isEmpty(apiKeys)) {
+            throw new AuthenticationServiceException("token not found");
+        }
+
+        Date now = new Date();
+
+        // check not expired
+        boolean validApiKey = false;
+        if (!CollectionUtils.isEmpty(apiKeys)) {
+            for (ApiKey apiKeyEntity : apiKeys) {
+                if (apiKeyEntity.getExpiryDate() == null) {
+                    validApiKey = true;
+                } else if (apiKeyEntity.getExpiryDate().getTime() > now.getTime()) {
+                    validApiKey = true;
+                }
+            }
+        }
+
+        if (!validApiKey) {
+            throw new AuthenticationServiceException("token has expired");
+        }
+
+        if(org.springframework.util.StringUtils.isEmpty(externalAudit.getAuditAction())){
+            return new ServerResponse("missing audit action", null, false);
+        }
+        AuditActions actionType = null;
+
+        try{
+            actionType = AuditActions.valueOf(externalAudit.getAuditAction());
+        } catch (Exception e){
+            return new ServerResponse("invalid audit action", null, false);
+        }
+
+
+        // audit
+        auditService.createAudit(actionType, externalAudit.getIdentifier(),
+                externalAudit.getGroupCode(), externalAudit.getInformation(), null, null);
+
+        return new ServerResponse(null, "done", true);
+
     }
 }
