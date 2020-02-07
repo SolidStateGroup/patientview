@@ -1134,7 +1134,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         // TODO: will need to refactor once we know where recordings came from App or Web.
         Location enteredAt = new Location();
         enteredAt.setCode(INS_WEB_CODE);
-        enteredAt.setCodingStandard(PV_CODE);
+        enteredAt.setCodingStandard(PV_CODING_STANDARDS);
         enteredAt.setDescription(INS_WEB_DESC);
 
         PatientRecord.Procedures procedures = new PatientRecord.Procedures();
