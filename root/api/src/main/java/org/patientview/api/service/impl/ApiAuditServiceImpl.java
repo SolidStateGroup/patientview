@@ -69,6 +69,7 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
     /**
      * Convert a List of persistence Audit to api Audit for display in UI, adds details on source object if User or
      * Group.
+     *
      * @param audits List of persistence Audit
      * @return List of api Audit
      */
@@ -275,8 +276,8 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
         }
 
         // only allowing to record these 2 actions
-        if(!actionType.equals(AuditActions.PATIENT_DATA_FAIL) &&
-                !actionType.equals(AuditActions.PATIENT_DATA_VALIDATE_FAIL)){
+        if (!actionType.equals(AuditActions.PATIENT_DATA_FAIL) &&
+                !actionType.equals(AuditActions.PATIENT_DATA_VALIDATE_FAIL)) {
             return new ServerResponse("not allowed audit action", null, false);
         }
 
