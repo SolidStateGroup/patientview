@@ -262,17 +262,23 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
             throw new AuthenticationServiceException("token has expired");
         }
 
-        if(org.springframework.util.StringUtils.isEmpty(externalAudit.getAuditAction())){
+        if (org.springframework.util.StringUtils.isEmpty(externalAudit.getAuditAction())) {
             return new ServerResponse("missing audit action", null, false);
         }
+
         AuditActions actionType = null;
 
-        try{
+        try {
             actionType = AuditActions.valueOf(externalAudit.getAuditAction());
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ServerResponse("invalid audit action", null, false);
         }
 
+        // only allowing to record these 2 actions
+        if(!actionType.equals(AuditActions.PATIENT_DATA_FAIL) &&
+                !actionType.equals(AuditActions.PATIENT_DATA_VALIDATE_FAIL)){
+            return new ServerResponse("not allowed audit action", null, false);
+        }
 
         // audit
         auditService.createAudit(actionType, externalAudit.getIdentifier(),
