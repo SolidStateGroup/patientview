@@ -283,7 +283,7 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
 
         // audit
         auditService.createAudit(actionType, externalAudit.getIdentifier(),
-                externalAudit.getGroupCode(), externalAudit.getInformation(), null, null);
+                externalAudit.getGroupCode(), externalAudit.getInformation(), externalAudit.getXml(), null);
 
         return new ServerResponse(null, "done", true);
 

@@ -11,6 +11,7 @@ public class AuditExternal extends BaseModel {
     private String groupCode;
     private String identifier;
     private String information;
+    private String xml;
     private String token;
 
     public AuditExternal() {
@@ -46,6 +47,14 @@ public class AuditExternal extends BaseModel {
 
     public void setInformation(String information) {
         this.information = information;
+    }
+
+    public String getXml() {
+        return xml;
+    }
+
+    public void setXml(String xml) {
+        this.xml = xml;
     }
 
     public String getToken() {
