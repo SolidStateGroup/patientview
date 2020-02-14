@@ -62,7 +62,7 @@ public class ExternalServicesTask {
         processQueueItems(singletonList(ExternalServices.SURVEY_NOTIFICATION));
     }
 
-    // @Scheduled(cron = "0 */1 * * * ?") // every 1 minute
+     @Scheduled(cron = "0 */20 * * * ?") // every 1 minute
     // @Scheduled(cron = "0 0 */6 * * ?") // every hour
     public void sendInsRecordingsToExternalService() {
         processQueueItems(singletonList(ExternalServices.UKRDC_INS_DIARY_NOTIFICATION));
