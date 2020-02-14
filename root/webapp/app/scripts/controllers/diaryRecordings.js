@@ -59,20 +59,6 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             });
         }
         return {
-            protein: val.dipstickType,
-
-            systolic: val.systolicBP,
-            systolicNotMeasured: val.systolicBPExclude,
-
-            diastolic: val.diastolicBP,
-            diastolicNotMeasured: val.diastolicBPExclude,
-
-            weight: val.weight,
-            weightNotMeasured: val.weightExclude,
-
-            oedema: val.oedema,
-            newOedema: val.oedema && val.oedema.length > 0 ? val.oedema[0] : null,
-
             relapse: val.inRelapse,
             initiallyInRelapse: !!val.relapse,
 
@@ -108,6 +94,20 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             updated: val.lastUpdate && moment(val.lastUpdate).format('DD-MMM-YYYY'),
             updatedBy: val.lastUpdatedBy,
 
+            protein: val.dipstickType,
+
+            systolic: val.systolicBP,
+            systolicNotMeasured: val.systolicBPExclude,
+
+            diastolic: val.diastolicBP,
+            diastolicNotMeasured: val.diastolicBPExclude,
+
+            weight: val.weight,
+            weightNotMeasured: val.weightExclude,
+
+            oedema: val.oedema,
+            newOedema: val.oedema && val.oedema.length > 0 ? val.oedema[0] : null,
+
         }, formatRelapseForForm(val));
 
         $scope.initNewMedication(x);
@@ -118,7 +118,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         return {
             "id": m.id ? m.id : undefined, 
             "name": m.name, 
-            "other": m.name === 'OTHER' ? m.other : null, 
+            "other": m.name === 'OTHER' ? m.other.substr(0, 100) : null, 
             "doseQuantity": m.doseQty, 
             "doseUnits": m.doseUnits, 
             "doseFrequency": m.doseFrequency, 

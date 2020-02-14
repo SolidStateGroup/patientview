@@ -98,7 +98,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
 
         ImmunisationService.post($scope.loggedInUser.id, {
             codelist: $scope.newForm.code,
-            other: $scope.newForm.code === 'OTHER' ? $scope.newForm.other : undefined,
+            other: $scope.newForm.code === 'OTHER' ? $scope.newForm.other.substr(0, 100) : undefined,
             immunisationDate: date.toISOString(),
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
@@ -120,7 +120,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
 
         ImmunisationService.save($scope.loggedInUser.id, id,{
             codelist: $scope.editForm.code,
-            other: $scope.editForm.code === 'OTHER' ? $scope.editForm.other : undefined,
+            other: $scope.editForm.code === 'OTHER' ? $scope.editForm.other.substr(0, 100) : undefined,
             immunisationDate: date.toISOString(),
         }, $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
