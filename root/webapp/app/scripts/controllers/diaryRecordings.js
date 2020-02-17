@@ -620,6 +620,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
                 form.medications.push(formatMedicationForForm(data));
                 alert('Medication Saved!');
                 $scope.initNewMedication(form);
+                $scope.getRecordings();
                 delete $scope.errorMessage;
             }, function(error){
                 $scope.loading = false;
@@ -636,6 +637,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             form.medications = form.medications.filter(function(m){
                 return m.id !== id;
             });
+            $scope.getRecordings();
             alert('Medication Deleted');
             delete $scope.errorMessage;
         }, function(error){
