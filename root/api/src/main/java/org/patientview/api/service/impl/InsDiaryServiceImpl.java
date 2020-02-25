@@ -714,13 +714,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             value.setId(observationHeading.getId());
             value.setValue(record.getSystolicBP().toString());
 
-
-            UserResultCluster userResultCluster = new UserResultCluster();
-            userResultCluster.setDay(String.valueOf(entryDate.getDayOfMonth()));
-            userResultCluster.setMonth(String.valueOf(entryDate.getMonthOfYear()));
-            userResultCluster.setYear(String.valueOf(entryDate.getYear()));
-            userResultCluster.setValues(new ArrayList<IdValue>());
-            userResultCluster.getValues().add(value);
+            UserResultCluster userResultCluster = buildUserResultCluster(value, entryDate);
 
             userResultClusters.add(userResultCluster);
         }
@@ -735,12 +729,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             value.setId(observationHeading.getId());
             value.setValue(record.getDiastolicBP().toString());
 
-            UserResultCluster userResultCluster = new UserResultCluster();
-            userResultCluster.setDay(String.valueOf(entryDate.getDayOfMonth()));
-            userResultCluster.setMonth(String.valueOf(entryDate.getMonthOfYear()));
-            userResultCluster.setYear(String.valueOf(entryDate.getYear()));
-            userResultCluster.setValues(new ArrayList<IdValue>());
-            userResultCluster.getValues().add(value);
+            UserResultCluster userResultCluster = buildUserResultCluster(value, entryDate);
 
             userResultClusters.add(userResultCluster);
         }
@@ -755,12 +744,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
             value.setId(observationHeading.getId());
             value.setValue(record.getWeight().toString());
 
-            UserResultCluster userResultCluster = new UserResultCluster();
-            userResultCluster.setDay(String.valueOf(entryDate.getDayOfMonth()));
-            userResultCluster.setMonth(String.valueOf(entryDate.getMonthOfYear()));
-            userResultCluster.setYear(String.valueOf(entryDate.getYear()));
-            userResultCluster.setValues(new ArrayList<IdValue>());
-            userResultCluster.getValues().add(value);
+            UserResultCluster userResultCluster = buildUserResultCluster(value, entryDate);
 
             userResultClusters.add(userResultCluster);
         }
@@ -771,6 +755,19 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
         }
 
         return new HashMap<>();
+    }
+
+    private UserResultCluster buildUserResultCluster(IdValue value, DateTime resultDate) {
+        UserResultCluster userResultCluster = new UserResultCluster();
+        userResultCluster.setMinute(String.valueOf(resultDate.getMinuteOfHour()));
+        userResultCluster.setHour(String.valueOf(resultDate.getHourOfDay()));
+        userResultCluster.setDay(String.valueOf(resultDate.getDayOfMonth()));
+        userResultCluster.setMonth(String.valueOf(resultDate.getMonthOfYear()));
+        userResultCluster.setYear(String.valueOf(resultDate.getYear()));
+        userResultCluster.setValues(new ArrayList<IdValue>());
+        userResultCluster.getValues().add(value);
+
+        return userResultCluster;
     }
 
     /**
