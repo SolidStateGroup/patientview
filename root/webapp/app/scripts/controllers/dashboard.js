@@ -293,7 +293,8 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                         var group = page.content[i];
                         var fortyEightHoursAgo = new Date().getTime() - 172800000;
                         if (group.groupType.value === 'UNIT') {
-                            if (group.lastImportDate === null || group.lastImportDate < fortyEightHoursAgo) {
+                            if ((group.lastImportDate === null || group.lastImportDate < fortyEightHoursAgo)
+                                && !group.noDataFeed) {
                                 $scope.oldSubmissionDateGroups.push(group);
                             }
                         }

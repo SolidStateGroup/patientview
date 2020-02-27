@@ -9,8 +9,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
+import org.patientview.api.job.DeletePatientTask;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.SecretWordInput;
+import org.patientview.api.service.AlertService;
 import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.CaptchaService;
@@ -19,7 +21,12 @@ import org.patientview.api.service.DocumentService;
 import org.patientview.api.service.EmailService;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.service.HospitalisationService;
+import org.patientview.api.service.ImmunisationService;
+import org.patientview.api.service.InsDiaryAuditService;
+import org.patientview.api.service.InsDiaryService;
 import org.patientview.api.service.PatientManagementService;
+import org.patientview.api.service.SurveyFeedbackService;
 import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
@@ -28,6 +35,7 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
+import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
@@ -43,6 +51,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.UserToken;
+import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
@@ -71,6 +80,7 @@ import org.patientview.persistence.repository.UserTokenRepository;
 import org.patientview.service.AuditService;
 import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
+import org.patientview.service.SurveyResponseService;
 import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -128,6 +138,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private AlertRepository alertRepository;
+
+    @Inject
+    private AlertService alertService;
 
     @Inject
     private ApiKeyRepository apiKeyRepository;
@@ -209,6 +222,27 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private AuthenticationService authenticationService;
+
+    @Inject
+    private HospitalisationService hospitalisationService;
+
+    @Inject
+    private ImmunisationService immunisationService;
+
+    @Inject
+    private InsDiaryService insDiaryService;
+
+    @Inject
+    private SurveyFeedbackService surveyFeedbackService;
+
+    @Inject
+    private SurveyResponseService surveyResponseService;
+
+    @Inject
+    private InsDiaryAuditService insDiaryAuditService;
+
+    @Inject
+    private DeletePatientTask deletePatientTask;
 
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
@@ -422,8 +456,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, user.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, group);
 
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
-            if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+            // send membership notification to RDC, UNIT groups only
+            if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
                 sendGroupMemberShipNotification(groupRole, true);
             }
         } else {
@@ -820,11 +854,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     isPatient = true;
                 }
 
-                // audit removal (apart from MEMBER)
-                if (!role.getName().equals(RoleName.MEMBER) && isPatient) {
-                    auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, user.getUsername(),
-                            getCurrentUser(), userId, AuditObjectTypes.User, groupRole.getGroup());
-                }
             }
 
             if (isUserAPatient(user)) {
@@ -833,42 +862,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             LOG.info("user: " + user.getId() + ", start delete user process");
 
-            // wipe patient and observation data if it exists
-            if (!CollectionUtils.isEmpty(user.getFhirLinks())) {
-                LOG.info("user: " + user.getId() + ", delete existing patient data");
-                patientService.deleteExistingPatientData(user.getFhirLinks());
-                LOG.info("user: " + user.getId() + ", delete observation data");
-                observationService.deleteAllExistingObservationData(user.getFhirLinks());
-            }
-
             // for Patient Send any updates if required
+            // need to call it here as getCurrentUser() will be null with async delete
             if (isPatient) {
                 sendUserUpdatedGroupNotification(user, false);
             }
 
-
             if (isPatient || forceDelete) {
-                // patient, delete from conversations and associated messages, other non user tables
-                LOG.info("user: " + user.getId() + ", delete user from conversations");
-                conversationService.deleteUserFromConversations(user);
-                LOG.info("user: " + user.getId() + ", delete user from audit");
-                auditService.deleteUserFromAudit(user);
-                LOG.info("user: " + user.getId() + ", delete user tokens");
-                userTokenRepository.deleteByUserId(user.getId());
-                LOG.info("user: " + user.getId() + ", delete user from migration");
-                userMigrationRepository.deleteByUserId(user.getId());
-                LOG.info("user: " + user.getId() + ", delete user from user observation headings");
-                userObservationHeadingRepository.deleteByUserId(user.getId());
-                LOG.info("user: " + user.getId() + ", delete user from alerts");
-                alertRepository.deleteByUserId(user.getId());
-                LOG.info("user: " + user.getId() + ", delete fhir links");
-                deleteFhirLinks(user.getId());
-                LOG.info("user: " + user.getId() + ", delete apiKeys");
-                deleteApiKeys(user.getId());
-                LOG.info("user: " + user.getId() + ", delete identifiers");
-                deleteIdentifiers(user.getId());
-                LOG.info("user: " + user.getId() + ", delete user");
-                userRepository.delete(user);
+                // call async patient delete
+                deletePatientTask.deletePatient(user.getId(), getCurrentUser());
             } else {
                 // staff member, mark as deleted
                 LOG.info("user: " + user.getId() + ", mark staff user as deleted");
@@ -879,15 +881,124 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        // audit deletion
-        AuditActions auditActions;
-        if (isPatient) {
-            auditActions = AuditActions.PATIENT_DELETE;
-        } else {
-            auditActions = AuditActions.ADMIN_DELETE;
+        // audit deletion, patient audited later in the process
+        if (!isPatient) {
+            auditService.createAudit(AuditActions.ADMIN_DELETE, username, getCurrentUser(), userId, AuditObjectTypes.User, null);
+        }
+    }
+
+    @Override
+    public void deletePatient(Long patientId, User admin) {
+        long start = System.currentTimeMillis();
+        LOG.info("Starting delete Patient: " + patientId);
+
+        String message;
+        String username = "";
+
+        Alert newAlert = new Alert();
+        newAlert.setUser(admin);
+        newAlert.setWebAlert(true);
+        newAlert.setWebAlertViewed(false);
+        newAlert.setEmailAlert(false);
+        newAlert.setEmailAlertSent(true);
+        newAlert.setMobileAlert(false);
+        newAlert.setMobileAlertSent(true);
+        newAlert.setCreated(new Date());
+        newAlert.setCreator(admin);
+
+        try {
+            User patient = findUser(patientId);
+            username = patient.getUsername();
+
+            // make sure user is patient
+            if (isUserAPatient(patient)) {
+                for (GroupRole groupRole : patient.getGroupRoles()) {
+                    Role role = roleRepository.findOne(groupRole.getRole().getId());
+
+                    // audit removal (apart from MEMBER)
+                    if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
+                        auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, patient.getUsername(),
+                                getCurrentUser(), patientId, AuditObjectTypes.User, groupRole.getGroup());
+                    }
+                }
+
+                // wipe patient and observation data if it exists
+                if (!CollectionUtils.isEmpty(patient.getFhirLinks())) {
+                    LOG.info("user: " + patient.getId() + ", delete existing patient data");
+                    patientService.deleteExistingPatientData(patient.getFhirLinks());
+                    LOG.info("user: " + patient.getId() + ", delete observation data");
+                    observationService.deleteAllExistingObservationData(patient.getFhirLinks());
+                }
+
+                // patient, delete from conversations and associated messages, other non user tables
+                LOG.info("user: " + patient.getId() + ", delete user from conversations");
+                conversationService.deleteUserFromConversations(patient);
+                LOG.info("user: " + patient.getId() + ", delete user from audit");
+                auditService.deleteUserFromAudit(patient);
+                LOG.info("user: " + patient.getId() + ", delete user tokens");
+                userTokenRepository.deleteByUserId(patient.getId());
+                LOG.info("user: " + patient.getId() + ", delete user from migration");
+                userMigrationRepository.deleteByUserId(patient.getId());
+                LOG.info("user: " + patient.getId() + ", delete user from user observation headings");
+                userObservationHeadingRepository.deleteByUserId(patient.getId());
+                LOG.info("user: " + patient.getId() + ", delete user from alerts");
+                alertRepository.deleteByUserId(patient.getId());
+                LOG.info("user: " + patient.getId() + ", delete fhir links");
+                deleteFhirLinks(patient.getId());
+                LOG.info("user: " + patient.getId() + ", delete apiKeys");
+                deleteApiKeys(patient.getId());
+
+                LOG.info("user: " + patient.getId() + ", delete SurveyFeedback");
+                surveyFeedbackService.deleteForUser(patient.getId());
+                LOG.info("user: " + patient.getId() + ", delete SurveyResponse");
+                surveyResponseService.deleteForUser(patient.getId());
+
+                // delete hospitalisation records
+                LOG.info("user: " + patient.getId() + ", delete hospitalisations");
+                hospitalisationService.deleteRecordsForUser(patient);
+
+                // delete immunisation records
+                LOG.info("user: " + patient.getId() + ", delete immunisations");
+                immunisationService.deleteRecordsForUser(patient);
+
+                // delete ins diary records
+                LOG.info("user: " + patient.getId() + ", delete ins diary");
+                insDiaryService.deleteInsDiaryRecordsForUser(patient);
+
+                LOG.info("user: " + patient.getId() + ", delete ins diary logs");
+                insDiaryAuditService.deleteByPatient(patient.getId());
+
+                // delete ins relapse records
+                LOG.info("user: " + patient.getId() + ", delete relapse");
+                insDiaryService.deleteRelapseRecordsForUser(patient);
+
+                LOG.info("user: " + patient.getId() + ", delete identifiers");
+                deleteIdentifiers(patient.getId());
+
+                LOG.info("user: " + patient.getId() + ", delete user");
+                userRepository.delete(patient);
+
+                // audit deletion for patient
+                auditService.createAudit(AuditActions.PATIENT_DELETE, username,
+                        admin, patientId, AuditObjectTypes.User, null);
+
+                message = "Patient with Username <b>" + username + "</b> has been permanently deleted.";
+                newAlert.setAlertType(AlertTypes.PATIENT_DELETED);
+                newAlert.setLatestValue(message);
+            } else {
+                LOG.error("Trying to delete none Patient user,  id: " + patient.getId());
+            }
+        } catch (Exception e) {
+            LOG.error("Error deleting patient", e);
+            message = "There was an error deleting Patient with Username <b>" + username + "</b>. " +
+                    "If this problem persists, please contact PatientView Central Support.";
+            newAlert.setAlertType(AlertTypes.PATIENT_DELETE_FAILED);
+            newAlert.setLatestValue(message);
         }
 
-        auditService.createAudit(auditActions, username, getCurrentUser(), userId, AuditObjectTypes.User, null);
+        // create Patient Delete alert
+        alertService.saveAlert(newAlert);
+        LOG.info("TIMING patient delete took " + (System.currentTimeMillis() - start));
     }
 
     @Override
@@ -1044,9 +1155,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Override
     public void sendUserUpdatedGroupNotification(User user, boolean adding) {
         for (GroupRole groupRole : user.getGroupRoles()) {
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
+
+            // send membership notification to RDC, Units only
             if (groupRole.getGroup().getGroupType() != null &&
-                    !groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+                    groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
                 sendGroupMemberShipNotification(groupRole, adding);
             }
         }
@@ -1096,8 +1208,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, entityUser.getUsername(),
                     getCurrentUser(), userId, AuditObjectTypes.User, entityGroup);
 
-            // send membership notification to RDC, not GroupTypes.SPECIALTY
-            if (!entityGroupRole.getGroup().getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
+            // send membership notification to RDC, UNIT groups only
+            if (entityGroupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
                 sendGroupMemberShipNotification(entityGroupRole, false);
             }
         } else {
@@ -2035,7 +2147,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     /**
      * Builds group membership XML and adds it to the queue to be processed.
      *
-     * This should only be called for Patient users.
+     * This should only be called for Patient users who are members of Renal speciality.
+     * Also needs to be sending to UNIT groups only
      *
      * @param groupRole
      * @param adding
@@ -2045,6 +2158,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean validIdentifierFound = false;
         DateFormat dateTimeFormatted = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // for ISO1806 date format
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        if (!groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
+            LOG.info("Group {} is not UNIT type, ignoring sending notification", groupRole.getGroup().getCode());
+            return;
+        }
 
         // make sure the Group we are sending to is part of the Renal Specialty
         // need to re fetch to get all relationship
@@ -2059,54 +2177,56 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 "<SendingExtract>UKRDC</SendingExtract><Patient><PatientNumbers>");
 
         if (groupRole.getUser().getIdentifiers() != null) {
-            String currentMRN = null;
-            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
 
+            // build a map of existing identifiers
+            Map<String, Identifier> identifierMap = new HashMap<>();
+            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
                 // We ignore NON_UK_UNIQUE, HOSPITAL_NUMBER and RADAR_NUMBER identifiers
                 if (identifier.getIdentifierType().getValue().equals("NON_UK_UNIQUE") ||
                         identifier.getIdentifierType().getValue().equals("HOSPITAL_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("RADAR_NUMBER")) {
                     continue;
                 }
+                identifierMap.put(identifier.getIdentifierType().getValue(), identifier);
+            }
 
-                // MRN rule
-                // We need an additional, duplicate identifier to be added with a NumberType of MRN.
-                // This should be chosen from the NHS Identifiers in the order "NHS", "CHI", "HSC"
-                // if someone has more than one. The identifier chosen as MRN should also be included
-                // as an NI type identifier. For example. If a patient has an NHS_NO and a CHI_NO
-                // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
+            // Add MRN type Identifier
+            // MRN rule: if a patient has multiple NHS identifiers the one to be used should
+            // be selected using the order NHS -> CHI -> HSC.
+            if (!CollectionUtils.isEmpty(identifierMap)) {
+
+                xml.append("<PatientNumber><Number>");
+                // selection should be in this order NHS -> CHI -> HSC
+                if (identifierMap.get("NHS_NUMBER") != null) {
+                    xml.append(identifierMap.get("NHS_NUMBER").getIdentifier());
+                    xml.append("</Number>");
+                    xml.append("<Organization>");
+                    xml.append("NHS");
+                } else if (identifierMap.get("CHI_NUMBER") != null) {
+                    xml.append(identifierMap.get("CHI_NUMBER").getIdentifier());
+                    xml.append("</Number>");
+                    xml.append("<Organization>");
+                    xml.append("CHI");
+                } else if (identifierMap.get("HSC_NUMBER") != null) {
+                    xml.append(identifierMap.get("HSC_NUMBER").getIdentifier());
+                    xml.append("</Number>");
+                    xml.append("<Organization>");
+                    xml.append("HSC");
+                }
+                xml.append("</Organization>");
+                xml.append("<NumberType>MRN</NumberType>");
+                xml.append("</PatientNumber>");
+            }
+
+            // add none MRN type Identifiers
+            // If a patient has an NHS_NO and a CHI_NO
+            // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
+            for (Identifier identifier : groupRole.getUser().getIdentifiers()) {
+
                 if (identifier.getIdentifierType().getValue().equals("HSC_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("NHS_NUMBER") ||
                         identifier.getIdentifierType().getValue().equals("CHI_NUMBER")) {
-                    // If we already have an nhs number,
-                    // ignore, if we already have a CHI and this is a H&S, ignore
-                    if (currentMRN != "NHS" &&
-                            !(currentMRN == "CHI" && identifier.getIdentifierType().getValue().equals("HSC_NUMBER"))) {
-                        xml.append("<PatientNumber><Number>");
-                        xml.append(identifier.getIdentifier());
-                        xml.append("</Number>");
-                        xml.append("<Organization>");
-                        switch (identifier.getIdentifierType().getValue()) {
-                            case "HSC_NUMBER":
-                                currentMRN = "HSC";
-                                xml.append("HSC");
-                                break;
-                            case "NHS_NUMBER":
-                                currentMRN = "NHS";
-                                xml.append("NHS");
-                                break;
-                            case "CHI_NUMBER":
-                                currentMRN = "CHI";
-                                xml.append("CHI");
-                                break;
-                        }
-                        xml.append("</Organization>");
 
-                        xml.append("<NumberType>MRN</NumberType>");
-                        xml.append("</PatientNumber>");
-                    }
-
-                    // add none MRN type Identifiers
                     xml.append("<PatientNumber><Number>");
                     xml.append(identifier.getIdentifier());
                     xml.append("</Number>");

@@ -700,6 +700,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         entityGroup.setAddress3(group.getAddress3());
         entityGroup.setPostcode(group.getPostcode());
         entityGroup.setVisibleToJoin(group.getVisibleToJoin());
+        entityGroup.setNoDataFeed(group.getNoDataFeed());
         groupRepository.save(entityGroup);
     }
 

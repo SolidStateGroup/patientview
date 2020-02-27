@@ -1,0 +1,153 @@
+<div>
+    <div class="faux-table four-col" > <!--data-ng-show="pagedItems.length  > 0"-->
+        <!-- header -->
+        <div class="accordion-title-row table-head">
+            <div class="hidden">ID</div>
+            <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Immunisation Date</a></div>
+            <div class="head-item accordion-title-text">Immunisation Type</div>
+            <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
+        </div>
+
+        <!-- body -->
+        <div class="item-header" ng-repeat="immunisation in immunisations">
+            <div class="faux-row">
+                <div class="row-item hidden">{{immunisation.id}}</div>
+                <div class="row-item accordion-heading-text">{{immunisation.date}}</div>
+                <div class="row-item accordion-heading-text">{{immunisation.type}}</div>
+                <div class="row-item actions">
+                    <!-- Stats, Edit buttons -->
+                    <div class="btn-group">
+                        <button type="button" class="edit-button btn blue" data-ng-click="openEdit(immunisation)"> Edit</button>
+                        <button type="button" class="statistics-button btn negative" data-ng-click="deleteImmunisation(immunisation.id)"> Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- edit pane -->
+            <div class="panel-body" data-ng-show="showEdit === immunisation.id">
+                <div data-ng-show="immunisation.loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                <div data-ng-show="!immunisation.loading">
+                    <div class="col-md-12 mb-min">
+                        <div class="col-md-3">
+                            <div class="col-md-12 p-min">
+                                Immunisation Date
+                                <span data-ng-show="editForm.errors.date" class="error"> *{{editForm.errors.date}} </span>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            Immunisation Type
+                            <span data-ng-show="editForm.errors.other" class="error"> *{{editForm.errors.other}} </span>
+                        </div>
+                    </div>  
+                    <div class="col-md-12">
+                        <div class="col-md-3">
+                            <div class="col-md-4 p-min">
+                                <select class="form-control col-md-1" data-ng-model="editForm.date.day"
+                                        data-ng-options="day as day for day in days" >
+                                </select>
+                            </div>
+                            <div class="col-md-4 p-min">
+                                <select class="form-control col-md-1" data-ng-model="editForm.date.month"
+                                        data-ng-options="month for month in months" >
+                                </select>
+                            </div>
+                            <div class="col-md-4 p-min">
+                                <select class="form-control col-md-1" data-ng-model="editForm.date.year"
+                                        data-ng-options="year for year in years" >
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-md-12 p-min">
+                                <select class="form-control" data-ng-model="editForm.code"
+                                        data-ng-options="code.key as code.value for code in codeList" >
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3" data-ng-show="editForm.code === 'OTHER'">
+                            <div class="col-md-12 p-min">
+                                <input class="form-control" data-ng-model="editForm.other" placeholder="Please Specify" maxlength="100"/>
+                            </div>
+                        </div>
+                        <div class="col-md-3 p-min">
+                            <button type="button" class="btn blue" ng-click="updateImmunisation(immunisation.id)">Save</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="panel-body-footer"><button class="btn btn-grey close-edit pull-right" ng-click="openEdit(null)">Close</button></div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="col-md-12" data-ng-show="immunisations.length == 0">
+                <div class="col-md-12">
+                    <br/>
+                    <h4>No Immunisation records found</h4>
+                </div>
+            </div>
+
+
+            <div class="alert alert-danger mt" data-ng-show="errorMessage && !immunisation.editLoading">There was an error - {{errorMessage}}</div>
+
+            <div class="col-md-12 segregated-box mt-big">
+                <div class="col-md-12 box-title">
+                    New Immunisation
+                </div>
+                <div class="col-md-12 mb-min">
+                    <div class="col-md-3">
+                        <div class="col-md-12 p-min">
+                            Immunisation Date
+                            <span data-ng-show="newForm.errors.date" class="error"> *{{newForm.errors.date}} </span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        Immunisation Type
+                        <span data-ng-show="newForm.errors.other" class="error"> *{{newForm.errors.other}} </span>
+                    </div>
+                </div>  
+                <div class="col-md-12">
+                    <div class="col-md-3">
+                        <div class="col-md-4 p-min">
+                            <select class="form-control col-md-1" data-ng-model="newForm.date.day"
+                                    data-ng-options="day as day for day in days" >
+                            </select>
+                        </div>
+                        <div class="col-md-4 p-min">
+                            <select class="form-control col-md-1" data-ng-model="newForm.date.month"
+                                    data-ng-options="month for month in months" >
+                            </select>
+                        </div>
+                        <div class="col-md-4 p-min">
+                            <select class="form-control col-md-1" data-ng-model="newForm.date.year"
+                                    data-ng-options="year for year in years" >
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="col-md-12 p-min">
+                            <select class="form-control" data-ng-model="newForm.code"
+                                    data-ng-options="code.key as code.value for code in codeList" >
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-ng-show="newForm.code === 'OTHER'">
+                        <div class="col-md-12 p-min">
+                            <input class="form-control" data-ng-model="newForm.other" placeholder="Please Specify" maxlength="100"/>
+                        </div>
+                    </div>
+                    <div class="col-md-3 p-min">
+                        <button type="button" class="btn blue" ng-click="postImmunisation()">Add</button>
+                        <!--<button type="button" class="btn negative" ng-click="debugThing()">DoDebugThingee</button>-->
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div data-ng-show="loading" class="row"><br/>
+    <div class="col-md-12">
+        <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
+    </div>
+</div>

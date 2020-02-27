@@ -1,0 +1,93 @@
+/* Welcome to Compass. Use this file to write IE specific override styles.
+ * Import this file using the following HTML or equivalent:
+ * <!--[if IE]>
+ *   <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+ * <![endif]--> */
+.lt-ie9 {
+  /** MESSAGES **/
+}
+.lt-ie9 .btn {
+  padding-left: 4px;
+  padding-right: 4px;
+  min-height: 25px;
+}
+.lt-ie9 .nav-utils .help-item {
+  float: left;
+}
+.lt-ie9 .historical-data .overlay {
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
+}
+.lt-ie9 .navbar-collapse {
+  padding-right: 0;
+}
+.lt-ie9 .hero-panel {
+  overflow: hidden;
+  position: relative;
+}
+.lt-ie9 .hero-panel .ie-hero-image {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 100%;
+  min-width: 1170px;
+  width: 100%;
+  height: auto;
+}
+.lt-ie9 .navbar-right label {
+  min-width: 100px;
+}
+.lt-ie9 .messages-menu-item {
+  position: relative;
+  float: left;
+}
+.lt-ie9 .messages-menu-item i {
+  margin-top: 8px;
+}
+.lt-ie9 .messages-menu-item span {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  height: 15px;
+}
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group {
+  width: 140px;
+}
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .btn {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .btn .caret {
+  margin-right: 12px;
+}
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button {
+  width: 44px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.lt-ie9 .faux-table .faux-row .actions.row-item .button-dropdown-group .dropdown > button .caret {
+  margin-right: 12px;
+  float: none;
+}
+.lt-ie9 .message-summary {
+  font-size: 12px;
+}
+.lt-ie9 .message-summary .message-title {
+  font-size: 24px;
+}
+.lt-ie9 .message-summary .message-title .recipient {
+  font-size: 18px;
+}
+.lt-ie9 .message-summary .last-message h4 {
+  font-size: 18px;
+}
+.lt-ie9 .message-summary .last-message .message-content {
+  font-size: 18px;
+}
+.lt-ie9 .message-summary .last-message .date-stamp {
+  font-size: 18px;
+}
+
+/*# sourceMappingURL=ie.css.map */

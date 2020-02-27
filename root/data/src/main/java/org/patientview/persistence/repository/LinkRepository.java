@@ -20,5 +20,9 @@ public interface LinkRepository extends CrudRepository<Link, Long> {
 
     @Modifying
     @Query("DELETE FROM Link l WHERE link.group = :group")
-    public void deleteByGroup(@Param("group") Group group);
+    void deleteByGroup(@Param("group") Group group);
+
+    @Modifying
+    @Query("DELETE FROM Link l WHERE link.id = :linkId")
+    void deleteById(@Param("linkId") Long linkId);
 }

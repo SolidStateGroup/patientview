@@ -1,0 +1,199 @@
+<div>
+        <div class="faux-table four-col" > <!--data-ng-show="pagedItems.length  > 0"-->
+            <!-- header -->
+            <div class="accordion-title-row table-head">
+                <div class="hidden">ID</div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Hospitalisation Date</a></div>
+                <div class="head-item accordion-title-text">Reason</div>
+                <div class="head-item accordion-title-text"><a data-ng-click="sortBy('code');" class="sort-title"><i class="icon-sort pull-right"></i>Discharge Date</a></div>
+                <div class="head-item accordion-title-text"><a class="sort-title"></a></div>
+            </div>
+    
+            <!-- body -->
+            <div class="item-header" ng-repeat="hostpitalisation in hospitalisations">
+                <div class="faux-row">
+                    <div class="row-item hidden">{{hostpitalisation.id}}</div>
+                    <div class="row-item accordion-heading-text">{{hostpitalisation.dateAdmitted}}</div>
+                    <div class="row-item accordion-heading-text angular-multiline">{{hostpitalisation.reason}}</div>
+                    <div class="row-item accordion-heading-text">{{hostpitalisation.dateDischarged}}</div>
+                    <div class="row-item actions">
+                        <!-- Stats, Edit buttons -->
+                        <div class="btn-group">
+                            <button type="button" class="edit-button btn blue" data-ng-click="openEdit(hostpitalisation)"> Edit</button>
+                            <button type="button" class="statistics-button btn negative" data-ng-click="deleteHostpitalisation(hostpitalisation.id)"> Delete</button>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- edit pane -->
+                <div class="panel-body mb-big" data-ng-show="showEdit === hostpitalisation.id">
+                    <div data-ng-show="hostpitalisation.loading" class="loading"><img src="images/loading.gif" alt="Loading"/></div>
+                    <div data-ng-show="!hostpitalisation.loading">
+                        
+                    <div class="col-md-12 mb-min">
+                            <div class="col-md-12 mb-min">
+                                <div class="col-md-3">
+                                    <div class="col-md-12 p-min">
+                                        Hospitalisation Date
+                                        <span data-ng-show="editForm.errors.dateAdmitted" class="error"> *{{editForm.errors.dateAdmitted}} </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    Reason
+                                    <span data-ng-show="editForm.errors.reason" class="error"> *{{editForm.errors.reason}} </span>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-12 p-min">
+                                        Discharge Date <span class="link" data-ng-show="!editForm.ongoing" data-ng-click="editForm.ongoing = true">(Ongoing?)</span>
+                                        <span data-ng-show="editForm.errors.dateDischarged" class="error"> *{{editForm.errors.dateDischarged}} </span>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>  
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <div class="col-md-4 p-min">
+                                    <select class="form-control" data-ng-model="editForm.dateAdmitted.day"
+                                            data-ng-options="day as day for day in days" >
+                                    </select>
+                                </div>
+                                <div class="col-md-4 p-min">
+                                    <select class="form-control" data-ng-model="editForm.dateAdmitted.month"
+                                            data-ng-options="month for month in months" >
+                                    </select>
+                                </div>
+                                <div class="col-md-4 p-min">
+                                    <select class="form-control" data-ng-model="editForm.dateAdmitted.year"
+                                            data-ng-options="year for year in years" >
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <textarea class="form-control" data-ng-model="editForm.reason" ></textarea>
+                            </div>
+                            <div class="col-md-3" data-ng-show="!editForm.ongoing">
+                                <div class="col-md-4 p-min">
+                                    <select class="form-control" data-ng-model="editForm.dateDischarged.day"
+                                            data-ng-options="day as day for day in days" >
+                                    </select>
+                                </div>
+                                <div class="col-md-4 p-min">
+                                <select class="form-control" data-ng-model="editForm.dateDischarged.month"
+                                        data-ng-options="month for month in months" >
+                                </select>
+                                </div>
+                                <div class="col-md-4 p-min">
+                                    <select class="form-control" data-ng-model="editForm.dateDischarged.year"
+                                            data-ng-options="year for year in years" >
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3" data-ng-show="editForm.ongoing">
+                                <div class="col-md-12 p-min">
+                                    <span class="strong">Ongoing</span>&nbsp;&nbsp;<span class="link" data-ng-click="editForm.ongoing = false">(Enter Date)</span>
+                                </div>
+                            </div>
+                            <div class="col-md-1 p-min">
+                                <button type="button" class="btn blue" ng-click="updateHostpitalisation(hostpitalisation.id)">Save</button>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="panel-body-footer"><button class="btn btn-grey close-edit pull-right" ng-click="openEdit(null)">Close</button></div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="col-md-12" data-ng-show="hospitalisations.length == 0">
+                    <div class="col-md-12">
+                        <br/>
+                        <h4>No Hospitalisation records found</h4>
+                    </div>
+                </div>
+
+                <div id="hospError" class="alert alert-danger mt" data-ng-show="errorMessage && !loading">There was an error - {{errorMessage}}</div>
+    
+                <div class="col-md-12 segregated-box mt-big">
+                    <div class="col-md-12 box-title">
+                        New Hospitalisation
+                    </div>
+                    <div class="col-md-12 mb" data-ng-show="newForm.errors.existingOngoing">
+                        <div class="col-md-12">
+                            <span class="error"> &nbsp;*{{newForm.errors.existingOngoing}} </span>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mb-min">
+                        <div class="col-md-3">
+                            <div class="col-md-12 p-min">
+                                Hospitalisation Date
+                                <span data-ng-show="newForm.errors.dateAdmitted" class="error"> *{{newForm.errors.dateAdmitted}} </span>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            Reason
+                            <span data-ng-show="newForm.errors.reason" class="error"> *{{newForm.errors.reason}} </span>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="col-md-12 p-min">
+                                Discharge Date <span class="link" data-ng-show="!newForm.ongoing" data-ng-click="newForm.ongoing = true">(Ongoing?)</span>
+                                <span data-ng-show="newForm.errors.dateDischarged" class="error"> *{{newForm.errors.dateDischarged}} </span>
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="col-md-12">
+                        <div class="col-md-3">
+                            <div class="col-md-4 p-min">
+                                <select class="form-control" data-ng-model="newForm.dateAdmitted.day"
+                                        data-ng-options="day as day for day in days" >
+                                </select>
+                            </div>
+                            <div class="col-md-4 p-min">
+                                <select class="form-control" data-ng-model="newForm.dateAdmitted.month"
+                                        data-ng-options="month for month in months" >
+                                </select>
+                            </div>
+                            <div class="col-md-4 p-min">
+                                <select class="form-control" data-ng-model="newForm.dateAdmitted.year"
+                                        data-ng-options="year for year in years" >
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <textarea class="form-control big" data-ng-model="newForm.reason" ></textarea>
+                        </div>
+                        <div class="col-md-3" data-ng-show="!newForm.ongoing">
+                            <div class="col-md-4 p-min">
+                                <select class="form-control" data-ng-model="newForm.dateDischarged.day"
+                                        data-ng-options="day as day for day in days" >
+                                </select>
+                            </div>
+                            <div class="col-md-4 p-min">
+                            <select class="form-control" data-ng-model="newForm.dateDischarged.month"
+                                    data-ng-options="month for month in months" >
+                            </select>
+                            </div>
+                            <div class="col-md-4 p-min">
+                                <select class="form-control" data-ng-model="newForm.dateDischarged.year"
+                                        data-ng-options="year for year in years" >
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3" data-ng-show="newForm.ongoing">
+                            <div class="col-md-12 p-min">
+                                <span class="strong">Ongoing</span>&nbsp;&nbsp;<span class="link" data-ng-click="newForm.ongoing = false">(Enter Date)</span>
+                            </div>
+                        </div>
+                        <div class="col-md-1 p-min">
+                            <button type="button" class="btn blue" ng-click="postHostpitalisation()">Add</button>
+                            <!--<button type="button" class="btn negative" ng-click="debugThing()">DoDebugThingee</button>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-ng-show="loading" class="row"><br/>
+        <div class="col-md-12">
+            <h3><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading</h3>
+        </div>
+    </div>

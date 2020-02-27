@@ -127,7 +127,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.user = ['id', 'username', 'password', 'email', 'forename', 'surname', 'changePassword', 'locked', 'userFeatures', 'emailVerified', 'verificationCode', 'identifiers', 'contactNumber', 'locked', 'dummy', 'dateOfBirth', 'roleDescription', 'creationPassword'];
             fields.userDetails = ['id', 'username', 'email', 'forename', 'surname', 'locked', 'emailVerified', 'dummy', 'contactNumber', 'dateOfBirth', 'roleDescription'];
             fields.role = ['id','name','description','routes'];
-            fields.group = ['id','name','shortName','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode'];
+            fields.group = ['id','name','shortName','code','sftpUser','groupType','groupFeatures','routes','links','locations','contactPoints','childGroups','parentGroups','children','parents','visible','visibleToJoin','address1','address2','address3','postcode', 'noDataFeed'];
             fields.groupDetails = ['id','name','code','sftpUser','groupType','visibleToJoin','address1','address2','address3','postcode'];
             fields.code = ['id','code','codeType','standardType','description','links','fullDescription', 'patientFriendlyName', 'hideFromPatients'];
             fields.codeType = ['id','value','description','lookupType'];

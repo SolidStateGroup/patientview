@@ -10,13 +10,18 @@ import org.patientview.persistence.model.GroupFeature;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.GroupStatistic;
+import org.patientview.persistence.model.Hospitalisation;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Immunisation;
+import org.patientview.persistence.model.InsDiaryRecord;
 import org.patientview.persistence.model.Link;
 import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.NewsItem;
 import org.patientview.persistence.model.NewsLink;
 import org.patientview.persistence.model.ObservationHeading;
+import org.patientview.persistence.model.Relapse;
+import org.patientview.persistence.model.RelapseMedication;
 import org.patientview.persistence.model.Request;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
@@ -26,7 +31,14 @@ import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.ContactPointTypes;
+import org.patientview.persistence.model.enums.DoseFrequencyTypes;
+import org.patientview.persistence.model.enums.DoseUnitTypes;
+import org.patientview.persistence.model.enums.ImmunisationCodelist;
 import org.patientview.persistence.model.enums.LookupTypes;
+import org.patientview.persistence.model.enums.MedicationRouteTypes;
+import org.patientview.persistence.model.enums.OedemaTypes;
+import org.patientview.persistence.model.enums.ProteinDipstickTypes;
+import org.patientview.persistence.model.enums.RelapseMedicationTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RequestStatus;
 import org.patientview.persistence.model.enums.RequestTypes;
@@ -42,6 +54,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -63,12 +76,14 @@ public final class TestUtils {
 
     final static User creator;
 
-    static {creator = createUser("testCreator");}
+    static {
+        creator = createUser("testCreator");
+    }
 
     private static Long getId() {
         long range = 1234567L;
         Random r = new Random();
-        return (long) (r.nextDouble()*range);
+        return (long) (r.nextDouble() * range);
     }
 
     private TestUtils() {
@@ -171,7 +186,7 @@ public final class TestUtils {
 
     }
 
-    public static UserFeature createUserFeature( Feature feature, User user) {
+    public static UserFeature createUserFeature(Feature feature, User user) {
         UserFeature userFeature = new UserFeature();
         userFeature.setId(getId());
         userFeature.setCreated(new Date());
@@ -322,7 +337,7 @@ public final class TestUtils {
 
         Group group = createGroup("AuthenticationGroup");
         for (RoleName roleName : roleNames) {
-            authorities.add(createGroupRole( createRole(roleName), group, user));
+            authorities.add(createGroupRole(createRole(roleName), group, user));
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getId(), authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -405,7 +420,7 @@ public final class TestUtils {
         return newsItem;
     }
 
-    public static NewsLink createNewsLink( NewsItem newsItem, Group group, Role role) {
+    public static NewsLink createNewsLink(NewsItem newsItem, Group group, Role role) {
         NewsLink newsLink = new NewsLink();
         newsLink.setId(getId());
         newsLink.setNewsItem(newsItem);
@@ -482,5 +497,90 @@ public final class TestUtils {
         //observationHeading.setCreated(new Date());
         //observationHeading.setCreator(creator);
         return observationHeading;
+    }
+
+    public static ObservationHeading createObservationHeading(String code, String name) {
+        ObservationHeading observationHeading = new ObservationHeading();
+        observationHeading.setCode(code);
+        observationHeading.setName(name);
+        return observationHeading;
+    }
+
+    public static InsDiaryRecord createNoneRelapseInsDiaryRecord(User patient) {
+        InsDiaryRecord record = new InsDiaryRecord();
+        record.setId(getId());
+        record.setEntryDate(new Date());
+        record.setUser(patient);
+        record.getOedema().addAll(Arrays.asList(OedemaTypes.ABDOMEN, OedemaTypes.ANKLES));
+        record.setDipstickType(ProteinDipstickTypes.NEGATIVE);
+        record.setSystolicBP(5);
+        record.setDiastolicBP(10);
+        record.setWeight(100.00);
+        record.setInRelapse(false);
+        record.setRelapse(null);
+
+        return record;
+    }
+
+    public static InsDiaryRecord createRelapseInsDiaryRecord(User patient) {
+        InsDiaryRecord record = createNoneRelapseInsDiaryRecord(patient);
+        record.setInRelapse(true);
+        record.setRelapse(createRelapse(patient));
+
+        return record;
+    }
+
+    public static Relapse createRelapse(User patient) {
+        Relapse record = new Relapse();
+        record.setId(getId());
+        record.setUser(patient);
+        record.setRelapseDate(new Date());
+        record.setRemissionDate(new Date());
+        record.setViralInfection("Some infection");
+        record.setCommonCold(true);
+        record.setHayFever(true);
+        record.setAllergicReaction(true);
+        record.setAllergicSkinRash(true);
+        record.setFoodIntolerance(true);
+
+        record.getMedications().add(createRelapseMedication());
+        record.getMedications().add(createRelapseMedication());
+
+        return record;
+    }
+
+    public static RelapseMedication createRelapseMedication() {
+        RelapseMedication medication = new RelapseMedication();
+        medication.setId(getId());
+        medication.setName(RelapseMedicationTypes.ORAL_PREDNISOLONE);
+        medication.setDoseQuantity(5);
+        medication.setDoseUnits(DoseUnitTypes.MG);
+        medication.setDoseFrequency(DoseFrequencyTypes.ONE_DAY);
+        medication.setRoute(MedicationRouteTypes.IV);
+        medication.setStarted(new Date());
+        medication.setStopped(new Date());
+
+        return medication;
+    }
+
+    public static Hospitalisation createHospitalisation(User patient, String reason) {
+        Hospitalisation record = new Hospitalisation();
+        record.setId(getId());
+        record.setUser(patient);
+        record.setDateAdmitted(new Date());
+        record.setDateDischarged(new Date());
+        record.setReason(reason);
+
+        return record;
+    }
+
+    public static Immunisation createImmunisation(User patient, ImmunisationCodelist codelist) {
+        Immunisation record = new Immunisation();
+        record.setId(getId());
+        record.setUser(patient);
+        record.setCodelist(codelist);
+        record.setImmunisationDate(new Date());
+
+        return record;
     }
 }

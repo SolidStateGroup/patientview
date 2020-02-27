@@ -15,7 +15,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="100"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="FromTime" type="xs:dateTime">
 				<xs:annotation>
@@ -70,11 +70,16 @@
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="DrugProduct" type="DrugProduct"/>
-			<xs:element name="Frequency" type="xs:string" minOccurs="0">
+			<xs:element name="Frequency" minOccurs="0">
 				<xs:annotation>
                     <xs:appinfo>medication.frequency</xs:appinfo>
 					<xs:documentation>Frequency</xs:documentation>
 				</xs:annotation>
+                <xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="255"/>
+					</xs:restriction>
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="Comments" minOccurs="0">
 				<xs:annotation>
@@ -85,7 +90,7 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="1000"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
 			<xs:element name="DoseQuantity" type="xs:decimal" minOccurs="0">
 				<xs:annotation>
@@ -107,8 +112,9 @@
 					<xs:restriction base="xs:string">
 						<xs:maxLength value="100"/>
 					</xs:restriction>
-				</xs:simpleType>                
+				</xs:simpleType>
 			</xs:element>
+			<xs:element name="EncounterNumber" type="xs:string" minOccurs='0'/>
 			<xs:group ref="CommonMetadata"/>
 		</xs:sequence>
 	</xs:complexType>

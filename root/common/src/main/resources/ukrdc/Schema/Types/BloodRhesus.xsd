@@ -1,0 +1,20 @@
+<xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
+
+<!-- See https://www.datadictionary.nhs.uk/data_dictionary/attributes/p/person/person_rhesus_factor_de.asp -->
+
+<xs:simpleType name='BloodRhesus'>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="POS">
+            <xs:annotation>
+                <xs:documentation>RhD-Positive (does have the Rh D antigen)</xs:documentation>
+            </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="NEG">
+            <xs:annotation>
+                <xs:documentation>RhD-Negative (does not have the antigen)</xs:documentation>
+            </xs:annotation>
+        </xs:enumeration>
+    </xs:restriction>
+</xs:simpleType>
+
+</xs:schema>

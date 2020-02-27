@@ -1,0 +1,43 @@
+<div class="panel panel-default no-select-padding">
+    <div class="panel-body health-surveys">
+        <div class="text-center">
+            <img src="../images/icons/NEST_logo.png" class="opt-epro-logo" alt="NEST logo"/>
+        </div>
+        <div></div>
+        <div class="row">
+            <div class="col-md-8 col-xs-7">
+                <h4 class="survey">Immunisations</h4>
+            </div>
+        </div>
+
+        <div class="row mb-big">
+            <div class="col-md-12">
+                <!-- data grid -->
+                
+                <div data-ng-include src="'views/partials/immunisations.html'" data-ng-controller="ImmunisationsCtrl"></div>
+
+            </div> 
+        </div> 
+
+
+        <div class="row">
+                <div class="col-md-8 col-xs-7">
+                    <h4 class="survey">Hospitalisations</h4>
+                </div>
+            </div>
+
+        <div class="row mb-big">
+                <div class="col-md-12">
+
+                <div data-ng-include src="'views/partials/hospitalisations.html'" data-ng-controller="HospitalisationsCtrl"></div>
+
+                <!-- pagination -->
+                <div pv-pagination></div>
+            </div>
+        </div>
+    </div>
+    <div data-ng-show="loading" class="container">
+        <h3 class="loading"><img src="images/loading.gif" alt="Loading"/>&nbsp; Loading Diary</h3>
+        <br/>
+    </div>
+</div>

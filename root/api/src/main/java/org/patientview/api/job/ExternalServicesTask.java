@@ -62,6 +62,12 @@ public class ExternalServicesTask {
         processQueueItems(singletonList(ExternalServices.SURVEY_NOTIFICATION));
     }
 
+    // @Scheduled(cron = "0 */20 * * * ?") // every 20 minute
+    @Scheduled(cron = "0 0 */6 * * ?") // every 6 hours
+    public void sendInsRecordingsToExternalService() {
+        processQueueItems(singletonList(ExternalServices.UKRDC_INS_DIARY_NOTIFICATION));
+    }
+
     private void processQueueItems(List<ExternalServices> externalServices) {
 
         if (serviceIsDisabled()) {

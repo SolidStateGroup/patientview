@@ -188,6 +188,14 @@ public interface UserService {
         throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException;
 
     /**
+     * Internal method to permanently delete patient user. Used for background async task.
+     *
+     * @param userId an ID of patient  to delete
+     * @param admin  an admin use who is deleting patient
+     */
+    void deletePatient(Long userId, User admin);
+
+    /**
      * Remove a Feature from a User.
      * @param userId User to remove Feature from
      * @param featureId Feature to remove from User

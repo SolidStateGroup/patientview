@@ -1,4 +1,3 @@
-<!-- edited with XMLSpy v2015 rel. 4 (x64) (http://www.altova.com) by Nick Jones (Agiloak Limited) -->
 <xs:schema xmlns="http://www.rixg.org.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.rixg.org.uk/">
 	<!-- To be used to record NHS B&T Waiting List periods -->
 	<xs:include schemaLocation="../Types/Clinician.xsd"/>
@@ -8,7 +7,7 @@
 	<xs:complexType name="TransplantList">
 		<xs:sequence>
 			<xs:element name="EncounterNumber" type="xs:string"/>
-			<xs:element name="EncounterType">
+			<xs:element name="EncounterType" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>General Encounter Type (PV1-2)</xs:documentation>
 				</xs:annotation>
@@ -57,7 +56,7 @@
 					<xs:documentation>Start of Registration</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="ToTime" type="xs:dateTime">
+			<xs:element name="ToTime" type="xs:dateTime" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>End of Registration</xs:documentation>
 				</xs:annotation>
