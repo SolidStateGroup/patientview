@@ -24,7 +24,7 @@ import java.util.List;
 public interface AuditRepository extends CrudRepository<Audit, Long> {
 
     @Modifying
-    @Query("UPDATE Audit a SET a.actorId = NULL WHERE a.actorId != NULL AND a.actorId = :actorId")
+    @Query("UPDATE Audit a SET a.actorId = NULL WHERE a.actorId IS NOT NULL AND a.actorId = :actorId")
     void removeActorId(@Param("actorId") Long actorId);
 
     public List<Audit> findAll();
@@ -183,6 +183,6 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
                                        @Param("actions") List<AuditActions> actions);
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Audit a SET a.xml = NULL WHERE a.xml != NULL AND a.creationDate <= :date")
+    @Query("UPDATE Audit a SET a.xml = NULL WHERE a.xml IS NOT NULL AND a.creationDate <= :date")
     void removeOldAuditXml(@Param("date") Date date);
 }
