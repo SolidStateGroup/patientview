@@ -55,8 +55,8 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
         $scope.newForm = {
             reason: '',
-            dateAdmitted: getDateDropdownVals(new Date()),
-            dateDischarged: getDateDropdownVals(new Date()),
+            dateAdmitted: {},
+            dateDischarged: {},
             ongoing: true,
         }
 
