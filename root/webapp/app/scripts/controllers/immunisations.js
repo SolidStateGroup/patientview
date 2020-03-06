@@ -59,12 +59,12 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
         $scope.date = {};
 
         $scope.newForm = {
-            code: 'MMR',
-            date: getDateDropdownVals(new Date()),
+            code: '',
+            date: {},
         }
 
         $scope.editForm = {
-            code: 'MMR',
+            code: '',
             date: {},
         }
 
