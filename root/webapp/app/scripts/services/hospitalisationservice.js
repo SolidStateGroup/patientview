@@ -25,7 +25,7 @@ angular.module('patientviewApp').factory('HostpitalisationService', ['$q', 'Rest
         save: function (userid, recordid, record, adminid) {
             var deferred = $q.defer();
             // PUT /user/{userId}/hospitalisations/{recordId}?adminId=123 
-            Restangular.one('user', userid).one('hospitalisations', recordid).customPUT(record, '?adminId=' + adminid).then(function(successResult) {
+            Restangular.one('user', userid).one('hospitalisations', recordid).customPUT(record, adminid ? '?adminId=' + adminid : '').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -35,7 +35,7 @@ angular.module('patientviewApp').factory('HostpitalisationService', ['$q', 'Rest
         post: function (userid, record, adminid) {
             var deferred = $q.defer();
             // POST /user/{userId}/hospitalisations?adminId=123 
-            Restangular.one('user', userid).one('hospitalisations').customPOST(record, '?adminId=' + adminid).then(function(successResult) {
+            Restangular.one('user', userid).one('hospitalisations').customPOST(record, adminid ? '?adminId=' + adminid : '').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -45,7 +45,7 @@ angular.module('patientviewApp').factory('HostpitalisationService', ['$q', 'Rest
         remove: function (userid, recordid, adminid) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/hospitalisations/{recordId}?adminId=123 
-            Restangular.one('user', userid).one('hospitalisations', recordid).remove({ 'adminId': adminid }).then(function(successResult) {
+            Restangular.one('user', userid).one('hospitalisations', recordid).remove(adminid ? { 'adminId': adminid } : null).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
