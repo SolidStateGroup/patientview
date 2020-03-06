@@ -35,7 +35,7 @@ angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restan
         save: function (userid, record, adminid) {
             var deferred = $q.defer();
             // PUT /user/{userId}/insdiary?adminId=123 
-            Restangular.one('user', userid).one('insdiary').customPUT(record, '?adminId=' + adminid).then(function(successResult) {
+            Restangular.one('user', userid).one('insdiary').customPUT(record, adminid ? '?adminId=' + adminid : '').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -45,7 +45,7 @@ angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restan
         post: function (userid, record, adminid) {
             var deferred = $q.defer();
             // POST /user/{userId}/insdiary?adminId=123
-            Restangular.one('user', userid).one('insdiary').customPOST(record, '?adminId=' + adminid).then(function(successResult) {
+            Restangular.one('user', userid).one('insdiary').customPOST(record, adminid ? '?adminId=' + adminid : '').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -55,7 +55,7 @@ angular.module('patientviewApp').factory('DiaryRecordingService', ['$q', 'Restan
         remove: function (userid, recordid, adminid) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/insdiary/{recordId}?adminId=123 
-            Restangular.one('user', userid).one('insdiary', recordid).remove({ 'adminId': adminid }).then(function(successResult) {
+            Restangular.one('user', userid).one('insdiary', recordid).remove(adminid ? { 'adminId': adminid } : null).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

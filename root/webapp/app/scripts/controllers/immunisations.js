@@ -100,7 +100,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
             codelist: $scope.newForm.code,
             other: $scope.newForm.code === 'OTHER' ? $scope.newForm.other.substr(0, 100) : undefined,
             immunisationDate: date.toISOString(),
-        }, $rootScope.previousLoggedInUser.id).then(function(data) {
+        }, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             delete $scope.errorMessage;
             $scope.immunisations.unshift(formatImmunisation(data));
@@ -122,7 +122,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
             codelist: $scope.editForm.code,
             other: $scope.editForm.code === 'OTHER' ? $scope.editForm.other.substr(0, 100) : undefined,
             immunisationDate: date.toISOString(),
-        }, $rootScope.previousLoggedInUser.id).then(function(data) {
+        }, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             delete $scope.errorMessage;
             $scope.immunisations.forEach(function(val, i){
@@ -147,7 +147,7 @@ function ($scope, UtilService, ImmunisationService, $rootScope) {
 
         $scope.loading = true;
 
-        ImmunisationService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser.id).then(function(data) {
+        ImmunisationService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             delete $scope.errorMessage;
             $scope.immunisations = $scope.immunisations.filter(function(val){

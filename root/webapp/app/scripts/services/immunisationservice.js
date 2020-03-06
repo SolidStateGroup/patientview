@@ -25,7 +25,7 @@ angular.module('patientviewApp').factory('ImmunisationService', ['$q', 'Restangu
         save: function (userid, recordid, record, adminid) {
             var deferred = $q.defer();
             // PUT /user/{userId}/immunisations/{recordId}?adminId=123 
-            Restangular.one('user', userid).one('immunisations', recordid).customPUT(record, '?adminId=' + adminid).then(function(successResult) {
+            Restangular.one('user', userid).one('immunisations', recordid).customPUT(record, adminid ? '?adminId=' + adminid : '').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -35,7 +35,7 @@ angular.module('patientviewApp').factory('ImmunisationService', ['$q', 'Restangu
         post: function (userid, record, adminid) {
             var deferred = $q.defer();
             // POST /user/{userId}/immunisations?adminId=123 
-            Restangular.one('user', userid).one('immunisations').customPOST(record, '?adminId=' + adminid).then(function(successResult) {
+            Restangular.one('user', userid).one('immunisations').customPOST(record, adminid ? '?adminId=' + adminid : '').then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);
@@ -45,7 +45,7 @@ angular.module('patientviewApp').factory('ImmunisationService', ['$q', 'Restangu
         remove: function (userid, recordid, adminid) {
             var deferred = $q.defer();
             // DELETE /user/{userId}/immunisations/{recordId}?adminId=123 
-            Restangular.one('user', userid).one('immunisations', recordid).remove({ 'adminId': adminid }).then(function(successResult) {
+            Restangular.one('user', userid).one('immunisations', recordid).remove(adminid ? { 'adminId': adminid } : null).then(function(successResult) {
                 deferred.resolve(successResult);
             }, function(failureResult) {
                 deferred.reject(failureResult);

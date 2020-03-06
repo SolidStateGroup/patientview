@@ -114,7 +114,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             dateAdmitted: dateAdmitted.toISOString(),
             dateDischarged: $scope.newForm.ongoing ? null : dateDischarged.toISOString(),
             reason: $scope.newForm.reason,
-        }, $rootScope.previousLoggedInUser.id).then(function(data) {
+        }, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             $scope.hospitalisations.unshift(formatHostpitalisation(data));
 
@@ -150,7 +150,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
             dateAdmitted: dateAdmitted.toISOString(),
             dateDischarged: $scope.editForm.ongoing ? null : dateDischarged.toISOString(),
             reason: $scope.editForm.reason,
-        }, $rootScope.previousLoggedInUser.id).then(function(data) {
+        }, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             $scope.hospitalisations.forEach(function(val, i){
                 if(val.id === id) $scope.hospitalisations[i] = formatHostpitalisation(data);
@@ -212,7 +212,7 @@ function ($scope, UtilService, HostpitalisationService, $rootScope) {
 
         $scope.loading = true;
 
-        HostpitalisationService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser.id).then(function(data) {
+        HostpitalisationService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             $scope.hospitalisations = $scope.hospitalisations.filter(function(val){
                 return val.id !== id;
