@@ -595,7 +595,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
         if(errors.isValid){
             var entry = formatForPost(form);
             $scope.loading = true;
-            DiaryRecordingService.post($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser.id).then(function(data){
+            DiaryRecordingService.post($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data){
                 $scope.loading = false;
                 $scope.pagedItems.unshift(formatForForm(data));
                 $scope.pagedItems[0].editForm = formatForForm(data);
@@ -653,7 +653,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
             var entry = formatForPost(form);
             entry.id = form.id;
             $scope.loading = true;
-            DiaryRecordingService.save($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser.id).then(function(data){
+            DiaryRecordingService.save($scope.loggedInUser.id, entry, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data){
                 $scope.loading = false;
                 $scope.pagedItems = $scope.pagedItems.filter(function(x){
                     return x.id !== form.id;
@@ -677,7 +677,7 @@ function ($scope, UtilService, DiaryRecordingService, $rootScope) {
 
         $scope.loading = true;
 
-        DiaryRecordingService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser.id).then(function(data) {
+        DiaryRecordingService.remove($scope.loggedInUser.id, id, $rootScope.previousLoggedInUser && $rootScope.previousLoggedInUser.id).then(function(data) {
             $scope.loading = false;
             $scope.pagedItems = $scope.pagedItems.filter(function(val){
                 return val.id !== id;

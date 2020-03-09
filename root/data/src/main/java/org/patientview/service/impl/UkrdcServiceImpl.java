@@ -32,6 +32,7 @@ import org.patientview.persistence.model.SurveySendingFacility;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.FeatureType;
+import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.ImmunisationCodelist;
 import org.patientview.persistence.model.enums.OedemaTypes;
 import org.patientview.persistence.model.enums.RelapseMedicationTypes;
@@ -412,32 +413,64 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         }
 
         String nhsNumber = null;
+        if (CollectionUtils.isEmpty(identifiers)) {
+            LOG.error("Cannot build PatientNumbers, missing identifiers, patient id {}", user.getId());
+        }
+
+        /*
+            Builds a list of PatientNumber based on MRN rule: if a patient has multiple NHS identifiers
+            the one to be used should be selected using the order NHS -> CHI -> HSC
+         */
+
+        Map<String, Identifier> identifierMap = new HashMap<>();
         for (Identifier identifier : identifiers) {
+            // We ignore NON_UK_UNIQUE, HOSPITAL_NUMBER and RADAR_NUMBER identifiers
+            if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.NON_UK_UNIQUE.getId()) ||
+                    identifier.getIdentifierType().getValue().equals(IdentifierTypes.HOSPITAL_NUMBER.getId()) ||
+                    identifier.getIdentifierType().getValue().equals(IdentifierTypes.RADAR_NUMBER.getId())) {
+                continue;
+            }
+            identifierMap.put(identifier.getIdentifierType().getValue(), identifier);
+
+            // Add none MRN type Identifiers
+            // If a patient has an NHS_NO and a CHI_NO
+            // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
+            PatientNumber patientNumber = new PatientNumber();
+            patientNumber.setNumber(identifier.getIdentifier());
+            patientNumber.setOrganization(generateOrganization(identifier.getIdentifierType().getValue()));
+            patientNumber.setNumberType("NI");
+
+            patientNumberList.add(patientNumber);
+        }
+
+        // Add MRN type Identifier
+        // MRN rule: if a patient has multiple NHS identifiers the one to be used should
+        // be selected using the order NHS -> CHI -> HSC.
+        if (!CollectionUtils.isEmpty(identifierMap)) {
+
+            PatientNumber mrnPatientNumber = new PatientNumber();
+            Identifier identifier = null;
+
+            // selection should be in this order NHS -> CHI -> HSC
+            if (identifierMap.get(IdentifierTypes.NHS_NUMBER.getId()) != null) {
+                identifier = identifierMap.get(IdentifierTypes.NHS_NUMBER.getId());
+
+            } else if (identifierMap.get(IdentifierTypes.CHI_NUMBER.getId()) != null) {
+                identifier = identifierMap.get(IdentifierTypes.CHI_NUMBER.getId());
+
+            } else if (identifierMap.get(IdentifierTypes.HSC_NUMBER.getId()) != null) {
+                identifier = identifierMap.get(IdentifierTypes.HSC_NUMBER.getId());
+            }
 
             String organization =
                     generateOrganization(identifier.getIdentifierType().getValue());
+            mrnPatientNumber.setNumber(identifier.getIdentifier());
+            mrnPatientNumber.setOrganization(organization);
+            mrnPatientNumber.setNumberType("MRN");
 
-            if (organization.equals("NHS")) {
+            nhsNumber = identifier.getIdentifier();
 
-                PatientNumber patientNumber = new PatientNumber();
-                patientNumber.setNumber(identifier.getIdentifier());
-                patientNumber.setOrganization(organization);
-
-                nhsNumber = identifier.getIdentifier();
-
-                patientNumber.setNumberType("NI");
-                patientNumberList.add(patientNumber);
-            }
-        }
-
-        if (nhsNumber != null) {
-
-            PatientNumber MRN = new PatientNumber();
-            MRN.setOrganization("NHS");
-            MRN.setNumber(nhsNumber);
-            MRN.setNumberType("MRN");
-
-            patientNumberList.add(MRN);
+            patientNumberList.add(mrnPatientNumber);
         }
 
         Group facilityCode = getSendingFacilityCode(unitCode.getId());
