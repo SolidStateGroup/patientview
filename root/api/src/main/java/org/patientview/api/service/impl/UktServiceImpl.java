@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
@@ -21,19 +22,21 @@ import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.service.EncounterService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +67,10 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    @Named("patientView")
+    private BasicDataSource dataSource;
 
     /**
      * Store kidney transplant status for a User using a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR.
@@ -123,6 +130,9 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
     @Override
     @Async
     public void exportData() throws ResourceNotFoundException, FhirResourceException, UktException {
+        long start = System.currentTimeMillis();
+        LOG.info("Starting exportData ...");
+
         String exportDirectory = properties.getProperty("ukt.export.directory");
         String tempExportFilename = properties.getProperty("ukt.export.filename") + ".temp";
         String logFilename = properties.getProperty("ukt.export.filename") + ".log";
@@ -131,7 +141,11 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
         String failExportFilename = properties.getProperty("ukt.export.filename") + ".failed.txt";
         Boolean exportEnabled = Boolean.parseBoolean(properties.getProperty("ukt.export.enabled"));
 
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         if (exportEnabled) {
+
+            Connection connection = null;
             try {
                 BufferedWriter logWriter
                         = new BufferedWriter(new FileWriter(exportDirectory + "/" + logFilename, true));
@@ -143,63 +157,64 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                 logWriter.write(new Date().toString() + ": Started");
                 logWriter.newLine();
 
-                // Get the initial page
-                PageRequest pageRequest = createPageRequest(0, 1000, null, null);
+                String querySql = "SELECT i.identifier, u.forename, u.surname, u.date_of_birth, " +
+                        " (SELECT string_agg(cast(resource_id AS varchar), ', ')  " +
+                        " FROM pv_fhir_link WHERE user_id = u.id) AS links " +
+                        " FROM pv_user u " +
+                        " LEFT JOIN pv_identifier i ON i.user_id = u.id " +
+                        " JOIN pv_user_group_role ugr ON ugr.user_id = u.id " +
+                        " JOIN  pv_role r ON r.id = ugr.role_id " +
+                        " WHERE r.role_name = 'PATIENT' AND u.deleted = false" +
+                        " GROUP BY u.id, i.identifier ";
 
-                Page<User> initialPatientsPage = userRepository.getAllPatientsForExport(pageRequest);
-                // Get the number of pages
-                int numberOfPages = initialPatientsPage.getTotalPages();
+                connection = dataSource.getConnection();
+                java.sql.Statement statement = connection.createStatement();
+                ResultSet results = statement.executeQuery(querySql);
+                results.setFetchSize(1000);
 
-                // Loop over the pagination to get 1000 patients at a time.
-                for (int i = 0; i < numberOfPages; i++) {
-                    //Get the initial page
-                    pageRequest = createPageRequest(i, 1000, null, null);
-                    initialPatientsPage = userRepository.getAllPatientsForExport(pageRequest);
-                    List<User> patients = initialPatientsPage.getContent();
+                while ((results.next())) {
+                    String identifier = results.getString(1);
+                    String firstName = results.getString(2);
+                    String lastName = results.getString(3);
+                    Date dob = results.getDate(4);
+                    String fhirlinks = results.getString(5);
 
-                    logWriter.write(new Date().toString() + ": " + patients.size() + " patients");
-                    logWriter.newLine();
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-                    for (User user : patients) {
-                        if (!CollectionUtils.isEmpty(user.getIdentifiers())) {
-                            for (Identifier identifier : user.getIdentifiers()) {
-
-                                if (isValidIdentifier(identifier)) {
-                                    writer.write("\"");
-                                    writer.write(identifier.getIdentifier());
-                                    writer.write("\",\"");
-                                    writer.write(clean(user.getSurname()));
-                                    writer.write("\",\"");
-                                    writer.write(clean(user.getForename()));
-                                    writer.write("\",\"");
-                                    if (user.getDateOfBirth() != null) {
-                                        writer.write(simpleDateFormat.format(user.getDateOfBirth()));
-                                    }
-                                    writer.write("\",\"");
-                                    writer.write(getPostcode(user));
-                                    writer.write("\"");
-                                    writer.newLine();
-                                } else {
-                                    writerFailed.write("\"");
-                                    writerFailed.write(identifier.getIdentifier());
-                                    writerFailed.write("\",\"");
-                                    writerFailed.write(user.getSurname());
-                                    writerFailed.write("\",\"");
-                                    writerFailed.write(user.getForename());
-                                    writerFailed.write("\",\"");
-                                    if (user.getDateOfBirth() != null) {
-                                        writerFailed.write(simpleDateFormat.format(user.getDateOfBirth()));
-                                    }
-                                    writerFailed.write("\",\"");
-                                    writerFailed.write(getPostcode(user));
-                                    writerFailed.write("\"");
-                                    writerFailed.newLine();
-                                }
-                            }
+                    if (isValidIdentifier(identifier)) {
+                        //writer.write(getCsvRowFromUser(identifier, firstName, lastName, dob, fhirlinks));
+                        writer.write("\"");
+                        writer.write(identifier);
+                        writer.write("\",\"");
+                        writer.write(clean(lastName));
+                        writer.write("\",\"");
+                        writer.write(clean(firstName));
+                        writer.write("\",\"");
+                        if (dob != null) {
+                            writer.write(simpleDateFormat.format(dob));
                         }
+                        writer.write("\",\"");
+                        writer.write(getPostcode(fhirlinks));
+                        writer.write("\"");
+                        writer.newLine();
+                    } else {
+                        writerFailed.write("\"");
+                        writerFailed.write(StringUtils.isNotEmpty(identifier) ? identifier : "");
+                        writerFailed.write("\",\"");
+                        writerFailed.write(lastName);
+                        writerFailed.write("\",\"");
+                        writerFailed.write(firstName);
+                        writerFailed.write("\",\"");
+                        if (dob != null) {
+                            writerFailed.write(simpleDateFormat.format(dob));
+                        }
+                        writerFailed.write("\",\"");
+                        writerFailed.write(getPostcode(fhirlinks));
+                        writerFailed.write("\"");
+                        writerFailed.newLine();
                     }
                 }
+
+                connection.close();
+
                 writer.flush();
                 writer.close();
                 writerFailed.flush();
@@ -224,23 +239,33 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                 logWriter.flush();
                 logWriter.close();
             } catch (Exception e) {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException e2) {
+                        throw new UktException(e2);
+                    }
+                }
                 throw new UktException(e);
             }
         }
+
+        long stop = System.currentTimeMillis();
+        LOG.info("TIMING exportData took {}", (stop - start));
     }
 
     /**
      * Given a User, search FHIR for a postcode associated with any of the User's patient records.
      *
-     * @param user User to search for postcode for
+     * @param fhirLinks comma separated list of fhir links
      * @return String postcode, retrieved from FHIR
      * @throws FhirResourceException
      */
-    private String getPostcode(User user) throws FhirResourceException {
+    private String getPostcode(String fhirLinks) throws FhirResourceException {
         try {
-            if (user.getFhirLinks() != null) {
-                for (FhirLink fhirLink : user.getFhirLinks()) {
-                    Patient patient = apiPatientService.get(fhirLink.getResourceId());
+            if (StringUtils.isNotEmpty(fhirLinks)) {
+                for (String fhirLink : fhirLinks.split(",")) {
+                    Patient patient = apiPatientService.get(UUID.fromString(fhirLink));
                     if (patient != null && !CollectionUtils.isEmpty(patient.getAddress())) {
                         if (StringUtils.isNotEmpty(patient.getAddress().get(0).getZipSimple())) {
                             return clean(patient.getAddress().get(0).getZipSimple());
@@ -324,8 +349,8 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
      * @param identifier Identifier to check has correct NHS_NUMBER, CHI_NUMBER or HSC_NUMBER
      * @return True if valid, false if not
      */
-    private boolean isValidIdentifier(Identifier identifier) {
-        IdentifierTypes type = CommonUtils.getIdentifierType(identifier.getIdentifier());
+    private boolean isValidIdentifier(String identifier) {
+        IdentifierTypes type = CommonUtils.getIdentifierType(identifier);
         return (type.equals(IdentifierTypes.NHS_NUMBER)
                 || type.equals(IdentifierTypes.CHI_NUMBER)
                 || type.equals(IdentifierTypes.HSC_NUMBER));
