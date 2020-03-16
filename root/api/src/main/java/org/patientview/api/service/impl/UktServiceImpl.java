@@ -172,7 +172,9 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                 ResultSet results = statement.executeQuery(querySql);
                 results.setFetchSize(1000);
 
+                int totalPatients = 0;
                 while ((results.next())) {
+                    totalPatients++;
                     String identifier = results.getString(1);
                     String firstName = results.getString(2);
                     String lastName = results.getString(3);
@@ -215,6 +217,9 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
 
                 connection.close();
 
+                logWriter.write(new Date().toString() + ": " + totalPatients + " patients");
+                logWriter.newLine();
+
                 writer.flush();
                 writer.close();
                 writerFailed.flush();
@@ -251,7 +256,7 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
         }
 
         long stop = System.currentTimeMillis();
-        LOG.info("TIMING exportData took {}", (stop - start));
+        LOG.info("TIMING exportData took {} milliseconds", (stop - start));
     }
 
     /**
