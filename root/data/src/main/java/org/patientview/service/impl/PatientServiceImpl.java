@@ -117,7 +117,8 @@ public class PatientServiceImpl extends AbstractServiceImpl<PatientServiceImpl> 
                 || StringUtils.isNotEmpty(patient.getPatient().getPersonaldetails().getForename())
                 || StringUtils.isNotEmpty(patient.getPatient().getPersonaldetails().getSurname())) {
 
-            User entityUser = userRepository.findOne(fhirLink.getUser().getId());
+            User entityUser = userRepository.findById(fhirLink.getUser().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
             if (patient.getPatient().getPersonaldetails().getDateofbirth() != null) {
                 entityUser.setDateOfBirth(
