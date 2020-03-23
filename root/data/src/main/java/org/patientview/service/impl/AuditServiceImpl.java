@@ -67,7 +67,8 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
         }
 
         if (group != null) {
-            audit.setGroup(groupRepository.findOne(group.getId()));
+            Group foundGroup = groupRepository.findById(group.getId()).orElse(null);
+            audit.setGroup(foundGroup);
         }
 
         audit.setSourceObjectId(sourceObjectId);
