@@ -394,8 +394,8 @@ public class NewsItemRepositoryTest {
         groupRepository.save(group);
         groupRepository.save(specialty);
 
-        group = groupRepository.findOne(group.getId());
-        specialty = groupRepository.findOne(specialty.getId());
+        group = groupRepository.findById(group.getId()).get();
+        specialty = groupRepository.findById(specialty.getId()).get();
 
         Assert.assertEquals("There should be a 1 relationship for TEST_GROUP", 1, group.getGroupRelationships().size());
         Assert.assertEquals("There should be a 1 relationship for SPECIALTY", 1, specialty.getGroupRelationships().size());
