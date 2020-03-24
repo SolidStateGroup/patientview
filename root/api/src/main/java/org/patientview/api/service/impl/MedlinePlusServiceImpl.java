@@ -136,11 +136,11 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                 User currentUser = getCurrentUser();
 
                 if (existingLink == null) {
-                    Lookup linkType = lookupRepository.findOne(LinkTypes.MEDLINE_PLUS.id());
                     // should have them already configured
-                    if (linkType == null) {
-                        throw new ResourceNotFoundException("Could not find MEDLINE_PLUS link type Lookup");
-                    }
+                    Lookup linkType = lookupRepository.findById(LinkTypes.MEDLINE_PLUS.id())
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException("Could not find MEDLINE_PLUS link type Lookup"));
+
                     // no medline plus link exist create one Link
                     Link medlinePlusLink = new Link();
 
@@ -220,10 +220,8 @@ public class MedlinePlusServiceImpl extends AbstractServiceImpl<MedlinePlusServi
                         }
 
                         ExternalStandard externalStandard
-                                = externalStandardRepository.findOne(ExternalStandardType.ICD_10.id());
-                        if (externalStandard == null) {
-                            throw new ResourceNotFoundException("External standard not found");
-                        }
+                                = externalStandardRepository.findById(ExternalStandardType.ICD_10.id())
+                                .orElseThrow(() -> new ResourceNotFoundException("External standard not found"));
 
                         // check for ICD-10 CodeExternalStandard if in the Code already
                         Set<CodeExternalStandard> codeExternalStandards = new HashSet<>();
