@@ -100,10 +100,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     public org.patientview.api.model.Alert addAlert(Long userId, org.patientview.api.model.Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         Alert newAlert = new Alert();
 
@@ -114,10 +112,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         if (alert.getAlertType().equals(AlertTypes.RESULT)) {
             if (alert.getObservationHeading() != null) {
                 ObservationHeading observationHeading
-                        = observationHeadingRepository.findOne(alert.getObservationHeading().getId());
-                if (observationHeading == null) {
-                    throw new ResourceNotFoundException("Could not find result type");
-                }
+                        = observationHeadingRepository.findById(alert.getObservationHeading().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Could not find result type"));
 
                 // need to make sure we only have one alert for this result type per user
                 List<Alert> alerts = alertRepository.findByUserAndObservationHeading(user, observationHeading);
@@ -187,10 +183,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     public List<org.patientview.api.model.Alert> getAlerts(Long userId, AlertTypes alertType)
             throws ResourceNotFoundException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<Alert> alerts = alertRepository.findByUserAndAlertType(user, alertType);
         List<org.patientview.api.model.Alert> transportAlerts = new ArrayList<>();
@@ -204,10 +198,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Override
     public List<ContactAlert> getContactAlerts(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<Group> groups
                 = groupService.getUserGroups(userId, new GetParameters()).getContent();
@@ -232,10 +224,8 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
 
     @Override
     public List<ImportAlert> getImportAlerts(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<Group> groups = groupService.getUserGroups(userId, new GetParameters()).getContent();
         List<Long> groupIds = new ArrayList<>();
@@ -303,9 +293,10 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         Set<String> emailAddresses = new HashSet<>();
 
         for (Alert alert : alerts) {
-            String email = alertRepository.findOne(alert.getId()).getUser().getEmail();
-            if (StringUtils.isNotEmpty(email)) {
-                emailAddresses.add(email);
+            Alert foundAlert = alertRepository.findById(alert.getId())
+                    .orElse(null);
+            if (foundAlert != null && StringUtils.isNotEmpty(foundAlert.getUser().getEmail())) {
+                emailAddresses.add(foundAlert.getUser().getEmail());
             }
         }
 
@@ -348,7 +339,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         Set<String> emailAddresses = new HashSet<>();
 
         for (Alert alert : alerts) {
-            String email = alertRepository.findOne(alert.getId()).getUser().getEmail();
+            String email = alertRepository.findById(alert.getId()).get().getUser().getEmail();
             if (StringUtils.isNotEmpty(email)) {
                 emailAddresses.add(email);
             }
@@ -418,15 +409,11 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     @Override
     public void removeAlert(Long userId, Long alertId) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        Alert alert = alertRepository.findOne(alertId);
-        if (alert == null) {
-            throw new ResourceNotFoundException("Could not find alert");
-        }
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find alert"));
 
         if (!user.getId().equals(alert.getUser().getId())) {
             throw new ResourceForbiddenException("Forbidden");
@@ -439,15 +426,11 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
     public void updateAlert(Long userId, org.patientview.api.model.Alert alert)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        Alert entityAlert = alertRepository.findOne(alert.getId());
-        if (entityAlert == null) {
-            throw new ResourceNotFoundException("Could not find alert");
-        }
+        Alert entityAlert = alertRepository.findById(alert.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find alert"));
 
         if (!user.getId().equals(entityAlert.getUser().getId())) {
             throw new ResourceForbiddenException("Forbidden");
