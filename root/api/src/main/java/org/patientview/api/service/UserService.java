@@ -88,7 +88,7 @@ public interface UserService {
      * @throws ResourceInvalidException
      */
     @UserOnly
-    String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException;
+    String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException, ResourceNotFoundException;
 
     /**
      * Change the picture associated with a User account. (base64)
@@ -96,7 +96,7 @@ public interface UserService {
      * @param base64 Base64 string of image
      */
     @UserOnly
-    void addPicture(Long userId, String base64);
+    void addPicture(Long userId, String base64) throws ResourceNotFoundException;
 
     /**
      * Send a bulk groups to UKRDC
@@ -210,13 +210,13 @@ public interface UserService {
      * Delete all API Keys belonging to a User, used during deletion of a patient.
      * @param userId ID of User to delete APIKeys from
      */
-    void deleteApiKeys(Long userId);
+    void deleteApiKeys(Long userId) throws ResourceNotFoundException;
 
     /**
      * Delete all FhirLinks belonging to a User, used during deletion of a patient and in migration.
      * @param userId ID of User to delete FhirLinks from
      */
-    void deleteFhirLinks(Long userId);
+    void deleteFhirLinks(Long userId) throws ResourceNotFoundException;
 
     /**
      * Remove a Group and associated Role from a User.

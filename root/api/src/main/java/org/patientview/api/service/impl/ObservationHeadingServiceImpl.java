@@ -103,7 +103,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             newObservationHeadingGroup.setObservationHeading(observationHeading);
             newObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
             newObservationHeadingGroup.setPanel(observationHeadingGroup.getPanel());
-            newObservationHeadingGroup.setGroup(groupRepository.findOne(observationHeadingGroup.getGroup().getId()));
+            newObservationHeadingGroup.setGroup(
+                    groupRepository.findById(observationHeadingGroup.getGroup().getId()).get());
             observationHeadingGroups.add(newObservationHeadingGroup);
         }
 
@@ -115,16 +116,11 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Override
     public void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        ObservationHeading observationHeading = observationHeadingRepository.findOne(observationHeadingId);
+        ObservationHeading observationHeading = observationHeadingRepository.findById(observationHeadingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Observation Heading does not exist"));
 
-        if (observationHeading == null) {
-            throw new ResourceNotFoundException("Observation Heading does not exist");
-        }
-
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("Group does not exist");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group does not exist"));
 
         // only global admin or specialty admin with correct group role can remove
         if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
@@ -177,10 +173,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
         List<ObservationHeading> observationHeadings = new ArrayList<>();
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
@@ -229,10 +223,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Override
     public List<ObservationHeading> getPatientEnteredObservationHeadings(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         Group group = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
         if (group == null) {
@@ -275,10 +267,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     public List<ObservationHeading> getSavedObservationHeadings(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<ObservationHeading> availableObservationHeadings = getAvailableObservationHeadings(userId);
         List<ObservationHeading> observationHeadings = new ArrayList<>();
@@ -332,10 +322,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     public List<ObservationHeading> getAvailableAlertObservationHeadings(Long userId)
             throws ResourceNotFoundException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<Group> userGroups = Util.convertIterable(groupRepository.findGroupByUser(user));
         List<ObservationHeading> observationHeadings = Util.convertIterable(observationHeadingRepository.findAll());
@@ -380,12 +368,13 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Override
     public void delete(final Long observationHeadingId) {
-        observationHeadingRepository.delete(observationHeadingId);
+        observationHeadingRepository.deleteById(observationHeadingId);
     }
 
     @Override
-    public ObservationHeading get(final Long observationHeadingId) {
-        return observationHeadingRepository.findOne(observationHeadingId);
+    public ObservationHeading get(final Long observationHeadingId) throws ResourceNotFoundException {
+        return observationHeadingRepository.findById(observationHeadingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Observation Heading Group does not exist"));
     }
 
     private boolean observationHeadingExists(ObservationHeading observationHeading) {
@@ -396,10 +385,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     public void removeObservationHeadingGroup(Long observationHeadingGroupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         ObservationHeadingGroup observationHeadingGroup
-                = observationHeadingGroupRepository.findOne(observationHeadingGroupId);
-        if (observationHeadingGroup == null) {
-            throw new ResourceNotFoundException("Observation Heading Group does not exist");
-        }
+                = observationHeadingGroupRepository.findById(observationHeadingGroupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Observation Heading Group does not exist"));
 
         // only global admin or specialty admin with correct group role can remove
         if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
@@ -414,10 +401,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Override
     public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
 
-        ObservationHeading entity = observationHeadingRepository.findOne(input.getId());
-        if (entity == null) {
-            throw new ResourceNotFoundException("Observation Heading does not exist");
-        }
+        ObservationHeading entity = observationHeadingRepository.findById(input.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Observation Heading does not exist"));
 
         entity.setCode(input.getCode());
         entity.setHeading(input.getHeading());
@@ -437,10 +422,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Override
     public void saveObservationHeadingSelection(Long userId, String[] codes) throws ResourceNotFoundException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         if (user.getUserObservationHeadings() == null) {
             user.setUserObservationHeadings(new HashSet<UserObservationHeading>());
@@ -491,7 +474,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
         // manage deletion
         for (UserObservationHeading toDelete : userObservationHeadingsToDelete) {
-            userObservationHeadingRepository.delete(toDelete.getId());
+            userObservationHeadingRepository.deleteById(toDelete.getId());
         }
         user.getUserObservationHeadings().removeAll(userObservationHeadingsToDelete);
 
@@ -503,16 +486,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
             throws ResourceNotFoundException, ResourceForbiddenException {
         ObservationHeading observationHeading
-                = observationHeadingRepository.findOne(observationHeadingGroup.getObservationHeadingId());
+                = observationHeadingRepository.findById(observationHeadingGroup.getObservationHeadingId())
+                .orElseThrow(() -> new ResourceNotFoundException("Observation Heading does not exist"));
 
-        if (observationHeading == null) {
-            throw new ResourceNotFoundException("Observation Heading does not exist");
-        }
-
-        Group group = groupRepository.findOne(observationHeadingGroup.getGroupId());
-        if (group == null) {
-            throw new ResourceNotFoundException("Group does not exist");
-        }
+        Group group = groupRepository.findById(observationHeadingGroup.getGroupId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Group does not exist"));
 
         // only global admin or specialty admin with correct group role can remove
         if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)

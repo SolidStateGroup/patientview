@@ -81,6 +81,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
@@ -300,8 +301,9 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         List<Long> updatedPatientIds = new ArrayList<>();
 
         for (GpPatient gpPatient : gpDetails.getPatients()) {
-            User patientUser = userRepository.findOne(gpPatient.getId());
-            if (patientUser != null) {
+            Optional<User> optionalPatientUser = userRepository.findById(gpPatient.getId());
+            if (optionalPatientUser.isPresent()) {
+                User patientUser = optionalPatientUser.get();
                 // check does not already have group role for GENERAL_PRACTICE specialty, if not then add
                 if (groupRoleRepository.findByUserGroupRole(
                         patientUser, generalPracticeSpecialty, patientRole) == null) {
@@ -362,10 +364,10 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
                 null, gpAdminUser.getId(), AuditObjectTypes.User);
 
         if (!gpAdminUser.getUserFeatures().isEmpty()) {
-            userFeatureRepository.save(gpAdminUser.getUserFeatures());
+            userFeatureRepository.saveAll(gpAdminUser.getUserFeatures());
         }
         if (!gpAdminUser.getGroupRoles().isEmpty()) {
-            groupRoleRepository.save(gpAdminUser.getGroupRoles());
+            groupRoleRepository.saveAll(gpAdminUser.getGroupRoles());
 
             for (GroupRole groupRole : gpAdminUser.getGroupRoles()) {
                 createAudit(AuditActions.ADMIN_GROUP_ROLE_ADD, gpAdminUser.getUsername(), gpAdminUser,
@@ -377,17 +379,17 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         createAudit(AuditActions.GROUP_ADD, null, gpAdminUser, null, gpGroup.getId(), AuditObjectTypes.Group);
 
         if (!gpGroup.getGroupFeatures().isEmpty()) {
-            groupFeatureRepository.save(gpGroup.getGroupFeatures());
+            groupFeatureRepository.saveAll(gpGroup.getGroupFeatures());
         }
         if (!patientGroupRoles.isEmpty()) {
-            groupRoleRepository.save(patientGroupRoles);
+            groupRoleRepository.saveAll(patientGroupRoles);
 
             for (GroupRole groupRole : patientGroupRoles) {
                 createAudit(AuditActions.PATIENT_GROUP_ROLE_ADD, groupRole.getUser().getUsername(), gpAdminUser,
                         groupRole.getGroup(), groupRole.getUser().getId(), AuditObjectTypes.User);
             }
         }
-        gpLetterRepository.save(matchedGpLetters);
+        gpLetterRepository.saveAll(matchedGpLetters);
     }
 
     private void createAudit(AuditActions action, String username, User actor, Group group,
@@ -647,7 +649,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         }
 
         // set source group
-        Group sourceGroup = groupRepository.findOne(patient.getGroup().getId());
+        Group sourceGroup = groupRepository.findById(patient.getGroup().getId()).get();
 
         // set practitioner (will only be one)
         FhirPractitioner practitioner = patient.getPractitioners().get(0);
@@ -746,7 +748,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
         updateNorthernIreland();
 
         // save objects to db
-        gpMasterRepository.save(gpToSave.values());
+        gpMasterRepository.saveAll(gpToSave.values());
 
         // output info on new/changed
         Map<String, String> status = new HashMap<>();

@@ -66,15 +66,13 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     @Override
     public InsDiaryRecord add(Long userId, Long adminId, InsDiaryRecord record)
             throws ResourceNotFoundException, ResourceInvalidException, FhirResourceException {
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         // check if admin is viewing patient, otherwise editor is patient
         User editor;
         if (adminId != null && !adminId.equals(userId)) {
-            editor = userRepository.findOne(adminId);
+            editor = userRepository.findById(adminId).orElse(null);
         } else {
             editor = patientUser;
         }
@@ -112,12 +110,11 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
     @Override
     public InsDiaryRecord get(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        InsDiaryRecord record = insDiaryRepository.findOne(recordId);
+        InsDiaryRecord record = insDiaryRepository.findById(recordId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find INS diary record"));
         // make sure the same user
         if (!record.getUser().equals(user)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -129,23 +126,19 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     @Override
     public InsDiaryRecord update(Long userId, Long adminId, InsDiaryRecord record)
             throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         // check if admin is viewing patient, otherwise editor is patient
         User editor;
         if (adminId != null && !adminId.equals(userId)) {
-            editor = userRepository.findOne(adminId);
+            editor = userRepository.findById(adminId).orElse(null);
         } else {
             editor = patientUser;
         }
 
-        InsDiaryRecord foundRecord = insDiaryRepository.findOne(record.getId());
-        if (foundRecord == null) {
-            throw new ResourceNotFoundException("Could not find INS diary record");
-        }
+        InsDiaryRecord foundRecord = insDiaryRepository.findById(record.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find INS diary record"));
 
         if (!foundRecord.getUser().equals(patientUser)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -226,15 +219,11 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
     @Override
     public void delete(Long userId, Long recordId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        InsDiaryRecord foundRecord = insDiaryRepository.findOne(recordId);
-        if (foundRecord == null) {
-            throw new ResourceNotFoundException("Could not find INS diary record");
-        }
+        InsDiaryRecord foundRecord = insDiaryRepository.findById(recordId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find INS diary record"));
 
         if (!foundRecord.getUser().equals(user)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -242,15 +231,13 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
         insDiaryAuditService.add(userId);
 
-        insDiaryRepository.delete(recordId);
+        insDiaryRepository.deleteById(recordId);
     }
 
     @Override
     public Page<InsDiaryRecord> findByUser(Long userId, GetParameters getParameters) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         String size = getParameters.getSize();
         String page = getParameters.getPage();
@@ -263,7 +250,7 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
 
     @Override
     public List<InsDiaryRecord> getListByUser(Long userId) {
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             return new ArrayList<>();
         }
@@ -275,15 +262,11 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     @Override
     public RelapseMedication addRelapseMedication(Long userId, Long relapseId, RelapseMedication medication)
             throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException {
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        Relapse existingRelapse = relapseRepository.findOne(relapseId);
-        if (existingRelapse == null) {
-            throw new ResourceNotFoundException("Could not find Relapse record");
-        }
+        Relapse existingRelapse = relapseRepository.findById(relapseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find Relapse record"));
 
         if (!existingRelapse.getUser().equals(patientUser)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -306,24 +289,18 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
     public void deleteRelapseMedication(Long userId, Long relapseId, Long medicationId)
             throws ResourceNotFoundException, ResourceInvalidException, ResourceForbiddenException {
 
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        Relapse existingRelapse = relapseRepository.findOne(relapseId);
-        if (existingRelapse == null) {
-            throw new ResourceNotFoundException("Could not find Relapse record");
-        }
+        Relapse existingRelapse = relapseRepository.findById(relapseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find Relapse record"));
 
         if (!existingRelapse.getUser().equals(patientUser)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        RelapseMedication existingMedication = relapseMedicationRepository.findOne(medicationId);
-        if (existingMedication == null) {
-            throw new ResourceNotFoundException("Could not find RelapseMedication record");
-        }
+        RelapseMedication existingMedication = relapseMedicationRepository.findById(relapseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find RelapseMedication record"));
 
         if (!existingMedication.getRelapse().equals(existingRelapse)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -655,10 +632,8 @@ public class InsDiaryServiceImpl extends AbstractServiceImpl<InsDiaryServiceImpl
                 }
             } else {
                 // update details
-                Relapse existingRelapse = relapseRepository.findOne(relapseData.getId());
-                if (existingRelapse == null) {
-                    throw new ResourceNotFoundException("Could not find Relapse record");
-                }
+                Relapse existingRelapse = relapseRepository.findById(relapseData.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Could not find Relapse record"));
 
                 existingRelapse.setRelapseDate(relapseData.getRelapseDate());
                 existingRelapse.setRemissionDate(relapseData.getRemissionDate());

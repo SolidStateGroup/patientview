@@ -163,16 +163,11 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
             throws ResourceForbiddenException, ResourceNotFoundException,
             JAXBException, DatatypeConfigurationException {
 
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
-
-        Survey survey = surveyRepository.findOne(surveyResponse.getSurvey().getId());
-        if (survey == null) {
-            throw new ResourceNotFoundException("Could not find survey");
-        }
+        Survey survey = surveyRepository.findById(surveyResponse.getSurvey().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find survey"));
 
         if (surveyResponse.getDate() == null) {
             throw new ResourceNotFoundException("Must include date");
@@ -218,11 +213,8 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
             if (questionAnswer.getQuestionOption() != null) {
                 // if QuestionTypes.SINGLE_SELECT, will have question option
                 QuestionOption questionOption
-                        = questionOptionRepository.findOne(questionAnswer.getQuestionOption().getId());
-
-                if (questionOption == null) {
-                    throw new ResourceNotFoundException("Question option not found");
-                }
+                        = questionOptionRepository.findById(questionAnswer.getQuestionOption().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Question option not found"));
 
                 newQuestionAnswer.setQuestionOption(questionOption);
                 answer = true;
@@ -233,11 +225,8 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
             }
 
             if (answer) {
-                Question question = questionRepository.findOne(questionAnswer.getQuestion().getId());
-
-                if (question == null) {
-                    throw new ResourceNotFoundException("Invalid question");
-                }
+                Question question = questionRepository.findById(questionAnswer.getQuestion().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Invalid question"));
 
                 if (question.getCustomQuestion()) {
 
@@ -687,14 +676,10 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     public List<SurveyResponse> getByUserIdAndSurveyType(Long userId, String surveyType)
             throws ResourceNotFoundException {
 
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        if (user == null) {
-
-            throw new ResourceNotFoundException("Could not find user");
-        }
         if (surveyType == null) {
-
             throw new ResourceNotFoundException("Must set survey type");
         }
 
@@ -730,10 +715,9 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
     @Override
     public List<SurveyResponse> getLatestByUserIdAndSurveyType(Long userId, List<String> types)
             throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
+
         if (CollectionUtils.isEmpty(types)) {
             throw new ResourceNotFoundException("Must set survey type");
         }
@@ -763,12 +747,10 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
     @Override
     public SurveyResponse getSurveyResponse(Long userId, Long surveyResponseId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        return reduceStaffUser(surveyResponseRepository.findOne(surveyResponseId));
+        return reduceStaffUser(surveyResponseRepository.findById(surveyResponseId).get());
     }
 
     /**

@@ -117,21 +117,20 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
     @Override
     public void delete(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException {
-        ResearchStudy researchStudy = researchStudyRepository.findOne(researchItemId);
-        if (researchStudy == null) {
-            throw new ResourceNotFoundException("Research Study does not exist");
-        }
+        ResearchStudy researchStudy = researchStudyRepository.findById(researchItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Research Study does not exist"));
 
         if (!canModifyResearchStudy(researchStudy)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        researchStudyRepository.delete(researchItemId);
+        researchStudyRepository.deleteById(researchItemId);
     }
 
     @Override
     public org.patientview.api.model.ResearchStudy get(Long researchItemId) throws ResourceNotFoundException, ResourceForbiddenException {
-        ResearchStudy researchStudy = researchStudyRepository.findOne(researchItemId);
+        ResearchStudy researchStudy = researchStudyRepository.findById(researchItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Research Study does not exist"));
 
         List<ResearchStudyCriteria> criteriaList =
                 researchStudyCriteriaRepository.getByResearchStudyId(researchStudy.getId());
@@ -207,7 +206,8 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
     public Page<org.patientview.api.model.ResearchStudy> getAllForUser(Long userId, boolean limitResults, Pageable
             pageable)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         // get role, group and grouprole specific news (directly accessed through newsLink)
         PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
         Set<ResearchStudy> researchStudySet = new HashSet<>();
@@ -327,12 +327,13 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
     @Override
     public void save(ResearchStudy researchStudy) throws ResourceNotFoundException, ResourceForbiddenException {
-        ResearchStudy savedStudy = researchStudyRepository.findOne(researchStudy.getId());
+        ResearchStudy savedStudy = researchStudyRepository.findById(researchStudy.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Research Study does not exist"));
 
         researchStudy.setCreatedDate(savedStudy.getCreatedDate());
         researchStudy.setCreator(savedStudy.getCreator());
         researchStudy.setLastUpdate(new Date());
-        researchStudy.setLastUpdater(userRepository.findOne(getCurrentUser().getId()));
+        researchStudy.setLastUpdater(userRepository.findById(getCurrentUser().getId()).get());
         researchStudyRepository.save(researchStudy);
 
         //Remove the existing criteria
@@ -340,7 +341,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
                 researchStudyCriteriaRepository.getByResearchStudyId(researchStudy.getId());
 
         for (ResearchStudyCriteria criteria : criteriaList) {
-            researchStudyCriteriaRepository.delete(criteria.getId());
+            researchStudyCriteriaRepository.deleteById(criteria.getId());
         }
 
         //Create the new criteria
@@ -398,10 +399,9 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
 
 
     private PageImpl<org.patientview.api.model.ResearchStudy> manuallyPage(List<org.patientview.api.model
-            .ResearchStudy> list, Pageable
-                                                                                   pageable) {
+            .ResearchStudy> list, Pageable pageable) {
         // manually do pagination
-        int startIndex = pageable.getOffset();
+        int startIndex = (int) pageable.getOffset();
         int endIndex;
 
         if ((startIndex + pageable.getPageSize()) > list.size()) {
@@ -415,7 +415,6 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
         if (!list.isEmpty()) {
             pagedNewsItems = list.subList(startIndex, endIndex);
         }
-
 
         return new PageImpl<>(pagedNewsItems, pageable, pagedNewsItems.size());
     }

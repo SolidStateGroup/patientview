@@ -392,10 +392,8 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
     @Override
     public HttpEntity<byte[]> downloadSurveyResponsePdf(Long userId, Long surveyResponseId)
             throws DocumentException, ResourceNotFoundException {
-        SurveyResponse surveyResponse = surveyResponseRepository.findOne(surveyResponseId);
-        if (surveyResponse == null) {
-            throw new ResourceNotFoundException("Not found");
-        }
+        SurveyResponse surveyResponse = surveyResponseRepository.findById(surveyResponseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Not found"));
 
         User user = userRepository.getOne(userId);
 
@@ -723,7 +721,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         StringBuilder sb = new StringBuilder(fileName);
 
         if (userId != null) {
-            User user = userRepository.findOne(userId);
+            User user = userRepository.findById(userId).get();
             Identifier identifier = user.getIdentifiers().iterator().next();
 
             if (identifier.getIdentifier() != null) {

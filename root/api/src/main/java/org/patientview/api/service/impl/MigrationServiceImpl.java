@@ -829,7 +829,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 LOG.error("Could not migrate patient data: {}", e);
                 try {
                     // clean up any data created during failed migration
-                    patientService.deleteExistingPatientData(userRepository.findOne(userId).getFhirLinks());
+                    patientService.deleteExistingPatientData(userRepository.findById(userId).get().getFhirLinks());
                 } catch (FhirResourceException fre) {
                     userMigration.setStatus(MigrationStatus.PATIENT_CLEANUP_FAILED);
                     userMigration.setInformation(fre.getMessage());
@@ -1194,7 +1194,8 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         // store Encounters (treatment and transplant status)
         for (FhirEncounter fhirEncounter : migrationUser.getEncounters()) {
             Identifier identifier = identifierMap.get(fhirEncounter.getIdentifier());
-            Group entityGroup = groupRepository.findOne(fhirEncounter.getGroup().getId());
+            Group entityGroup = groupRepository.findById(fhirEncounter.getGroup().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Group does not exist"));
 
             FhirLink fhirLink
                     = getFhirLink(fhirEncounter.getGroup(), fhirEncounter.getIdentifier(), fhirLinks);
@@ -1301,7 +1302,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                     surveyResponse.getSurveyResponseScores().get(0).getSeverity(),
                     surveyResponse.getDate(), surveyResponse.getSurveyResponseScores().get(0).getType());
 
-            newSurveyResponse.setSurvey(surveyRepository.findOne(surveyResponse.getSurvey().getId()));
+            newSurveyResponse.setSurvey(surveyRepository.findById(surveyResponse.getSurvey().getId()).get());
 
             for (QuestionAnswer questionAnswer : surveyResponse.getQuestionAnswers()) {
                 QuestionAnswer newQuestionAnswer = new QuestionAnswer();
@@ -1311,9 +1312,9 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 }
                 if (questionAnswer.getQuestionOption() != null) {
                     newQuestionAnswer.setQuestionOption(
-                            questionOptionRepository.findOne(questionAnswer.getQuestionOption().getId()));
+                            questionOptionRepository.findById(questionAnswer.getQuestionOption().getId()).get());
                 }
-                newQuestionAnswer.setQuestion(questionRepository.findOne(questionAnswer.getQuestion().getId()));
+                newQuestionAnswer.setQuestion(questionRepository.findById(questionAnswer.getQuestion().getId()).get());
 
                 newSurveyResponse.getQuestionAnswers().add(newQuestionAnswer);
             }

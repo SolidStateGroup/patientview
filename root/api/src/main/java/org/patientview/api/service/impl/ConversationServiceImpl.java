@@ -215,7 +215,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setCreator(newMessage.getCreator() == null ? entityUser : newMessage.getCreator());
 
             if (message.getMyMedia() != null) {
-                MyMedia myMedia = myMediaRepository.findOne(message.getMyMedia().getId());
+                MyMedia myMedia = myMediaRepository.findById(message.getMyMedia().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Could not find MyMedia"));
                 if (myMedia.getCreator().getId().equals(ApiUtil.getCurrentUser().getId())) {
                     newMessage.setMyMedia(myMedia);
                     newMessage.setHasAttachment(true);
@@ -246,8 +247,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             // create audit
             if (conversation.getType().equals(ConversationTypes.MEMBERSHIP_REQUEST)
                     && conversation.getUserId() != null && conversation.getGroupId() != null) {
-                entityUser = userRepository.findOne(conversation.getUserId());
-                Group entityGroup = groupRepository.findOne(conversation.getGroupId());
+                entityUser = userRepository.findById(conversation.getUserId()).orElse(null);
+                Group entityGroup = groupRepository.findById(conversation.getGroupId()).orElse(null);
                 if (entityUser != null && entityGroup != null) {
                     auditService.createAudit(AuditActions.MEMBERSHIP_REQUEST_SENT, entityUser.getUsername(),
                             getCurrentUser(), conversation.getUserId(), AuditObjectTypes.User, entityGroup);
@@ -266,10 +267,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden (current user features)");
         }
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         if (featureName == null) {
             throw new ResourceNotFoundException("Feature not set");
@@ -342,15 +341,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Conversation conversation = conversationRepository.findOne(conversationId);
-        if (conversation == null) {
-            throw new ResourceNotFoundException("Conversation not found");
-        }
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found"));
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         boolean found = false;
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
@@ -390,11 +385,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Conversation conversation = conversationRepository.findOne(conversationId);
-
-        if (conversation == null) {
-            throw new ResourceNotFoundException("Conversation does not exist");
-        }
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation does not exist"));
 
         if (!loggedInUserIsMemberOfConversation(conversation)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -671,10 +663,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Conversation entityConversation = conversationRepository.findOne(conversationId);
-        if (entityConversation == null) {
-            throw new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId));
-        }
+        Conversation entityConversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("Could not find conversation %s", conversationId)));
+
 
         if (!loggedInUserIsMemberOfConversation(entityConversation)) {
             throw new ResourceForbiddenException("You do not have permission");
@@ -694,7 +686,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         newMessage.setType(message.getType());
 
         if (message.getMyMedia() != null) {
-            MyMedia myMedia = myMediaRepository.findOne(message.getMyMedia().getId());
+            MyMedia myMedia = myMediaRepository.findById(message.getMyMedia().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("MyMedia not found"));
 
             //Only allow the owner to attach the media to a conversation
             if (entityUser.getId().equals(myMedia.getCreator().getId())) {
@@ -736,10 +729,10 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throws ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findEntityUser(userId);
 
-        Message entityMessage = messageRepository.findOne(messageId);
-        if (entityMessage == null) {
-            throw new ResourceNotFoundException(String.format("Could not find message %s", messageId));
-        }
+        Message entityMessage = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Could not find message %s", messageId)));
+
 
         // can only add read receipts for own user
         if (!getCurrentUser().equals(entityUser)) {
@@ -864,7 +857,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         int usersWithMessagingFeaturesCount = 0;
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
-            User user = userRepository.findOne(conversationUser.getUser().getId());
+            User user = userRepository.findById(conversationUser.getUser().getId())
+                    .orElse(null);
 
             // GLOBAL_ADMIN and PATIENT users always have messaging features
             if (userHasRole(user, RoleName.GLOBAL_ADMIN, RoleName.PATIENT)) {
@@ -969,7 +963,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 } else {
                     // remove conversation user labels
                     for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
-                        conversationUserLabelRepository.delete(conversationUserLabel.getId());
+                        conversationUserLabelRepository.deleteById(conversationUserLabel.getId());
                     }
                     conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
                     conversationUserRepository.save(conversationUser);
@@ -1044,7 +1038,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             LOG.info("user id: " + user.getId() + ", save " + removedUserMessages.size() + " messages");
 
-            messageRepository.save(removedUserMessages);
+            messageRepository.saveAll(removedUserMessages);
         }
 
         return removedUserMessages;
@@ -1061,11 +1055,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Conversation conversation = conversationRepository.findOne(conversationId);
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation does not exist"));
 
-        if (conversation == null) {
-            throw new ResourceNotFoundException("Conversation does not exist");
-        }
 
         if (!loggedInUserIsMemberOfConversation(conversation)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -1173,11 +1165,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      * @throws ResourceNotFoundException
      */
     private User findEntityUser(Long userId) throws ResourceNotFoundException {
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
-        }
-        return entityUser;
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find user %s", userId)));
+
     }
 
     /**
@@ -1196,10 +1186,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Conversation conversation = conversationRepository.findOne(conversationId);
-        if (conversation == null) {
-            throw new ResourceNotFoundException("Conversation not found");
-        }
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found"));
 
         if (!loggedInUserIsMemberOfConversation(conversation)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -1242,7 +1230,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (ConversationUser conversationUser : conversationUsers) {
             ConversationUser newConversationUser = new ConversationUser();
             newConversationUser.setConversation(conversation);
-            newConversationUser.setUser(userRepository.findOne(conversationUser.getUser().getId()));
+            newConversationUser.setUser(userRepository.findById(conversationUser.getUser().getId()).orElse(null));
             newConversationUser.setAnonymous(conversationUser.getAnonymous() == null
                     ? false : conversationUser.getAnonymous());
             newConversationUser.setCreator(creator);
@@ -1259,7 +1247,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 throw new ResourceNotFoundException("Missing Staff feature parameter when sending message");
             }
 
-            Group entityGroup = groupRepository.findOne(conversation.getGroupId());
+            Group entityGroup = groupRepository.findById(conversation.getGroupId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Could not find Group when sending message"));
             Feature entityFeature = featureRepository.findByName(conversation.getStaffFeature().toString());
 
             if (entityGroup == null) {
@@ -1332,7 +1321,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     @Override
     public List<BaseUser> getGroupRecipientsByFeature(Long groupId, String featureName)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        if (!groupRepository.exists(groupId)) {
+        if (!groupRepository.existsById(groupId)) {
             throw new ResourceNotFoundException("Group not found");
         }
 
@@ -1419,8 +1408,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      */
     @Override
     public Message getMessageById(Long messageId) throws ResourceNotFoundException, ResourceForbiddenException {
-        Message message = messageRepository.findOne(messageId);
-
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message not found "));
         //check if message has permission
         this.findByConversationId(message.getConversation().getId());
 
@@ -1448,10 +1437,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // messaging feature assigned.
         boolean isSpecialtyGroup = false;
         if (groupId != null) {
-            Group group = groupRepository.findOne(groupId);
-            if (group == null) {
-                throw new ResourceNotFoundException("Group not found with ID " + groupId);
-            }
+            Group group = groupRepository.findById(groupId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Group not found with ID " + groupId));
+
             if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                 isSpecialtyGroup = true;
             }
@@ -1770,10 +1758,9 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // messaging feature assigned.
         boolean isSpecialtyGroup = false;
         if (groupId != null) {
-            Group group = groupRepository.findOne(groupId);
-            if (group == null) {
-                throw new ResourceNotFoundException("Group not found with ID " + groupId);
-            }
+            Group group = groupRepository.findById(groupId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Group not found with ID " + groupId));
+
             if (group.getGroupType().getValue().equals(GroupTypes.SPECIALTY.toString())) {
                 isSpecialtyGroup = true;
             }
@@ -1834,7 +1821,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // when groupId is set, can only get patients if current user is member of group
-        if (groupId != null && isUserMemberOfGroup(getCurrentUser(), groupRepository.findOne(groupId))) {
+        if (groupId != null && isUserMemberOfGroup(getCurrentUser(), groupRepository.findById(groupId).orElse(null))) {
             for (Role role : patientRoles) {
                 getParameters.setRoleIds(new String[]{role.getId().toString()});
 
@@ -1853,7 +1840,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      */
     @Override
     public Long getUnreadConversationCount(Long userId) throws ResourceNotFoundException {
-        if (!userRepository.exists(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User does not exist");
         }
         return conversationRepository.getUnreadConversationCount(userId);
@@ -1912,15 +1899,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Conversation conversation = conversationRepository.findOne(conversationId);
-        if (conversation == null) {
-            throw new ResourceNotFoundException("Conversation not found");
-        }
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found"));
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ConversationUser foundConversationUser = null;
 
@@ -1947,11 +1930,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        Conversation conversation = conversationRepository.findOne(conversationId);
-
-        if (conversation == null) {
-            throw new ResourceNotFoundException("Conversation does not exist");
-        }
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation does not exist"));
 
         if (!loggedInUserIsMemberOfConversation(conversation)) {
             throw new ResourceForbiddenException("Forbidden");
