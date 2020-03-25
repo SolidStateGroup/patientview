@@ -16,6 +16,8 @@ import org.patientview.persistence.model.Message;
 import org.patientview.persistence.model.MyMedia;
 import org.patientview.persistence.model.enums.MediaTypes;
 import org.patientview.persistence.model.enums.RoleName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +37,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
-import static org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl.LOGGER;
 
 /**
  * Admin RESTful interface for managing MyMedia services
@@ -43,10 +44,10 @@ import static org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl.LOGGER;
 @ExcludeFromApiDoc
 @RestController
 public class MyMediaController extends BaseController<MyMediaController> {
+    private static final Logger LOG = LoggerFactory.getLogger(MyMediaController.class);
 
     @Inject
     private MyMediaService myMediaService;
-
 
     @Inject
     private ConversationService conversationService;
@@ -151,7 +152,7 @@ public class MyMediaController extends BaseController<MyMediaController> {
                 getMyMediaVideo(message.getMyMedia(), response);
             }
         } else {
-            LOGGER.warn("Trying to view non-existent media in a message (" + messageId + ")");
+            LOG.warn("Trying to view non-existent media in a message (" + messageId + ")");
         }
     }
 
@@ -177,14 +178,14 @@ public class MyMediaController extends BaseController<MyMediaController> {
             response.flushBuffer();
             response.setStatus(HttpStatus.OK.value());
         } catch (Exception e) {
-            LOGGER.error("Failed to my media image, exception: {}", e.getMessage(), e);
+            LOG.error("Failed to my media image, exception: {}", e.getMessage(), e);
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    LOGGER.error("Failed to close input stream {}", e.getMessage());
+                    LOG.error("Failed to close input stream {}", e.getMessage());
                 }
             }
         }
@@ -226,14 +227,14 @@ public class MyMediaController extends BaseController<MyMediaController> {
             response.flushBuffer();
             response.setStatus(HttpStatus.OK.value());
         } catch (Exception e) {
-            LOGGER.error("Failed to my media image, exception: {}", e.getMessage(), e);
+            LOG.error("Failed to my media image, exception: {}", e.getMessage(), e);
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    LOGGER.error("Failed to close input stream {}", e.getMessage());
+                    LOG.error("Failed to close input stream {}", e.getMessage());
                 }
             }
         }
