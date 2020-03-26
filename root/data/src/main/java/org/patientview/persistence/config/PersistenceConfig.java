@@ -1,12 +1,15 @@
 package org.patientview.persistence.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.patientview.config.CommonConfig;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
+import org.springframework.orm.hibernate5.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -35,12 +38,28 @@ public class PersistenceConfig extends CommonConfig {
         properties = propertiesBean();
         properties.setProperty("hibernate.hbm2ddl.auto", "validate");
         //properties.setProperty("hibernate.show_sql", "true"); // uncomment for sql debug
-        properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
+        //properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
+
+        //properties.setProperty("hibernate.ddl-auto", "none"); // using fly away script
+        // The SQL dialect makes Hibernate generate better SQL for the chosen database
+        properties.setProperty("jpa.properties.hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        properties.setProperty("jpa.properties.hibernate.temp.use_jdbc_metadata_defaults", "false");
+        properties.setProperty("jpa.properties.jdbc.lob.non_contextual_creation", "true");
     }
+
+//    @Bean(name = "flyway")
+//    public Flyway flyway() throws IOException {
+//        Flyway flyway = Flyway.configure().dataSource(patientViewDataSource()).load();
+//        flyway.repair(); // repair each script checksum
+//        flyway.migrate();
+//        return flyway;
+//    }
 
     @Bean
     public EntityManagerFactory entityManagerFactory() {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        // NOTE: make sure it FALSE as we are using flyway to init schema and db changes
         vendorAdapter.setGenerateDdl(true);
 
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
@@ -53,20 +72,39 @@ public class PersistenceConfig extends CommonConfig {
         return factory.getObject();
     }
 
+    @Bean
+    @Primary
+    public DataSourceProperties pvDataSourceProperties() {
+
+        DataSourceProperties dataSourceProperties = new DataSourceProperties();
+        dataSourceProperties.setUrl(properties.getProperty("pv.url"));
+        dataSourceProperties.setUsername(properties.getProperty("pv.user"));
+        dataSourceProperties.setPassword(properties.getProperty("pv.password"));
+        dataSourceProperties.setDriverClassName("org.postgresql.Driver");
+        dataSourceProperties.setType(HikariDataSource.class);
+
+        return dataSourceProperties;
+    }
+
     @Bean(name = "patientView")
     @Primary
-    public BasicDataSource patientViewDataSource() {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setMaxTotal(50);
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl(properties.getProperty("pv.url"));
-        dataSource.setUsername(properties.getProperty("pv.user"));
-        dataSource.setPassword(properties.getProperty("pv.password"));
-        return dataSource;
+    @ConfigurationProperties(prefix = "patientview.datasource.hikari")
+    public HikariDataSource patientViewDataSource() {
+//        BasicDataSource dataSource = new BasicDataSource();
+//        dataSource.setMaxTotal(50);
+//        dataSource.setDriverClassName("org.postgresql.Driver");
+//        dataSource.setUrl(properties.getProperty("pv.url"));
+//        dataSource.setUsername(properties.getProperty("pv.user"));
+//        dataSource.setPassword(properties.getProperty("pv.password"));
+//        return dataSource;
+        return pvDataSourceProperties()
+                .initializeDataSourceBuilder()
+                .type(HikariDataSource.class)
+                .build();
     }
 
     @Bean(name = "fhir")
-    public BasicDataSource fhirDataSource(){
+    public BasicDataSource fhirDataSource() {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setMaxTotal(50);
         dataSource.setDriverClassName("org.postgresql.Driver");
@@ -88,7 +126,7 @@ public class PersistenceConfig extends CommonConfig {
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf){
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
         return transactionManager;
