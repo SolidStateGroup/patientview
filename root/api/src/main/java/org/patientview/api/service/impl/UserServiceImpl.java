@@ -82,6 +82,7 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.util.Util;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -139,6 +140,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private AlertRepository alertRepository;
 
+    @Lazy
     @Inject
     private AlertService alertService;
 
