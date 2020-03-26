@@ -75,6 +75,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -202,9 +203,9 @@ public class UserServiceTest {
         newUser.getUserFeatures().add(userFeature);
 
         //when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(groupRoleRepository.save(eq(newGroupRole))).thenReturn(newGroupRole);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
         when(apiKeyRepository.getAllKeysForUser(any(User.class))).thenReturn(new ArrayList<ApiKey>());
         when(userRepository.save(eq(newUser))).thenReturn(newUser);
 
@@ -241,8 +242,8 @@ public class UserServiceTest {
 
         Feature feature = TestUtils.createFeature("testFeature");
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
-        when(featureRepository.findOne(eq(feature.getId()))).thenReturn(feature);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
+        when(featureRepository.findById(eq(feature.getId()))).thenReturn(Optional.of(feature));
 
         userService.addFeature(staffUser.getId(), feature.getId());
         verify(userFeatureRepository, times(1)).save(any(UserFeature.class));
@@ -278,10 +279,10 @@ public class UserServiceTest {
         // new role
         Role newStaffRole = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(newStaffRole.getId()))).thenReturn(newStaffRole);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
+        when(roleRepository.findById(eq(newStaffRole.getId()))).thenReturn(Optional.of(newStaffRole));
         when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole);
 
         // add GroupRole to staff user
@@ -335,10 +336,10 @@ public class UserServiceTest {
         roleType.setValue(RoleType.PATIENT);
         newPatientRole.setRoleType(roleType);
 
-        when(userRepository.findOne(eq(patientUser.getId()))).thenReturn(patientUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(newPatientRole.getId()))).thenReturn(newPatientRole);
+        when(userRepository.findById(eq(patientUser.getId()))).thenReturn(Optional.of(patientUser));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
+        when(roleRepository.findById(eq(newPatientRole.getId()))).thenReturn(Optional.of(newPatientRole));
         when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole);
 
         // add GroupRole to staff user
@@ -390,10 +391,10 @@ public class UserServiceTest {
         roleType.setValue(RoleType.PATIENT);
         newPatientRole.setRoleType(roleType);
 
-        when(userRepository.findOne(eq(patientUser.getId()))).thenReturn(patientUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(newPatientRole.getId()))).thenReturn(newPatientRole);
+        when(userRepository.findById(eq(patientUser.getId()))).thenReturn(Optional.of(patientUser));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
+        when(roleRepository.findById(eq(newPatientRole.getId()))).thenReturn(Optional.of(newPatientRole));
         when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(patientGroupRole);
 
         // add GroupRole to staff user
@@ -429,7 +430,7 @@ public class UserServiceTest {
 
         when(userInformationRepository.save(any(UserInformation.class))).thenReturn(userInformation);
         when(userInformationRepository.findByUserAndType(eq(user), any(UserInformationTypes.class))).thenReturn(userInformation);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         userService.addInformation(user.getId(), userInformations);
         verify(userInformationRepository, times(1)).save(any(UserInformation.class));
@@ -474,10 +475,10 @@ public class UserServiceTest {
         group.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
         GroupRole newGroupRole = TestUtils.createGroupRole(newRole, group, patientUser);
 
-        when(userRepository.findOne(eq(patientUser.getId()))).thenReturn(patientUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(newRole.getId()))).thenReturn(newRole);
+        when(userRepository.findById(eq(patientUser.getId()))).thenReturn(Optional.of(patientUser));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
+        when(roleRepository.findById(eq(newRole.getId()))).thenReturn(Optional.of(newRole));
         when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(newGroupRole);
 
         // add GroupRole to user
@@ -511,7 +512,7 @@ public class UserServiceTest {
 
         SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         userService.changeSecretWord(user.getId(), secretWordInput, false);
 
@@ -548,7 +549,7 @@ public class UserServiceTest {
         context.setAuthentication(new TestAuthentication(user));
         SecurityContextHolder.setContext(context);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         SecretWordInput secretWordInput = new SecretWordInput(oldWord, "ABCDEFG", "ABCDEFG");
 
@@ -588,7 +589,7 @@ public class UserServiceTest {
         context.setAuthentication(new TestAuthentication(user));
         SecurityContextHolder.setContext(context);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         doThrow(ResourceForbiddenException.class)
                 .when(authenticationService)
                 .checkLettersAgainstSecretWord(any(User.class), any(Map.class), any(Boolean.class));
@@ -633,7 +634,7 @@ public class UserServiceTest {
         context.setAuthentication(new TestAuthentication(user));
         SecurityContextHolder.setContext(context);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         // missing sold secret word from input
         SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
@@ -660,7 +661,7 @@ public class UserServiceTest {
 
         SecretWordInput secretWordInput = new SecretWordInput("ABCDEFG", "ABCDEFG");
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         String salt = userService.changeSecretWord(user.getId(), secretWordInput, true);
 
@@ -690,7 +691,7 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         boolean isChanged = userService.isSecretWordChanged(user.getId(), salt);
 
@@ -721,7 +722,7 @@ public class UserServiceTest {
                 + "\"4\" : \"" + DigestUtils.sha256Hex("D" + salt) + "\" "
                 + "}");
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         boolean isChanged = userService.isSecretWordChanged(user.getId(), oldSalt);
 
@@ -742,7 +743,7 @@ public class UserServiceTest {
 
         SecretWordInput secretWordInput = new SecretWordInput("ABC1234", "ABC1234");
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         userService.changeSecretWord(user.getId(), secretWordInput, false);
     }
@@ -783,10 +784,10 @@ public class UserServiceTest {
 
         when(userRepository.save(any(User.class))).thenReturn(newUser);
         when(userRepository.getOne(any(Long.class))).thenReturn(newUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
-        when(roleRepository.findOne(eq(role2.getId()))).thenReturn(role2);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
+        when(roleRepository.findById(eq(role2.getId()))).thenReturn(Optional.of(role2));
         when(groupRoleRepository.userGroupRoleExists(any(Long.class), any(Long.class), any(Long.class)))
                 .thenReturn(false);
         when(groupRoleRepository.save(any(GroupRole.class))).thenReturn(groupRole2);
@@ -832,9 +833,9 @@ public class UserServiceTest {
 
         when(userRepository.save(any(User.class))).thenReturn(newUser);
         when(userRepository.getOne(any(Long.class))).thenReturn(newUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
         when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
                 .thenReturn(groupRole);
 
@@ -1027,8 +1028,8 @@ public class UserServiceTest {
         Feature feature = TestUtils.createFeature("testFeature");
         UserFeature userFeature = TestUtils.createUserFeature(feature, staffUser);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
-        when(featureRepository.findOne(eq(feature.getId()))).thenReturn(feature);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
+        when(featureRepository.findById(eq(feature.getId()))).thenReturn(Optional.of(feature));
         when(userFeatureRepository.findByUserAndFeature(user, feature)).thenReturn(userFeature);
 
         userService.deleteFeature(staffUser.getId(), feature.getId());
@@ -1062,10 +1063,10 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
+        when(roleRepository.findById(eq(staffRole.getId()))).thenReturn(Optional.of(staffRole));
         when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
                 .thenReturn(groupRoleStaff);
 
@@ -1104,10 +1105,10 @@ public class UserServiceTest {
         TestUtils.createIdentifier(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
                 IdentifierTypes.NHS_NUMBER.toString()), patientUser, "1111111111");
 
-        when(userRepository.findOne(eq(patientUser.getId()))).thenReturn(patientUser);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
-        when(roleRepository.findOne(eq(patientRole.getId()))).thenReturn(patientRole);
+        when(userRepository.findById(eq(patientUser.getId()))).thenReturn(Optional.of(patientUser));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
+        when(roleRepository.findById(eq(patientRole.getId()))).thenReturn(Optional.of(patientRole));
         when(groupRoleRepository.findByUserGroupRole(any(User.class), any(Group.class), any(Role.class)))
                 .thenReturn(groupRolePatient);
 
@@ -1146,9 +1147,9 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
-        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
+        when(roleRepository.findById(eq(staffRole.getId()))).thenReturn(Optional.of(staffRole));
 
         userService.delete(staffUser.getId(), false);
         verify(deletePatientTask, times(1)).deletePatient(any(Long.class), any(User.class));
@@ -1177,9 +1178,9 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
-        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
+        when(roleRepository.findById(eq(staffRole.getId()))).thenReturn(Optional.of(staffRole));
 
         userService.delete(staffUser.getId(), false);
         verify(userRepository, times(0)).delete(any(User.class));
@@ -1237,7 +1238,7 @@ public class UserServiceTest {
         userInformations.add(userInformation);
 
         when(userInformationRepository.findByUser(eq(user))).thenReturn(userInformations);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         userService.getInformation(user.getId());
         verify(userInformationRepository, times(1)).findByUser(any(User.class));
@@ -1255,7 +1256,7 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         userService.hideSecretWordNotification(user.getId());
 
@@ -1326,12 +1327,12 @@ public class UserServiceTest {
         staffUser.setGroupRoles(groupRolesStaff);
 
         String password = "newPassword";
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
         when(userRepository.save(eq(staffUser))).thenReturn(staffUser);
 
         org.patientview.api.model.User user1 = userService.resetPassword(staffUser.getId(), password);
 
-        verify(userRepository, times(2)).findOne(eq(staffUser.getId()));
+        verify(userRepository, times(2)).findById(eq(staffUser.getId()));
         verify(userRepository, times(1)).save(eq(staffUser));
         Assert.assertTrue("The user now has the change password flag set", user1.getChangePassword());
     }
@@ -1360,9 +1361,9 @@ public class UserServiceTest {
         String password = "newPassword";
 
         user.setChangePassword(Boolean.TRUE);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         userService.changePassword(user.getId(), password);
-        verify(userRepository, times(3)).findOne(eq(user.getId()));
+        verify(userRepository, times(3)).findById(eq(user.getId()));
         verify(userTokenRepository, times(1)).findByUser(user.getId());
     }
 
@@ -1378,7 +1379,7 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         userService.removeSecretWord(user.getId());
 
@@ -1466,7 +1467,7 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
         when(properties.getProperty((eq("smtp.sender")))).thenReturn("test@solidstategroup.com");
 
         userService.sendVerificationEmail(staffUser.getId());
@@ -1495,12 +1496,12 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
         when(userRepository.save(any(User.class))).thenReturn(staffUser);
 
         userService.undelete(staffUser.getId());
 
-        verify(userRepository, times(1)).findOne(eq(staffUser.getId()));
+        verify(userRepository, times(1)).findById(eq(staffUser.getId()));
         verify(userRepository, times(1)).save(any(User.class));
     }
 
@@ -1525,7 +1526,7 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
         when(userRepository.save(any(User.class))).thenReturn(staffUser);
 
         userService.undelete(staffUser.getId());
@@ -1552,12 +1553,12 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
         when(userRepository.save(any(User.class))).thenReturn(staffUser);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
-        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
+        when(roleRepository.findById(eq(staffRole.getId()))).thenReturn(Optional.of(staffRole));
 
         userService.save(staffUser);
         verify(userRepository, times(1)).save(any(User.class));
@@ -1586,12 +1587,12 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser2.getId()))).thenReturn(staffUser);
+        when(userRepository.findById(eq(staffUser2.getId()))).thenReturn(Optional.of(staffUser));
         when(userRepository.save(any(User.class))).thenReturn(staffUser);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
-        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
+        when(roleRepository.findById(eq(staffRole.getId()))).thenReturn(Optional.of(staffRole));
 
         staffUser2.setEmail("newemail@patientview.org");
         userService.save(staffUser2);
@@ -1622,13 +1623,13 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser2.getId()))).thenReturn(staffUser);
+        when(userRepository.findById(eq(staffUser2.getId()))).thenReturn(Optional.of(staffUser));
         when(userRepository.emailExistsCaseInsensitive(eq("newemail@patientview.org"))).thenReturn(true);
         when(userRepository.save(any(User.class))).thenReturn(staffUser);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(roleRepository.findOne(eq(role.getId()))).thenReturn(role);
-        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(roleRepository.findById(eq(role.getId()))).thenReturn(Optional.of(role));
+        when(roleRepository.findById(eq(staffRole.getId()))).thenReturn(Optional.of(staffRole));
 
         staffUser2.setEmail("newemail@patientview.org");
         userService.save(staffUser2);
@@ -1659,10 +1660,10 @@ public class UserServiceTest {
         groupRolesStaff.add(groupRoleStaff);
         staffUser.setGroupRoles(groupRolesStaff);
 
-        when(userRepository.findOne(eq(staffUser.getId()))).thenReturn(staffUser);
-        when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(eq(staffUser.getId()))).thenReturn(Optional.of(staffUser));
+        when(roleRepository.findById(eq(staffRole.getId()))).thenReturn(Optional.of(staffRole));
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
 
         userService.save(staffUser);
     }
@@ -1705,7 +1706,7 @@ public class UserServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         when(conversationService.getUnreadConversationCount(user.getId())).thenReturn(10L);
         when(apiMedicationService.getByUserId(user.getId())).thenReturn(new ArrayList<FhirMedicationStatement>());
 

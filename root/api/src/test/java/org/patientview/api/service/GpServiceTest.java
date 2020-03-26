@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -280,7 +281,7 @@ public class GpServiceTest {
                 eq(gpAdminRole.getRoleType().getValue()), eq(gpAdminRole.getName()))).thenReturn(gpAdminRole);
         when(roleRepository.findByRoleTypeAndName(
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
-        when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
+        when(userRepository.findById(eq(patient.getId()))).thenReturn(Optional.of(patientUser));
 
         when(gpLetterService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
 
@@ -290,11 +291,11 @@ public class GpServiceTest {
 
         verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
-        verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
-        verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(gpLetterRepository, Mockito.times(1)).saveAll(any(List.class));
+        verify(groupFeatureRepository, Mockito.times(1)).saveAll(any(Set.class));
         verify(groupRepository, Mockito.times(1)).save(any(Group.class));
-        verify(groupRoleRepository, Mockito.times(2)).save(any(Set.class));
-        verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(groupRoleRepository, Mockito.times(2)).saveAll(any(Set.class));
+        verify(userFeatureRepository, Mockito.times(1)).saveAll(any(Set.class));
         verify(userRepository, Mockito.times(1)).save(any(User.class));
     }
 
@@ -641,7 +642,7 @@ public class GpServiceTest {
                 eq(gpAdminRole.getRoleType().getValue()), eq(gpAdminRole.getName()))).thenReturn(gpAdminRole);
         when(roleRepository.findByRoleTypeAndName(
                 eq(patientRole.getRoleType().getValue()), eq(patientRole.getName()))).thenReturn(patientRole);
-        when(userRepository.findOne(eq(patient.getId()))).thenReturn(patientUser);
+        when(userRepository.findById(eq(patient.getId()))).thenReturn(Optional.of(patientUser));
 
         when(gpLetterService.matchByGpDetails(any(GpLetter.class))).thenReturn(gpLetters);
 
@@ -651,11 +652,11 @@ public class GpServiceTest {
 
         verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
-        verify(gpLetterRepository, Mockito.times(1)).save(any(List.class));
-        verify(groupFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(gpLetterRepository, Mockito.times(1)).saveAll(any(List.class));
+        verify(groupFeatureRepository, Mockito.times(1)).saveAll(any(Set.class));
         verify(groupRepository, Mockito.times(1)).save(any(Group.class));
-        verify(groupRoleRepository, Mockito.times(2)).save(any(Set.class));
-        verify(userFeatureRepository, Mockito.times(1)).save(any(Set.class));
+        verify(groupRoleRepository, Mockito.times(2)).saveAll(any(Set.class));
+        verify(userFeatureRepository, Mockito.times(1)).saveAll(any(Set.class));
         verify(userRepository, Mockito.times(1)).save(any(User.class));
     }
 
@@ -690,7 +691,7 @@ public class GpServiceTest {
 
         when(gpMasterRepository.findByPostcode(eq(practitioner.getPostcode()))).thenReturn(gpMasters);
         when(gpLetterService.hasValidPracticeDetails(any(GpLetter.class))).thenReturn(true);
-        when(groupRepository.findOne(eq(patient.getGroup().getId()))).thenReturn(patient.getGroup());
+        when(groupRepository.findById(eq(patient.getGroup().getId()))).thenReturn(Optional.of(patient.getGroup()));
 
         gpService.invite(user.getId(), patient);
 

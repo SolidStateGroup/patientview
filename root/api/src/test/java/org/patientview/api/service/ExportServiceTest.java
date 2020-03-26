@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
@@ -236,7 +237,7 @@ public class ExportServiceTest {
             when(questionRepository.findByType(QuestionTypes.FEELING.toString())).thenReturn(questions);
         }
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         when(surveyResponseRepository.findByUserAndSurveyType(eq(user), eq(survey.getType())))
                 .thenReturn(surveyResponses);
 

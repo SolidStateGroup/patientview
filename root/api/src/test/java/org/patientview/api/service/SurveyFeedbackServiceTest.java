@@ -32,6 +32,7 @@ import org.patientview.test.util.TestUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
@@ -96,8 +97,8 @@ public class SurveyFeedbackServiceTest {
         surveyFeedback.setSurvey(survey);
         surveyFeedback.setFeedback("feedback");
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
-        when(surveyRepository.findOne(Matchers.eq(survey.getId()))).thenReturn(survey);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(surveyRepository.findById(Matchers.eq(survey.getId()))).thenReturn(Optional.of(survey));
 
         surveyFeedbackService.add(user.getId(), surveyFeedback);
 
@@ -135,8 +136,8 @@ public class SurveyFeedbackServiceTest {
         List<SurveyFeedback> surveyFeedbacks = new ArrayList<>();
         surveyFeedbacks.add(surveyFeedback);
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
-        when(surveyRepository.findOne(Matchers.eq(survey.getId()))).thenReturn(survey);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(surveyRepository.findById(Matchers.eq(survey.getId()))).thenReturn(Optional.of(survey));
         when(surveyFeedbackRepository.findBySurveyAndUser(eq(survey), eq(user))).thenReturn(surveyFeedbacks);
 
         List<org.patientview.api.model.SurveyFeedback> returned

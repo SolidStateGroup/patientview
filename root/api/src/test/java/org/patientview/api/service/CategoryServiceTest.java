@@ -23,6 +23,7 @@ import org.patientview.persistence.repository.CategoryRepository;
 import org.patientview.test.util.TestUtils;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
@@ -77,7 +78,7 @@ public class CategoryServiceTest {
         CodeCategory codeCategory = new CodeCategory(code, category);
         category.getCodeCategories().add(codeCategory);
 
-        when(categoryRepository.findOne(eq(category.getId()))).thenReturn(category);
+        when(categoryRepository.findById(eq(category.getId()))).thenReturn(Optional.of(category));
 
         categoryService.delete(category.getId());
 

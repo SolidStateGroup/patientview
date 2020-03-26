@@ -29,6 +29,7 @@ import org.patientview.test.util.TestUtils;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Mockito.when;
@@ -88,7 +89,7 @@ public class GpMedicationServiceTest {
         user.setUserFeatures(new HashSet<UserFeature>());
         user.getUserFeatures().add(userGpMedicineFeature);
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
 
         GpMedicationStatus gpMedicationStatus = gpMedicationService.getGpMedicationStatus(user.getId());
 

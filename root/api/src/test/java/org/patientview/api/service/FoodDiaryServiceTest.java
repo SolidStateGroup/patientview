@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
@@ -91,7 +92,7 @@ public class FoodDiaryServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         FoodDiary foodDiary = new FoodDiary(user, "red meat", new Date());
 
@@ -119,7 +120,7 @@ public class FoodDiaryServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         List<FoodDiary> foodDiaries = foodDiaryService.get(user.getId());
         Assert.assertEquals("Should return 0 food diaries", 0, foodDiaries.size());
@@ -148,8 +149,8 @@ public class FoodDiaryServiceTest {
         // food diary
         FoodDiary foodDiary = new FoodDiary(user, "red meat", new Date());
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(foodDiaryRepository.findOne(eq(foodDiary.getId()))).thenReturn(foodDiary);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(foodDiaryRepository.findById(eq(foodDiary.getId()))).thenReturn(Optional.of(foodDiary));
 
         foodDiaryService.delete(user.getId(), foodDiary.getId());
         verify(foodDiaryRepository, times(1)).delete(eq(foodDiary));
@@ -174,7 +175,7 @@ public class FoodDiaryServiceTest {
         TestUtils.authenticateTest(user, groupRoles);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         String csv = "1,foods,comment,1111111111,2015-05-23 00:00:00\n"
                 + "1,foods2,comment2,1111111111,2015-05-23 00:00:00\n"
@@ -213,8 +214,8 @@ public class FoodDiaryServiceTest {
         FoodDiary newFoodDiary = new FoodDiary(user, "pink meat", now);
         newFoodDiary.setId(1L);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(foodDiaryRepository.findOne(eq(foodDiary.getId()))).thenReturn(foodDiary);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(foodDiaryRepository.findById(eq(foodDiary.getId()))).thenReturn(Optional.of(foodDiary));
         when(foodDiaryRepository.save(eq(newFoodDiary))).thenReturn(newFoodDiary);
 
         FoodDiary updated = foodDiaryService.update(user.getId(), newFoodDiary);

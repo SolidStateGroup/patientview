@@ -43,6 +43,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -337,8 +338,8 @@ public class ApiPatientServiceTest {
         entity.setLogicalId(UUID.randomUUID());
 
         when(DataUtils.getResource(any(JSONObject.class))).thenReturn(new Patient());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
-        when(groupRepository.findOne(Matchers.eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
+        when(groupRepository.findById(Matchers.eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.getResource(UUID.fromString(resourceId), ResourceType.Patient)).thenReturn(patientJson);
         when(fhirResource.updateEntity(
                 any(Patient.class), eq(ResourceType.Patient.name()),
