@@ -114,9 +114,9 @@ public class ResearchStudyController extends BaseController<ResearchStudyControl
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : null;
 
         if (pageConverted != null && sizeConverted != null) {
-            pageable = new PageRequest(pageConverted, sizeConverted);
+            pageable = PageRequest.of(pageConverted, sizeConverted);
         } else {
-            pageable = new PageRequest(0, Integer.MAX_VALUE);
+            pageable = PageRequest.of(0, Integer.MAX_VALUE);
         }
 
         return new ResponseEntity<>(researchService.getAllForUser(userId, limitResults, pageable), HttpStatus.OK);
