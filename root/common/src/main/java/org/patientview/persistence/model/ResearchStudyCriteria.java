@@ -1,6 +1,5 @@
 package org.patientview.persistence.model;
 
-import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -24,9 +23,7 @@ public class ResearchStudyCriteria extends BaseModel{
 
 
     @Column(name = "criteria")
-    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
-            parameters = {@Parameter(name = "classType",
-                    value = "org.patientview.persistence.model.ResearchStudyCriteriaData")})
+    @Type(type = "jsonb")
     private ResearchStudyCriteriaData researchStudyCriterias;
 
 
@@ -41,16 +38,10 @@ public class ResearchStudyCriteria extends BaseModel{
     public ResearchStudyCriteria() {
     }
 
-    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
-            parameters = {@Parameter(name = "classType",
-                    value = "org.patientview.persistence.model.ResearchStudyCriteriaData")})
     public ResearchStudyCriteriaData getResearchStudyCriterias() {
         return researchStudyCriterias;
     }
 
-    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
-            parameters = {@Parameter(name = "classType",
-                    value = "org.patientview.persistence.model.ResearchStudyCriteriaData")})
     public void setResearchStudyCriterias(ResearchStudyCriteriaData researchStudyCriterias) {
         this.researchStudyCriterias = researchStudyCriterias;
     }
