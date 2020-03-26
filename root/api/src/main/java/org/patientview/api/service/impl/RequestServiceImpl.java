@@ -160,7 +160,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         requestTypes.add(RequestTypes.FORGOT_LOGIN);
 
         Page<Request> requests = requestRepository.findAllByStatuses(
-                submittedStatus, requestTypes, new PageRequest(0, Integer.MAX_VALUE));
+                submittedStatus, requestTypes, PageRequest.of(0, Integer.MAX_VALUE));
 
         int count = 0;
         Date now = new Date();

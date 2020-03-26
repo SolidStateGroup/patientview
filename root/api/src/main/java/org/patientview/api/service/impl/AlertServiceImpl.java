@@ -282,7 +282,7 @@ public class AlertServiceImpl extends AbstractServiceImpl<AlertServiceImpl> impl
         featureIds.add(feature.getId());
 
         return !(userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds,
-                new PageRequest(0, Integer.MAX_VALUE)).getTotalElements() > 0L);
+                PageRequest.of(0, Integer.MAX_VALUE)).getTotalElements() > 0L);
     }
 
     @Override

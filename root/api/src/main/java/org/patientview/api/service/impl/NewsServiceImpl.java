@@ -315,7 +315,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find user %s", userId)));
 
         // get role, group and grouprole specific news (directly accessed through newsLink)
-        PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         Set<NewsItem> newsItemSet = new HashSet<>();
 
         if (newsTypeId != staticDataManager.getLookupByTypeAndValue(LookupTypes.NEWS_TYPE, "ALL").getId()) {

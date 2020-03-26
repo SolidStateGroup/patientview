@@ -89,7 +89,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
         Page<Group> unitGroups
                 = groupRepository.findAllByGroupType("%%", Collections.singletonList(lookup.getId()),
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
 
         if (CollectionUtils.isEmpty(unitGroups.getContent())) {
             throw new ResourceNotFoundException("Cannot get groups");

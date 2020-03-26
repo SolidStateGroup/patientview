@@ -144,7 +144,7 @@ public class ExportServiceImpl extends AbstractServiceImpl<ExportServiceImpl> im
         document.addHeader("Update Date");
 
         List<GpMaster> gpMasters
-                = gpMasterRepository.findAll(new Sort(new Sort.Order(Sort.Direction.ASC, "practiceCode")));
+                = gpMasterRepository.findAll(Sort.by(new Sort.Order(Sort.Direction.ASC, "practiceCode")));
 
         for (GpMaster gp : gpMasters) {
             document.createNewRow();

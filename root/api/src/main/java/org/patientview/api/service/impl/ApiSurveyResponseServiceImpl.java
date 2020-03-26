@@ -353,7 +353,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
                 // get list of suitable staff users to send alerts to
                 Page<User> staffUsers = userRepository.findStaffByGroupsRolesFeatures(
                         "%%", new ArrayList<>(groupIds), new ArrayList<>(roleIds), featureIds,
-                        new PageRequest(0, Integer.MAX_VALUE));
+                        PageRequest.of(0, Integer.MAX_VALUE));
 
                 if (staffUsers != null) {
                     // only send secure message and email if PatientView Notifications exists
@@ -726,7 +726,7 @@ public class ApiSurveyResponseServiceImpl extends AbstractServiceImpl<ApiSurveyR
 
         for (String type : types) {
             Page<SurveyResponse> latest
-                    = surveyResponseRepository.findLatestByUserAndSurveyType(user, type, new PageRequest(0, 1));
+                    = surveyResponseRepository.findLatestByUserAndSurveyType(user, type, PageRequest.of(0, 1));
             if (!CollectionUtils.isEmpty(latest.getContent())) {
                 responses.add(latest.getContent().get(0));
             }

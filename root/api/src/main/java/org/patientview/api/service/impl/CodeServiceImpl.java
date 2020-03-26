@@ -480,7 +480,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         Page<Code> found = codeRepository.findAllByCodeAndStandardTypesFiltered(searchTerm, codeTypesList,
-                standardTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                standardTypesList, PageRequest.of(0, Integer.MAX_VALUE));
 
         List<BaseCode> reduced = new ArrayList<>();
 
@@ -579,10 +579,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             standardTypesList.add(standardLookup.getId());
 
             found = codeRepository.findAllByCodeAndStandardTypesFiltered(searchTerm, codeTypesList,
-                    standardTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                    standardTypesList, PageRequest.of(0, Integer.MAX_VALUE));
         } else {
             found = codeRepository.findAllByCodeTypesFiltered(
-                    searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                    searchTerm, codeTypesList, PageRequest.of(0, Integer.MAX_VALUE));
         }
 
         List<BaseCode> reduced = new ArrayList<>();
@@ -620,7 +620,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
 
         found = codeRepository.findAllByCodeTypesFiltered(
-                searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                searchTerm, codeTypesList, PageRequest.of(0, Integer.MAX_VALUE));
 
         List<BaseCode> reduced = new ArrayList<>();
 
@@ -650,7 +650,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         found = codeRepository.findAllByCodeTypesFiltered(
-                searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                searchTerm, codeTypesList, PageRequest.of(0, Integer.MAX_VALUE));
 
 
         List<BaseCode> reduced = new ArrayList<>();

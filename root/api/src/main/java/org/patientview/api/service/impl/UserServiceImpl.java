@@ -1351,14 +1351,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // todo: it is the Sort.NullHandling.NULLS_FIRST etc that is not picked up by hibernate
         if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
             if (sortDirection.equals("DESC")) {
-                pageable = new PageRequest(pageConverted, sizeConverted,
-                        new Sort(new Sort.Order(Sort.Direction.DESC, sortField, Sort.NullHandling.NULLS_FIRST)));
+                pageable = PageRequest.of(pageConverted, sizeConverted,
+                        Sort.by(new Sort.Order(Sort.Direction.DESC, sortField, Sort.NullHandling.NULLS_FIRST)));
             } else {
-                pageable = new PageRequest(pageConverted, sizeConverted,
-                        new Sort(new Sort.Order(Sort.Direction.ASC, sortField, Sort.NullHandling.NULLS_LAST)));
+                pageable = PageRequest.of(pageConverted, sizeConverted,
+                        Sort.by(new Sort.Order(Sort.Direction.ASC, sortField, Sort.NullHandling.NULLS_LAST)));
             }
         } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
+            pageable = PageRequest.of(pageConverted, sizeConverted);
         }
 
         // handle searching by field (username, forename, surname, identifier, email)

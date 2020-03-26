@@ -209,7 +209,7 @@ public class ResearchServiceImpl extends AbstractServiceImpl<ResearchServiceImpl
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         // get role, group and grouprole specific news (directly accessed through newsLink)
-        PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         Set<ResearchStudy> researchStudySet = new HashSet<>();
 
         //Get the user

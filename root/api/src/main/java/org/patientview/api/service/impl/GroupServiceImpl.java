@@ -453,11 +453,11 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
     public Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId) {
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN)) {
 
-            Page<Group> groupList = groupRepository.findAll("%%", new PageRequest(0, Integer.MAX_VALUE));
+            Page<Group> groupList = groupRepository.findAll("%%", PageRequest.of(0, Integer.MAX_VALUE));
 
             // convert to lightweight transport objects, create Page and return
             List<org.patientview.api.model.Group> transportContent
@@ -547,7 +547,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         if (lookup != null) {
             groupTypes.add(lookup.getId());
             Page<Group> supportGroups
-                    = groupRepository.findAllByGroupType("%%", groupTypes, new PageRequest(0, Integer.MAX_VALUE));
+                    = groupRepository.findAllByGroupType("%%", groupTypes, PageRequest.of(0, Integer.MAX_VALUE));
             if (!supportGroups.getContent().isEmpty()) {
                 groups.addAll(supportGroups.getContent());
             }

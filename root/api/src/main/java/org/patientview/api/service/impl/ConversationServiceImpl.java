@@ -312,7 +312,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             roleIds.add(role.getId());
         }
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
 
         if (CollectionUtils.isEmpty(page.getContent())) {
@@ -563,7 +563,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 }
                 Page<User> patientPage = userRepository.findPatientByGroupsRolesNoFilter(
                         Arrays.asList(new Long[]{group.getId()}),
-                        Arrays.asList(new Long[]{patientRole.getId()}), new PageRequest(0, Integer.MAX_VALUE));
+                        Arrays.asList(new Long[]{patientRole.getId()}), PageRequest.of(0, Integer.MAX_VALUE));
 
                 if (!CollectionUtils.isEmpty(patientPage.getContent())) {
                     users.addAll(patientPage.getContent());
@@ -920,13 +920,13 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // remove from all conversations where user is a member (including messages)
         // this will return all conversation where user is a member and creator
         List<Conversation> conversations
-                = conversationRepository.findByUser(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
+                = conversationRepository.findByUser(user, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
 
         // we could not find any conversation where user is a member
         // check if we have any where user is a creator
         if (CollectionUtils.isEmpty(conversations)) {
             conversations =
-                    conversationRepository.findByCreator(user, new PageRequest(0, Integer.MAX_VALUE)).getContent();
+                    conversationRepository.findByCreator(user, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
         }
 
         LOG.info("user id: " + user.getId() + " has " + conversations.size() + " conversations");
@@ -1083,7 +1083,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 ? Integer.parseInt(getParameters.getPage()) : 0;
         Integer sizeConverted = (StringUtils.isNotEmpty(getParameters.getSize()))
                 ? Integer.parseInt(getParameters.getSize()) : Integer.MAX_VALUE;
-        PageRequest pageable = new PageRequest(pageConverted, sizeConverted);
+        PageRequest pageable = PageRequest.of(pageConverted, sizeConverted);
 
         // Building String query manually rather than using pre-defined repository method for potential complex queries
         // in future
@@ -1349,7 +1349,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             roleIds.add(role.getId());
         }
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
         return convertUsersToBaseUsers(page.getContent());
     }
@@ -1386,7 +1386,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             roleIds.add(role.getId());
         }
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         Page<User> page = userRepository.findStaffByGroupsRolesFeatures("%%", groupIds, roleIds, featureIds, pageable);
 
         Long count = 0L;
@@ -1535,7 +1535,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // only search for groups patient is in (excluding specialties so only units and disease groups)
         List<Group> patientGroups
                 = Util.convertIterable(groupRepository.findGroupsByUserNoSpecialties(
-                "%%", entityUser, new PageRequest(0, Integer.MAX_VALUE)));
+                "%%", entityUser, PageRequest.of(0, Integer.MAX_VALUE)));
 
         for (Group group : patientGroups) {
             groupIdList.add(group.getId().toString());
