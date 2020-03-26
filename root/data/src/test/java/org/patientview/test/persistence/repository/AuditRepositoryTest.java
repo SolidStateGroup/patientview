@@ -212,7 +212,7 @@ public class AuditRepositoryTest {
         Date start = new Date(new Date().getTime() - 2 * oneWeek);
         Date end = new Date();
 
-        Page<Audit> audits = auditRepository.findAll(start, end, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAll(start, end, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
@@ -258,12 +258,12 @@ public class AuditRepositoryTest {
 
         // filter by identifier
         String filterText = "%" + identifier.getIdentifier() + "%";
-        Page<Audit> audits = auditRepository.findAllByIdentifierFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllByIdentifierFiltered(start, end, filterText, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 1 audit returned (search by identifier)", 1, audits.getContent().size());
 
         // filter by username
         filterText = "%" + user.getUsername().toUpperCase() + "%";
-        audits = auditRepository.findAllByIdentifierFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        audits = auditRepository.findAllByIdentifierFiltered(start, end, filterText, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 1 audit returned (search by username)", 1, audits.getContent().size());
     }
 
@@ -295,7 +295,7 @@ public class AuditRepositoryTest {
         Date end = new Date();
 
         String filterText = "%" + user.getUsername().toUpperCase() + "%";
-        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
     }
 
@@ -327,7 +327,7 @@ public class AuditRepositoryTest {
         Date end = new Date();
 
         String filterText = "%" + information + "%";
-        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
     }
 
@@ -359,7 +359,7 @@ public class AuditRepositoryTest {
         Date end = new Date();
 
         String filterText = "%" + username + "%";
-        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
     }
 
@@ -389,7 +389,7 @@ public class AuditRepositoryTest {
 
 
         String filterText = "%" + user.getUsername().toUpperCase() + "%";
-        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllFiltered(start, end, filterText, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
 
@@ -428,7 +428,7 @@ public class AuditRepositoryTest {
         groupIds.add(group.getId());
         groupIds.add(1L);
 
-        Page<Audit> audits = auditRepository.findAllBySourceGroup(groupIds, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllBySourceGroup(groupIds, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
     }
 
@@ -469,7 +469,7 @@ public class AuditRepositoryTest {
 
         String filterText = "%" + user.getUsername().toUpperCase() + "%";
         Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds,
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
     }
 
@@ -526,7 +526,7 @@ public class AuditRepositoryTest {
 
         String filterText = "%%";
         Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds,
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
     }
 
@@ -598,7 +598,7 @@ public class AuditRepositoryTest {
         Date end = new Date();
 
         String filterText = "%" + user.getUsername().toUpperCase() + "%";
-        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, filterText, groupIds, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
     }
 
@@ -669,7 +669,7 @@ public class AuditRepositoryTest {
         Date start = new Date(0);
         Date end = new Date();
 
-        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, "%%", groupIds, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllBySourceGroupFiltered(start, end, "%%", groupIds, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 5 audit returned", 5, audits.getContent().size());
     }
 
@@ -690,7 +690,7 @@ public class AuditRepositoryTest {
         actions.add(AuditActions.PATIENT_VIEW);
         actions.add(AuditActions.PASSWORD_CHANGE);
 
-        Page<Audit> audits = auditRepository.findAllByAction(actions, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllByAction(actions, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be one audit returned", 1, audits.getContent().size());
     }
 
@@ -757,7 +757,7 @@ public class AuditRepositoryTest {
         Date end = new Date();
 
         String filterText = "%" + user.getUsername().toUpperCase() + "%";
-        Page<Audit> audits = auditRepository.findAllByActionFiltered(start, end, filterText, actions, new PageRequest(0, Integer.MAX_VALUE));
+        Page<Audit> audits = auditRepository.findAllByActionFiltered(start, end, filterText, actions, PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
 
@@ -792,7 +792,7 @@ public class AuditRepositoryTest {
         groupIds.add(1L);
 
         Page<Audit> audits
-                = auditRepository.findAllByGroupAndAction(groupIds, actions, new PageRequest(0, Integer.MAX_VALUE));
+                = auditRepository.findAllByGroupAndAction(groupIds, actions, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
@@ -855,7 +855,7 @@ public class AuditRepositoryTest {
 
         String filterText = "%" + user.getUsername().toUpperCase() + "%";
         Page<Audit> audits = auditRepository.findAllBySourceGroupAndActionFiltered(start, end, filterText, groupIds, actions,
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 1 audit returned", 1, audits.getContent().size());
     }
 
@@ -908,7 +908,7 @@ public class AuditRepositoryTest {
         String filterText = "%%";
         Page<Audit> audits
                 = auditRepository.findAllBySourceGroupAndActionFiltered(start, end, filterText, groupIds, actions,
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
         Assert.assertEquals("Should be 2 audit returned", 2, audits.getContent().size());
     }
 
@@ -944,7 +944,7 @@ public class AuditRepositoryTest {
         auditRepository.save(audit3);
 
         Page<Audit> audits
-                = auditRepository.findAll(oneEighty.toDate(), now.toDate(), new PageRequest(0, Integer.MAX_VALUE));
+                = auditRepository.findAll(oneEighty.toDate(), now.toDate(), PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 3 audit returned", 3, audits.getContent().size());
 
@@ -959,7 +959,7 @@ public class AuditRepositoryTest {
 
         auditRepository.removeOldAuditXml(ninety.toDate());
         Page<Audit> audits2
-                = auditRepository.findAll(oneEighty.toDate(), now.toDate(), new PageRequest(0, Integer.MAX_VALUE));
+                = auditRepository.findAll(oneEighty.toDate(), now.toDate(), PageRequest.of(0, Integer.MAX_VALUE));
 
         countWithXML = 0;
         for (Audit audit : audits2) {

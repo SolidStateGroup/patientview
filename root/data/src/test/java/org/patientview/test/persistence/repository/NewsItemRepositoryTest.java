@@ -100,7 +100,7 @@ public class NewsItemRepositoryTest {
 
         newsItemRepository.save(newsItem);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         Page<NewsItem> newsItems = newsItemRepository.getPublicNews(pageable);
 
         // Which should get 1 route back and it should be the one that was created
@@ -136,7 +136,7 @@ public class NewsItemRepositoryTest {
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         Page<NewsItem> newsItems = newsItemRepository.findGroupNewsByUser(newsUser, pageable);
 
@@ -177,7 +177,7 @@ public class NewsItemRepositoryTest {
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         Page<NewsItem> newsItems = newsItemRepository.findRoleNewsByUser(newsUser, pageable);
 
@@ -221,7 +221,7 @@ public class NewsItemRepositoryTest {
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         Page<NewsItem> newsItems = newsItemRepository.findGroupRoleNewsByUser(newsUser, pageable);
 
         // Should get 1 route back and it should be the one that was created
@@ -331,7 +331,7 @@ public class NewsItemRepositoryTest {
         groupRole2.setStartDate(new Date());
         groupRoleRepository.save(groupRole2);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         Page<NewsItem> newsItems = newsItemRepository.findGroupNewsByUser(newsUser, pageable);
 
@@ -410,7 +410,7 @@ public class NewsItemRepositoryTest {
         groupRole.setStartDate(new Date());
         groupRoleRepository.save(groupRole);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         Page<NewsItem> newsItems = newsItemRepository.findGroupNewsByUser(specialtyUser, pageable);
 
         // should be no direct news relationship (as news is attached to TEST_GROUP not SPECIALTY)
@@ -431,7 +431,7 @@ public class NewsItemRepositoryTest {
         newsItem.setCreated(new Date());
         newsItemRepository.save(newsItem);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         Page<NewsItem> newsItems = newsItemRepository.findCreatorUpdaterNewsByUser(newsUser, pageable);
 
@@ -450,7 +450,7 @@ public class NewsItemRepositoryTest {
         newsItem.setNewsType(1);
         newsItemRepository.save(newsItem);
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         Page<NewsItem> newsItems = newsItemRepository.findCreatorUpdaterNewsByUserAndType(newsUser, 1, pageable);
 
