@@ -116,9 +116,9 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
     @Inject
     private ConditionService conditionService;
 
-    @Inject
-    @Named("patientView1")
-    private DataSource dataSource;
+//    @Inject
+//    @Named("patientView1")
+//    private DataSource dataSource;
 
     @Inject
     private DiagnosticService diagnosticService;
@@ -587,148 +587,149 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 List<Long> pv2ids = userMigrationService.getPatientview2IdsByStatus(MigrationStatus.PATIENT_MIGRATED);
                 pv2ids.addAll(userMigrationService.getPatientview2IdsByStatus(MigrationStatus.OBSERVATIONS_FAILED));
                 LOG.info(pv2ids.size() + " total PATIENT_MIGRATED, OBSERVATIONS_FAILED");
-                Connection connection = null;
-
-                try {
-                    connection = dataSource.getConnection();
-                    for (Long pv2id : pv2ids) {
-
-                        UserMigration userMigration
-                                = userMigrationService.getByPatientview2Id(pv2id);
-                        userMigration.setLastUpdate(new Date());
-                        userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
-                        userMigration = userMigrationService.save(userMigration);
-
-                        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
-                        try {
-                            User user = userService.get(pv2id);
-                            List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
-
-                            if (!CollectionUtils.isEmpty(fhirLinks)) {
-                                for (FhirLink fhirLink : fhirLinks) {
-
-                                    // correctly transfer patient entered results
-                                    String groupCode = fhirLink.getGroup().getCode();
-                                    if (groupCode.equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
-                                        groupCode = "PATIENT";
-                                    }
-
-                                    String query = "SELECT testcode, datestamp, prepost, value "
-                                            + "FROM testresult "
-                                            + "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier()
-                                            + "' AND unitcode = '" + groupCode + "'";
-
-                                    java.sql.Statement statement = connection.createStatement();
-                                    ResultSet results = statement.executeQuery(query);
-
-                                    while ((results.next())) {
-                                        String testcode = results.getString(1)
-                                                .replace("\"", "").replace("}", "").replace("{", "")
-                                                .replace(",", "").replace("'", "");
-                                        Date datestamp = results.getTimestamp(2);
-                                        String prepost = results.getString(THREE)
-                                                .replace("\"", "").replace("}", "").replace("{", "")
-                                                .replace(",", "").replace("'", "");
-                                        String value = results.getString(FOUR)
-                                                .replace("\"", "").replace("}", "").replace("{", "")
-                                                .replace(",", "").replace("'", "");
-
-                                        FhirObservation fhirObservation = new FhirObservation();
-                                        fhirObservation.setApplies(datestamp);
-                                        fhirObservation.setComments(prepost);
-                                        fhirObservation.setValue(value);
-                                        ObservationHeading observationHeading
-                                                = observationHeadingMap.get(testcode.toUpperCase());
-
-                                        if (observationHeading == null) {
-                                            observationHeading = new ObservationHeading();
-                                            observationHeading.setCode(testcode);
-                                            observationHeading.setName(testcode);
-                                            LOG.info("ObservationHeading not found (adding anyway): " + testcode);
-                                        }
-
-                                        fhirDatabaseObservations.add(buildFhirDatabaseObservation(
-                                                fhirObservation, observationHeading, fhirLink));
-                                    }
-                                }
-
-                                // result comments in pv1 are not attached to a certain group, so choose FhirLink
-                                // that isn't PATIENT_ENTERED
-                                FhirLink commentFhirLink = null;
-                                for (FhirLink fhirLink : fhirLinks) {
-                                    if (!fhirLink.getGroup().getCode()
-                                            .equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
-                                        commentFhirLink = fhirLink;
-                                    }
-                                }
-
-                                if (commentFhirLink != null) {
-                                    String query = "SELECT datestamp, body "
-                                            + "FROM comment "
-                                            + "WHERE nhsno = '" + fhirLinks.get(0).getIdentifier().getIdentifier()
-                                            + "'";
-
-                                    java.sql.Statement statement = connection.createStatement();
-                                    ResultSet results = statement.executeQuery(query);
-
-                                    while ((results.next())) {
-                                        Date datestamp = results.getTimestamp(1);
-                                        String body = results.getString(2)
-                                                .replace("\"", "").replace("}", "").replace("{", "")
-                                                .replace(",", " ").replace("'", "''");
-
-                                        FhirObservation fhirObservation = new FhirObservation();
-                                        fhirObservation.setApplies(datestamp);
-                                        fhirObservation.setComments(body);
-                                        fhirObservation.setValue(body);
-                                        ObservationHeading observationHeading
-                                                = observationHeadingMap.get(COMMENT_RESULT_HEADING.toUpperCase());
-
-                                        fhirDatabaseObservations.add(buildFhirDatabaseObservation(
-                                                fhirObservation, observationHeading, commentFhirLink));
-                                    }
-                                }
-                            }
-
-                            try {
-                                if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
-                                    insertObservations(fhirDatabaseObservations);
-                                }
-
-                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
-                                userMigration.setObservationCount(Long.valueOf(fhirDatabaseObservations.size()));
-                                userMigration.setInformation(null);
-                                userMigration.setLastUpdate(new Date());
-                                userMigrationService.save(userMigration);
-                            } catch (FhirResourceException fre) {
-                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
-                                userMigration.setInformation(fre.getMessage());
-                                userMigration.setLastUpdate(new Date());
-                                userMigrationService.save(userMigration);
-                            }
-
-                        } catch (ResourceNotFoundException rnf) {
-                            LOG.error("user with pv2 id " + pv2id + " not found");
-                        } catch (FhirResourceException fre) {
-                            LOG.error("cannot build observations for user with pv2 id " + pv2id);
-                            userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
-                            userMigration.setInformation(fre.getMessage());
-                            userMigration.setLastUpdate(new Date());
-                            userMigrationService.save(userMigration);
-                        }
-                    }
-
-                    connection.close();
-                } catch (SQLException e) {
-                    LOG.error("MySQL exception", e);
-                    try {
-                        if (connection != null) {
-                            connection.close();
-                        }
-                    } catch (SQLException e2) {
-                        LOG.error("Cannot close MySQL connection ", e2);
-                    }
-                }
+                LOG.error("DISABLED PLEASE CHECK CODE....");
+//                Connection connection = null;
+//
+//                try {
+//                    connection = dataSource.getConnection();
+//                    for (Long pv2id : pv2ids) {
+//
+//                        UserMigration userMigration
+//                                = userMigrationService.getByPatientview2Id(pv2id);
+//                        userMigration.setLastUpdate(new Date());
+//                        userMigration.setStatus(MigrationStatus.OBSERVATIONS_STARTED);
+//                        userMigration = userMigrationService.save(userMigration);
+//
+//                        List<FhirDatabaseObservation> fhirDatabaseObservations = new ArrayList<>();
+//                        try {
+//                            User user = userService.get(pv2id);
+//                            List<FhirLink> fhirLinks = fhirLinkRepository.findActiveByUser(user);
+//
+//                            if (!CollectionUtils.isEmpty(fhirLinks)) {
+//                                for (FhirLink fhirLink : fhirLinks) {
+//
+//                                    // correctly transfer patient entered results
+//                                    String groupCode = fhirLink.getGroup().getCode();
+//                                    if (groupCode.equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+//                                        groupCode = "PATIENT";
+//                                    }
+//
+//                                    String query = "SELECT testcode, datestamp, prepost, value "
+//                                            + "FROM testresult "
+//                                            + "WHERE nhsno = '" + fhirLink.getIdentifier().getIdentifier()
+//                                            + "' AND unitcode = '" + groupCode + "'";
+//
+//                                    java.sql.Statement statement = connection.createStatement();
+//                                    ResultSet results = statement.executeQuery(query);
+//
+//                                    while ((results.next())) {
+//                                        String testcode = results.getString(1)
+//                                                .replace("\"", "").replace("}", "").replace("{", "")
+//                                                .replace(",", "").replace("'", "");
+//                                        Date datestamp = results.getTimestamp(2);
+//                                        String prepost = results.getString(THREE)
+//                                                .replace("\"", "").replace("}", "").replace("{", "")
+//                                                .replace(",", "").replace("'", "");
+//                                        String value = results.getString(FOUR)
+//                                                .replace("\"", "").replace("}", "").replace("{", "")
+//                                                .replace(",", "").replace("'", "");
+//
+//                                        FhirObservation fhirObservation = new FhirObservation();
+//                                        fhirObservation.setApplies(datestamp);
+//                                        fhirObservation.setComments(prepost);
+//                                        fhirObservation.setValue(value);
+//                                        ObservationHeading observationHeading
+//                                                = observationHeadingMap.get(testcode.toUpperCase());
+//
+//                                        if (observationHeading == null) {
+//                                            observationHeading = new ObservationHeading();
+//                                            observationHeading.setCode(testcode);
+//                                            observationHeading.setName(testcode);
+//                                            LOG.info("ObservationHeading not found (adding anyway): " + testcode);
+//                                        }
+//
+//                                        fhirDatabaseObservations.add(buildFhirDatabaseObservation(
+//                                                fhirObservation, observationHeading, fhirLink));
+//                                    }
+//                                }
+//
+//                                // result comments in pv1 are not attached to a certain group, so choose FhirLink
+//                                // that isn't PATIENT_ENTERED
+//                                FhirLink commentFhirLink = null;
+//                                for (FhirLink fhirLink : fhirLinks) {
+//                                    if (!fhirLink.getGroup().getCode()
+//                                            .equals(HiddenGroupCodes.PATIENT_ENTERED.toString())) {
+//                                        commentFhirLink = fhirLink;
+//                                    }
+//                                }
+//
+//                                if (commentFhirLink != null) {
+//                                    String query = "SELECT datestamp, body "
+//                                            + "FROM comment "
+//                                            + "WHERE nhsno = '" + fhirLinks.get(0).getIdentifier().getIdentifier()
+//                                            + "'";
+//
+//                                    java.sql.Statement statement = connection.createStatement();
+//                                    ResultSet results = statement.executeQuery(query);
+//
+//                                    while ((results.next())) {
+//                                        Date datestamp = results.getTimestamp(1);
+//                                        String body = results.getString(2)
+//                                                .replace("\"", "").replace("}", "").replace("{", "")
+//                                                .replace(",", " ").replace("'", "''");
+//
+//                                        FhirObservation fhirObservation = new FhirObservation();
+//                                        fhirObservation.setApplies(datestamp);
+//                                        fhirObservation.setComments(body);
+//                                        fhirObservation.setValue(body);
+//                                        ObservationHeading observationHeading
+//                                                = observationHeadingMap.get(COMMENT_RESULT_HEADING.toUpperCase());
+//
+//                                        fhirDatabaseObservations.add(buildFhirDatabaseObservation(
+//                                                fhirObservation, observationHeading, commentFhirLink));
+//                                    }
+//                                }
+//                            }
+//
+//                            try {
+//                                if (!CollectionUtils.isEmpty(fhirDatabaseObservations)) {
+//                                    insertObservations(fhirDatabaseObservations);
+//                                }
+//
+//                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_MIGRATED);
+//                                userMigration.setObservationCount(Long.valueOf(fhirDatabaseObservations.size()));
+//                                userMigration.setInformation(null);
+//                                userMigration.setLastUpdate(new Date());
+//                                userMigrationService.save(userMigration);
+//                            } catch (FhirResourceException fre) {
+//                                userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+//                                userMigration.setInformation(fre.getMessage());
+//                                userMigration.setLastUpdate(new Date());
+//                                userMigrationService.save(userMigration);
+//                            }
+//
+//                        } catch (ResourceNotFoundException rnf) {
+//                            LOG.error("user with pv2 id " + pv2id + " not found");
+//                        } catch (FhirResourceException fre) {
+//                            LOG.error("cannot build observations for user with pv2 id " + pv2id);
+//                            userMigration.setStatus(MigrationStatus.OBSERVATIONS_FAILED);
+//                            userMigration.setInformation(fre.getMessage());
+//                            userMigration.setLastUpdate(new Date());
+//                            userMigrationService.save(userMigration);
+//                        }
+//                    }
+//
+//                    connection.close();
+//                } catch (SQLException e) {
+//                    LOG.error("MySQL exception", e);
+//                    try {
+//                        if (connection != null) {
+//                            connection.close();
+//                        }
+//                    } catch (SQLException e2) {
+//                        LOG.error("Cannot close MySQL connection ", e2);
+//                    }
+//                }
 
                 LOG.info("Migration of Observations took "
                         + getDateDiff(start, new Date(), TimeUnit.SECONDS) + " seconds.");
