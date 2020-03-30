@@ -1,8 +1,8 @@
 package org.patientview;
 
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.amqp.rabbit.core.RabbitTemplate;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Date;
@@ -15,8 +15,8 @@ public class BaseApplication {
 
     private final static String queueName = "ssg";
 
-    @Autowired
-    RabbitTemplate rabbitTemplate;
+//    @Autowired
+//    RabbitTemplate rabbitTemplate;
 
 
 
@@ -35,7 +35,7 @@ public class BaseApplication {
             log.setDate(new Date());
             log.setMessage("This is the log message");
 
-            rabbitTemplate.convertAndSend(queueName, log);
+//            rabbitTemplate.convertAndSend(queueName, log);
         }
     }
 }
