@@ -26,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.AlphaComposite;
@@ -155,6 +156,12 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     @Override
     public org.patientview.api.model.MyMedia createMyMediaDto(MyMedia myMedia) {
         return new org.patientview.api.model.MyMedia(myMedia);
+    }
+
+    @Transactional
+    @Override
+    public void deleteMediaForUser(User user){
+        myMediaRepository.deleteByUser(user);
     }
 
     private byte[] getVideoThumbnail(MyMedia myMedia) throws IOException, JCodecException {
