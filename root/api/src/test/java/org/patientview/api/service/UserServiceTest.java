@@ -1151,7 +1151,7 @@ public class UserServiceTest {
         when(roleRepository.findOne(eq(staffRole.getId()))).thenReturn(staffRole);
 
         userService.delete(staffUser.getId(), false);
-        verify(deletePatientTask, times(1)).deletePatient(any(Long.class), any(User.class));
+        verify(deletePatientTask, times(1)).deletePatient(any(User.class), any(User.class));
     }
 
     @Test
