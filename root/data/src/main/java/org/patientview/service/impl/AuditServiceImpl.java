@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Properties;
 
@@ -154,6 +155,14 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
      */
     @Override
     public org.patientview.persistence.model.Audit save(org.patientview.persistence.model.Audit audit) {
-        return auditRepository.save(audit);
+
+        Long groupId = audit.getGroup() != null ? audit.getGroup().getId() : null;
+        String sourceObjectType = audit.getSourceObjectType() != null ? audit.getSourceObjectType().getId() : null;
+        String auditAction = audit.getAuditActions() != null ? audit.getAuditActions().getId() : null;
+        auditRepository.save(auditAction, audit.getSourceObjectId(), sourceObjectType,
+                audit.getPreValue(), audit.getPostValue(), audit.getActorId(), audit.getCreationDate(),
+                audit.getIdentifier(), groupId ,audit.getInformation(), audit.getXml(), audit.getUsername());
+        // return auditRepository.save(audit);
+        return null;
     }
 }
