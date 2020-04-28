@@ -61,6 +61,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.AuditService;
 import org.patientview.service.GpLetterService;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
@@ -93,7 +94,7 @@ import static org.patientview.api.util.ApiUtil.getCurrentUser;
 public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements GpService {
 
     @Inject
-    private AuditRepository auditRepository;
+    private AuditService auditService;
 
     @Inject
     private ContactPointTypeRepository contactPointTypeRepository;
@@ -403,7 +404,7 @@ public class GpServiceImpl extends AbstractServiceImpl<GpServiceImpl> implements
             audit.setGroup(group);
         }
 
-        auditRepository.save(audit);
+        auditService.save(audit);
     }
 
     private User createGpAdminUser(GpDetails gpDetails, String password, Feature messagingFeature)
