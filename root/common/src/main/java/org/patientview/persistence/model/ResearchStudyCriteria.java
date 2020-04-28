@@ -1,7 +1,10 @@
 package org.patientview.persistence.model;
 
-import org.hibernate.annotations.Parameter;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,18 +18,20 @@ import java.util.Date;
 /**
  * Models a research study that is available to a user
  */
+@TypeDefs({
+        @TypeDef(name = "json", typeClass = JsonStringType.class),
+        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+})
 @Entity
 @Table(name = "pv_research_study_criteria")
-public class ResearchStudyCriteria extends BaseModel{
+public class ResearchStudyCriteria extends BaseModel {
 
     @Column(name = "research_study_id")
     private Long researchStudy;
 
 
-    @Column(name = "criteria")
-    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
-            parameters = {@Parameter(name = "classType",
-                    value = "org.patientview.persistence.model.ResearchStudyCriteriaData")})
+    @Type(type = "jsonb")
+    @Column(name = "criteria", columnDefinition = "jsonb")
     private ResearchStudyCriteriaData researchStudyCriterias;
 
 
@@ -41,16 +46,10 @@ public class ResearchStudyCriteria extends BaseModel{
     public ResearchStudyCriteria() {
     }
 
-    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
-            parameters = {@Parameter(name = "classType",
-                    value = "org.patientview.persistence.model.ResearchStudyCriteriaData")})
     public ResearchStudyCriteriaData getResearchStudyCriterias() {
         return researchStudyCriterias;
     }
 
-    @Type(type = "org.patientview.persistence.model.types.StringJsonUserType",
-            parameters = {@Parameter(name = "classType",
-                    value = "org.patientview.persistence.model.ResearchStudyCriteriaData")})
     public void setResearchStudyCriterias(ResearchStudyCriteriaData researchStudyCriterias) {
         this.researchStudyCriterias = researchStudyCriterias;
     }
