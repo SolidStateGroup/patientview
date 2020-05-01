@@ -107,7 +107,7 @@ public class AuditServiceImpl extends AbstractServiceImpl<AuditServiceImpl> impl
             }
         }
 
-        auditRepository.save(audit);
+        save(audit);
     }
     /**
      * Remove all Audit entries associated with a User.
