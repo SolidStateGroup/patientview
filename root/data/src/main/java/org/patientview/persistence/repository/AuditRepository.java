@@ -27,9 +27,9 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
     @Query(
             value = "INSERT INTO pv_audit (id, action, source_object_id, source_object_type, pre_value, " +
                     "post_value, actor_id, creation_date, identifier, group_id, information, xml, username) " +
-                    "VALUES (nextval('hibernate_sequence'), :action, :sourceObjectId, :sourceObjectType, " +
-                    " :preValue, :postValue,  CAST(CAST(:actorId AS TEXT) AS BIGINT), :creationDate, :identifier, " +
-                    " CAST(CAST(:groupId AS TEXT) AS BIGINT), :information, :xml, :username)",
+                    "VALUES (nextval('hibernate_sequence'), :action, CAST(CAST(:sourceObjectId AS TEXT) AS BIGINT), " +
+                    " :sourceObjectType, :preValue, :postValue,  CAST(CAST(:actorId AS TEXT) AS BIGINT), :creationDate," +
+                    " :identifier, CAST(CAST(:groupId AS TEXT) AS BIGINT), :information, :xml, :username)",
             nativeQuery = true)
     void save(@Param("action") String auditActions,
               @Param("sourceObjectId") Long sourceObjectId,
