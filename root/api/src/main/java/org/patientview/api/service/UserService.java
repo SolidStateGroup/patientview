@@ -193,7 +193,7 @@ public interface UserService {
      * @param userId an ID of patient  to delete
      * @param admin  an admin use who is deleting patient
      */
-    void deletePatient(Long userId, User admin);
+    void deletePatient(Long userId, User admin)throws ResourceNotFoundException, FhirResourceException;
 
     /**
      * Remove a Feature from a User.

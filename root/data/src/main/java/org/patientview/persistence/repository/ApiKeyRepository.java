@@ -4,6 +4,7 @@ import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -47,4 +48,8 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     ApiKey findOneByUserAndType(@Param("user") User user, @Param("type") ApiKeyTypes type);
 
     ApiKey findOneByKey(@Param("key") String key);
+
+    @Modifying(clearAutomatically = true) // note: clearAutomatically required to flush changes straight away
+    @Query("DELETE FROM ApiKey WHERE user.id = :userId")
+    void deleteByUser(@Param("userId") Long userId);
 }
