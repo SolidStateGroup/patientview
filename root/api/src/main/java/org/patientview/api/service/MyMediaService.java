@@ -9,6 +9,7 @@ import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.MyMedia;
+import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Propagation;
@@ -50,4 +51,13 @@ public interface MyMediaService {
      */
     byte[] getPreviewImage(MyMedia myMedia, int height) throws IOException, IM4JavaException,
             InterruptedException;
+
+    /**
+     * Hard delete all MyMedia entries associated with a User.
+     *
+     * Used internally when hard deleting patient from the system
+     *
+     * @param user User to delete MyMedia entries for
+     */
+    void deleteMediaForUser(User user);
 }

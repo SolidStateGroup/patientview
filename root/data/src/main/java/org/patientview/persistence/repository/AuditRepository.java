@@ -24,6 +24,30 @@ import java.util.List;
 public interface AuditRepository extends CrudRepository<Audit, Long> {
 
     @Modifying
+    @Query(
+            value = "INSERT INTO pv_audit (id, action, source_object_id, source_object_type, pre_value, " +
+                    "post_value, actor_id, creation_date, identifier, group_id, information, xml, username) " +
+                    "VALUES (nextval('hibernate_sequence'), :action, CAST(CAST(:sourceObjectId AS TEXT) AS BIGINT), " +
+                    " :sourceObjectType, :preValue, :postValue,  CAST(CAST(:actorId AS TEXT) AS BIGINT), :creationDate," +
+                    " :identifier, CAST(CAST(:groupId AS TEXT) AS BIGINT), :information, :xml, :username)",
+            nativeQuery = true)
+    void save(@Param("action") String auditActions,
+              @Param("sourceObjectId") Long sourceObjectId,
+              @Param("sourceObjectType") String sourceObjectType,
+              @Param("preValue") String preValue,
+              @Param("postValue") String postValue,
+              @Param("actorId") Long actorId,
+              @Param("creationDate") Date creationDate,
+              @Param("identifier") String identifier,
+              @Param("groupId") Long groupId,
+              @Param("information") String information,
+              @Param("xml") String xml,
+              @Param("username") String username
+
+    );
+
+
+    @Modifying
     @Query("UPDATE Audit a SET a.actorId = NULL WHERE a.actorId IS NOT NULL AND a.actorId = :actorId")
     void removeActorId(@Param("actorId") Long actorId);
 
@@ -179,8 +203,8 @@ public interface AuditRepository extends CrudRepository<Audit, Long> {
             "ORDER BY a.group.id " +
             "")
     List<Object[]> findAllByCountGroupAction(@Param("groupIds") List<Long> groupIds,
-                                       @Param("since") Date since,
-                                       @Param("actions") List<AuditActions> actions);
+                                             @Param("since") Date since,
+                                             @Param("actions") List<AuditActions> actions);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Audit a SET a.xml = NULL WHERE a.xml IS NOT NULL AND a.creationDate <= :date")
