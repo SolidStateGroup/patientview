@@ -84,6 +84,7 @@ deploy:staging:api:
 #    - echo $CI_PIPELINE_ID
     - scp root/api/target/api.war $SSH_USERNAME@$STAGING_PV:$PV_BUILDS/api.war
     - ssh -tt $SSH_USERNAME@$STAGING_PV bash $STAGING_PV_DEPLOY_API $CI_PIPELINE_ID
+  allow_failure: false
   when: manual
   only:
     - develop
@@ -103,6 +104,7 @@ deploy:staging:importer:
     #- echo $CI_PIPELINE_ID
     - scp root/importer/target/importer.war $SSH_USERNAME@$STAGING_PV:$PV_BUILDS/importer.war
     - ssh -tt $SSH_USERNAME@$STAGING_PV bash $STAGING_PV_DEPLOY_IMPORTER $CI_PIPELINE_ID
+  allow_failure: false
   when: manual
   only:
     - develop
@@ -191,6 +193,7 @@ deploy:prod:api:
     - echo $CI_PIPELINE_ID
     - scp root/api/target/api.war $SSH_USERNAME@$PROD_PV:$PV_BUILDS/api.war
     - ssh -tt $SSH_USERNAME@$PROD_PV bash $PROD_PV_DEPLOY_API $CI_PIPELINE_ID
+  allow_failure: false
   when: manual
   only:
     - master
@@ -209,6 +212,7 @@ deploy:prod:importer:
     - echo "Starting PV Production Importer Deployment"
     - scp root/importer/target/importer.war $SSH_USERNAME@$PROD_PV:$PV_BUILDS/importer.war
     - ssh -tt $SSH_USERNAME@$PROD_PV bash $PROD_PV_DEPLOY_IMPORTER $CI_PIPELINE_ID
+  allow_failure: false
   when: manual
   only:
     - master
@@ -240,6 +244,6 @@ build:prod:web:
     - echo "DeployingProduction  WEB"
     - rsync -ave ssh dist/* $SSH_USERNAME@$PROD_PV:$PV_WEB
   allow_failure: false
-  when: on_success
+  when: manual
   only:
     - master
