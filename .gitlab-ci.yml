@@ -104,7 +104,6 @@ deploy:staging:importer:
     #- echo $CI_PIPELINE_ID
     - scp root/importer/target/importer.war $SSH_USERNAME@$STAGING_PV:$PV_BUILDS/importer.war
     - ssh -tt $SSH_USERNAME@$STAGING_PV bash $STAGING_PV_DEPLOY_IMPORTER $CI_PIPELINE_ID
-  allow_failure: false
   when: manual
   only:
     - develop
@@ -212,7 +211,6 @@ deploy:prod:importer:
     - echo "Starting PV Production Importer Deployment"
     - scp root/importer/target/importer.war $SSH_USERNAME@$PROD_PV:$PV_BUILDS/importer.war
     - ssh -tt $SSH_USERNAME@$PROD_PV bash $PROD_PV_DEPLOY_IMPORTER $CI_PIPELINE_ID
-  allow_failure: false
   when: manual
   only:
     - master
