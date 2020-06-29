@@ -21,9 +21,8 @@ public class ResearchStudyCriteria extends BaseModel{
     @Column(name = "research_study_id")
     private Long researchStudy;
 
-
-    @Column(name = "criteria")
     @Type(type = "jsonb")
+    @Column(name = "criteria", columnDefinition = "jsonb")
     private ResearchStudyCriteriaData researchStudyCriterias;
 
 

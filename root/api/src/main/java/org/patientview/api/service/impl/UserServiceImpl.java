@@ -25,6 +25,7 @@ import org.patientview.api.service.HospitalisationService;
 import org.patientview.api.service.ImmunisationService;
 import org.patientview.api.service.InsDiaryAuditService;
 import org.patientview.api.service.InsDiaryService;
+import org.patientview.api.service.MyMediaService;
 import org.patientview.api.service.PatientManagementService;
 import org.patientview.api.service.SurveyFeedbackService;
 import org.patientview.api.service.UserService;
@@ -35,7 +36,6 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.exception.VerificationException;
 import org.patientview.config.utils.CommonUtils;
-import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.ApiKey;
 import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Feature;
@@ -242,6 +242,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Inject
     private InsDiaryAuditService insDiaryAuditService;
+
+    @Inject
+    private MyMediaService myMediaService;
 
     @Inject
     private DeletePatientTask deletePatientTask;
@@ -881,7 +884,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             if (isPatient || forceDelete) {
                 // call async patient delete
-                deletePatientTask.deletePatient(user.getId(), getCurrentUser());
+                deletePatientTask.deletePatient(user, getCurrentUser());
             } else {
                 // staff member, mark as deleted
                 LOG.info("user: " + user.getId() + ", mark staff user as deleted");
@@ -899,118 +902,92 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void deletePatient(Long patientId, User admin) {
+    public void deletePatient(Long patientId, User admin) throws ResourceNotFoundException, FhirResourceException {
         long start = System.currentTimeMillis();
         LOG.info("Starting delete Patient: " + patientId);
 
-        String message;
-        String username = "";
+        User patient = findUser(patientId);
+        String username = patient.getUsername();
 
-        Alert newAlert = new Alert();
-        newAlert.setUser(admin);
-        newAlert.setWebAlert(true);
-        newAlert.setWebAlertViewed(false);
-        newAlert.setEmailAlert(false);
-        newAlert.setEmailAlertSent(true);
-        newAlert.setMobileAlert(false);
-        newAlert.setMobileAlertSent(true);
-        newAlert.setCreated(new Date());
-        newAlert.setCreator(admin);
+        // make sure user is patient
+        if (isUserAPatient(patient)) {
+            for (GroupRole groupRole : patient.getGroupRoles()) {
+                Role role = roleRepository.findOne(groupRole.getRole().getId());
 
-        try {
-            User patient = findUser(patientId);
-            username = patient.getUsername();
-
-            // make sure user is patient
-            if (isUserAPatient(patient)) {
-                for (GroupRole groupRole : patient.getGroupRoles()) {
-                    Role role = roleRepository.findById(groupRole.getRole().getId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Could not find Role"));
-
-                    // audit removal (apart from MEMBER)
-                    if (!role.getName().equals(RoleName.MEMBER)
-                            && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
-                        auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, patient.getUsername(),
-                                getCurrentUser(), patientId, AuditObjectTypes.User, groupRole.getGroup());
-                    }
+                // audit removal (apart from MEMBER)
+                if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
+                    auditService.createAudit(AuditActions.PATIENT_GROUP_ROLE_DELETE, patient.getUsername(),
+                            getCurrentUser(), patientId, AuditObjectTypes.User, groupRole.getGroup());
                 }
-
-                // wipe patient and observation data if it exists
-                if (!CollectionUtils.isEmpty(patient.getFhirLinks())) {
-                    LOG.info("user: " + patient.getId() + ", delete existing patient data");
-                    patientService.deleteExistingPatientData(patient.getFhirLinks());
-                    LOG.info("user: " + patient.getId() + ", delete observation data");
-                    observationService.deleteAllExistingObservationData(patient.getFhirLinks());
-                }
-
-                // patient, delete from conversations and associated messages, other non user tables
-                LOG.info("user: " + patient.getId() + ", delete user from conversations");
-                conversationService.deleteUserFromConversations(patient);
-                LOG.info("user: " + patient.getId() + ", delete user from audit");
-                auditService.deleteUserFromAudit(patient);
-                LOG.info("user: " + patient.getId() + ", delete user tokens");
-                userTokenRepository.deleteByUserId(patient.getId());
-                LOG.info("user: " + patient.getId() + ", delete user from migration");
-                userMigrationRepository.deleteByUserId(patient.getId());
-                LOG.info("user: " + patient.getId() + ", delete user from user observation headings");
-                userObservationHeadingRepository.deleteByUserId(patient.getId());
-                LOG.info("user: " + patient.getId() + ", delete user from alerts");
-                alertRepository.deleteByUserId(patient.getId());
-                LOG.info("user: " + patient.getId() + ", delete fhir links");
-                deleteFhirLinks(patient.getId());
-                LOG.info("user: " + patient.getId() + ", delete apiKeys");
-                deleteApiKeys(patient.getId());
-
-                LOG.info("user: " + patient.getId() + ", delete SurveyFeedback");
-                surveyFeedbackService.deleteForUser(patient.getId());
-                LOG.info("user: " + patient.getId() + ", delete SurveyResponse");
-                surveyResponseService.deleteForUser(patient.getId());
-
-                // delete hospitalisation records
-                LOG.info("user: " + patient.getId() + ", delete hospitalisations");
-                hospitalisationService.deleteRecordsForUser(patient);
-
-                // delete immunisation records
-                LOG.info("user: " + patient.getId() + ", delete immunisations");
-                immunisationService.deleteRecordsForUser(patient);
-
-                // delete ins diary records
-                LOG.info("user: " + patient.getId() + ", delete ins diary");
-                insDiaryService.deleteInsDiaryRecordsForUser(patient);
-
-                LOG.info("user: " + patient.getId() + ", delete ins diary logs");
-                insDiaryAuditService.deleteByPatient(patient.getId());
-
-                // delete ins relapse records
-                LOG.info("user: " + patient.getId() + ", delete relapse");
-                insDiaryService.deleteRelapseRecordsForUser(patient);
-
-                LOG.info("user: " + patient.getId() + ", delete identifiers");
-                deleteIdentifiers(patient.getId());
-
-                LOG.info("user: " + patient.getId() + ", delete user");
-                userRepository.delete(patient);
-
-                // audit deletion for patient
-                auditService.createAudit(AuditActions.PATIENT_DELETE, username,
-                        admin, patientId, AuditObjectTypes.User, null);
-
-                message = "Patient with Username <b>" + username + "</b> has been permanently deleted.";
-                newAlert.setAlertType(AlertTypes.PATIENT_DELETED);
-                newAlert.setLatestValue(message);
-            } else {
-                LOG.error("Trying to delete none Patient user,  id: " + patient.getId());
             }
-        } catch (Exception e) {
-            LOG.error("Error deleting patient", e);
-            message = "There was an error deleting Patient with Username <b>" + username + "</b>. " +
-                    "If this problem persists, please contact PatientView Central Support.";
-            newAlert.setAlertType(AlertTypes.PATIENT_DELETE_FAILED);
-            newAlert.setLatestValue(message);
-        }
 
-        // create Patient Delete alert
-        alertService.saveAlert(newAlert);
+            // wipe patient and observation data if it exists
+            if (!CollectionUtils.isEmpty(patient.getFhirLinks())) {
+                LOG.info("user: " + patient.getId() + ", delete existing patient data");
+                patientService.deleteExistingPatientData(patient.getFhirLinks());
+                LOG.info("user: " + patient.getId() + ", delete observation data");
+                observationService.deleteAllExistingObservationData(patient.getFhirLinks());
+            }
+
+            // patient, delete from conversations and associated messages, other non user tables
+            LOG.info("user: " + patient.getId() + ", delete user from conversations");
+            conversationService.deleteUserFromConversations(patient);
+            LOG.info("user: " + patient.getId() + ", delete user from audit");
+            auditService.deleteUserFromAudit(patient);
+            LOG.info("user: " + patient.getId() + ", delete user tokens");
+            userTokenRepository.deleteByUserId(patient.getId());
+            LOG.info("user: " + patient.getId() + ", delete user from migration");
+            userMigrationRepository.deleteByUserId(patient.getId());
+            LOG.info("user: " + patient.getId() + ", delete user from user observation headings");
+            userObservationHeadingRepository.deleteByUserId(patient.getId());
+            LOG.info("user: " + patient.getId() + ", delete user from alerts");
+            alertRepository.deleteByUserId(patient.getId());
+            LOG.info("user: " + patient.getId() + ", delete fhir links");
+            deleteFhirLinks(patient.getId());
+            LOG.info("user: " + patient.getId() + ", delete apiKeys");
+            deleteApiKeys(patient.getId());
+
+            LOG.info("user: " + patient.getId() + ", delete SurveyFeedback");
+            surveyFeedbackService.deleteForUser(patient.getId());
+            LOG.info("user: " + patient.getId() + ", delete SurveyResponse");
+            surveyResponseService.deleteForUser(patient.getId());
+
+            // delete hospitalisation records
+            LOG.info("user: " + patient.getId() + ", delete hospitalisations");
+            hospitalisationService.deleteRecordsForUser(patient);
+
+            // delete immunisation records
+            LOG.info("user: " + patient.getId() + ", delete immunisations");
+            immunisationService.deleteRecordsForUser(patient);
+
+            // delete ins diary records
+            LOG.info("user: " + patient.getId() + ", delete ins diary");
+            insDiaryService.deleteInsDiaryRecordsForUser(patient);
+
+            LOG.info("user: " + patient.getId() + ", delete ins diary logs");
+            insDiaryAuditService.deleteByPatient(patient.getId());
+
+            // delete ins relapse records
+            LOG.info("user: " + patient.getId() + ", delete relapse");
+            insDiaryService.deleteRelapseRecordsForUser(patient);
+
+            // delete ins relapse records
+            LOG.info("user: " + patient.getId() + ", delete MyMedia");
+            myMediaService.deleteMediaForUser(patient);
+
+            LOG.info("user: " + patient.getId() + ", delete identifiers");
+            deleteIdentifiers(patient.getId());
+
+            LOG.info("user: " + patient.getId() + ", delete user");
+            userRepository.delete(patient);
+
+            // audit deletion for patient
+            auditService.createAudit(AuditActions.PATIENT_DELETE, username,
+                    admin, patientId, AuditObjectTypes.User, null);
+
+        } else {
+            LOG.error("Trying to delete none Patient user,  id: " + patient.getId());
+        }
         LOG.info("TIMING patient delete took " + (System.currentTimeMillis() - start));
     }
 
@@ -1061,15 +1038,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void deleteApiKeys(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
-
-        List<ApiKey> apiKeys = apiKeyRepository.getAllKeysForUser(user);
-
-        for (ApiKey apiKey : apiKeys) {
-            apiKeyRepository.delete(apiKey);
-        }
+    public void deleteApiKeys(Long userId) {
+         apiKeyRepository.deleteByUser(userId);
     }
 
     @Override
@@ -1257,7 +1227,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     // update fhirlink to point to correct identifier then delete identifier
                     User otherUser = userRepository.findById(otherUserId)
                             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-                    ;
 
                     if (!CollectionUtils.isEmpty(otherUser.getIdentifiers())) {
                         Identifier otherUserIdentifier = otherUser.getIdentifiers().iterator().next();

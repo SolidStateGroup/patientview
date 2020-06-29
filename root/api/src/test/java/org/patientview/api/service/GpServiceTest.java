@@ -53,6 +53,7 @@ import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.UserFeatureRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
+import org.patientview.service.AuditService;
 import org.patientview.service.GpLetterService;
 import org.patientview.test.util.TestUtils;
 
@@ -82,7 +83,7 @@ public class GpServiceTest {
     User creator;
 
     @Mock
-    AuditRepository auditRepository;
+    AuditService auditService;
 
     @Mock
     ContactPointTypeRepository contactPointTypeRepository;
@@ -289,7 +290,7 @@ public class GpServiceTest {
 
         Assert.assertNotNull("should set username", out.getUsername());
 
-        verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
+        verify(auditService, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).saveAll(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).saveAll(any(Set.class));
@@ -650,7 +651,7 @@ public class GpServiceTest {
 
         Assert.assertNotNull("should set username", out.getUsername());
 
-        verify(auditRepository, Mockito.times(6)).save(any(Audit.class));
+        verify(auditService, Mockito.times(6)).save(any(Audit.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
         verify(gpLetterRepository, Mockito.times(1)).saveAll(any(List.class));
         verify(groupFeatureRepository, Mockito.times(1)).saveAll(any(Set.class));
