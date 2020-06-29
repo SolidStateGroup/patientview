@@ -51,7 +51,6 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.UserToken;
-import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
@@ -759,8 +758,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
-     * This persists the User map with GroupRoles and UserFeatures. The static
-     * data objects are detached so have to be become managed again without updating the objects.
+     * This persists the User map with GroupRoles and UserFeatures. The static data objects are detached so have to be
+     * become managed again without updating the objects.
      *
      * @param user user to store
      * @return Long userId
@@ -912,7 +911,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // make sure user is patient
         if (isUserAPatient(patient)) {
             for (GroupRole groupRole : patient.getGroupRoles()) {
-                Role role = roleRepository.findOne(groupRole.getRole().getId());
+                Role role = roleRepository.findById(groupRole.getRole().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
                 // audit removal (apart from MEMBER)
                 if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
@@ -1039,7 +1039,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void deleteApiKeys(Long userId) {
-         apiKeyRepository.deleteByUser(userId);
+        apiKeyRepository.deleteByUser(userId);
     }
 
     @Override
@@ -1113,8 +1113,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * <p>
      * Used when user changes his password we need to invalidate all the session except the current one.
      * <p>
-     * This method require user to be logged in as UserToken associated with current security context is
-     * used to compare with other sessions in DB.
+     * This method require user to be logged in as UserToken associated with current security context is used to compare
+     * with other sessions in DB.
      *
      * @param userId ID of the user to clean sessions for
      */
@@ -1270,8 +1270,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
-     * Get users based on a list of groups and roles
-     * todo: fix this for PostgreSQL and hibernate nullhandling to avoid multiple queries
+     * Get users based on a list of groups and roles todo: fix this for PostgreSQL and hibernate nullhandling to avoid
+     * multiple queries
      *
      * @return Page of api User
      */
@@ -2112,9 +2112,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Builds group membership XML and adds it to the queue to be processed.
-     *
-     * This should only be called for Patient users who are members of Renal speciality.
-     * Also needs to be sending to UNIT groups only
+     * <p>
+     * This should only be called for Patient users who are members of Renal speciality. Also needs to be sending to
+     * UNIT groups only
      *
      * @param groupRole
      * @param adding
