@@ -606,33 +606,64 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         List<PatientNumber> patientNumberList = new ArrayList<>();
 
-        // TODO: needs logic fixing
         // One NHS identifier should be sent as an MRN type. This is the primary identifier and
         // should be picked from the available ones in the order NHS -> CHI -> HSC
         String nhsNumber = null;
-        for (Identifier identifier : identifiers) {
-            String organization = generateOrganization(identifier.getIdentifierType().getValue());
-            if (organization.equals("NHS")) {
-
-                PatientNumber patientNumber = new PatientNumber();
-                patientNumber.setNumber(identifier.getIdentifier());
-                patientNumber.setOrganization(organization);
-
-                nhsNumber = identifier.getIdentifier();
-
-                patientNumber.setNumberType("NI");
-                patientNumberList.add(patientNumber);
-            }
+        if (CollectionUtils.isEmpty(identifiers)) {
+            LOG.error("Cannot build PatientNumbers, missing identifiers, patient id {}", user.getId());
         }
 
-        if (nhsNumber != null) {
+        /*
+            Builds a list of PatientNumber based on MRN rule: if a patient has multiple NHS identifiers
+            the one to be used should be selected using the order NHS -> CHI -> HSC
+         */
+        Map<String, Identifier> identifierMap = new HashMap<>();
+        for (Identifier identifier : identifiers) {
+            // We ignore NON_UK_UNIQUE, HOSPITAL_NUMBER and RADAR_NUMBER identifiers
+            if (identifier.getIdentifierType().getValue().equals(IdentifierTypes.NON_UK_UNIQUE.getId()) ||
+                    identifier.getIdentifierType().getValue().equals(IdentifierTypes.HOSPITAL_NUMBER.getId()) ||
+                    identifier.getIdentifierType().getValue().equals(IdentifierTypes.RADAR_NUMBER.getId())) {
+                continue;
+            }
+            identifierMap.put(identifier.getIdentifierType().getValue(), identifier);
 
-            PatientNumber MRN = new PatientNumber();
-            MRN.setOrganization("NHS");
-            MRN.setNumber(nhsNumber);
-            MRN.setNumberType("MRN");
+            // Add none MRN type Identifiers
+            // If a patient has an NHS_NO and a CHI_NO
+            // the output should be NHS_NO (Type MRN), NHS_NO (Type NI) and CHI_NO (Type NI).
+            PatientNumber patientNumber = new PatientNumber();
+            patientNumber.setNumber(identifier.getIdentifier());
+            patientNumber.setOrganization(generateOrganization(identifier.getIdentifierType().getValue()));
+            patientNumber.setNumberType("NI");
 
-            patientNumberList.add(MRN);
+            patientNumberList.add(patientNumber);
+        }
+
+        // Add MRN type Identifier
+        // MRN rule: if a patient has multiple NHS identifiers the one to be used should
+        // be selected using the order NHS -> CHI -> HSC.
+        if (!CollectionUtils.isEmpty(identifierMap)) {
+
+            PatientNumber mrnPatientNumber = new PatientNumber();
+            Identifier identifier = null;
+
+            // selection should be in this order NHS -> CHI -> HSC
+            if (identifierMap.get(IdentifierTypes.NHS_NUMBER.getId()) != null) {
+                identifier = identifierMap.get(IdentifierTypes.NHS_NUMBER.getId());
+
+            } else if (identifierMap.get(IdentifierTypes.CHI_NUMBER.getId()) != null) {
+                identifier = identifierMap.get(IdentifierTypes.CHI_NUMBER.getId());
+
+            } else if (identifierMap.get(IdentifierTypes.HSC_NUMBER.getId()) != null) {
+                identifier = identifierMap.get(IdentifierTypes.HSC_NUMBER.getId());
+            }
+
+            String organization =
+                    generateOrganization(identifier.getIdentifierType().getValue());
+            mrnPatientNumber.setNumber(identifier.getIdentifier());
+            mrnPatientNumber.setOrganization(organization);
+            mrnPatientNumber.setNumberType("MRN");
+
+            patientNumberList.add(mrnPatientNumber);
         }
 
         patientNumbers.getPatientNumber().addAll(patientNumberList);
