@@ -16,6 +16,7 @@ import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.builder.ObservationBuilder;
 import org.patientview.builder.ObservationsBuilder;
 import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Alert;
 import org.patientview.persistence.model.BasicObservation;
@@ -232,7 +233,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                 for (String code : alertMap.keySet()) {
                     Alert alert = alertMap.get(code);
                     if (alert.isUpdated()) {
-                        Alert entityAlert = alertRepository.findOne(alert.getId());
+                        Alert entityAlert = alertRepository.findById(alert.getId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Alert not found"));
+
                         entityAlert.setLatestValue(alert.getLatestValue());
                         entityAlert.setLatestDate(alert.getLatestDate());
                         entityAlert.setWebAlertViewed(alert.isWebAlertViewed());

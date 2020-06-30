@@ -281,8 +281,8 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
                         // delete binary data
                         try {
-                            if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
-                                fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                            if (fileDataRepository.existsById(Long.valueOf(media.getContent().getUrlSimple()))) {
+                                fileDataRepository.deleteById(Long.valueOf(media.getContent().getUrlSimple()));
                             }
                         } catch (NumberFormatException nfe) {
                             LOG.info("Error deleting existing binary data, " +
@@ -372,7 +372,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         SurveyResponse newSurveyResponse = new SurveyResponseBuilder(survey, entitySurvey, user).build();
 
         // delete existing by user, type, date
-        surveyResponseRepository.delete(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
+        surveyResponseRepository.deleteAll(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
                 user, surveyType, surveyDate));
 
         // save new

@@ -94,7 +94,7 @@ public class RequestRepositoryTest {
         List<RequestTypes> requestTypes = new ArrayList<>();
         requestTypes.add(RequestTypes.JOIN_REQUEST);
 
-        PageRequest pageable = new PageRequest(0, 999);
+        PageRequest pageable = PageRequest.of(0, 999);
         List<Request> requests = requestRepository.findByParentUser(user, requestTypes, pageable).getContent();
 
         Assert.assertTrue("The is one request", !CollectionUtils.isEmpty(requests));
@@ -179,7 +179,7 @@ public class RequestRepositoryTest {
         requestTypes.add(RequestTypes.JOIN_REQUEST);
 
         Page<Request> requests = requestRepository.findByUserAndGroups(user, groupIds, requestTypes,
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("There should be one request", 1, requests.getContent().size());
     }
@@ -208,7 +208,7 @@ public class RequestRepositoryTest {
         requestTypes.add(RequestTypes.JOIN_REQUEST);
 
         Page<Request> requests = requestRepository.findByUserAndStatusesAndGroups(user, statuses, groupIds,
-                requestTypes, new PageRequest(0, Integer.MAX_VALUE));
+                requestTypes, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("There should be one request", 1, requests.getContent().size());
     }

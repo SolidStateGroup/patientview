@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -231,14 +232,14 @@ public class PatientManagementServiceTest {
                 eq(patientFhirDatabaseEntity.getLogicalId()), any(List.class))).thenReturn(existingObservationUuids);
         when(fhirResource.updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
                 eq("patient"), eq(patientFhirDatabaseEntity.getLogicalId()))).thenReturn(patientFhirDatabaseEntity);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
         when(groupRepository.findByCode(eq(patientManagement.getGroupCode()))).thenReturn(group);
-        when(identifierRepository.exists(eq(identifier.getId()))).thenReturn(true);
+        when(identifierRepository.existsById(eq(identifier.getId()))).thenReturn(true);
         when(identifierRepository.findByValue(eq(patientManagement.getIdentifier())))
                 .thenReturn(new ArrayList<>(patient.getIdentifiers()));
         when(organizationService.add(eq(group))).thenReturn(organizationUuid);
         when(practitionerService.add(eq(fhirPractitioner))).thenReturn(practitionerUuid);
-        when(userRepository.exists(eq(patient.getId()))).thenReturn(true);
+        when(userRepository.existsById(eq(patient.getId()))).thenReturn(true);
         when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
 
         // import
@@ -350,11 +351,11 @@ public class PatientManagementServiceTest {
                 eq(patientFhirDatabaseEntity.getLogicalId()), any(List.class))).thenReturn(existingObservationUuids);
         when(fhirResource.updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
                 eq("patient"), eq(patientFhirDatabaseEntity.getLogicalId()))).thenReturn(patientFhirDatabaseEntity);
-        when(groupRepository.exists(eq(group.getId()))).thenReturn(true);
-        when(identifierRepository.exists(eq(identifier.getId()))).thenReturn(true);
+        when(groupRepository.existsById(eq(group.getId()))).thenReturn(true);
+        when(identifierRepository.existsById(eq(identifier.getId()))).thenReturn(true);
         when(organizationService.add(eq(group))).thenReturn(organizationUuid);
         when(practitionerService.add(eq(fhirPractitioner))).thenReturn(practitionerUuid);
-        when(userRepository.exists(eq(patient.getId()))).thenReturn(true);
+        when(userRepository.existsById(eq(patient.getId()))).thenReturn(true);
         when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
 
         // save
@@ -424,10 +425,10 @@ public class PatientManagementServiceTest {
 
         when(fhirLinkRepository.findByUserAndGroupAndIdentifier(eq(patient), eq(group), eq(identifier)))
                 .thenReturn(new ArrayList<>(patient.getFhirLinks()));
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(identifierRepository.findById(eq(identifier.getId()))).thenReturn(Optional.of(identifier));
         when(organizationService.add(eq(group))).thenReturn(organizationUuid);
-        when(userRepository.findOne(eq(patient.getId()))).thenReturn(patient);
+        when(userRepository.findById(eq(patient.getId()))).thenReturn(Optional.of(patient));
         when(userService.currentUserCanGetUser(eq(patient))).thenReturn(true);
 
         // save

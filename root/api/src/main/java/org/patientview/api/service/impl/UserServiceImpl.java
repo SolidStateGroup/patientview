@@ -51,7 +51,6 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserFeature;
 import org.patientview.persistence.model.UserInformation;
 import org.patientview.persistence.model.UserToken;
-import org.patientview.persistence.model.enums.AlertTypes;
 import org.patientview.persistence.model.enums.ApiKeyTypes;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
@@ -82,6 +81,7 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.util.Util;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -139,6 +139,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @Inject
     private AlertRepository alertRepository;
 
+    @Lazy
     @Inject
     private AlertService alertService;
 
@@ -264,8 +265,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     @PostConstruct
     public void init() {
         // set up generic groups
-        memberRole = roleRepository.findOne(GENERIC_ROLE_ID);
-        genericGroup = groupRepository.findOne(GENERIC_GROUP_ID);
+        memberRole = roleRepository.findById(GENERIC_ROLE_ID).orElse(null);
+        genericGroup = groupRepository.findById(GENERIC_GROUP_ID).orElse(null);
     }
 
     @Override
@@ -315,7 +316,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         if (!CollectionUtils.isEmpty(user.getGroupRoles())) {
             for (GroupRole groupRole : user.getGroupRoles()) {
-                if (roleRepository.findOne(groupRole.getRole().getId())
+                if (roleRepository.findById(groupRole.getRole().getId()).get()
                         .getRoleType().getValue().equals(RoleType.PATIENT)) {
                     isPatient = true;
                 }
@@ -409,10 +410,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceNotFoundException, ResourceForbiddenException {
 
         User user = findUser(userId);
-        Feature feature = featureRepository.findOne(featureId);
-        if (feature == null) {
-            throw new ResourceForbiddenException("Feature not found");
-        }
+        User creator = getCurrentUser();
+        Feature feature = featureRepository.findById(featureId)
+                .orElseThrow(() -> new ResourceNotFoundException("Feature not found"));
 
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -421,7 +421,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         UserFeature userFeature = new UserFeature();
         userFeature.setFeature(feature);
         userFeature.setUser(user);
-        userFeature.setCreator(userRepository.findOne(getCurrentUser().getId()));
+        userFeature.setCreator(creator);
         userFeatureRepository.save(userFeature);
     }
 
@@ -430,8 +430,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
         User creator = getCurrentUser();
         User user = findUser(userId);
-        Group group = groupRepository.findOne(groupId);
-        Role role = roleRepository.findOne(roleId);
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
 
         if (group == null || role == null) {
             throw new ResourceNotFoundException("Group or Role not found");
@@ -515,8 +518,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    private void addParentGroupRoles(Long userId, GroupRole groupRole, User creator, boolean isPatient) {
-        Group entityGroup = groupRepository.findOne(groupRole.getGroup().getId());
+    private void addParentGroupRoles(Long userId, GroupRole groupRole, User creator, boolean isPatient)
+            throws ResourceNotFoundException {
+        Group entityGroup = groupRepository.findById(groupRole.getGroup().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         // save grouprole with same role and parent group if doesn't exist already
         if (!CollectionUtils.isEmpty(entityGroup.getGroupRelationships())) {
@@ -548,8 +553,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException {
-        User user = userRepository.findOne(userId);
+    public String addPicture(Long userId, MultipartFile file) throws ResourceInvalidException,
+            ResourceNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
+
         String fileName = "";
 
         try {
@@ -578,8 +586,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     @Override
-    public void addPicture(Long userId, String base64) {
-        User user = userRepository.findOne(userId);
+    public void addPicture(Long userId, String base64) throws ResourceNotFoundException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
         user.setPicture(base64);
         userRepository.save(user);
     }
@@ -749,8 +758,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
-     * This persists the User map with GroupRoles and UserFeatures. The static
-     * data objects are detached so have to be become managed again without updating the objects.
+     * This persists the User map with GroupRoles and UserFeatures. The static data objects are detached so have to be
+     * become managed again without updating the objects.
      *
      * @param user user to store
      * @return Long userId
@@ -768,10 +777,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
         // validate that group roles exist and current user has rights to create
         for (GroupRole groupRole : user.getGroupRoles()) {
-            if (!groupRepository.exists(groupRole.getGroup().getId())) {
+            if (!groupRepository.existsById(groupRole.getGroup().getId())) {
                 throw new ResourceNotFoundException("Group does not exist");
             }
-            if (!isUserMemberOfGroup(getCurrentUser(), groupRepository.findOne(groupRole.getGroup().getId()))) {
+            if (!isUserMemberOfGroup(getCurrentUser(), groupRepository.findById(groupRole.getGroup().getId()).get())) {
                 throw new ResourceForbiddenException("Forbidden");
             }
         }
@@ -852,7 +861,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         if (currentUserCanGetUser(user)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
-                Role role = roleRepository.findOne(groupRole.getRole().getId());
+                Role role = roleRepository.findById(groupRole.getRole().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Could not find Role"));
                 if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
                     isPatient = true;
                 }
@@ -901,7 +911,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // make sure user is patient
         if (isUserAPatient(patient)) {
             for (GroupRole groupRole : patient.getGroupRoles()) {
-                Role role = roleRepository.findOne(groupRole.getRole().getId());
+                Role role = roleRepository.findById(groupRole.getRole().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
                 // audit removal (apart from MEMBER)
                 if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
@@ -1016,10 +1027,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void deleteFeature(Long userId, Long featureId)
             throws ResourceNotFoundException, ResourceForbiddenException {
         User user = findUser(userId);
-        Feature feature = featureRepository.findOne(featureId);
-        if (feature == null) {
-            throw new ResourceForbiddenException("Feature not found");
-        }
+        Feature feature = featureRepository.findById(featureId)
+                .orElseThrow(() -> new ResourceNotFoundException("Feature not found"));
 
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -1030,18 +1039,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void deleteApiKeys(Long userId) {
-         apiKeyRepository.deleteByUser(userId);
+        apiKeyRepository.deleteByUser(userId);
     }
 
     @Override
-    public void deleteFhirLinks(Long userId) {
+    public void deleteFhirLinks(Long userId) throws ResourceNotFoundException {
         Set<Long> fhirLinkIdentifierIds = new HashSet<>();
 
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
         if (user.getFhirLinks() != null) {
             for (FhirLink fhirLink : user.getFhirLinks()) {
                 fhirLinkIdentifierIds.add(fhirLink.getIdentifier().getId());
-                fhirLinkRepository.delete(fhirLink.getId());
+                fhirLinkRepository.deleteById(fhirLink.getId());
             }
         }
 
@@ -1057,7 +1067,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // if a user is removed from all child groups the parent group (if present) is also removed
         // e.g. remove Renal (specialty) if RenalA (unit) is removed and these are the only 2 groups present
         User user = findUser(userId);
-        Group removedGroup = groupRepository.findOne(groupId);
+        Group removedGroup = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find Group"));
 
         Set<GroupRole> toRemove = new HashSet<>();
         Set<GroupRole> userGroupRoles = new HashSet<>();
@@ -1102,8 +1113,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * <p>
      * Used when user changes his password we need to invalidate all the session except the current one.
      * <p>
-     * This method require user to be logged in as UserToken associated with current security context is
-     * used to compare with other sessions in DB.
+     * This method require user to be logged in as UserToken associated with current security context is used to compare
+     * with other sessions in DB.
      *
      * @param userId ID of the user to clean sessions for
      */
@@ -1141,25 +1152,19 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private void deleteGroupRoleRelationship(Long userId, Long groupId, Long roleId, boolean checkGroupMembership)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Group entityGroup = groupRepository.findOne(groupId);
-        if (entityGroup == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
+        Group entityGroup = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         // check if current user is a member of the group to be removed
         if (checkGroupMembership && !isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User entityUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Role entityRole = roleRepository.findOne(roleId);
-        if (entityRole == null) {
-            throw new ResourceNotFoundException("Role not found");
-        }
+        Role entityRole = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         GroupRole entityGroupRole = groupRoleRepository.findByUserGroupRole(entityUser, entityGroup, entityRole);
         if (entityGroupRole == null) {
@@ -1192,9 +1197,10 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
-    private void deleteIdentifiers(Long userId) {
+    private void deleteIdentifiers(Long userId) throws ResourceNotFoundException {
         // must be done manually to avoid cascade remove clash where multiple fhir links point to same identifier
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (user.getIdentifiers() != null) {
             for (Identifier identifier : user.getIdentifiers()) {
@@ -1219,12 +1225,13 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 } else {
                     // another user has fhirlink pointing to the identifier to be deleted,
                     // update fhirlink to point to correct identifier then delete identifier
-                    User otherUser = userRepository.findOne(otherUserId);
+                    User otherUser = userRepository.findById(otherUserId)
+                            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
                     if (!CollectionUtils.isEmpty(otherUser.getIdentifiers())) {
                         Identifier otherUserIdentifier = otherUser.getIdentifiers().iterator().next();
                         for (Long foundFhirLinkId : foundFhirLinkIds) {
-                            FhirLink toUpdate = fhirLinkRepository.findOne(foundFhirLinkId);
+                            FhirLink toUpdate = fhirLinkRepository.findById(foundFhirLinkId).get();
                             toUpdate.setIdentifier(otherUserIdentifier);
                             // update fhirlink with correct identifier
                             fhirLinkRepository.save(toUpdate);
@@ -1241,10 +1248,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void deletePicture(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setPicture(null);
         userRepository.save(user);
     }
@@ -1255,11 +1260,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     private User findUser(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user %s", userId));
-        }
-        return user;
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Override
@@ -1268,8 +1270,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     }
 
     /**
-     * Get users based on a list of groups and roles
-     * todo: fix this for PostgreSQL and hibernate nullhandling to avoid multiple queries
+     * Get users based on a list of groups and roles todo: fix this for PostgreSQL and hibernate nullhandling to avoid
+     * multiple queries
      *
      * @return Page of api User
      */
@@ -1287,10 +1289,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             } else {
                 // check current user is member of groups passed in
                 for (Long groupId : groupIds) {
-                    Group entityGroup = groupRepository.findOne(groupId);
-                    if (entityGroup == null) {
-                        throw new ResourceNotFoundException("Unknown Group");
-                    }
+                    Group entityGroup = groupRepository.findById(groupId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Unknown Group"));
+
                     if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
                         throw new ResourceForbiddenException("Forbidden");
                     }
@@ -1319,14 +1320,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         // todo: it is the Sort.NullHandling.NULLS_FIRST etc that is not picked up by hibernate
         if (StringUtils.isNotEmpty(sortField) && StringUtils.isNotEmpty(sortDirection)) {
             if (sortDirection.equals("DESC")) {
-                pageable = new PageRequest(pageConverted, sizeConverted,
-                        new Sort(new Sort.Order(Sort.Direction.DESC, sortField, Sort.NullHandling.NULLS_FIRST)));
+                pageable = PageRequest.of(pageConverted, sizeConverted,
+                        Sort.by(new Sort.Order(Sort.Direction.DESC, sortField, Sort.NullHandling.NULLS_FIRST)));
             } else {
-                pageable = new PageRequest(pageConverted, sizeConverted,
-                        new Sort(new Sort.Order(Sort.Direction.ASC, sortField, Sort.NullHandling.NULLS_LAST)));
+                pageable = PageRequest.of(pageConverted, sizeConverted,
+                        Sort.by(new Sort.Order(Sort.Direction.ASC, sortField, Sort.NullHandling.NULLS_LAST)));
             }
         } else {
-            pageable = new PageRequest(pageConverted, sizeConverted);
+            pageable = PageRequest.of(pageConverted, sizeConverted);
         }
 
         // handle searching by field (username, forename, surname, identifier, email)
@@ -1558,10 +1559,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public org.patientview.api.model.User getUser(Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User with this ID does not exist");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with this ID does not exist"));
 
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -1610,10 +1609,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // check current user is member of groups passed in
         for (Long groupId : groupIds) {
-            Group entityGroup = groupRepository.findOne(groupId);
-            if (entityGroup == null) {
-                throw new ResourceNotFoundException("Unknown Group");
-            }
+            groupRepository.findById(groupId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Unknown Group"));
         }
 
         List<Long> roleIds = convertStringArrayToLongs(getParameters.getRoleIds());
@@ -1690,10 +1687,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public byte[] getPicture(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
@@ -1807,10 +1803,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     @Override
     public void hideSecretWordNotification(Long userId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         if (!currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("Forbidden");
         }
@@ -1841,19 +1836,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             throws ResourceForbiddenException, ResourceNotFoundException {
 
         // check all exist
-        final Group groupFrom = groupRepository.findOne(groupFromId);
-        final Group groupTo = groupRepository.findOne(groupToId);
-        final Role role = roleRepository.findOne(roleId);
-
-        if (groupFrom == null) {
-            throw new ResourceNotFoundException("Moving Users: Group with id " + groupFromId + " does not exist");
-        }
-        if (groupTo == null) {
-            throw new ResourceNotFoundException("Moving Users: Group with id " + groupToId + " does not exist");
-        }
-        if (role == null) {
-            throw new ResourceNotFoundException("Moving Users: Role with id " + roleId + " does not exist");
-        }
+        final Group groupFrom = groupRepository.findById(groupFromId)
+                .orElseThrow(() -> new ResourceNotFoundException("Moving Users: Group with id " +
+                        groupFromId + " does not exist"));
+        final Group groupTo = groupRepository.findById(groupToId)
+                .orElseThrow(() -> new ResourceNotFoundException("Moving Users: Group with id " +
+                        groupToId + " does not exist"));
+        final Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Moving Users: Role with id " +
+                        roleId + " does not exist"));
 
         String[] groupFromIds = {groupFromId.toString()};
         String[] groupToIds = {groupToId.toString()};
@@ -2050,11 +2041,12 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         boolean isUnLocked = !user.getLocked() && entityUser.getLocked();
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
-            if (!groupRepository.exists(groupRole.getGroup().getId())) {
+            if (!groupRepository.existsById(groupRole.getGroup().getId())) {
                 throw new ResourceNotFoundException("Group does not exist");
             }
 
-            Role role = roleRepository.findOne(groupRole.getRole().getId());
+            Role role = roleRepository.findById(groupRole.getRole().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role does not exist"));
             if (!role.getName().equals(RoleName.MEMBER) && role.getRoleType().getValue().equals(RoleType.PATIENT)) {
                 isPatient = true;
             }
@@ -2120,9 +2112,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
     /**
      * Builds group membership XML and adds it to the queue to be processed.
-     *
-     * This should only be called for Patient users who are members of Renal speciality.
-     * Also needs to be sending to UNIT groups only
+     * <p>
+     * This should only be called for Patient users who are members of Renal speciality. Also needs to be sending to
+     * UNIT groups only
      *
      * @param groupRole
      * @param adding
@@ -2140,7 +2132,8 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // make sure the Group we are sending to is part of the Renal Specialty
         // need to re fetch to get all relationship
-        Group groupToCheck = groupRepository.findOne(groupRole.getGroup().getId());
+        Group groupToCheck = groupRepository.findById(groupRole.getGroup().getId()).orElse(null);
+
         if (!groupIsRenalChild(groupToCheck)) {
             LOG.info("Group {} not part of the Renal, ignoring sending notification", groupToCheck.getCode());
             return;

@@ -34,10 +34,8 @@ public class ApiFileDataServiceImpl extends AbstractServiceImpl<ApiFileDataServi
 
     @Override
     public FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         if (fileDataService.userHasFileData(user, fileDataId, ResourceType.DocumentReference)) {
             return fileDataRepository.getOne(fileDataId);

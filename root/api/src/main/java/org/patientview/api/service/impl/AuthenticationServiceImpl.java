@@ -73,6 +73,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -672,7 +673,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     }
 
     private org.patientview.api.model.UserToken createApiUserToken(UserToken userToken, boolean generateSalt)
-            throws ResourceForbiddenException {
+            throws ResourceForbiddenException, ResourceNotFoundException {
         org.patientview.api.model.UserToken transportUserToken
                 = new org.patientview.api.model.UserToken(userToken);
 
@@ -1020,7 +1021,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         }
     }
 
-    private void setUserGroups(org.patientview.api.model.UserToken userToken) throws ResourceForbiddenException {
+    private void setUserGroups(org.patientview.api.model.UserToken userToken) throws ResourceForbiddenException,
+            ResourceNotFoundException {
         List<org.patientview.persistence.model.Group> userGroups
                 = groupService.getAllUserGroupsAllDetails(userToken.getUser().getId());
 
@@ -1029,7 +1031,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // global admin can also get general practice specialty
         List<String> extraGroupCodes = new ArrayList<>();
-        if (ApiUtil.userHasRole(userRepository.findOne(userToken.getUser().getId()), RoleName.GLOBAL_ADMIN)) {
+        Optional<User> user = userRepository.findById(userToken.getUser().getId());
+        if (user.isPresent() &&
+                ApiUtil.userHasRole(user.get(), RoleName.GLOBAL_ADMIN)) {
             extraGroupCodes.add(HiddenGroupCodes.GENERAL_PRACTICE.toString());
         }
 
@@ -1040,7 +1044,8 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
                 userToken.getUserGroups().add(new BaseGroup(userGroup));
 
                 // if group has MESSAGING feature then set in transportUserToken
-                Group entityGroup = groupRepository.findOne(userGroup.getId());
+                Group entityGroup = groupRepository.findById(userGroup.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Could not find Group"));
                 for (GroupFeature groupFeature : entityGroup.getGroupFeatures()) {
                     if (groupFeature.getFeature().getName().equals(FeatureType.MESSAGING.toString())) {
                         userToken.setGroupMessagingEnabled(true);
@@ -1054,11 +1059,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Override
     public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
         LOG.debug("Switching to user with ID: {}", userId);
-        User user = userRepository.findOne(userId);
-
-        if (user == null) {
-            throw new AuthenticationServiceException("Cannot switch user, user not found");
-        }
+        userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new AuthenticationServiceException("Cannot switch user, user not found"));
 
         UserToken userToken = userTokenRepository.findByToken(token);
 
@@ -1073,11 +1076,9 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Override
     public String switchToUser(Long userId) throws AuthenticationServiceException {
         LOG.debug("Switching to user with ID: {}", userId);
-        User user = userRepository.findOne(userId);
-
-        if (user == null) {
-            throw new AuthenticationServiceException("Cannot switch user, user not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new AuthenticationServiceException("Cannot switch user, user not found"));
 
         if (!userService.currentUserCanSwitchToUser(user)) {
             throw new AuthenticationServiceException("Forbidden");

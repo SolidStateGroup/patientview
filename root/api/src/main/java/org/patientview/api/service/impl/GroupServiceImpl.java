@@ -178,9 +178,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         // save features
         for (GroupFeature groupFeature : groupFeatures) {
             GroupFeature tempGroupFeature = new GroupFeature();
-            tempGroupFeature.setFeature(featureRepository.findOne(groupFeature.getFeature().getId()));
+            tempGroupFeature.setFeature(featureRepository.findById(groupFeature.getFeature().getId()).get());
             tempGroupFeature.setGroup(newGroup);
-            tempGroupFeature.setCreator(userRepository.findOne(getCurrentUser().getId()));
+            tempGroupFeature.setCreator(userRepository.findById(getCurrentUser().getId()).get());
             tempGroupFeature = groupFeatureRepository.save(tempGroupFeature);
             newGroup.getGroupFeatures().add(tempGroupFeature);
         }
@@ -189,7 +189,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         for (ContactPoint contactPoint : contactPoints) {
             ContactPoint tempContactPoint = new ContactPoint();
             tempContactPoint.setGroup(newGroup);
-            tempContactPoint.setCreator(userRepository.findOne(getCurrentUser().getId()));
+            tempContactPoint.setCreator(userRepository.findById(getCurrentUser().getId()).get());
             tempContactPoint.setContactPointType(entityManager.find(ContactPointType.class,
                     contactPoint.getContactPointType().getId()));
             tempContactPoint.setContent(contactPoint.getContent());
@@ -202,8 +202,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public void addChildGroup(Long groupId, Long childGroupId) {
-        Group sourceGroup = groupRepository.findOne(groupId);
-        Group objectGroup = groupRepository.findOne(childGroupId);
+        Group sourceGroup = groupRepository.findById(groupId).get();
+        Group objectGroup = groupRepository.findById(childGroupId).get();
 
         createRelationship(sourceGroup, objectGroup, RelationshipTypes.CHILD);
         createRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
@@ -212,9 +212,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public void addFeature(Long groupId, Long featureId) {
         GroupFeature groupFeature = new GroupFeature();
-        groupFeature.setFeature(featureRepository.findOne(featureId));
-        groupFeature.setGroup(groupRepository.findOne(groupId));
-        groupFeature.setCreator(userRepository.findOne(1L));
+        groupFeature.setFeature(featureRepository.findById(featureId).get());
+        groupFeature.setGroup(groupRepository.findById(groupId).get());
+        groupFeature.setCreator(userRepository.findById(1L).get());
         groupFeatureRepository.save(groupFeature);
     }
 
@@ -254,8 +254,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public void addParentGroup(Long groupId, Long parentGroupId) {
-        Group sourceGroup = groupRepository.findOne(groupId);
-        Group objectGroup = groupRepository.findOne(parentGroupId);
+        Group sourceGroup = groupRepository.findById(groupId).get();
+        Group objectGroup = groupRepository.findById(parentGroupId).get();
 
         createRelationship(sourceGroup, objectGroup, RelationshipTypes.PARENT);
         createRelationship(objectGroup, sourceGroup, RelationshipTypes.CHILD);
@@ -325,8 +325,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public void deleteChildGroup(Long groupId, Long childGroupId) {
-        Group sourceGroup = groupRepository.findOne(groupId);
-        Group objectGroup = groupRepository.findOne(childGroupId);
+        Group sourceGroup = groupRepository.findById(groupId).get();
+        Group objectGroup = groupRepository.findById(childGroupId).get();
 
         deleteRelationship(sourceGroup, objectGroup, RelationshipTypes.CHILD);
         deleteRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
@@ -335,13 +335,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public void deleteFeature(Long groupId, Long featureId) {
         groupFeatureRepository.delete(groupFeatureRepository.findByGroupAndFeature(
-                groupRepository.findOne(groupId), featureRepository.findOne(featureId)));
+                groupRepository.findById(groupId).get(), featureRepository.findById(featureId).get()));
     }
 
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public void deleteParentGroup(Long groupId, Long parentGroupId) {
-        Group sourceGroup = groupRepository.findOne(groupId);
-        Group objectGroup = groupRepository.findOne(parentGroupId);
+        Group sourceGroup = groupRepository.findById(groupId).get();
+        Group objectGroup = groupRepository.findById(parentGroupId).get();
 
         deleteRelationship(sourceGroup, objectGroup, RelationshipTypes.PARENT);
         deleteRelationship(objectGroup, sourceGroup, RelationshipTypes.CHILD);
@@ -382,11 +382,9 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Override
     public List<Group> findChildren(Long groupId) throws ResourceNotFoundException {
-        Group group = groupRepository.findOne(groupId);
-
-        if (group == null) {
-            throw new ResourceNotFoundException(String.format("The group id %d is not valid", groupId));
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("The group id %d is not valid", groupId)));
 
         return groupRepository.findChildren(group);
     }
@@ -398,10 +396,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Override
     public List<BaseGroup> findMessagingGroupsByUserId(Long userId) throws ResourceNotFoundException {
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User does not exist");
-        }
+        User entityUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
         Set<Group> groups = new HashSet<>();
 
@@ -452,16 +448,16 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     }
 
     public Group get(Long id) throws ResourceForbiddenException {
-        return addSingleParentAndChildGroup(groupRepository.findOne(id));
+        return addSingleParentAndChildGroup(groupRepository.findById(id).get());
     }
 
     // TODO: this behaviour may need to be changed later to support cohorts and other parent type groups
     public Page<org.patientview.api.model.Group> getAllowedRelationshipGroups(Long userId) {
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 
         if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN)) {
 
-            Page<Group> groupList = groupRepository.findAll("%%", new PageRequest(0, Integer.MAX_VALUE));
+            Page<Group> groupList = groupRepository.findAll("%%", PageRequest.of(0, Integer.MAX_VALUE));
 
             // convert to lightweight transport objects, create Page and return
             List<org.patientview.api.model.Group> transportContent
@@ -551,7 +547,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         if (lookup != null) {
             groupTypes.add(lookup.getId());
             Page<Group> supportGroups
-                    = groupRepository.findAllByGroupType("%%", groupTypes, new PageRequest(0, Integer.MAX_VALUE));
+                    = groupRepository.findAllByGroupType("%%", groupTypes, PageRequest.of(0, Integer.MAX_VALUE));
             if (!supportGroups.getContent().isEmpty()) {
                 groups.addAll(supportGroups.getContent());
             }
@@ -622,7 +618,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
             filterText = "%" + filterText.trim().toUpperCase() + "%";
         }
         Page<Group> groupPage;
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId).get();
         boolean groupTypesNotEmpty = ArrayUtils.isNotEmpty(groupTypes);
 
         if (ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
@@ -666,11 +662,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public void save(Group group) throws ResourceNotFoundException, EntityExistsException, ResourceForbiddenException {
-        Group entityGroup = groupRepository.findOne(group.getId());
+        Group entityGroup = groupRepository.findById(group.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("Could not find group %s", group.getId())));
 
-        if (entityGroup == null) {
-            throw new ResourceNotFoundException(String.format("Could not find group %s", group.getId()));
-        }
 
         // check if another group with this code exists
         Group existingGroup = groupRepository.findByCode(group.getCode());
@@ -680,20 +675,20 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         // unit admin cannot change group type
         if (ApiUtil.doesContainGroupAndRole(entityGroup.getId(), RoleName.UNIT_ADMIN)
-                && !lookupRepository.findOne(group.getGroupType().getId()).equals(entityGroup.getGroupType())) {
+                && !lookupRepository.findById(group.getGroupType().getId()).get().equals(entityGroup.getGroupType())) {
             throw new ResourceForbiddenException("Unit Admin cannot change group type");
         }
 
         // gp admin cannot change group type
         if (ApiUtil.doesContainGroupAndRole(entityGroup.getId(), RoleName.GP_ADMIN)
-                && !lookupRepository.findOne(group.getGroupType().getId()).equals(entityGroup.getGroupType())) {
+                && !lookupRepository.findById(group.getGroupType().getId()).get().equals(entityGroup.getGroupType())) {
             throw new ResourceForbiddenException("GP Admin cannot change group type");
         }
 
         entityGroup.setCode(group.getCode());
         entityGroup.setName(group.getName());
         entityGroup.setShortName(group.getShortName());
-        entityGroup.setGroupType(lookupRepository.findOne(group.getGroupType().getId()));
+        entityGroup.setGroupType(lookupRepository.findById(group.getGroupType().getId()).get());
         entityGroup.setSftpUser(group.getSftpUser());
         entityGroup.setAddress1(group.getAddress1());
         entityGroup.setAddress2(group.getAddress2());
@@ -707,13 +702,13 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
     private void saveGroupRelationships(Group group) {
         // delete existing groups
         groupRelationshipRepository.deleteBySourceGroup(group);
-        Group sourceGroup = groupRepository.findOne(group.getId());
+        Group sourceGroup = groupRepository.findById(group.getId()).get();
 
         // Create a two way relationship; if a parent is a child, the inverse is also true
         if (!CollectionUtils.isEmpty(group.getParentGroups())) {
             for (Group parentGroup : group.getParentGroups()) {
 
-                Group objectGroup = groupRepository.findOne(parentGroup.getId());
+                Group objectGroup = groupRepository.findById(parentGroup.getId()).get();
                 createRelationship(sourceGroup, objectGroup, RelationshipTypes.PARENT);
                 createRelationship(objectGroup, sourceGroup, RelationshipTypes.CHILD);
             }
@@ -721,7 +716,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
         if (!CollectionUtils.isEmpty(group.getChildGroups())) {
             for (Group childGroup : group.getChildGroups()) {
 
-                Group objectGroup = groupRepository.findOne(childGroup.getId());
+                Group objectGroup = groupRepository.findById(childGroup.getId()).get();
                 createRelationship(sourceGroup, objectGroup, RelationshipTypes.CHILD);
                 createRelationship(objectGroup, sourceGroup, RelationshipTypes.PARENT);
             }

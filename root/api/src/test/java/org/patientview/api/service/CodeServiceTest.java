@@ -31,6 +31,7 @@ import org.patientview.test.util.TestUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
@@ -70,6 +71,7 @@ public class CodeServiceTest {
 
     /**
      * Test to check NHS Choices is called to updated introduction url (link on Code) and description
+     *
      * @throws Exception
      */
     @Test
@@ -92,13 +94,13 @@ public class CodeServiceTest {
         code.setCode("code");
         code.setId(1L);
 
-        when(codeRepository.findOne(eq(code.getId()))).thenReturn(code);
+        when(codeRepository.findById(eq(code.getId()))).thenReturn(Optional.of(code));
 
         Code foundCode = codeService.get(code.getId());
 
         Assert.assertNotNull("The returned Code should not be null", foundCode);
 
-        verify(codeRepository, Mockito.times(1)).findOne(eq(code.getId()));
+        verify(codeRepository, Mockito.times(1)).findById(eq(code.getId()));
         verify(nhsChoicesService, Mockito.times(1)).updateCodeData(eq(code));
     }
 
@@ -167,7 +169,7 @@ public class CodeServiceTest {
         CodeCategory codeCategory = new CodeCategory(code, category);
         category.getCodeCategories().add(codeCategory);
 
-        when(categoryRepository.findOne(eq(category.getId()))).thenReturn(category);
+        when(categoryRepository.findById(eq(category.getId()))).thenReturn(Optional.of(category));
 
         List<BaseCode> foundCodes = codeService.getByCategory(category.getId());
 
@@ -175,6 +177,6 @@ public class CodeServiceTest {
         Assert.assertEquals("Should be 1 returned BaseCode", 1, foundCodes.size());
         Assert.assertEquals("Should be correct returned BaseCode", code.getCode(), foundCodes.get(0).getCode());
 
-        verify(categoryRepository, Mockito.times(1)).findOne(eq(category.getId()));
+        verify(categoryRepository, Mockito.times(1)).findById(eq(category.getId()));
     }
 }

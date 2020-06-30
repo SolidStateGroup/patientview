@@ -47,10 +47,9 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryServiceImpl
 
     @Override
     public void delete(Long categoryId) throws ResourceNotFoundException {
-        Category category = categoryRepository.findOne(categoryId);
-        if (category == null) {
-            throw new ResourceNotFoundException("Category not found with ID " + categoryId);
-        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Category not found with ID " + categoryId));
         categoryRepository.delete(category);
     }
 
@@ -83,11 +82,9 @@ public class CategoryServiceImpl extends AbstractServiceImpl<CategoryServiceImpl
 
     @Override
     public Category getCategory(Long categoryId) throws ResourceNotFoundException {
-        Category category = categoryRepository.findOne(categoryId);
-        if (category == null) {
-            throw new ResourceNotFoundException("Category not found with ID " + categoryId);
-        }
-        return category;
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Category not found with ID " + categoryId));
     }
 
     @Override

@@ -703,10 +703,8 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
         }
 
         // check User exists
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // check user has fhirLink associated with this group
         FhirLink foundFhirLink = null;

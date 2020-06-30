@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.mockito.Matchers.any;
@@ -108,12 +109,12 @@ public class RequestServiceTest {
         request.setGroupId(group.getId());
         request.setType(RequestTypes.JOIN_REQUEST);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(requestRepository.save(any(Request.class))).thenReturn(request);
         when(captchaService.verify(any(String.class))).thenReturn(true);
         request = requestService.add(request);
 
-        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
+        verify(groupRepository, Mockito.times(1)).findById(any(Long.class));
         verify(requestRepository, Mockito.times(1)).save(any(Request.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
 
@@ -134,13 +135,13 @@ public class RequestServiceTest {
         request.setGroupId(group.getId());
         request.setType(RequestTypes.JOIN_REQUEST);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(requestRepository.save(any(Request.class))).thenReturn(request);
         when(captchaService.verify(any(String.class))).thenReturn(true);
 
         request = requestService.add(request);
 
-        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
+        verify(groupRepository, Mockito.times(1)).findById(any(Long.class));
         verify(requestRepository, Mockito.times(1)).save(any(Request.class));
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
 
@@ -165,12 +166,12 @@ public class RequestServiceTest {
         request.setGroup(group);
         request.setGroupId(group.getId());
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(null);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.empty());
         when(captchaService.verify(any(String.class))).thenReturn(true);
 
         requestService.add(request);
 
-        verify(groupRepository, Mockito.times(1)).findOne(any(Long.class));
+        verify(groupRepository, Mockito.times(1)).findById(any(Long.class));
         Assert.fail("The service should throw an exception");
     }
 
@@ -436,23 +437,23 @@ public class RequestServiceTest {
         List<RequestTypes> requestTypes = new ArrayList<>();
         requestTypes.add(RequestTypes.JOIN_REQUEST);
 
-        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Pageable pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         List<Request> requests = new ArrayList<>();
         requests.add(request);
         Page<Request> requestPage = new PageImpl<>(requests, pageableAll, requests.size());
         
         when(requestRepository.findByUser(eq(user), eq(requestTypes), any(Pageable.class))).thenReturn(requestPage);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
 
         GetParameters getParameters = new GetParameters();
         getParameters.setTypes(new String[]{RequestTypes.JOIN_REQUEST.toString()});
 
         requestService.getByUser(user.getId(), getParameters);
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        verify(userRepository, Mockito.times(1)).findById(eq(user.getId()));
         verify(requestRepository, Mockito.times(1)).findByUser(eq(user), eq(requestTypes),
-                eq(new PageRequest(0, Integer.MAX_VALUE)));
+                eq(PageRequest.of(0, Integer.MAX_VALUE)));
     }
 
     private List<RequestStatus> convertStringArrayToStatusList (String[] statuses) {
@@ -486,7 +487,7 @@ public class RequestServiceTest {
         List<RequestTypes> requestTypes = new ArrayList<>();
         requestTypes.add(RequestTypes.JOIN_REQUEST);
 
-        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Pageable pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         List<Request> requests = new ArrayList<>();
         requests.add(request);
         Page<Request> requestPage = new PageImpl<>(requests, pageableAll, requests.size());
@@ -494,7 +495,7 @@ public class RequestServiceTest {
                 any(new ArrayList<Request>().getClass()),
                 eq(requestTypes), any(Pageable.class))).thenReturn(requestPage);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         GetParameters getParameters = new GetParameters();
         getParameters.setStatuses(new String[]{RequestStatus.COMPLETED.toString()});
@@ -502,10 +503,10 @@ public class RequestServiceTest {
 
         requestService.getByUser(user.getId(), getParameters);
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        verify(userRepository, Mockito.times(1)).findById(eq(user.getId()));
         verify(requestRepository, Mockito.times(1)).findByUserAndStatuses(eq(user),
             eq(convertStringArrayToStatusList(getParameters.getStatuses())), eq(requestTypes), 
-                eq(new PageRequest(0, Integer.MAX_VALUE)));
+                eq(PageRequest.of(0, Integer.MAX_VALUE)));
     }
 
     /**
@@ -528,14 +529,14 @@ public class RequestServiceTest {
         List<RequestTypes> requestTypes = new ArrayList<>();
         requestTypes.add(RequestTypes.JOIN_REQUEST);
 
-        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Pageable pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         List<Request> requests = new ArrayList<>();
         requests.add(request);
         Page<Request> requestPage = new PageImpl<>(requests, pageableAll, requests.size());
         
         when(requestRepository.findByParentUser(eq(user), eq(requestTypes),
                 any(Pageable.class))).thenReturn(requestPage);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         
         GetParameters getParameters = new GetParameters();
         getParameters.setTypes(new String[]{RequestTypes.JOIN_REQUEST.toString()});
@@ -543,7 +544,7 @@ public class RequestServiceTest {
         requestService.getByUser(user.getId(), getParameters);
 
         verify(requestRepository, Mockito.times(1)).findByParentUser(eq(user),
-                eq(requestTypes), eq(new PageRequest(0, Integer.MAX_VALUE)));
+                eq(requestTypes), eq(PageRequest.of(0, Integer.MAX_VALUE)));
     }
 
     /**
@@ -567,7 +568,7 @@ public class RequestServiceTest {
         List<RequestTypes> requestTypes = new ArrayList<>();
         requestTypes.add(RequestTypes.JOIN_REQUEST);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(null);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.empty());
 
         GetParameters getParameters = new GetParameters();
         String[] statuses = {RequestStatus.COMPLETED.toString()};
@@ -575,9 +576,9 @@ public class RequestServiceTest {
 
         requestService.getByUser(user.getId(), getParameters);
 
-        verify(userRepository, Mockito.times(1)).findOne(eq(user.getId()));
+        verify(userRepository, Mockito.times(1)).findById(eq(user.getId()));
         verify(requestRepository, Mockito.times(0)).findByUser(eq(user), eq(requestTypes), 
-                eq(new PageRequest(0, Integer.MAX_VALUE)));
+                eq(PageRequest.of(0, Integer.MAX_VALUE)));
     }
 
     /**
@@ -595,7 +596,7 @@ public class RequestServiceTest {
         request.setDateOfBirth(new Date());
         request.setStatus(RequestStatus.SUBMITTED);
 
-        when(requestRepository.findOne(eq(request.getId()))).thenReturn(request);
+        when(requestRepository.findById(eq(request.getId()))).thenReturn(Optional.of(request));
         when(requestRepository.save(eq(request))).thenReturn(request);
 
         requestService.save(request);
@@ -615,7 +616,7 @@ public class RequestServiceTest {
         TestUtils.authenticateTest(user, RoleName.UNIT_ADMIN);
 
         Group group = TestUtils.createGroup( "TestGroup");
-        when(userRepository.exists(eq(user.getId()))).thenReturn(true);
+        when(userRepository.existsById(eq(user.getId()))).thenReturn(true);
 
         requestService.getCount(user.getId());
 
@@ -634,7 +635,7 @@ public class RequestServiceTest {
         TestUtils.authenticateTest(user, RoleName.SPECIALTY_ADMIN);
 
         Group group = TestUtils.createGroup("TestGroup");
-        when(userRepository.exists(eq(user.getId()))).thenReturn(true);
+        when(userRepository.existsById(eq(user.getId()))).thenReturn(true);
 
         requestService.getCount(user.getId());
 

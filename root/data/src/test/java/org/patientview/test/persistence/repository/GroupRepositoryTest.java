@@ -143,7 +143,7 @@ public class GroupRepositoryTest {
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(childGroup, parentGroup, RelationshipTypes.PARENT));
         childGroup.getGroupRelationships().add(dataTestUtils.createGroupRelationship(parentGroup, childGroup, RelationshipTypes.CHILD));
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         //Page<Group> groupPage = groupRepository.findGroupAndChildGroupsByUserAndGroupType("%%", convertStringArrayToLongs(groupTypes), user, pageable);
         Page<Group> groupPage = groupRepository.findGroupAndChildGroupsByUser("%%", user, pageable);
 
