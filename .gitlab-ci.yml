@@ -120,9 +120,9 @@ build:staging:web:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - export PATH=$PATH:/usr/bin
     - which rsync || ( apt-get update -y && apt-get install rsync -y )
-  cache:
-    paths:
-      - root/webapp/node_modules/
+#  cache:
+#    paths:
+#      - root/webapp/node_modules/
   script:
     - echo "Building WEB"
     - pwd
