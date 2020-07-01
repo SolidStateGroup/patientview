@@ -126,6 +126,7 @@ build:staging:web:
   script:
     - echo "Building WEB"
     - pwd
+    - rm -rf root/webapp/node_modules
     - ls -l
     - cd root/webapp
     - npm install -g bower
