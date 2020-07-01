@@ -1,5 +1,6 @@
 package org.patientview.api.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.patientview.persistence.model.enums.StatisticType;
 
@@ -14,7 +15,9 @@ import java.util.Map;
  */
 public class GroupStatisticTO implements Comparable {
 
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date startDate;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date endDate;
 
     private Map<StatisticType, BigInteger> statistics;
