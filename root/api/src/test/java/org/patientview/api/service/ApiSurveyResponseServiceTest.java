@@ -62,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -219,9 +220,9 @@ public class ApiSurveyResponseServiceTest {
         questionAnswer.setValue("20");
         surveyResponse.getQuestionAnswers().add(questionAnswer);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
-        when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(questionRepository.findById(eq(question.getId()))).thenReturn(Optional.of(question));
+        when(surveyRepository.findById(eq(survey.getId()))).thenReturn(Optional.of(survey));
 
         // scoring alerts
         when(lookupService.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.SPECIALTY.toString())))
@@ -312,9 +313,9 @@ public class ApiSurveyResponseServiceTest {
         questionAnswer.setValue("some usual symptoms");
         surveyResponse.getQuestionAnswers().add(questionAnswer);
 
-        when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
-        when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(questionRepository.findById(eq(question.getId()))).thenReturn(Optional.of(question));
+        when(surveyRepository.findById(eq(survey.getId()))).thenReturn(Optional.of(survey));
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         when(userTokenRepository.findByToken(eq(staffToken))).thenReturn(userToken);
         when(userService.userCanSwitchToUser(eq(staffUser), eq(user))).thenReturn(true);
 
@@ -396,9 +397,9 @@ public class ApiSurveyResponseServiceTest {
         questionAnswer.setValue("1");
         surveyResponse.getQuestionAnswers().add(questionAnswer);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(questionRepository.findOne(eq(question.getId()))).thenReturn(question);
-        when(surveyRepository.findOne(eq(survey.getId()))).thenReturn(survey);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(questionRepository.findById(eq(question.getId()))).thenReturn(Optional.of(question));
+        when(surveyRepository.findById(eq(survey.getId()))).thenReturn(Optional.of(survey));
 
         // scoring alerts
         when(lookupService.findByTypeAndValue(eq(LookupTypes.GROUP), eq(GroupTypes.SPECIALTY.toString())))
@@ -451,7 +452,7 @@ public class ApiSurveyResponseServiceTest {
         surveyResponses.add(surveyResponse);
         surveyResponse.setSurvey(survey);
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
         when(surveyResponseRepository.findByUserAndSurveyType(eq(user), eq(survey.getType())))
                 .thenReturn(surveyResponses);
         List<SurveyResponse> returned = apiSurveyResponseService.getByUserIdAndSurveyType(user.getId(), survey.getType());
@@ -493,7 +494,7 @@ public class ApiSurveyResponseServiceTest {
         surveyResponse.setSurvey(survey);
 
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
         when(surveyResponseRepository.findLatestByUserAndSurveyType(eq(user), eq(survey.getType()),
                 any(Pageable.class))).thenReturn(new PageImpl<>(surveyResponses));
         List<SurveyResponse> returned = apiSurveyResponseService.getLatestByUserIdAndSurveyType(user.getId(), types);
@@ -551,10 +552,10 @@ public class ApiSurveyResponseServiceTest {
         response.setQuestionAnswers(asList(answerWithoutQuestionText, answer));
         response.setDate(new Date());
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
-        when(surveyRepository.findOne(surveyId)).thenReturn(buildSurveyFrom(surveyId));
-        when(questionRepository.findOne(2L)).thenReturn(questionWithCustomerQuestionFlag);
-        when(questionRepository.findOne(3L)).thenReturn(question);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
+        when(surveyRepository.findById(surveyId)).thenReturn(Optional.of(buildSurveyFrom(surveyId)));
+        when(questionRepository.findById(2L)).thenReturn(Optional.of(questionWithCustomerQuestionFlag));
+        when(questionRepository.findById(3L)).thenReturn(Optional.of(question));
 
         String xml = "<xml>test</xml>";
 
@@ -599,7 +600,7 @@ public class ApiSurveyResponseServiceTest {
 
         String posS = "POS_S";
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
         when(surveyRepository.findByType("POS_S")).thenReturn(singletonList(new Survey()));
 
         // When
@@ -608,7 +609,7 @@ public class ApiSurveyResponseServiceTest {
 
         // Then
 
-        Assert.assertThat(result, org.hamcrest.Matchers.<SurveyResponse>hasSize(0));
+        Assert.assertTrue("Should have 0 response", result.size() == 0);
     }
 
     @Test
@@ -635,7 +636,7 @@ public class ApiSurveyResponseServiceTest {
 
         String posS = "POS_S";
 
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
         when(surveyRepository.findByType("POS_S")).thenReturn(singletonList(buildPossSurvey()));
         when(surveyResponseRepository.findByUserAndSurveyType(user, "PROM")).thenReturn(singletonList(buildPromSurveyResponse()));
 
@@ -645,7 +646,7 @@ public class ApiSurveyResponseServiceTest {
 
         // Then
 
-        Assert.assertThat(responses, org.hamcrest.Matchers.<SurveyResponse>hasSize(1));
+        Assert.assertTrue("Should have one response", responses.size() == 1);
     }
 
     private Survey buildPossSurvey() {

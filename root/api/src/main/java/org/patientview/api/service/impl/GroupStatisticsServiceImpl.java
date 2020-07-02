@@ -62,10 +62,8 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     public List<GroupStatisticTO> getMonthlyGroupStatistics(final Long groupId)
             throws ResourceNotFoundException {
 
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("The group could not be found");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("The group could not be found"));
 
         List<GroupStatistic> groupStatistics =
                 Util.convertIterable(groupStatisticRepository.findByGroupAndStatisticPeriod(group,
@@ -107,8 +105,8 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     /**
      * Creates statistics for all the groups. Loop through the statistics and then the groups.
      *
-     * @param startDate Date start date of statistics
-     * @param endDate Date end date of statistics
+     * @param startDate       Date start date of statistics
+     * @param endDate         Date end date of statistics
      * @param statisticPeriod StatisticsPeriod, DAY, MONTH or CUMULATIVE_MONTH
      */
     @CacheEvict(value = "getMonthlyGroupStatistics", allEntries = true)
@@ -179,10 +177,8 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
     @Override
     public void migrateStatistics(Long groupId, List<GroupStatistic> statistics) throws ResourceNotFoundException {
 
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group does not exist"));
 
         Date latestStartDate = new Date(0);
 
@@ -194,7 +190,7 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
 
         // delete older than latest start date
         groupStatisticRepository.deleteByGroupBeforeStartDateAndPeriod(group, latestStartDate, StatisticPeriod.MONTH);
-        groupStatisticRepository.save(statistics);
+        groupStatisticRepository.saveAll(statistics);
     }
 
     // Refresh the group statistic object for the next statistics

@@ -34,6 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
@@ -97,13 +98,14 @@ public class GroupStatisticsServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
 
         List<GroupStatisticTO> groupStatisticTOs = groupStatisticService.getMonthlyGroupStatistics(group.getId());
 
         verify(groupStatisticRepository, Mockito.times(1)).findByGroupAndStatisticPeriod(eq(group),
                 eq(StatisticPeriod.MONTH));
     }
+
     /**
      * Test: The generation of monthly statistics for all groups
      * Fail: The statistics will not be generated for any groups
@@ -129,7 +131,7 @@ public class GroupStatisticsServiceTest {
         Date startDate = calendar.getTime();
 
         // Create groups
-        Group testGroup = TestUtils.createGroup( "testGroup");
+        Group testGroup = TestUtils.createGroup("testGroup");
         List<Group> groups = new ArrayList<>();
         groups.add(testGroup);
         when(groupRepository.findAll()).thenReturn(groups);
@@ -141,8 +143,8 @@ public class GroupStatisticsServiceTest {
         groupStatisticService.generateGroupStatistic(startDate, endDate, StatisticPeriod.MONTH);
 
         // There should be 2 results returned cannot do eq on a date with a timestamp
-     //   verify(query, Mockito.times(2)).setParameter(eq("startDate"), eq(startDate));
-     //   verify(query, Mockito.times(2)).setParameter(eq("endDate"), eq(endDate));
+        //   verify(query, Mockito.times(2)).setParameter(eq("startDate"), eq(startDate));
+        //   verify(query, Mockito.times(2)).setParameter(eq("endDate"), eq(endDate));
 
         verify(query, Mockito.times(2)).setParameter(eq("groupId"), eq(testGroup.getId()));
         verify(query, Mockito.times(2)).getSingleResult();
@@ -166,7 +168,7 @@ public class GroupStatisticsServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
 
         groupStatisticService.getMonthlyGroupStatistics(null);
     }

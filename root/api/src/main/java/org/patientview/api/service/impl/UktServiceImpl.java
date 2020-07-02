@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -70,7 +71,7 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
 
     @Inject
     @Named("patientView")
-    private BasicDataSource dataSource;
+    private DataSource dataSource;
 
     /**
      * Store kidney transplant status for a User using a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR.

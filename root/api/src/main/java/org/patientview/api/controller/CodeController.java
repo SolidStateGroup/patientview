@@ -90,7 +90,7 @@ public class CodeController extends BaseController<CodeController> {
      */
     @RequestMapping(value = "/code/{codeId}/clone", method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Code> cloneCode(@PathVariable("codeId") Long codeId) {
+    public ResponseEntity<Code> cloneCode(@PathVariable("codeId") Long codeId) throws ResourceNotFoundException {
         return new ResponseEntity<>(codeService.cloneCode(codeId), HttpStatus.CREATED);
     }
 

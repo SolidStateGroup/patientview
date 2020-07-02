@@ -35,6 +35,7 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -108,9 +109,9 @@ public class IdentifierServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
+        when(identifierRepository.findById(eq(identifier.getId()))).thenReturn(Optional.of(identifier));
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
-        when(lookupRepository.findOne(any(Long.class))).thenReturn(lookup);
+        when(lookupRepository.findById(any(Long.class))).thenReturn(Optional.of(lookup));
         when(identifierRepository.save(eq(identifier))).thenReturn(identifier);
 
         try {
@@ -152,7 +153,7 @@ public class IdentifierServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
+        when(identifierRepository.findById(eq(identifier.getId()))).thenReturn(Optional.of(identifier));
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
         when(identifierRepository.save(eq(identifier))).thenReturn(identifier);
 
@@ -191,7 +192,7 @@ public class IdentifierServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
+        when(identifierRepository.findById(eq(identifier.getId()))).thenReturn(Optional.of(identifier));
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
 
         try {
@@ -200,7 +201,7 @@ public class IdentifierServiceTest {
             fail("Exception: " + e.getMessage());
         }
 
-        verify(identifierRepository, Mockito.times(1)).delete(eq(identifier.getId()));
+        verify(identifierRepository, Mockito.times(1)).deleteById(eq(identifier.getId()));
         verify(userService, Mockito.times(1)).sendUserUpdatedGroupNotification(any(User.class), any(Boolean.class));
     }
 
@@ -233,7 +234,7 @@ public class IdentifierServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
-        when(identifierRepository.findOne(eq(identifier.getId()))).thenReturn(identifier);
+        when(identifierRepository.findById(eq(identifier.getId()))).thenReturn(Optional.of(identifier));
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
 
         try {
@@ -242,7 +243,7 @@ public class IdentifierServiceTest {
             throw e;
         }
 
-        verify(identifierRepository, Mockito.times(1)).delete(eq(identifier.getId()));
+        verify(identifierRepository, Mockito.times(1)).deleteById(eq(identifier.getId()));
     }
 
     /**
@@ -277,8 +278,8 @@ public class IdentifierServiceTest {
         identifiers.add(identifier);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(identifiers);
-        when(lookupRepository.findOne(any(Long.class))).thenReturn(lookup);
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(any(Long.class))).thenReturn(Optional.of(lookup));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
         when(identifierRepository.save(eq(identifier))).thenReturn(identifier);
 
         try {
@@ -339,7 +340,7 @@ public class IdentifierServiceTest {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier2);
 
-        when(userRepository.findOne(Matchers.eq(userId))).thenReturn(user1);
+        when(userRepository.findById(Matchers.eq(userId))).thenReturn(Optional.of(user1));
         when(identifierRepository.findByValue(identifier.getIdentifier())).thenReturn(identifiers);
 
         identifierService.add(userId, identifier);
@@ -348,7 +349,6 @@ public class IdentifierServiceTest {
     /**
      * Test: Get identifier by value
      * Fail: Service is not called
-     *
      */
     @Test
     public void testGetIdentifierByValue() throws ResourceNotFoundException {
@@ -402,14 +402,14 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
-        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
-                .thenReturn(identifier.getIdentifierType());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(Optional.of(identifier.getIdentifierType()));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
 
         try {
             identifierService.validate(userIdentifier);
         } catch (ResourceForbiddenException | ResourceNotFoundException
-                    | EntityExistsException | ResourceInvalidException e) {
+                | EntityExistsException | ResourceInvalidException e) {
             fail("Exception: " + e.getMessage());
         }
     }
@@ -447,14 +447,14 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(true);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
-        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
-                .thenReturn(identifier.getIdentifierType());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(Optional.of(identifier.getIdentifierType()));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
 
         try {
             identifierService.validate(userIdentifier);
         } catch (ResourceForbiddenException | ResourceNotFoundException
-                    | EntityExistsException | ResourceInvalidException e) {
+                | EntityExistsException | ResourceInvalidException e) {
             fail("Exception: " + e.getMessage());
         }
     }
@@ -494,9 +494,9 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
-        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
-                .thenReturn(identifier.getIdentifierType());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(Optional.of(identifier.getIdentifierType()));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
 
         identifierService.validate(userIdentifier);
     }
@@ -534,14 +534,14 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
-        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
-                .thenReturn(identifier.getIdentifierType());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(Optional.of(identifier.getIdentifierType()));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
 
         try {
             identifierService.validate(userIdentifier);
         } catch (ResourceForbiddenException | ResourceNotFoundException
-                    | EntityExistsException | ResourceInvalidException e) {
+                | EntityExistsException | ResourceInvalidException e) {
             fail("Exception: " + e.getMessage());
         }
     }
@@ -549,7 +549,7 @@ public class IdentifierServiceTest {
 
     @Test(expected = ResourceInvalidException.class)
     public void testValidateIdentifier_InvalidChiNumber() throws ResourceForbiddenException, ResourceNotFoundException,
-            EntityExistsException, ResourceInvalidException{
+            EntityExistsException, ResourceInvalidException {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -582,9 +582,9 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
-        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
-                .thenReturn(identifier.getIdentifierType());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(Optional.of(identifier.getIdentifierType()));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
 
         identifierService.validate(userIdentifier);
     }
@@ -622,23 +622,22 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
-        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
-                .thenReturn(identifier.getIdentifierType());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(Optional.of(identifier.getIdentifierType()));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
 
         try {
             identifierService.validate(userIdentifier);
         } catch (ResourceForbiddenException | ResourceNotFoundException
-                    | EntityExistsException | ResourceInvalidException e) {
+                | EntityExistsException | ResourceInvalidException e) {
             fail("Exception: " + e.getMessage());
         }
     }
 
 
-
     @Test(expected = ResourceInvalidException.class)
     public void testValidateIdentifier_InvalidHscNumber() throws ResourceForbiddenException, ResourceNotFoundException,
-            EntityExistsException, ResourceInvalidException{
+            EntityExistsException, ResourceInvalidException {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
@@ -671,9 +670,9 @@ public class IdentifierServiceTest {
         userIdentifier.setDummy(false);
 
         when(identifierRepository.findByValue(eq(identifier.getIdentifier()))).thenReturn(null);
-        when(lookupRepository.findOne(eq(identifier.getIdentifierType().getId())))
-                .thenReturn(identifier.getIdentifierType());
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(lookupRepository.findById(eq(identifier.getIdentifierType().getId())))
+                .thenReturn(Optional.of(identifier.getIdentifierType()));
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
 
         identifierService.validate(userIdentifier);
     }

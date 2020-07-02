@@ -13,7 +13,7 @@ import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
+import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -60,7 +60,7 @@ public class PatientMessageListener implements ChannelAwareMessageListener {
      * @param message
      * @param channel
      * @throws Exception
-     * @see org.springframework.amqp.rabbit.core.ChannelAwareMessageListener#onMessage(org.springframework.amqp.core.Message,
+     * @see org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener#onMessage(org.springframework.amqp.core.Message,
      * com.rabbitmq.client.Channel)
      */
     public void onMessage(final Message message, final Channel channel) throws Exception {

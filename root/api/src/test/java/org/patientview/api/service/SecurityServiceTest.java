@@ -10,21 +10,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.SecurityServiceImpl;
-import org.patientview.persistence.model.GetParameters;
-import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.Route;
 import org.patientview.persistence.model.User;
-import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.RoleRepository;
 import org.patientview.persistence.repository.RouteRepository;
 import org.patientview.persistence.repository.UserRepository;
 import org.patientview.test.util.TestUtils;
-import org.springframework.data.domain.PageRequest;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Mockito.verify;
@@ -77,7 +72,7 @@ public class SecurityServiceTest {
     public void testGetNoneDuplicateRoutes() {
         User testUser = TestUtils.createUser("testUser");
         TestUtils.authenticateTest(testUser);
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        when(userRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(testUser));
         when(routeRepository.findFeatureRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.findGroupRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
         when(routeRepository.findRoleRoutesByUser(Matchers.any(User.class))).thenReturn(getRoutes());
@@ -93,7 +88,7 @@ public class SecurityServiceTest {
 
     private Iterable<Route> getRoutes() {
         Set<Route> routes = new HashSet<>();
-        for (long i = 1; i< 7; i ++) {
+        for (long i = 1; i < 7; i++) {
             Route route = new Route();
             route.setId(i);
             route.setTitle("Route" + i);

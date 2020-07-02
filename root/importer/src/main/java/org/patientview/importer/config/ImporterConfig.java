@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by james@solidstategroup.com
@@ -50,6 +51,8 @@ public class ImporterConfig {
             LOG.info("Successfully started messaging writer");
         } catch (IOException ioe) {
             LOG.error("Unable to connect to queue {}", ioe);
+        } catch (TimeoutException e) {
+            LOG.error("Unable to connect to queue {}", e);
         }
 
         return channel;
@@ -72,6 +75,8 @@ public class ImporterConfig {
             LOG.info("Successfully started messaging writer");
         } catch (IOException ioe) {
             LOG.error("Unable to connect to queue {}", ioe);
+        }catch (TimeoutException e) {
+            LOG.error("Unable to connect to queue {}", e);
         }
 
         return channel;

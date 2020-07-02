@@ -72,6 +72,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -228,11 +229,12 @@ public class ApiObservationServiceTest {
         when(groupRepository.findByCode(eq(HiddenGroupCodes.PATIENT_ENTERED.toString())))
                 .thenReturn(patientEnteredGroup);
         when(observationHeadingRepository.findByCode(eq("resultcomment"))).thenReturn(observationHeadings);
-        when(observationHeadingRepository.findOne(eq(observationHeading1.getId()))).thenReturn(observationHeading1);
+        when(observationHeadingRepository.findById(eq(observationHeading1.getId())))
+                .thenReturn(Optional.of(observationHeading1));
         when(observationService.buildObservation(any(DateTime.class), any(String.class), any(String.class),
                 any(String.class), eq(observationHeading1), any(Boolean.class))).thenReturn(observation);
         when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
         when(Util.createResourceReference(any(UUID.class))).thenReturn(new ResourceReference());
 
         apiObservationService.addUserResultClusters(user.getId(), userResultClusters);
@@ -276,8 +278,8 @@ public class ApiObservationServiceTest {
         fhirObservation.setValue("999");
         fhirObservationRange.getObservations().add(fhirObservation);
 
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.marshallFhirRecord(any(Observation.class)))
                 .thenReturn("{\"applies\": \"2013-10-31T00:00:00\",\"value\": \"999\"}");
 
@@ -321,8 +323,8 @@ public class ApiObservationServiceTest {
         fhirObservation.setValue("999");
         fhirObservationRange.getObservations().add(fhirObservation);
 
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.marshallFhirRecord(any(Observation.class)))
                 .thenReturn("{\"applies\": \"2013-10-31T00:00:00\",\"value\": \"999\"}");
 
@@ -358,21 +360,21 @@ public class ApiObservationServiceTest {
         observationHeadings.add(observationHeading1);
 
         Map<String, String> resultMap = new HashMap<>();
-        resultMap.put("day","01");
-        resultMap.put("month","01");
-        resultMap.put("year","2017");
-        resultMap.put("HdHours","1");
-        resultMap.put("HdLocation","Amex");
-        resultMap.put("eprex","12");
-        resultMap.put("TargetWeight","90");
-        resultMap.put("PreWeight","80");
-        resultMap.put("PostWeight","90");
-        resultMap.put("UfVolume","12");
-        resultMap.put("pulse","123");
-        resultMap.put("PreBpsys","12");
-        resultMap.put("PreBpdia","122");
-        resultMap.put("PostBpsys","123");
-        resultMap.put("PostBpdia","123");
+        resultMap.put("day", "01");
+        resultMap.put("month", "01");
+        resultMap.put("year", "2017");
+        resultMap.put("HdHours", "1");
+        resultMap.put("HdLocation", "Amex");
+        resultMap.put("eprex", "12");
+        resultMap.put("TargetWeight", "90");
+        resultMap.put("PreWeight", "80");
+        resultMap.put("PostWeight", "90");
+        resultMap.put("UfVolume", "12");
+        resultMap.put("pulse", "123");
+        resultMap.put("PreBpsys", "12");
+        resultMap.put("PreBpdia", "122");
+        resultMap.put("PostBpsys", "123");
+        resultMap.put("PostBpdia", "123");
 
         Patient fhirPatient = new Patient();
 
@@ -406,7 +408,7 @@ public class ApiObservationServiceTest {
         when(observationService.buildObservation(any(DateTime.class), any(String.class), any(String.class),
                 any(String.class), eq(observationHeading1), any(Boolean.class))).thenReturn(observation);
         when(patientService.buildPatient(eq(user), eq(identifier))).thenReturn(fhirPatient);
-        when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
         when(Util.createResourceReference(any(UUID.class))).thenReturn(new ResourceReference());
 
         apiObservationService.addUserDialysisTreatmentResult(user.getId(), resultMap);
@@ -466,7 +468,7 @@ public class ApiObservationServiceTest {
         nameConcept.addCoding().setDisplaySimple(code);
         observation.setName(nameConcept);
 
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
         when(groupRepository.findByCode(any(String.class))).thenReturn(group);
         when(fhirResource.getLogicalIdsBySubjectId(any(String.class), eq(fhirLink.getResourceId())))
                 .thenReturn(foundIds);
@@ -478,7 +480,7 @@ public class ApiObservationServiceTest {
 
         // verify
         verify(fhirResource, times(1)).updateEntity(eq(observation), eq("observation"),
-                eq("observation"),eq(fhirObservation.getLogicalId()));
+                eq("observation"), eq(fhirObservation.getLogicalId()));
         verify(auditService, times(1)).save(any(Audit.class));
     }
 
@@ -529,7 +531,7 @@ public class ApiObservationServiceTest {
         observation.setName(nameConcept);
 
         // when
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
         when(groupRepository.findByCode(any(String.class))).thenReturn(group);
         when(fhirResource.getLogicalIdsBySubjectId(any(String.class), eq(fhirLink.getResourceId())))
                 .thenReturn(foundIds);
@@ -590,8 +592,8 @@ public class ApiObservationServiceTest {
         observation.setName(nameConcept);
 
 
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
                 .thenReturn(fhirObservations);
 
@@ -649,8 +651,8 @@ public class ApiObservationServiceTest {
         observation.setName(nameConcept);
 
 
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
                 .thenReturn(fhirObservations);
 
@@ -710,8 +712,8 @@ public class ApiObservationServiceTest {
         observation.setName(nameConcept);
 
 
-        when(userRepository.findOne(Matchers.eq(patient.getId()))).thenReturn(patient);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(userRepository.findById(Matchers.eq(patient.getId()))).thenReturn(Optional.of(patient));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
                 .thenReturn(fhirObservations);
 
@@ -788,7 +790,7 @@ public class ApiObservationServiceTest {
 
         when(alertRepository.findByUserAndObservationHeading(eq(patient), eq(observationHeading)))
                 .thenReturn(alerts);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
         when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
                 .thenReturn(patient.getFhirLinks().iterator().next());
         when(fhirResource.getObservationUuidsBySubjectNameDateRange(any(UUID.class),
@@ -879,7 +881,7 @@ public class ApiObservationServiceTest {
 
         when(alertRepository.findByUserAndObservationHeading(eq(patient), eq(observationHeading)))
                 .thenReturn(alerts);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
         when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
                 .thenReturn(patient.getFhirLinks().iterator().next());
         when(fhirResource.marshallFhirRecord(any(Resource.class)))

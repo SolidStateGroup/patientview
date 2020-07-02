@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -165,9 +166,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         for (CodeCategory codeCategory : codeCategories) {
             codeCategory.setCode(entityCode);
             if (codeCategory.getCategory() != null) {
-                Category category = categoryRepository.findOne(codeCategory.getCategory().getId());
-                if (category != null) {
-                    codeCategory.setCategory(category);
+                Optional<Category> category = categoryRepository.findById(codeCategory.getCategory().getId());
+                if (category.isPresent()) {
+                    codeCategory.setCategory(category.get());
                     entityCode.getCodeCategories().add(codeCategoryRepository.save(codeCategory));
                 }
             }
@@ -179,15 +180,11 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Override
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public CodeCategory addCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException {
-        Code code = codeRepository.findOne(codeId);
-        if (code == null) {
-            throw new ResourceNotFoundException("Code not found");
-        }
+        Code code = codeRepository.findById(codeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Code not found"));
 
-        Category category = categoryRepository.findOne(categoryId);
-        if (category == null) {
-            throw new ResourceNotFoundException("Category not found");
-        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         return codeCategoryRepository.save(new CodeCategory(code, category));
     }
@@ -196,22 +193,16 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public CodeExternalStandard addCodeExternalStandard(Long codeId, CodeExternalStandard codeExternalStandard)
             throws ResourceNotFoundException {
-        Code code = codeRepository.findOne(codeId);
-
-        if (code == null) {
-            throw new ResourceNotFoundException("Code not found");
-        }
+        Code code = codeRepository.findById(codeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Code not found"));
 
         if (codeExternalStandard.getExternalStandard() == null) {
             throw new ResourceNotFoundException("External standard must be set");
         }
 
         ExternalStandard externalStandard
-                = externalStandardRepository.findOne(codeExternalStandard.getExternalStandard().getId());
-
-        if (externalStandard == null) {
-            throw new ResourceNotFoundException("External standard not found");
-        }
+                = externalStandardRepository.findById(codeExternalStandard.getExternalStandard().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("External standard not found"));
 
         String codeString = codeExternalStandard.getCodeString();
 
@@ -235,9 +226,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Override
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
-    public Code cloneCode(final Long codeId) {
+    public Code cloneCode(final Long codeId) throws ResourceNotFoundException {
         // clone original
-        Code entityCode = codeRepository.findOne(codeId);
+        Code entityCode = codeRepository.findById(codeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Code not found"));
         Code newCode = (Code) SerializationUtils.clone(entityCode);
         newCode.setCode(newCode.getCode() + "_new");
 
@@ -250,7 +242,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             newLink.setDisplayOrder(link.getDisplayOrder());
             newLink.setCode(newCode);
             newLink.setLinkType(link.getLinkType());
-            newLink.setCreator(userRepository.findOne(1L));
+            newLink.setCreator(userRepository.findById(1L).get());
             newCode.getLinks().add(newLink);
         }
         newCode.setId(null);
@@ -268,22 +260,18 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Override
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void delete(final Long codeId) {
-        codeRepository.delete(codeId);
+        codeRepository.deleteById(codeId);
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void deleteCodeCategory(Long codeId, Long categoryId) throws ResourceNotFoundException {
-        Code code = codeRepository.findOne(codeId);
-        if (code == null) {
-            throw new ResourceNotFoundException("Code not found");
-        }
+        Code code = codeRepository.findById(codeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Code not found"));
 
-        Category category = categoryRepository.findOne(categoryId);
-        if (category == null) {
-            throw new ResourceNotFoundException("Category not found");
-        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         codeCategoryRepository.deleteByCodeAndCategory(code, category);
     }
@@ -291,10 +279,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @Override
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void deleteCodeExternalStandard(Long codeExternalStandardId) throws ResourceNotFoundException {
-        CodeExternalStandard codeExternalStandard = codeExternalStandardRepository.findOne(codeExternalStandardId);
-        if (codeExternalStandard == null) {
-            throw new ResourceNotFoundException("Code External Standard not found");
-        }
+        CodeExternalStandard codeExternalStandard = codeExternalStandardRepository.findById(codeExternalStandardId)
+                .orElseThrow(() -> new ResourceNotFoundException("Code External Standard not found"));
+
 
         Code code = codeExternalStandard.getCode();
         if (code == null) {
@@ -306,7 +293,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         code.setLastUpdater(getCurrentUser());
         codeRepository.save(code);
 
-        codeExternalStandardRepository.delete(codeExternalStandardId);
+        codeExternalStandardRepository.deleteById(codeExternalStandardId);
     }
 
     @Override
@@ -331,10 +318,8 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Override
     public Code get(final Long codeId) throws ResourceNotFoundException {
-        Code code = codeRepository.findOne(codeId);
-        if (code == null) {
-            throw new ResourceNotFoundException("Code does not exist");
-        }
+        Code code = codeRepository.findById(codeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Code does not exist"));
 
         // handle check against NHS Choices, avoid hitting NHS api too much during sync
         if (code.getStandardType().getValue().equals(CodeStandardTypes.PATIENTVIEW.toString())) {
@@ -411,10 +396,9 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Override
     public List<BaseCode> getByCategory(Long categoryId) throws ResourceNotFoundException {
-        Category category = categoryRepository.findOne(categoryId);
-        if (category == null) {
-            throw new ResourceNotFoundException("Category not found");
-        }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
 
         List<BaseCode> baseCodes = new ArrayList<>();
 
@@ -496,7 +480,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         Page<Code> found = codeRepository.findAllByCodeAndStandardTypesFiltered(searchTerm, codeTypesList,
-                standardTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                standardTypesList, PageRequest.of(0, Integer.MAX_VALUE));
 
         List<BaseCode> reduced = new ArrayList<>();
 
@@ -513,17 +497,16 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
     @Override
     public BaseCode getPublic(Long codeId) {
-        Code code = codeRepository.findOne(codeId);
-        return code != null ? new BaseCode(code) : null;
+        Optional<Code> code = codeRepository.findById(codeId);
+        return code.isPresent() ? new BaseCode(code.get()) : null;
     }
 
     @Override
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public Code save(final Code code) throws ResourceNotFoundException, EntityExistsException {
-        Code entityCode = codeRepository.findOne(code.getId());
-        if (entityCode == null) {
-            throw new ResourceNotFoundException("Code does not exist");
-        }
+        Code entityCode = codeRepository.findById(code.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Code does not exist"));
+
 
         // check if another code with this code exists
         Code existingCode = codeRepository.findOneByCode(code.getCode());
@@ -547,21 +530,17 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
     @CacheEvict(value = "findAllByCodeAndType", allEntries = true)
     public void saveCodeExternalStandard(CodeExternalStandard codeExternalStandard) throws ResourceNotFoundException {
         CodeExternalStandard entityCodeExternalStandard
-                = codeExternalStandardRepository.findOne(codeExternalStandard.getId());
-        if (entityCodeExternalStandard == null) {
-            throw new ResourceNotFoundException("Code External Standard not found");
-        }
+                = codeExternalStandardRepository.findById(codeExternalStandard.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Code External Standard not found"));
 
         if (codeExternalStandard.getExternalStandard() == null) {
             throw new ResourceNotFoundException("External Standard must be set");
         }
 
         ExternalStandard externalStandard
-                = externalStandardRepository.findOne(codeExternalStandard.getExternalStandard().getId());
+                = externalStandardRepository.findById(codeExternalStandard.getExternalStandard().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("External Standard not found"));
 
-        if (externalStandard == null) {
-            throw new ResourceNotFoundException("External Standard not found");
-        }
 
         entityCodeExternalStandard.setCodeString(codeExternalStandard.getCodeString());
         entityCodeExternalStandard.setExternalStandard(externalStandard);
@@ -600,10 +579,10 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
             standardTypesList.add(standardLookup.getId());
 
             found = codeRepository.findAllByCodeAndStandardTypesFiltered(searchTerm, codeTypesList,
-                    standardTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                    standardTypesList, PageRequest.of(0, Integer.MAX_VALUE));
         } else {
             found = codeRepository.findAllByCodeTypesFiltered(
-                    searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                    searchTerm, codeTypesList, PageRequest.of(0, Integer.MAX_VALUE));
         }
 
         List<BaseCode> reduced = new ArrayList<>();
@@ -641,7 +620,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
 
 
         found = codeRepository.findAllByCodeTypesFiltered(
-                searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                searchTerm, codeTypesList, PageRequest.of(0, Integer.MAX_VALUE));
 
         List<BaseCode> reduced = new ArrayList<>();
 
@@ -671,7 +650,7 @@ public class CodeServiceImpl extends AbstractServiceImpl<CodeServiceImpl> implem
         }
 
         found = codeRepository.findAllByCodeTypesFiltered(
-                searchTerm, codeTypesList, new PageRequest(0, Integer.MAX_VALUE));
+                searchTerm, codeTypesList, PageRequest.of(0, Integer.MAX_VALUE));
 
 
         List<BaseCode> reduced = new ArrayList<>();

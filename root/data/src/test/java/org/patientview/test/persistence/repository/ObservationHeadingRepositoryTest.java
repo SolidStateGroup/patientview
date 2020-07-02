@@ -49,7 +49,7 @@ public class ObservationHeadingRepositoryTest {
     public void testFindAll() {
         ObservationHeading observationHeading = dataTestUtils.createObservationHeading("OBS1");
 
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         Page<ObservationHeading> observationHeadings = observationHeadingRepository.findAll(pageable);
 
         Assert.assertEquals("There should be 1 observation heading", 1, observationHeadings.getContent().size());

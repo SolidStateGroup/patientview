@@ -62,9 +62,9 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
                 direction = Sort.Direction.DESC;
             }
 
-            return new PageRequest(page, size, new Sort(new Sort.Order(direction, sortField)));
+            return PageRequest.of(page, size, Sort.by(new Sort.Order(direction, sortField)));
         } else {
-            return new PageRequest(page, size);
+            return PageRequest.of(page, size);
         }
     }
 

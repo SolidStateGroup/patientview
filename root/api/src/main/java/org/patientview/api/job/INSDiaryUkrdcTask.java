@@ -78,7 +78,7 @@ public class INSDiaryUkrdcTask {
         for (Long patientId : patientIds) {
 
             try {
-                User patient = userRepository.findOne(patientId);
+                User patient = userRepository.findById(patientId).orElse(null);
                 if (patient == null) {
                     LOG.error("INSDiaryUkrdcTask could not find patient " + patientId);
                     continue;

@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
@@ -136,7 +137,7 @@ public class DocumentServiceTest {
         documentReferences.add(documentReference);
 
         try {
-            when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+            when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
             when(fhirResource.findResourceByQuery(any(String.class), eq(DocumentReference.class)))
                     .thenReturn(documentReferences);
 

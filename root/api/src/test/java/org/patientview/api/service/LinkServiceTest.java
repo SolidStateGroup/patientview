@@ -25,6 +25,7 @@ import org.patientview.persistence.repository.LookupRepository;
 import org.patientview.test.util.TestUtils;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -81,7 +82,7 @@ public class LinkServiceTest {
 
         Link link = TestUtils.createLink(group, null, "groupLink");
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(linkRepository.save(eq(link))).thenReturn(link);
 
         try {
@@ -111,7 +112,7 @@ public class LinkServiceTest {
 
         Link link = TestUtils.createLink(group, null, "groupLink");
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(linkRepository.save(eq(link))).thenReturn(link);
 
         linkService.addGroupLink(group.getId(), link);
@@ -136,7 +137,7 @@ public class LinkServiceTest {
         Code code = TestUtils.createCode("testCode");
         Link link = TestUtils.createLink(null, code, "groupLink");
 
-        when(codeRepository.findOne(eq(code.getId()))).thenReturn(code);
+        when(codeRepository.findById(eq(code.getId()))).thenReturn(Optional.of(code));
         when(linkRepository.save(eq(link))).thenReturn(link);
 
         try {

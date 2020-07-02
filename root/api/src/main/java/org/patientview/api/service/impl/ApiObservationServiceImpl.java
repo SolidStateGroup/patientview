@@ -164,10 +164,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
 
         // check User exists
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // check user has fhirLink associated with this group
         FhirLink foundFhirLink = null;
@@ -221,10 +219,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         Map<String, UUID> resourceMapIds = new HashMap<>();
 
         // Patient adds his own results
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("User does not exist");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
         Group patientEnteredResultsGroup = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
         if (patientEnteredResultsGroup == null) {
@@ -253,10 +249,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
             // build observations
             for (IdValue idValue : userResultCluster.getValues()) {
-                ObservationHeading observationHeading = observationHeadingRepository.findOne(idValue.getId());
-                if (observationHeading == null) {
-                    throw new ResourceNotFoundException("Observation Heading not found");
-                }
+                ObservationHeading observationHeading = observationHeadingRepository.findById(idValue.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Observation Heading not found"));
 
                 if (!idValue.getValue().isEmpty()) {
                     fhirObservations.add(observationService.buildObservation(applies, idValue.getValue(), null,
@@ -339,10 +333,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throws ResourceNotFoundException, FhirResourceException, ResourceInvalidException {
 
         // Patient adds his own results
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("User does not exist");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
         Group patientEnteredResultsGroup = groupRepository.findByCode(HiddenGroupCodes.PATIENT_ENTERED.toString());
         if (patientEnteredResultsGroup == null) {
@@ -493,15 +485,13 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throws ResourceNotFoundException, FhirResourceException {
 
         // Patient updates his own results
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("User does not exist");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
         // check if admin is viewing patient, otherwise editor is patient
         User editor;
         if (adminId != null && !adminId.equals(userId)) {
-            editor = userRepository.findOne(adminId);
+            editor = userRepository.findById(adminId).get();
         } else {
             editor = patientUser;
         }
@@ -574,15 +564,13 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     public void deletePatientEnteredResult(Long userId, Long adminId, String uuid)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User patientUser = userRepository.findOne(userId);
-        if (patientUser == null) {
-            throw new ResourceNotFoundException("User does not exist");
-        }
+        User patientUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
         // check if admin is viewing patient, otherwise editor is patient
         User editor;
         if (adminId != null && !adminId.equals(userId)) {
-            editor = userRepository.findOne(adminId);
+            editor = userRepository.findById(adminId).get();
         } else {
             editor = patientUser;
         }
@@ -703,10 +691,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                                                final Long limit)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
         // check user exists
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         // check either current user or API user with rights to a User's groups
         if (!(getCurrentUser().getId().equals(userId) || ApiUtil.isCurrentUserApiUserForUser(user))) {
@@ -794,10 +780,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // check user exists
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         // check either current user or API user with rights to a User's groups
         if (!(getCurrentUser().getId().equals(userId) || ApiUtil.isCurrentUserApiUserForUser(user))) {
@@ -917,10 +901,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
 
         // check user exists
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         // check either current user or API user with rights to a User's groups
         if (!(getCurrentUser().getId().equals(userId) || ApiUtil.isCurrentUserApiUserForUser(user))) {
@@ -1120,10 +1102,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     private Map<String, org.patientview.api.model.FhirObservation> getLastObservations(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
         for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
@@ -1230,10 +1210,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                                  Long offset, String orderDirection)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
         for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
@@ -1380,10 +1358,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             String fromDate,
             String toDate)
             throws ResourceNotFoundException, FhirResourceException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         Map<String, ObservationHeading> observationHeadingMap = new HashMap<>();
         for (ObservationHeading observationHeading : observationHeadingRepository.findAll()) {
@@ -1513,10 +1489,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     public List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<Group> groups = groupService.findGroupsByUser(user);
         List<Group> specialties = new ArrayList<>();
@@ -1543,7 +1517,8 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             Group group, List<ObservationHeading> observationHeadings,
             Map<String, org.patientview.api.model.FhirObservation> latestObservations)
             throws ResourceNotFoundException, FhirResourceException {
-        group = groupRepository.findOne(group.getId());
+        group = groupRepository.findById(group.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find Group"));
 
         ObservationSummary observationSummary = new ObservationSummary();
         observationSummary.setPanels(new HashMap<Long, List<org.patientview.api.model.ObservationHeading>>());
@@ -1814,7 +1789,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
                     // set alert if present and updated
                     if (alert != null && alert.isUpdated()) {
-                        Alert entityAlert = alertRepository.findOne(alert.getId());
+                        Alert entityAlert = alertRepository.findById(alert.getId()).get();
                         entityAlert.setLatestValue(alert.getLatestValue());
                         entityAlert.setLatestDate(alert.getLatestDate());
                         entityAlert.setWebAlertViewed(alert.isWebAlertViewed());

@@ -84,6 +84,7 @@ deploy:staging:api:
 #    - echo $CI_PIPELINE_ID
     - scp root/api/target/api.war $SSH_USERNAME@$STAGING_PV:$PV_BUILDS/api.war
     - ssh -tt $SSH_USERNAME@$STAGING_PV bash $STAGING_PV_DEPLOY_API $CI_PIPELINE_ID
+  allow_failure: false
   when: manual
   only:
     - develop
@@ -119,12 +120,13 @@ build:staging:web:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - export PATH=$PATH:/usr/bin
     - which rsync || ( apt-get update -y && apt-get install rsync -y )
-  cache:
-    paths:
-      - root/webapp/node_modules/
+#  cache:
+#    paths:
+#      - root/webapp/node_modules/
   script:
     - echo "Building WEB"
     - pwd
+    - rm -rf root/webapp/node_modules
     - ls -l
     - cd root/webapp
     - npm install -g bower
@@ -191,6 +193,7 @@ deploy:prod:api:
     - echo $CI_PIPELINE_ID
     - scp root/api/target/api.war $SSH_USERNAME@$PROD_PV:$PV_BUILDS/api.war
     - ssh -tt $SSH_USERNAME@$PROD_PV bash $PROD_PV_DEPLOY_API $CI_PIPELINE_ID
+  allow_failure: false
   when: manual
   only:
     - master
@@ -240,6 +243,6 @@ build:prod:web:
     - echo "DeployingProduction  WEB"
     - rsync -ave ssh dist/* $SSH_USERNAME@$PROD_PV:$PV_WEB
   allow_failure: false
-  when: on_success
+  when: manual
   only:
     - master

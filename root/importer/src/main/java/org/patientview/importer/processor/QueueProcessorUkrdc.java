@@ -23,6 +23,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by jamesr@solidstategroup.com
@@ -59,7 +60,7 @@ public class QueueProcessorUkrdc extends DefaultConsumer {
     }
 
     @PreDestroy
-    public void shutdown() throws IOException {
+    public void shutdown() throws IOException, TimeoutException {
         channel.close();
     }
 

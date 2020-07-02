@@ -113,7 +113,7 @@ public class SurveyResponseRepositoryTest {
         surveyResponseRepository.save(surveyResponse);
 
         Page<SurveyResponse> surveyResponses
-                = surveyResponseRepository.findLatestByUserAndSurveyType(user, survey.getType(), new PageRequest(0, 1));
+                = surveyResponseRepository.findLatestByUserAndSurveyType(user, survey.getType(), PageRequest.of(0, 1));
         Assert.assertNotNull("Should return symptom scores", surveyResponses);
         Assert.assertEquals("There should be 1 symptom score", 1, surveyResponses.getSize());
         Assert.assertTrue("The symptom score should be the one created",

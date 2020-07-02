@@ -188,16 +188,26 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                 // to handle showing only for renal user
                 $scope.permissions.isRenalUser = false;
 
+                var renalId;
                 for (i = 0; i < $scope.graphGroups.length; i++) {
                     $scope.allGroups[$scope.graphGroups[i].id] = $scope.graphGroups[i];
                     if (!$scope.permissions.isRenalUser && $scope.graphGroups[i].parentCodes.indexOf("Renal") > -1) {
                         $scope.permissions.isRenalUser = true;
                     }
+
+                    if($scope.graphGroups[i].name === "Renal"){
+                        renalId = $scope.graphGroups[i].id;
+                        console.log("Found Renal id "+renalId);
+                    }
                 }
 
-                // set group (avoid blank option)
+                // set group (avoid blank option), default to Renal specialty, otherwise select first one
                 if ($scope.graphGroups && $scope.graphGroups.length > 0) {
-                    $scope.graphGroupId = $scope.graphGroups[0].id;
+                    if (renalId) {
+                        $scope.graphGroupId = renalId;
+                    } else {
+                        $scope.graphGroupId = $scope.graphGroups[0].id;
+                    }
                 }
 
                 $scope.newsTypesArray = [];
