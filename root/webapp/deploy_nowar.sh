@@ -43,7 +43,7 @@ else
 	echo "Installed bower dependencies"
 fi
 
-/usr/local/bin/grunt $gruntTask --force
+grunt $gruntTask --force
 
 if [ $? -eq 0 ]; then
     echo 'SUCCESS'
