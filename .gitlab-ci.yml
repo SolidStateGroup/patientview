@@ -110,7 +110,7 @@ deploy:staging:importer:
 
 build:staging:web:
   stage: deploy web
-  image: node:8.0.0
+  image: node:10.0.0
   before_script:
     - which ssh-agent
     - eval $(ssh-agent -s)
@@ -126,7 +126,6 @@ build:staging:web:
   script:
     - echo "Building WEB"
     - pwd
-    - rm -rf root/webapp/node_modules
     - ls -l
     - cd root/webapp
     - npm install -g bower
