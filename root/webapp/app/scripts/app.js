@@ -124,6 +124,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         $rootScope.ieTestMode = false;
         $rootScope.apiEndpoint = ENV.apiEndpoint;
         $rootScope.buildDateTime = ENV.buildDateTime;
+        $rootScope.currentVersion = ENV.currentVersion;
 
         var routeExists = function (route, routeArr) {
             for (var i = 0; i < routeArr.length; i++) {

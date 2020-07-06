@@ -8,6 +8,7 @@
 // 'test/spec/**/*.js'
 var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
 var serveStatic = require('serve-static');
+var currentVersion = require('./package.json').version;
 
 module.exports = function (grunt) {
 
@@ -426,7 +427,8 @@ module.exports = function (grunt) {
                         name: 'development',
                         apiEndpoint: 'http://patientview201.apiary-mock.com/api',
                         reCaptchaPublicKey: '',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -439,7 +441,8 @@ module.exports = function (grunt) {
                         name: 'production',
                         apiEndpoint: 'https://test.patientview.org/api',
                         reCaptchaPublicKey: '',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -449,10 +452,11 @@ module.exports = function (grunt) {
                 },
                 constants: {
                     ENV: {
-                        name: 'production',
+                        name: 'local',
                         apiEndpoint: 'http://localhost:' + port + '/api',
                         reCaptchaPublicKey: '6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -465,7 +469,8 @@ module.exports = function (grunt) {
                         name: 'production',
                         apiEndpoint: '/api',
                         reCaptchaPublicKey: '6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -478,7 +483,8 @@ module.exports = function (grunt) {
                         name: 'production',
                         apiEndpoint: 'http://10.0.2.2:8080/api',
                         reCaptchaPublicKey: '',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -491,7 +497,8 @@ module.exports = function (grunt) {
                         name: 'development',
                         apiEndpoint: 'http://patientview201.apiary-mock.com/api',
                         reCaptchaPublicKey: '',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -504,7 +511,8 @@ module.exports = function (grunt) {
                         name: 'production',
                         apiEndpoint: 'http://localhost:8089/api',
                         reCaptchaPublicKey: '',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -517,7 +525,8 @@ module.exports = function (grunt) {
                         name: 'production',
                         apiEndpoint: 'http://diabetes-pv.dev.solidstategroup.com/api',
                         reCaptchaPublicKey: '6Lcrn0QUAAAAAJzzJaDrHK9_3udkFe3Xe9Cmj08m',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             },
@@ -530,7 +539,8 @@ module.exports = function (grunt) {
                         name: 'production',
                         apiEndpoint: 'http://patientview2.staging.solidstategroup.com/api',
                         reCaptchaPublicKey: '',
-                        buildDateTime: Date.now()
+                        buildDateTime: Date.now(),
+                        currentVersion: currentVersion
                     }
                 }
             }
