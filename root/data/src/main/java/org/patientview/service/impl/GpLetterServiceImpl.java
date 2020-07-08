@@ -177,10 +177,8 @@ public class GpLetterServiceImpl implements GpLetterService {
             throw new ResourceNotFoundException("User not found");
         }
 
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         List<Role> roles = roleRepository.findByRoleType(roleType);
         if (CollectionUtils.isEmpty(roles)) {

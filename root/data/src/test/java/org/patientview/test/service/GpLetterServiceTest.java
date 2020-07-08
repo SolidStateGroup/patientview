@@ -37,6 +37,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.mockito.Matchers.any;
@@ -376,7 +377,7 @@ public class GpLetterServiceTest extends BaseTest {
         when(auditService.getImporterUserId()).thenReturn(importerUser.getId());
         when(gpLetterRepository.findByPostcode(eq(gpdetails.getGppostcode()))).thenReturn(gpLetters);
         when(gpMasterRepository.findByPostcode(eq(gpdetails.getGppostcode().replace(" ", "")))).thenReturn(gpMasters);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(properties.getProperty(eq("site.url"))).thenReturn("www.patientview.org");
         when(properties.getProperty(eq("gp.letter.output.directory"))).thenReturn("/opt/patientview/gpletter");
         when(roleRepository.findByRoleType(eq(RoleType.PATIENT))).thenReturn(roles);

@@ -1,5 +1,6 @@
 package org.patientview.api.util;
 
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.patientview.persistence.model.Group;
@@ -9,21 +10,28 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.StatisticType;
 import org.patientview.test.util.TestUtils;
+import org.patientview.util.UUIDType5;
 import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class ApiUtilTest {
 
@@ -34,6 +42,49 @@ public class ApiUtilTest {
     @org.junit.Before
     public void init() {
         creator = TestUtils.createUser("testCreator");
+    }
+
+    @Test
+    public void testExternalId(){
+        String nhsNumber = "1234567";
+        String membership = "EPro";
+        UUID uuid = UUIDType5.nameUUIDFromNamespaceAndBytes(
+                UUIDType5.NAMESPACE_YHS, (nhsNumber + membership).getBytes(
+                        Charset.defaultCharset()));
+
+        // 85846f7be1895b68ac4cb28587f75a51
+        LOG.info(uuid.toString().replace("-", ""));
+    }
+
+    @Test
+    public void testEnum() throws Exception {
+
+        assertTrue("should be equal", "NON_UK_UNIQUE".equals(IdentifierTypes.NON_UK_UNIQUE.getId()));
+        assertFalse("should be equal", "NON_UK_UNIQUE".equals(IdentifierTypes.NON_UK_UNIQUE.getName()));
+        LOG.info("> {}",IdentifierTypes.NON_UK_UNIQUE.getId());
+        LOG.info("> {}",IdentifierTypes.NON_UK_UNIQUE.getName());
+    }
+
+
+    @Test
+    public void testDates() throws Exception {
+        DateTime relapseDate = DateTime.parse("2019-11-07T12:00");
+        DateTime noneRelapseEntryDate = DateTime.parse("2019-11-06T12:00");
+        DateTime diaryEntryDate = DateTime.parse("2019-11-08T12:00");
+
+        if (noneRelapseEntryDate != null &&
+                relapseDate.toLocalDate().isBefore(new DateTime(noneRelapseEntryDate).toLocalDate())) {
+            System.out.println(String.format("The Date of Relapse that you've entered " +
+                    "must be later than your most recent non-relapse diary recording of %s " +
+                    "(where a Relapse value of 'N' was saved).", noneRelapseEntryDate));
+        }
+
+        // Relapse and Remission dates must always be less or equal to diary entry "Date".
+        if (relapseDate.toLocalDate().isAfter(new DateTime(diaryEntryDate).toLocalDate())) {
+            System.out.println(String.format("The Date of Relapse that you've entered " +
+                    "must be less or equal to Diary entry Date of %s.", diaryEntryDate));
+        }
+        Assert.assertNotNull("We now have an array list", relapseDate);
     }
 
 
@@ -47,7 +98,7 @@ public class ApiUtilTest {
     public void testIterableToList_emptyResult() throws Exception {
         Iterable<Group> groups = new HashSet<>();
         List<Group> groupList = Util.convertIterable(groups);
-        Assert.assertTrue("We now have an array list", groupList instanceof ArrayList);
+        assertTrue("We now have an array list", groupList instanceof ArrayList);
     }
 
     /**
@@ -68,8 +119,8 @@ public class ApiUtilTest {
         }
 
         List<Group> groupList = Util.convertIterable(groups);
-        Assert.assertTrue("We now have an array list", groupList instanceof ArrayList);
-        Assert.assertTrue("We have 10 results in our list", groupList.size() == sizeOfList);
+        assertTrue("We now have an array list", groupList instanceof ArrayList);
+        assertTrue("We have 10 results in our list", groupList.size() == sizeOfList);
     }
 
     // Create a list containing all the GroupStatistic types
@@ -117,7 +168,7 @@ public class ApiUtilTest {
 
         List<Role> roles = ApiUtil.convertAuthorities(grantedAuthorities);
 
-        Assert.assertTrue("The list is not empty", !CollectionUtils.isEmpty(roles));
+        assertTrue("The list is not empty", !CollectionUtils.isEmpty(roles));
 
     }
 
@@ -134,7 +185,7 @@ public class ApiUtilTest {
 
         Assert.assertFalse("The list does not contain the following role",
                 ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN));
-        Assert.assertTrue("The list does not contain the following role", ApiUtil.currentUserHasRole(RoleName.PATIENT));
+        assertTrue("The list does not contain the following role", ApiUtil.currentUserHasRole(RoleName.PATIENT));
 
     }
 }

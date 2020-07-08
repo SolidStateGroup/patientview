@@ -2,8 +2,8 @@ package org.patientview.importer.processor;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.Envelope;
-import com.rabbitmq.client.QueueingConsumer;
 import generated.Patientview;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class QueueProcessorTest extends BaseTest {
     Envelope envelope;
 
     @Mock
-    QueueingConsumer.Delivery delivery;
+    Delivery delivery;
 
     @Mock
     AMQP.BasicProperties basicProperties;

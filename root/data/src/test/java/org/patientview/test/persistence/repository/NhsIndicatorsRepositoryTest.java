@@ -159,7 +159,7 @@ public class NhsIndicatorsRepositoryTest {
         NhsIndicatorsData data = new NhsIndicatorsData(indicatorCount, indicatorCountLoginAfter, indicatorCodeMap);
         nhsIndicators1 = nhsIndicatorsRepository.save(new NhsIndicators(1L, OBJECT_MAPPER.writeValueAsString(data)));
 
-        NhsIndicators returned = nhsIndicatorsRepository.findOne(nhsIndicators1.getId());
+        NhsIndicators returned = nhsIndicatorsRepository.findById(nhsIndicators1.getId()).get();
         Assert.assertNotNull("Should return 1 NhsIndicators", returned);
         Assert.assertEquals("Should return correct NhsIndicators (ID)", returned.getId(), nhsIndicators1.getId());
 

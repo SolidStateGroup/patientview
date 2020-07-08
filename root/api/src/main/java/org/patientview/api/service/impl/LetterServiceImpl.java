@@ -121,14 +121,11 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
     @Override
     public void delete(Long userId, Long groupId, Long date) throws ResourceNotFoundException, FhirResourceException {
-        User entityUser = userRepository.findOne(userId);
-        if (entityUser == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        Group entityGroup = groupRepository.findOne(groupId);
-        if (entityGroup == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
+        User entityUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Group entityGroup = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         List<UUID> documentReferenceUuids = new ArrayList<>();
         Map<UUID, DocumentReference> documentReferenceMap = new HashMap<>();
@@ -217,7 +214,7 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
                 if (media.getContent() != null && media.getContent().getUrl() != null) {
                     try {
                         // delete file data
-                        fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                        fileDataRepository.deleteById(Long.valueOf(media.getContent().getUrlSimple()));
                     } catch (NumberFormatException nfe) {
                         LOG.info("Error deleting binary data, Media reference to binary data is not Long, ignoring..");
                     }

@@ -40,9 +40,9 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngCookies',
     'ngResource',
     'ngRoute',
-    'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
+    // 'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
     'rzModule',             // https://github.com/angular-slider/angularjs-slider
-    'angulartics.google.analytics',
+    // 'angulartics.google.analytics',
     'pasvaz.bindonce',      // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
     'angularFileUpload',    // https://github.com/nervgh/angular-file-upload
     'debounce',             // https://github.com/shahata/angular-debounce
@@ -124,6 +124,7 @@ patientviewApp.run(['$rootScope', '$timeout', '$location', '$cookieStore', '$coo
         $rootScope.ieTestMode = false;
         $rootScope.apiEndpoint = ENV.apiEndpoint;
         $rootScope.buildDateTime = ENV.buildDateTime;
+        $rootScope.currentVersion = ENV.currentVersion;
 
         var routeExists = function (route, routeArr) {
             for (var i = 0; i < routeArr.length; i++) {

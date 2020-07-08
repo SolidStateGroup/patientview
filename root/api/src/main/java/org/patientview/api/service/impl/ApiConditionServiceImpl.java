@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
@@ -207,10 +208,10 @@ public class ApiConditionServiceImpl extends AbstractServiceImpl<ApiConditionSer
             if (practitioner != null && practitioner.getName() != null
                     && !CollectionUtils.isEmpty(practitioner.getName().getFamily())) {
                 try {
-                    User staffUser = userRepository.findOne(
+                    Optional<User> staffUser = userRepository.findById(
                             Long.parseLong(practitioner.getName().getFamily().get(0).getValue()));
-                    if (staffUser != null) {
-                        fhirCondition.setAsserter(staffUser.getName());
+                    if (staffUser.isPresent()) {
+                        fhirCondition.setAsserter(staffUser.get().getName());
                     }
                 } catch (NumberFormatException nfe) {
                     // incorrect family name, should be Long as stores user id

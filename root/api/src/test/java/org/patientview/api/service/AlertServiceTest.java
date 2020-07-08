@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -142,8 +143,8 @@ public class AlertServiceTest {
 
         org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(observationHeadingRepository.findOne(any(Long.class))).thenReturn(observationHeading);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(observationHeadingRepository.findById(any(Long.class))).thenReturn(Optional.of(observationHeading));
         when(alertRepository.findByUserAndObservationHeading(eq(user), eq(observationHeading)))
                 .thenReturn(null);
         when(alertRepository.save(any(Alert.class))).thenReturn(alert);
@@ -186,8 +187,8 @@ public class AlertServiceTest {
 
         org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(observationHeadingRepository.findOne(any(Long.class))).thenReturn(observationHeading);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(observationHeadingRepository.findById(any(Long.class))).thenReturn(Optional.of(observationHeading));
         when(alertRepository.findByUserAndObservationHeading(eq(user), eq(observationHeading)))
                 .thenReturn(alerts);
         when(alertRepository.save(any(Alert.class))).thenReturn(alert);
@@ -224,7 +225,7 @@ public class AlertServiceTest {
         Feature feature3 = TestUtils.createFeature(FeatureType.UNIT_TECHNICAL_CONTACT.toString());
 
         when(groupService.getUserGroups(eq(user.getId()), any(GetParameters.class))).thenReturn(groups);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         when(roleRepository.findByRoleType(eq(RoleType.STAFF))).thenReturn(roles);
         when(featureRepository.findByName(eq(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()))).thenReturn(feature1);
         when(featureRepository.findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()))).thenReturn(feature2);
@@ -275,7 +276,7 @@ public class AlertServiceTest {
         when(groupService.getUserGroups(eq(user.getId()), any(GetParameters.class))).thenReturn(groupPage);
         when(auditRepository.findAllByCountGroupAction(eq(groupIds), any(Date.class), eq(auditActions)))
                 .thenReturn(audits);
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         List<ImportAlert> importAlerts = alertService.getImportAlerts(user.getId());
 
@@ -309,9 +310,9 @@ public class AlertServiceTest {
         alert.setUser(user);
         alert.setAlertType(AlertTypes.RESULT);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(alertRepository.findOne(
-                eq(alert.getId()))).thenReturn(alert);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(alertRepository.findById(
+                eq(alert.getId()))).thenReturn(Optional.of(alert));
 
         alertService.removeAlert(user.getId(), alert.getId());
         verify(alertRepository, Mockito.times(1)).delete(any(Alert.class));
@@ -343,8 +344,8 @@ public class AlertServiceTest {
 
         org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
 
         alertService.updateAlert(user.getId(), apiAlert);
         verify(alertRepository, Mockito.times(1)).save(any(Alert.class));
@@ -379,8 +380,8 @@ public class AlertServiceTest {
 
         org.patientview.api.model.Alert apiAlert = new org.patientview.api.model.Alert(alert, user);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
-        when(alertRepository.findOne(alert.getId())).thenReturn(alert);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
 
         alertService.updateAlert(user.getId(), apiAlert);
         verify(alertRepository, Mockito.times(1)).delete(any(Alert.class));
@@ -404,7 +405,7 @@ public class AlertServiceTest {
         alerts.add(alert);
 
         when(alertRepository.findByEmailAlertSetAndNotSent()).thenReturn(alerts);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
         alertService.sendAlertEmails();
 
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
@@ -439,8 +440,8 @@ public class AlertServiceTest {
         alerts.add(alert2);
 
         when(alertRepository.findByEmailAlertSetAndNotSent()).thenReturn(alerts);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
-        when(alertRepository.findOne(eq(alert2.getId()))).thenReturn(alert);
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
+        when(alertRepository.findById(eq(alert2.getId()))).thenReturn(Optional.of(alert));
         alertService.sendAlertEmails();
 
         verify(emailService, Mockito.times(1)).sendEmail(any(Email.class));
@@ -475,8 +476,8 @@ public class AlertServiceTest {
         alerts.add(alert2);
 
         when(alertRepository.findByEmailAlertSetAndNotSent()).thenReturn(alerts);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
-        when(alertRepository.findOne(eq(alert2.getId()))).thenReturn(alert2);
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
+        when(alertRepository.findById(eq(alert2.getId()))).thenReturn(Optional.of(alert2));
         alertService.sendIndividualAlertEmails();
 
         verify(emailService, Mockito.times(2)).sendEmail(any(Email.class));

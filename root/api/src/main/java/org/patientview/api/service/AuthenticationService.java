@@ -8,6 +8,7 @@ import org.patientview.api.model.UserToken;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.enums.RoleName;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +25,7 @@ import java.util.Map;
  * Created on 13/06/2014
  */
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-public interface AuthenticationService extends UserDetailsService {
+public interface AuthenticationService extends UserDetailsService, AuthenticationManager {
 
     /**
      * Authenticate a User given credentials.

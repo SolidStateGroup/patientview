@@ -37,11 +37,8 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
     public ContactPoint add(final Long groupId, final ContactPoint contactPoint)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Group group = groupRepository.findOne(groupId);
-
-        if (group == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         contactPoint.setGroup(group);
         contactPoint.setCreator(getCurrentUser());
@@ -56,11 +53,8 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
 
     public ContactPoint get(final Long contactPointId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        ContactPoint contactPoint = contactPointRepository.findOne(contactPointId);
-
-        if (contactPoint == null) {
-            throw new ResourceNotFoundException("Contact point does not exist");
-        }
+        ContactPoint contactPoint = contactPointRepository.findById(contactPointId)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact point does not exist"));
 
         if (!isUserMemberOfGroup(getCurrentUser(), contactPoint.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
@@ -71,23 +65,21 @@ public class ContactPointServiceImpl extends AbstractServiceImpl<ContactPointSer
 
     public void delete(final Long contactPointId) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        ContactPoint contactPoint = contactPointRepository.findOne(contactPointId);
-
-        if (contactPoint == null) {
-            throw new ResourceNotFoundException("Contact point does not exist");
-        }
+        ContactPoint contactPoint = contactPointRepository.findById(contactPointId)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact point does not exist"));
 
         if (!isUserMemberOfGroup(getCurrentUser(), contactPoint.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
         contactPoint.getGroup().getContactPoints().remove(contactPoint);
-        contactPointRepository.delete(contactPointId);
+        contactPointRepository.deleteById(contactPointId);
     }
 
     public ContactPoint save(final ContactPoint contactPoint)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        ContactPoint entityContactPoint = contactPointRepository.findOne(contactPoint.getId());
+        ContactPoint entityContactPoint = contactPointRepository.findById(contactPoint.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Contact point does not exist"));
 
         if (entityContactPoint == null) {
             throw new ResourceNotFoundException("Contact point does not exist");
