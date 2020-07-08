@@ -89,7 +89,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
         Page<Group> unitGroups
                 = groupRepository.findAllByGroupType("%%", Collections.singletonList(lookup.getId()),
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
 
         if (CollectionUtils.isEmpty(unitGroups.getContent())) {
             throw new ResourceNotFoundException("Cannot get groups");
@@ -144,10 +144,8 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
     @Override
     public NhsIndicators getNhsIndicators(Long groupId) throws ResourceNotFoundException, FhirResourceException {
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("The group could not be found");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         Map<String, List<String>> typeCodeMap = getTypeCodeMap();
 
@@ -172,16 +170,17 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
      * NOTE: there is a hard limit on parameters of 32767 (2 byte value) passed to a JPA prepared statement using
      * Postgres so any searches for fhir links with a large number of patients will throw an exception.
      * see: https://github.com/pgjdbc/pgjdbc/issues/90
-     * @param group Group to get NHS indicators for
-     * @param typeCodeMap Map of String to List of String containing type code map
+     *
+     * @param group         Group to get NHS indicators for
+     * @param typeCodeMap   Map of String to List of String containing type code map
      * @param entityCodeMap Map of String to Code containing Code entities used for performance
-     * @param loginAfter Date after which a user must have logged in to be considered active
+     * @param loginAfter    Date after which a user must have logged in to be considered active
      * @return NhsIndicators
      * @throws ResourceNotFoundException if Group not found
-     * @throws FhirResourceException if FHIR throws exception
+     * @throws FhirResourceException     if FHIR throws exception
      */
     private NhsIndicators getNhsIndicators(Group group, Map<String, List<String>> typeCodeMap,
-                   Map<String, Code> entityCodeMap, Date loginAfter)
+                                           Map<String, Code> entityCodeMap, Date loginAfter)
             throws ResourceNotFoundException, FhirResourceException {
         if (group == null) {
             throw new ResourceNotFoundException("Group is null");
@@ -251,7 +250,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
     @Override
     public NhsIndicators getNhsIndicatorsByGroupAndDate(Long groupId, Long date)
             throws ResourceNotFoundException, IOException {
-        if (!groupRepository.exists(groupId)) {
+        if (!groupRepository.existsById(groupId)) {
             throw new ResourceNotFoundException("Group not found");
         }
 
@@ -296,6 +295,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
     /**
      * Native call to get distinct resource ids from fhir link table given user ids and group.
+     *
      * @param userIds List of user IDs
      * @param groupId Long ID of group
      * @return List of UUID resource IDs
@@ -348,6 +348,6 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
         }
 
-        nhsIndicatorsRepository.save(toSave);
+        nhsIndicatorsRepository.saveAll(toSave);
     }
 }

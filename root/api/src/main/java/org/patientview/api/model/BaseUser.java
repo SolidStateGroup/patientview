@@ -1,5 +1,6 @@
 package org.patientview.api.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
@@ -15,6 +16,7 @@ public class BaseUser {
     private String username;
     private String forename;
     private String surname;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date dateOfBirth;
 
     // only staff users

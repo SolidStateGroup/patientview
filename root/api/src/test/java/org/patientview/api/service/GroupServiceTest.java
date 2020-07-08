@@ -44,6 +44,7 @@ import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -125,16 +126,15 @@ public class GroupServiceTest {
     /**
      * Test: The creation of the parent and child groups
      * Fail: The the parent and child groups are not returned
-     *
      */
     @Test
 
     public void testAddGroupChildAndParent() {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
-;
+        ;
         Group testGroup = TestUtils.createGroup("testGroup");
         Group parentGroup = TestUtils.createGroup("parentGroup");
-        Group childGroup  = TestUtils.createGroup("childGroup");
+        Group childGroup = TestUtils.createGroup("childGroup");
         List<Group> childGroups = new ArrayList<>();
         List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
@@ -142,7 +142,7 @@ public class GroupServiceTest {
         testGroup.setChildGroups(childGroups);
         testGroup.setParentGroups(parentGroups);
 
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findById(Matchers.eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
         when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.findByName(Matchers.eq(parentGroup.getName()))).thenReturn(new ArrayList<Group>());
@@ -161,7 +161,6 @@ public class GroupServiceTest {
     /**
      * Test: The creation of the parent and child groups
      * Fail: The the parent and child groups are not returned
-     *
      */
     @Test
     public void testAddGroupChildAndParentOnCreate() {
@@ -169,7 +168,7 @@ public class GroupServiceTest {
 
         Group testGroup = TestUtils.createGroup("testGroup");
         Group parentGroup = TestUtils.createGroup("parentGroup");
-        Group childGroup  = TestUtils.createGroup("childGroup");
+        Group childGroup = TestUtils.createGroup("childGroup");
         List<Group> childGroups = new ArrayList<>();
         List<Group> parentGroups = new ArrayList<>();
         childGroups.add(childGroup);
@@ -177,7 +176,7 @@ public class GroupServiceTest {
         testGroup.setChildGroups(childGroups);
         testGroup.setParentGroups(parentGroups);
 
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findById(Matchers.eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
         when(groupRepository.findByName(Matchers.eq(testGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.findByName(Matchers.eq(childGroup.getName()))).thenReturn(new ArrayList<Group>());
         when(groupRepository.findByName(Matchers.eq(parentGroup.getName()))).thenReturn(new ArrayList<Group>());
@@ -210,13 +209,14 @@ public class GroupServiceTest {
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
         testGroup.getGroupFeatures().add(groupFeature);
 
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
-        when(featureRepository.findOne(Matchers.eq(testFeature.getId()))).thenReturn(testFeature);
+        when(groupRepository.findById(Matchers.eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
+        when(featureRepository.findById(Matchers.eq(testFeature.getId()))).thenReturn(Optional.of(testFeature));
         when(groupFeatureRepository.save(Matchers.any(GroupFeature.class))).thenReturn(groupFeature);
 
         groupService.addFeature(testGroup.getId(), testFeature.getId());
 
-        Assert.assertNotNull("The returned object should not be null", groupRepository.findOne(testGroup.getId()).getGroupFeatures());
+        Assert.assertNotNull("The returned object should not be null",
+                groupRepository.findById(testGroup.getId()).get().getGroupFeatures());
 
         verify(groupFeatureRepository, Mockito.times(1)).save(Matchers.any(GroupFeature.class));
     }
@@ -238,14 +238,15 @@ public class GroupServiceTest {
         testGroup.setGroupFeatures(new HashSet<GroupFeature>());
         testGroup.getGroupFeatures().add(groupFeature);
 
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
-        when(featureRepository.findOne(Matchers.eq(testFeature.getId()))).thenReturn(testFeature);
+        when(groupRepository.findById(Matchers.eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
+        when(featureRepository.findById(Matchers.eq(testFeature.getId()))).thenReturn(Optional.of(testFeature));
         when(groupFeatureRepository.save(Matchers.any(GroupFeature.class))).thenReturn(groupFeature);
 
         groupService.deleteFeature(testGroup.getId(), testFeature.getId());
         testGroup.getGroupFeatures().remove(groupFeature);
 
-        Assert.assertEquals("There should be no group features", 0, groupRepository.findOne(testGroup.getId()).getGroupFeatures().size());
+        Assert.assertEquals("There should be no group features", 0,
+                groupRepository.findById(testGroup.getId()).get().getGroupFeatures().size());
 
         verify(groupFeatureRepository, Mockito.times(1)).delete(Matchers.any(GroupFeature.class));
     }
@@ -253,7 +254,6 @@ public class GroupServiceTest {
     /**
      * Test: Create a parent relationship between to group objects
      * Fail: The parent and child relationship are not persisted
-     *
      */
     @Test
     public void testAddParentGroup() {
@@ -261,8 +261,8 @@ public class GroupServiceTest {
         Group testGroup = TestUtils.createGroup("testGroup");
         Group testParentGroup = TestUtils.createGroup("testGroup");
 
-        when(groupRepository.findOne(Matchers.eq(testGroup.getId()))).thenReturn(testGroup);
-        when(groupRepository.findOne(Matchers.eq(testParentGroup.getId()))).thenReturn(testParentGroup);
+        when(groupRepository.findById(Matchers.eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
+        when(groupRepository.findById(Matchers.eq(testParentGroup.getId()))).thenReturn(Optional.of(testParentGroup));
 
         groupService.addParentGroup(testGroup.getId(), testParentGroup.getId());
 
@@ -273,7 +273,8 @@ public class GroupServiceTest {
     }
 
     /**
-     * Test: create parent and 2 children, get parent group and its children based on a user's membership of the parent group
+     * Test: create parent and 2 children, get parent group and its children based on a user's membership of the parent
+     * group
      */
     @Test
     @Ignore
@@ -285,8 +286,8 @@ public class GroupServiceTest {
 
         // create groups
         Group parentGroup = TestUtils.createGroup("parentGroup");
-        Group childGroup1  = TestUtils.createGroup("childGroup1");
-        Group childGroup2  = TestUtils.createGroup("childGroup2");
+        Group childGroup1 = TestUtils.createGroup("childGroup1");
+        Group childGroup2 = TestUtils.createGroup("childGroup2");
         List<Group> childGroups = new ArrayList<>();
         childGroups.add(childGroup1);
         childGroups.add(childGroup2);
@@ -305,16 +306,16 @@ public class GroupServiceTest {
 
         // create group relationships
         Set<GroupRelationship> groupRelationships = new HashSet<GroupRelationship>();
-        GroupRelationship child1 =  TestUtils.createGroupRelationship(parentGroup, childGroup1, RelationshipTypes.CHILD);
-        GroupRelationship child2 =  TestUtils.createGroupRelationship(parentGroup, childGroup2, RelationshipTypes.CHILD);
+        GroupRelationship child1 = TestUtils.createGroupRelationship(parentGroup, childGroup1, RelationshipTypes.CHILD);
+        GroupRelationship child2 = TestUtils.createGroupRelationship(parentGroup, childGroup2, RelationshipTypes.CHILD);
         groupRelationships.add(child1);
         groupRelationships.add(child2);
         parentGroup.setGroupRelationships(groupRelationships);
 
         // setup stubbing
-        when(userRepository.findOne(Matchers.eq(testUser.getId()))).thenReturn(testUser);
+        when(userRepository.findById(Matchers.eq(testUser.getId()))).thenReturn(Optional.of(testUser));
         when(roleRepository.findByUser(Matchers.eq(testUser))).thenReturn(roles);
-        when(groupRepository.findOne(Matchers.eq(parentGroup.getId()))).thenReturn(parentGroup);
+        when(groupRepository.findById(Matchers.eq(parentGroup.getId()))).thenReturn(Optional.of(parentGroup));
         when(groupRepository.findGroupByUser(Matchers.eq(testUser))).thenReturn(allGroups);
         when(groupRepository.save(Matchers.eq(parentGroup))).thenReturn(parentGroup);
         when(groupRelationshipRepository.save(Matchers.any(GroupRelationship.class))).thenReturn(new GroupRelationship());
@@ -329,7 +330,6 @@ public class GroupServiceTest {
 
     /**
      * Test: To simple call to the repository to retrieve child groups
-     *
      */
     @Test
     public void testFindChildGroups() throws ResourceNotFoundException {
@@ -342,7 +342,7 @@ public class GroupServiceTest {
 
         childGroups.add(childGroup);
 
-        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findById(eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
         when(groupRepository.findChildren(eq(testGroup))).thenReturn(childGroups);
 
         childGroups = groupService.findChildren(testGroup.getId());
@@ -364,7 +364,7 @@ public class GroupServiceTest {
 
         childGroups.add(childGroup);
 
-        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(null);
+        when(groupRepository.findById(eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
         when(groupRepository.findChildren(eq(testGroup))).thenReturn(childGroups);
 
         childGroups = groupService.findChildren(testGroup.getId());
@@ -391,12 +391,12 @@ public class GroupServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         groupService.getUserGroups(user.getId(), new GetParameters());
 
         String filterText = "%%";
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         verify(groupRepository, Mockito.times(1)).findAll(filterText, pageable);
     }
 
@@ -419,15 +419,15 @@ public class GroupServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         groupService.getUserGroups(user.getId(), getParameters);
 
         String filterText = "%%";
-        PageRequest pageable = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
         verify(groupRepository, Mockito.times(1)).findGroupsByUserNoSpecialties(filterText, user, pageable);
     }
-    
+
     @Test
     public void testGetByFeature() throws ResourceNotFoundException, ResourceForbiddenException {
         User testUser = TestUtils.createUser("testUser");
@@ -436,11 +436,11 @@ public class GroupServiceTest {
         Group group = TestUtils.createGroup("TestGroup");
         List<Group> groups = new ArrayList<>();
         groups.add(group);
-        
+
         Feature feature = TestUtils.createFeature(FeatureType.MESSAGING.toString());
         when(groupRepository.findByFeature(eq(feature))).thenReturn(groups);
         when(featureRepository.findByName(eq(feature.getName()))).thenReturn(feature);
-        
+
         List<org.patientview.api.model.Group> foundGroups = groupService.getByFeature(FeatureType.MESSAGING.toString());
         Assert.assertTrue("There should be returned Groups", !CollectionUtils.isEmpty(foundGroups));
 

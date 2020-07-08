@@ -93,7 +93,7 @@ public class ConversationRepositoryTest {
         conversation.getConversationUsers().add(conversationUser1);
         conversation.getConversationUsers().add(conversationUser2);
 
-        PageRequest pageable = new PageRequest(0, 5);
+        PageRequest pageable = PageRequest.of(0, 5);
 
         conversation.setTitle("test conversation");
 
@@ -133,11 +133,11 @@ public class ConversationRepositoryTest {
             conversationRepository.save(conversation);
         }
 
-        PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         Page<Conversation> entityConversations = conversationRepository.findByUser(user1, pageableAll);
         Assert.assertTrue("Should find 30 Conversations for user", entityConversations.getContent().size() == 30);
 
-        PageRequest pageablePage2 = new PageRequest(2, 5);
+        PageRequest pageablePage2 = PageRequest.of(2, 5);
         entityConversations = conversationRepository.findByUser(user1, pageablePage2);
         Assert.assertTrue("Should find 5 Conversations for user", entityConversations.getContent().size() == 5);
     }
@@ -209,7 +209,7 @@ public class ConversationRepositoryTest {
             conversationRepository.save(conversation);
         }
 
-        PageRequest pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         Page<Conversation> entityConversations = conversationRepository.findByUser(user1, pageableAll);
         Assert.assertEquals("Should find 25 Conversations for user", 25, entityConversations.getContent().size());
 

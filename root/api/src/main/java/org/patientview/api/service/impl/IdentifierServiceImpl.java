@@ -8,6 +8,7 @@ import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.Identifier;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.repository.IdentifierRepository;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.NonUniqueResultException;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.Integer.parseInt;
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
@@ -56,11 +58,8 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
     public Identifier get(final Long identifierId) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Identifier identifier = identifierRepository.findOne(identifierId);
-
-        if (identifier == null) {
-            throw new ResourceNotFoundException("Identifier does not exist");
-        }
+        Identifier identifier = identifierRepository.findById(identifierId)
+                .orElseThrow(() -> new ResourceNotFoundException("Identifier does not exist"));
 
         if (!isMemberOfCurrentUsersGroups(identifier.getUser())) {
             throw new ResourceForbiddenException("Forbidden");
@@ -71,11 +70,8 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
 
     public void delete(final Long identifierId) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Identifier identifier = identifierRepository.findOne(identifierId);
-
-        if (identifier == null) {
-            throw new ResourceNotFoundException("Identifier does not exist");
-        }
+        Identifier identifier = identifierRepository.findById(identifierId)
+                .orElseThrow(() -> new ResourceNotFoundException("Identifier does not exist"));
 
         if (!isMemberOfCurrentUsersGroups(identifier.getUser())) {
             throw new ResourceForbiddenException("Forbidden");
@@ -95,16 +91,14 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
             userService.sendUserUpdatedGroupNotification(identifier.getUser(), true);
         }
 
-        identifierRepository.delete(identifierId);
+        identifierRepository.deleteById(identifierId);
     }
 
     public void save(Identifier identifier)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
 
-        Identifier entityIdentifier = identifierRepository.findOne(identifier.getId());
-        if (entityIdentifier == null) {
-            throw new ResourceNotFoundException("Identifier does not exist");
-        }
+        Identifier entityIdentifier = identifierRepository.findById(identifier.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Identifier does not exist"));
 
         // should only ever get 1
         List<Identifier> existingIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
@@ -119,7 +113,10 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         }
 
         entityIdentifier.setIdentifier(identifier.getIdentifier());
-        entityIdentifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
+        Optional<Lookup> lookupOptional = lookupRepository.findById(identifier.getIdentifierType().getId());
+        if (lookupOptional.isPresent()) {
+            entityIdentifier.setIdentifierType(lookupOptional.get());
+        }
         Identifier saved = identifierRepository.save(entityIdentifier);
 
         // for NHS Number, CHI Number, H&SC Number or Radar se
@@ -135,10 +132,8 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
     public Identifier add(Long userId, Identifier identifier)
             throws ResourceNotFoundException, ResourceForbiddenException, EntityExistsException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         // check Identifier doesn't already exist for another user, should only ever return one
         List<Identifier> entityIdentifiers = identifierRepository.findByValue(identifier.getIdentifier());
@@ -187,10 +182,8 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         boolean dummy = userIdentifier.isDummy();
 
         if (userId != null) {
-            User user = userRepository.findOne(userIdentifier.getUserId());
-            if (user == null) {
-                throw new ResourceNotFoundException("Could not find user");
-            }
+            User user = userRepository.findById(userIdentifier.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
             if (!isMemberOfCurrentUsersGroups(user)) {
                 throw new ResourceForbiddenException("Forbidden");
@@ -215,7 +208,9 @@ public class IdentifierServiceImpl extends AbstractServiceImpl<IdentifierService
         if (!dummy) {
             try {
                 // handle updating identifier type
-                identifier.setIdentifierType(lookupRepository.findOne(identifier.getIdentifierType().getId()));
+                Lookup foundLookup = lookupRepository.findById(identifier.getIdentifierType().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Could not find Identifier type"));
+                identifier.setIdentifierType(foundLookup);
                 isValidIdentifier(identifier);
             } catch (ResourceInvalidException rie) {
                 throw new ResourceInvalidException("Invalid " + identifier.getIdentifierType().getDescription()

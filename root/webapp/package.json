@@ -1,12 +1,11 @@
 {
   "name": "patientview",
-  "version": "2.4.0",
+  "version": "2.7.0",
   "private": true,
   "dependencies": {
     "angular-inview": "^3.0.0"
   },
   "devDependencies": {
-    "@babel/preset-es2015": "^7.0.0-beta.53",
     "grunt": "~0.4.1",
     "grunt-autoprefixer": "~3.0.4",
     "grunt-bower-install": "^1.6.0",
@@ -20,7 +19,7 @@
     "grunt-contrib-htmlmin": "~2.4.0",
     "grunt-contrib-imagemin": "^2.0.1",
     "grunt-contrib-jshint": "^1.1.0",
-    "grunt-contrib-uglify": "3.4.0",
+    "grunt-contrib-uglify": "4.0.1",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-karma": "2.0.0",
     "grunt-newer": "~1.3.0",

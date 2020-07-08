@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -85,19 +86,19 @@ public class ApiDiagnosticServiceTest {
 
     @Mock
     FhirLinkService fhirLinkService;
-    
+
     @Mock
     FhirResource fhirResource;
 
     @Mock
     GroupRepository groupRepository;
-    
+
     @Mock
     GroupService groupService;
 
     @Mock
     IdentifierRepository identifierRepository;
-    
+
     @Mock
     ObservationHeadingGroupRepository observationHeadingGroupRepository;
 
@@ -213,7 +214,7 @@ public class ApiDiagnosticServiceTest {
         resultJson.put("entry", resultArray);
 
         try {
-            when(userRepository.findOne(Matchers.eq(user.getId()))).thenReturn(user);
+            when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
             when(fhirResource.findResourceByQuery(any(String.class), eq(DiagnosticReport.class)))
                     .thenReturn(diagnosticReports);
             when(fhirResource.getResource(any(UUID.class), eq(ResourceType.Observation))).thenReturn(resultJson);

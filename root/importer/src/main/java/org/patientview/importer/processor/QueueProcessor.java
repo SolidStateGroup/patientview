@@ -15,7 +15,6 @@ import org.patientview.service.AuditService;
 import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -23,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by james@solidstategroup.com
@@ -89,7 +89,7 @@ public class QueueProcessor extends DefaultConsumer {
     }
 
     @PreDestroy
-    public void shutdown() throws IOException {
+    public void shutdown() throws IOException, TimeoutException {
         channel.close();
     }
 

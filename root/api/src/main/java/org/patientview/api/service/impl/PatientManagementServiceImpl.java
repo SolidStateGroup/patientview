@@ -120,18 +120,15 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
     @Override
     public PatientManagement get(Long userId, Long groupId, Long identifierId)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("user not found");
-        }
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("group not found");
-        }
-        Identifier identifier = identifierRepository.findOne(identifierId);
-        if (identifier == null) {
-            throw new ResourceNotFoundException("identifier not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
+
+        Identifier identifier = identifierRepository.findById(identifierId)
+                .orElseThrow(() -> new ResourceNotFoundException("Identifier not found"));
+
         if (!userService.currentUserCanGetUser(user)) {
             throw new ResourceForbiddenException("forbidden");
         }
@@ -324,7 +321,7 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (user == null) {
             throw new ResourceNotFoundException("user must be set");
         }
-        if (!userRepository.exists(user.getId())) {
+        if (!userRepository.existsById(user.getId())) {
             throw new ResourceNotFoundException("user does not exist");
         }
 
@@ -335,14 +332,14 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (group == null) {
             throw new ResourceNotFoundException("group must be set");
         }
-        if (!groupRepository.exists(group.getId())) {
+        if (!groupRepository.existsById(group.getId())) {
             throw new ResourceNotFoundException("group does not exist");
         }
 
         if (identifier == null) {
             throw new ResourceNotFoundException("identifier must be set");
         }
-        if (!identifierRepository.exists(identifier.getId())) {
+        if (!identifierRepository.existsById(identifier.getId())) {
             throw new ResourceNotFoundException("identifier does not exist");
         }
 
@@ -411,26 +408,20 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (userId == null) {
             throw new ResourceNotFoundException("user must be set");
         }
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("user does not exist");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
         if (groupId == null) {
             throw new ResourceNotFoundException("group must be set");
         }
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("group does not exist");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group does not exist"));
 
         if (identifierId == null) {
             throw new ResourceNotFoundException("identifier must be set");
         }
-        Identifier identifier = identifierRepository.findOne(identifierId);
-        if (identifier == null) {
-            throw new ResourceNotFoundException("identifier does not exist");
-        }
+        Identifier identifier = identifierRepository.findById(identifierId)
+                .orElseThrow(() -> new ResourceNotFoundException("Identifier does not exist"));
 
         if (patientManagement == null) {
             throw new ResourceNotFoundException("patient management data must be set");
@@ -637,26 +628,20 @@ public class PatientManagementServiceImpl extends AbstractServiceImpl<PatientMan
         if (userId == null) {
             throw new ResourceNotFoundException("user must be set");
         }
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("user does not exist");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
         if (groupId == null) {
             throw new ResourceNotFoundException("group must be set");
         }
-        Group group = groupRepository.findOne(groupId);
-        if (group == null) {
-            throw new ResourceNotFoundException("group does not exist");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group does not exist"));
 
         if (identifierId == null) {
             throw new ResourceNotFoundException("identifier must be set");
         }
-        Identifier identifier = identifierRepository.findOne(identifierId);
-        if (identifier == null) {
-            throw new ResourceNotFoundException("identifier does not exist");
-        }
+        Identifier identifier = identifierRepository.findById(identifierId)
+                .orElseThrow(() -> new ResourceNotFoundException("Identifier does not exist"));
 
         if (patientManagement == null) {
             throw new ResourceNotFoundException("patient management data must be set");

@@ -75,10 +75,8 @@ public class GpMedicationServiceImpl extends AbstractServiceImpl<GpMedicationSer
     @Override
     public GpMedicationStatus getGpMedicationStatus(final Long userId) throws ResourceNotFoundException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         GpMedicationStatus gpMedicationStatus = new GpMedicationStatus();
 
@@ -100,12 +98,9 @@ public class GpMedicationServiceImpl extends AbstractServiceImpl<GpMedicationSer
     public void saveGpMedicationStatus(final Long userId, GpMedicationStatus gpMedicationStatus)
             throws ResourceNotFoundException {
 
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
         Role patientRole = roleService.findByRoleTypeAndName(RoleType.PATIENT, RoleName.PATIENT);
-
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
 
         Feature gpMedicationFeature = featureRepository.findByName(FeatureType.GP_MEDICATION.toString());
         UserFeature userFeature = userFeatureRepository.findByUserAndFeature(user, gpMedicationFeature);
@@ -202,8 +197,9 @@ public class GpMedicationServiceImpl extends AbstractServiceImpl<GpMedicationSer
     }
 
     // check if user's groupRoles include medication groupRole
-    private boolean userHasGpMedicationGroupRole(User user) {
-        User entityUser = userRepository.findOne(user.getId());
+    private boolean userHasGpMedicationGroupRole(User user) throws ResourceNotFoundException {
+        User entityUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
             if (groupRole.getGroup().getCode().equals(GpMedicationGroupCodes.ECS.toString())) {
@@ -215,9 +211,10 @@ public class GpMedicationServiceImpl extends AbstractServiceImpl<GpMedicationSer
     }
 
     // verify at least one of the user's groups has GP medication feature enabled
-    private boolean userGroupsHaveGpMedicationFeature(User user) {
+    private boolean userGroupsHaveGpMedicationFeature(User user) throws ResourceNotFoundException {
 
-        User entityUser = userRepository.findOne(user.getId());
+        User entityUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         for (GroupRole groupRole : entityUser.getGroupRoles()) {
             for (GroupFeature groupFeature : groupRole.getGroup().getGroupFeatures()) {

@@ -44,10 +44,8 @@ public class FoodDiaryServiceImpl extends AbstractServiceImpl<FoodDiaryServiceIm
 
     @Override
     public void add(Long userId, FoodDiary foodDiary) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         foodDiary.setUser(user);
         foodDiary.setCreator(user);
@@ -57,15 +55,11 @@ public class FoodDiaryServiceImpl extends AbstractServiceImpl<FoodDiaryServiceIm
 
     @Override
     public void delete(Long userId, Long foodDiaryId) throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        FoodDiary foodDiary = foodDiaryRepository.findOne(foodDiaryId);
-        if (foodDiary == null) {
-            throw new ResourceNotFoundException("Could not find food diary");
-        }
+        FoodDiary foodDiary = foodDiaryRepository.findById(foodDiaryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find diary"));
 
         if (!foodDiary.getUser().equals(user)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -76,10 +70,8 @@ public class FoodDiaryServiceImpl extends AbstractServiceImpl<FoodDiaryServiceIm
 
     @Override
     public List<FoodDiary> get(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         return foodDiaryRepository.findByUser(user);
     }
@@ -87,15 +79,11 @@ public class FoodDiaryServiceImpl extends AbstractServiceImpl<FoodDiaryServiceIm
     @Override
     public FoodDiary update(Long userId, FoodDiary foodDiary)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        FoodDiary entityFoodDiary = foodDiaryRepository.findOne(foodDiary.getId());
-        if (entityFoodDiary == null) {
-            throw new ResourceNotFoundException("Could not find food diary");
-        }
+        FoodDiary entityFoodDiary = foodDiaryRepository.findById(foodDiary.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find diary"));
 
         if (!entityFoodDiary.getUser().equals(user)) {
             throw new ResourceForbiddenException("Forbidden");

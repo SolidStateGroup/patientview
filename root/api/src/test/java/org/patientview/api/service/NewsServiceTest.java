@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.anyObject;
@@ -88,7 +89,7 @@ public class NewsServiceTest {
      */
     @Test
     public void testGetNewsByUser() {
-        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Pageable pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         User testUser = TestUtils.createUser("testUser");
         Group testGroup = TestUtils.createGroup("testGroup");
 
@@ -139,7 +140,7 @@ public class NewsServiceTest {
         Lookup lookup = new Lookup();
         lookup.setId(63L);
 
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        when(userRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(testUser));
         when(staticDataManager.getLookupByTypeAndValue((LookupTypes)anyObject(), Matchers.anyString()))
                 .thenReturn(lookup);
 
@@ -150,7 +151,7 @@ public class NewsServiceTest {
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), 63, false, PageRequest.of(0, 10));
 
             Assert.assertEquals("Should have 10 news items total", 10, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by update date descending",
@@ -168,7 +169,7 @@ public class NewsServiceTest {
 
     @Test
     public void testGetNewsByUserEditOrDelete() {
-        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Pageable pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
 
         // create UNIT_ADMIN of testGroup
         User testUser = TestUtils.createUser("testUser");
@@ -209,7 +210,7 @@ public class NewsServiceTest {
         Lookup lookup = new Lookup();
         lookup.setId(63L);
 
-        when(userRepository.findOne(Matchers.anyLong())).thenReturn(testUser);
+        when(userRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(testUser));
         when(staticDataManager.getLookupByTypeAndValue((LookupTypes) anyObject(), Matchers.anyString()))
                 .thenReturn(lookup);
         when(newsItemRepository.findGroupNewsByUser(eq(testUser),
@@ -217,7 +218,7 @@ public class NewsServiceTest {
 
         try {
             Page<org.patientview.api.model.NewsItem> newsItems
-                    = newsService.findByUserId(testUser.getId(), 63, false, new PageRequest(0, 10));
+                    = newsService.findByUserId(testUser.getId(), 63, false, PageRequest.of(0, 10));
 
             Assert.assertEquals("Should have 2 news items total", 2, newsItems.getNumberOfElements());
             Assert.assertTrue("Should be ordered by update date descending",
@@ -261,9 +262,9 @@ public class NewsServiceTest {
         newsService.add(newsItem);
         verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
 
-        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
-        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
-        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+        when(newsItemRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsItem));
+        when(groupRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(group));
+        when(roleRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsRole));
 
         newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
@@ -293,9 +294,9 @@ public class NewsServiceTest {
         newsService.add(newsItem);
         verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
 
-        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
-        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
-        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+        when(newsItemRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsItem));
+        when(groupRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(group));
+        when(roleRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsRole));
 
         newsService.addGroupAndRole(newsItem.getId(), 5L, 6L);
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
@@ -325,9 +326,9 @@ public class NewsServiceTest {
         newsService.add(newsItem);
         verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
 
-        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
-        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
-        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+        when(newsItemRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsItem));
+        when(groupRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(group));
+        when(roleRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsRole));
 
         newsService.addRole(newsItem.getId(), 5L);
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
@@ -357,9 +358,9 @@ public class NewsServiceTest {
         newsService.add(newsItem);
         verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
 
-        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
-        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
-        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+        when(newsItemRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsItem));
+        when(groupRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(group));
+        when(roleRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsRole));
 
         newsService.addRole(newsItem.getId(), 5L);
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
@@ -389,9 +390,9 @@ public class NewsServiceTest {
         newsService.add(newsItem);
         verify(newsItemRepository, Mockito.times(1)).save(Matchers.eq(newsItem));
 
-        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
-        when(groupRepository.findOne(Matchers.anyLong())).thenReturn(group);
-        when(roleRepository.findOne(Matchers.anyLong())).thenReturn(newsRole);
+        when(newsItemRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsItem));
+        when(groupRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(group));
+        when(roleRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsRole));
 
         newsService.addRole(newsItem.getId(), 5L);
         verify(newsItemRepository, Mockito.times(2)).save(Matchers.eq(newsItem));
@@ -437,7 +438,7 @@ public class NewsServiceTest {
         newsLink.setGroup(TestUtils.createGroup("testGroup"));
 
         when(newsItemRepository.save(eq(newsItem))).thenReturn(newsItem);
-        when(newsItemRepository.findOne(Matchers.anyLong())).thenReturn(newsItem);
+        when(newsItemRepository.findById(Matchers.anyLong())).thenReturn(Optional.of(newsItem));
 
         newsService.add(newsItem);
 

@@ -119,7 +119,7 @@ public class MyMediaRepositoryTest {
         myMedia.setType(MediaTypes.IMAGE);
 
         myMediaRepository.save(myMedia);
-        PageRequest pageable = new PageRequest(0, 100);
+        PageRequest pageable = PageRequest.of(0, 100);
 
         assertEquals(1, myMediaRepository.getByCreator(creator, false, pageable).getNumberOfElements());
     }
@@ -143,7 +143,7 @@ public class MyMediaRepositoryTest {
         myMedia.setType(MediaTypes.IMAGE);
 
         myMediaRepository.save(myMedia);
-        PageRequest pageable = new PageRequest(0, 100);
+        PageRequest pageable = PageRequest.of(0, 100);
 
         assertEquals(2, myMediaRepository.getByCreator(creator, false, pageable).getNumberOfElements());
     }
@@ -167,7 +167,7 @@ public class MyMediaRepositoryTest {
         myMediaRepository.save(myMedia);
 
 
-        PageRequest pageable = new PageRequest(0, 100);
+        PageRequest pageable = PageRequest.of(0, 100);
 
         assertEquals(1, myMediaRepository.getByCreator(creator, false, pageable).getNumberOfElements());
     }

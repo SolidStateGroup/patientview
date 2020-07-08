@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.patientview.api.util.ApiUtil.currentUserHasRole;
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
@@ -81,9 +82,9 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
 
             // get actor if exists
             if (audit.getActorId() != null) {
-                org.patientview.persistence.model.User actor = userRepository.findOne(audit.getActorId());
-                if (actor != null) {
-                    transportAudit.setActor(new User(actor));
+                Optional<org.patientview.persistence.model.User> actor = userRepository.findById(audit.getActorId());
+                if (actor.isPresent()) {
+                    transportAudit.setActor(new User(actor.get()));
                 }
             }
 
@@ -91,18 +92,18 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
             if (audit.getSourceObjectType() != null && audit.getSourceObjectId() != null) {
 
                 if (audit.getSourceObjectType().equals(AuditObjectTypes.User)) {
-                    org.patientview.persistence.model.User sourceObject
-                            = userRepository.findOne(audit.getSourceObjectId());
+                    Optional<org.patientview.persistence.model.User> sourceObject
+                            = userRepository.findById(audit.getSourceObjectId());
 
-                    if (sourceObject != null) {
-                        transportAudit.setSourceObjectUser(new User(sourceObject));
+                    if (sourceObject.isPresent()) {
+                        transportAudit.setSourceObjectUser(new User(sourceObject.get()));
                     }
                 } else if (audit.getSourceObjectType().equals(AuditObjectTypes.Group)) {
-                    Group sourceObject
-                            = groupRepository.findOne(audit.getSourceObjectId());
+                    Optional<Group> sourceObject
+                            = groupRepository.findById(audit.getSourceObjectId());
 
-                    if (sourceObject != null) {
-                        transportAudit.setSourceObjectGroup(new BaseGroup(sourceObject));
+                    if (sourceObject.isPresent()) {
+                        transportAudit.setSourceObjectGroup(new BaseGroup(sourceObject.get()));
                     }
                 }
             }
@@ -145,10 +146,9 @@ public class ApiAuditServiceImpl extends AbstractServiceImpl<ApiAuditServiceImpl
             } else {
                 // have filtered on group, check user is member of group
                 for (Long groupId : groupIds) {
-                    Group entityGroup = groupRepository.findOne(groupId);
-                    if (entityGroup == null) {
-                        throw new ResourceNotFoundException("Unknown Group");
-                    }
+                    Group entityGroup = groupRepository.findById(groupId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Unknown Group"));
+
                     if (!isUserMemberOfGroup(getCurrentUser(), entityGroup)) {
                         throw new ResourceForbiddenException("Forbidden");
                     }

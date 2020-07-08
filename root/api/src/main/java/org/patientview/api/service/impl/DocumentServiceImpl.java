@@ -46,10 +46,8 @@ public class DocumentServiceImpl extends AbstractServiceImpl<DocumentServiceImpl
                                                            final String fromDate, final String toDate)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<FhirDocumentReference> fhirDocumentReferences = new ArrayList<>();
         List<FhirDocumentReference> fhirDocumentReferencesNoDate = new ArrayList<>();
@@ -92,7 +90,7 @@ public class DocumentServiceImpl extends AbstractServiceImpl<DocumentServiceImpl
                                 documentReference.getLocationSimple()), ResourceType.Media);
                         if (media != null && media.getContent() != null && media.getContent().getUrl() != null) {
                             try {
-                                if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
+                                if (fileDataRepository.existsById(Long.valueOf(media.getContent().getUrlSimple()))) {
                                     fhirDocumentReference.setFilename(media.getContent().getTitleSimple());
                                     fhirDocumentReference.setFiletype(media.getContent().getContentTypeSimple());
                                     fhirDocumentReference.setFileDataId(

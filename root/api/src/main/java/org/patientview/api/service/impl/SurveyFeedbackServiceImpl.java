@@ -37,10 +37,8 @@ public class SurveyFeedbackServiceImpl extends AbstractServiceImpl<SurveyFeedbac
     @Override
     public void add(Long userId, SurveyFeedback surveyFeedback)
             throws ResourceNotFoundException, VerificationException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         if (surveyFeedback == null) {
             throw new VerificationException("No feedback");
@@ -58,10 +56,8 @@ public class SurveyFeedbackServiceImpl extends AbstractServiceImpl<SurveyFeedbac
             throw new ResourceNotFoundException("No survey ID");
         }
 
-        Survey survey = surveyRepository.findOne(surveyFeedback.getSurvey().getId());
-        if (survey == null) {
-            throw new ResourceNotFoundException("Could not find survey");
-        }
+        Survey survey = surveyRepository.findById(surveyFeedback.getSurvey().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find survey"));
 
         SurveyFeedback toSave = new SurveyFeedback();
         toSave.setUser(user);
@@ -84,15 +80,11 @@ public class SurveyFeedbackServiceImpl extends AbstractServiceImpl<SurveyFeedbac
     @Override
     public List<org.patientview.api.model.SurveyFeedback> getByUserIdAndSurveyId(Long userId, Long surveyId)
             throws ResourceNotFoundException {
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
-        Survey survey = surveyRepository.findOne(surveyId);
-        if (survey == null) {
-            throw new ResourceNotFoundException("Could not find survey");
-        }
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find survey"));
 
         return convertSurveyFeedback(surveyFeedbackRepository.findBySurveyAndUser(survey, user));
     }

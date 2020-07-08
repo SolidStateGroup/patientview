@@ -44,7 +44,7 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
 
     @Override
     public void delete(Long id) {
-        fileDataRepository.delete(id);
+        fileDataRepository.deleteById(id);
     }
 
     @Override

@@ -1,10 +1,6 @@
 package org.patientview.persistence.model;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,17 +14,12 @@ import java.util.Date;
 /**
  * Models a research study that is available to a user
  */
-@TypeDefs({
-        @TypeDef(name = "json", typeClass = JsonStringType.class),
-        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-})
 @Entity
 @Table(name = "pv_research_study_criteria")
-public class ResearchStudyCriteria extends BaseModel {
+public class ResearchStudyCriteria extends BaseModel{
 
     @Column(name = "research_study_id")
     private Long researchStudy;
-
 
     @Type(type = "jsonb")
     @Column(name = "criteria", columnDefinition = "jsonb")

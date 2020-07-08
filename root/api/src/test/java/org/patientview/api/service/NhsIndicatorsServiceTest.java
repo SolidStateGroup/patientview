@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -117,7 +118,7 @@ public class NhsIndicatorsServiceTest {
         when(fhirLinkRepository.findByUserIdsAndGroupsAndRecentLogin(
                 eq(userIdsRecentLogin), eq(groups), any(Date.class))).thenReturn(fhirLinks);
         when(fhirResource.getCountEncounterBySubjectIdsAndCodes(eq(uuids), any(List.class))).thenReturn(tpCount);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(userRepository.findPatientUserIds(eq(group.getId()))).thenReturn(userIds);
         when(userRepository.findPatientUserIdsByRecentLogin(eq(group.getId()), any(Date.class)))
                 .thenReturn(userIdsRecentLogin);
@@ -133,7 +134,7 @@ public class NhsIndicatorsServiceTest {
                 tpCount, nhsIndicators.getData().getIndicatorCount().get("Transplant"));
 
         verify(codeRepository, Mockito.atLeastOnce()).findAllByCodes(any(List.class));
-        verify(groupRepository, Mockito.times(1)).findOne(eq(group.getId()));
+        verify(groupRepository, Mockito.times(1)).findById(eq(group.getId()));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserIdsAndGroups(eq(userIds), eq(groups));
         verify(fhirLinkRepository, Mockito.times(1)).findByUserIdsAndGroupsAndRecentLogin(
                 eq(userIdsRecentLogin), eq(groups), any(Date.class));
