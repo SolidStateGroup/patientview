@@ -28,6 +28,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by james@solidstategroup.com
@@ -81,6 +82,8 @@ public class QueueServiceImpl extends AbstractServiceImpl<QueueServiceImpl> impl
         try {
             channel.close();
         } catch (IOException io) {
+            LOG.error("Error closing channel");
+        } catch (TimeoutException e) {
             LOG.error("Error closing channel");
         }
     }

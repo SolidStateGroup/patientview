@@ -13,19 +13,19 @@ import org.hl7.fhir.instance.model.Media;
 import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
-import org.patientview.config.utils.CommonUtils;
 import org.patientview.builder.DiagnosticReportBuilder;
 import org.patientview.builder.MediaBuilder;
+import org.patientview.config.exception.FhirResourceException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.FhirDatabaseEntity;
 import org.patientview.persistence.model.FhirDiagnosticReport;
+import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.FileData;
 import org.patientview.persistence.model.enums.DiagnosticReportObservationTypes;
 import org.patientview.persistence.repository.FileDataRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.DiagnosticService;
 import org.patientview.util.Util;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.persistence.model.FhirLink;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -62,7 +62,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
      * Creates all of the FHIR DiagnosticReport and Observation (result) records from the Patientview object.
      * Links them to the PatientReference.
      *
-     * @param data patientview data from xml
+     * @param data     patientview data from xml
      * @param fhirLink FhirLink for user
      */
     @Override
@@ -388,9 +388,9 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
             // get count of medication to be deleted
             List<UUID> uuidToDelete = fhirResource.getUuidByQuery(
                     "SELECT logical_id FROM diagnosticreport " +
-                    "WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "' " +
-                    "AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) >= '" + fromDate + "' " +
-                    "AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) <= '" + toDate + "'"
+                            "WHERE CONTENT -> 'subject' ->> 'display' = '" + subjectId.toString() + "' " +
+                            "AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) >= '" + fromDate + "' " +
+                            "AND CAST(content ->> 'diagnosticDateTime' AS TIMESTAMP) <= '" + toDate + "'"
             );
 
             deleteCount = uuidToDelete.size();
@@ -441,8 +441,8 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
                     // delete binary data
                     try {
-                        if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
-                            fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                        if (fileDataRepository.existsById(Long.valueOf(media.getContent().getUrlSimple()))) {
+                            fileDataRepository.deleteById(Long.valueOf(media.getContent().getUrlSimple()));
                         }
                     } catch (NumberFormatException nfe) {
                         LOG.info("Error deleting existing binary data, " +

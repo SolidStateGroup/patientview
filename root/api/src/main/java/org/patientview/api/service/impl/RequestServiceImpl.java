@@ -160,7 +160,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
         requestTypes.add(RequestTypes.FORGOT_LOGIN);
 
         Page<Request> requests = requestRepository.findAllByStatuses(
-                submittedStatus, requestTypes, new PageRequest(0, Integer.MAX_VALUE));
+                submittedStatus, requestTypes, PageRequest.of(0, Integer.MAX_VALUE));
 
         int count = 0;
         Date now = new Date();
@@ -365,32 +365,25 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
     }
 
     private Group findGroup(Long groupId) throws ResourceNotFoundException {
-        Group group = groupRepository.findOne(groupId);
-
-        if (group == null) {
-            throw new ResourceNotFoundException(String.format("Could not find unit for Request with id %s"
-                    , groupId));
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("Could not find unit for Request with id %s",
+                                groupId)));
         return group;
     }
 
     private User findUser(Long userid) throws ResourceNotFoundException {
-        User user = userRepository.findOne(userid);
-
-        if (user == null) {
-            throw new ResourceNotFoundException(String.format("Could not find user for Request with id %s"
-                    , userid));
-        }
+        User user = userRepository.findById(userid)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("Could not find user for Request with id %s",
+                                userid)));
         return user;
     }
 
     @Override
     public org.patientview.api.model.Request get(Long requestId) throws ResourceNotFoundException {
-        Request entityRequest = requestRepository.findOne(requestId);
-
-        if (entityRequest == null) {
-            throw new ResourceNotFoundException("Request not found");
-        }
+        Request entityRequest = requestRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
 
         org.patientview.api.model.Request apiRequest = new org.patientview.api.model.Request(entityRequest);
@@ -453,7 +446,7 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
 
     @Override
     public BigInteger getCount(Long userId) throws ResourceNotFoundException {
-        if (!userRepository.exists(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("Could not find user");
         }
 
@@ -477,15 +470,12 @@ public class RequestServiceImpl extends AbstractServiceImpl<RequestServiceImpl> 
      */
     @Override
     public org.patientview.api.model.Request save(Request request) throws ResourceNotFoundException {
-        Request entityRequest = requestRepository.findOne(request.getId());
-
-        if (entityRequest == null) {
-            throw new ResourceNotFoundException("Request not found");
-        }
+        Request entityRequest = requestRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
         if (request.getStatus() == RequestStatus.COMPLETED) {
             User user = getCurrentUser();
-            entityRequest.setCompletedBy(userRepository.findOne(user.getId()));
+            entityRequest.setCompletedBy(userRepository.findById(user.getId()).get());
             entityRequest.setCompletionDate(new Date());
         }
 

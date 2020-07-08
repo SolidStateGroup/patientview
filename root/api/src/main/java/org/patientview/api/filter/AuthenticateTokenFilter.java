@@ -8,12 +8,14 @@ import org.patientview.persistence.model.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.FilterChain;
@@ -38,8 +40,8 @@ import java.util.Map;
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
-@WebFilter(urlPatterns = { "*" }, filterName = "authenticationTokenFilter")
-public class AuthenticateTokenFilter extends GenericFilterBean {
+//@WebFilter(urlPatterns = { "*" }, filterName = "authenticationTokenFilter")
+public class AuthenticateTokenFilter extends OncePerRequestFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
 
@@ -49,10 +51,29 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
 
     private static Map<Long, RateLimiter> rateLimiterMap;
 
+    @Override
+    protected void doFilterInternal(HttpServletRequest httpServletRequest,
+                                    HttpServletResponse httpServletResponse,
+                                    FilterChain filterChain)
+            throws IOException, ServletException {
+
+
+        String token = extractAuthTokenFromRequest(httpServletRequest);
+
+        if (token != null) {
+
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(new UsernamePasswordAuthenticationToken(token, token));
+        }
+
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
     /**
      * Set up publicly available URLs.
      */
-    @PostConstruct
+//    @PostConstruct
     public void init() {
         LOG.info("Authentication token filter initialised");
 
@@ -139,30 +160,30 @@ public class AuthenticateTokenFilter extends GenericFilterBean {
      * @throws IOException
      * @throws ServletException
      */
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
-        HttpServletRequest httpRequest = this.getAsHttpRequest(request);
-        String path = httpRequest.getRequestURI();
-
-        // TODO Fix for Spring Boot bug with using delegating proxy
-        setAuthenticationManager(request);
-
-        //LOG.info(path);
-        //LOG.info(String.valueOf(isPublicPath(path)));
-
-        // Fix for CORS not required for PROD
-        if (httpRequest.getMethod().equalsIgnoreCase("options")) {
-            chain.doFilter(request, response);
-        } else if (isPublicPath(path)) {
-            chain.doFilter(request, response);
-        } else {
-            if (!authenticateRequest(httpRequest)) {
-                redirectFailedAuthentication((HttpServletResponse) response, request, path);
-                return;
-            }
-            chain.doFilter(request, response);
-        }
-    }
+//    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+//            ServletException {
+//        HttpServletRequest httpRequest = this.getAsHttpRequest(request);
+//        String path = httpRequest.getRequestURI();
+//
+//        // TODO Fix for Spring Boot bug with using delegating proxy
+//        setAuthenticationManager(request);
+//
+//        //LOG.info(path);
+//        //LOG.info(String.valueOf(isPublicPath(path)));
+//
+//        // Fix for CORS not required for PROD
+//        if (httpRequest.getMethod().equalsIgnoreCase("options")) {
+//            chain.doFilter(request, response);
+//        } else if (isPublicPath(path)) {
+//            chain.doFilter(request, response);
+//        } else {
+//            if (!authenticateRequest(httpRequest)) {
+//                redirectFailedAuthentication((HttpServletResponse) response, request, path);
+//                return;
+//            }
+//            chain.doFilter(request, response);
+//        }
+//    }
 
     /**
      * Set the authentication in the security context, returning false if authentication request fails due to session

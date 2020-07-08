@@ -9,8 +9,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ObservationHeadingService;
-import org.patientview.config.exception.FhirResourceException;
-import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.ObservationHeading;
@@ -30,7 +28,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -138,9 +135,10 @@ public class ObservationHeadingControllerTest {
         Group group = TestUtils.createGroup("GROUP1");
         group.setId(2L);
 
-        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findById(eq(observationHeading.getId())).get())
+                .thenReturn(observationHeading);
         when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId())).get()).thenReturn(group);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/observationheading/" + observationHeading.getId() + "/group/"
                 + group.getId() + "/panel/3/panelorder/4"))
@@ -176,9 +174,10 @@ public class ObservationHeadingControllerTest {
         observationHeadingGroup.setId(3L);
         observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
 
-        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findById(eq(observationHeading.getId())).get())
+                .thenReturn(observationHeading);
         when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId())).get()).thenReturn(group);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/observationheadinggroup/"
                 + observationHeadingGroup.getId()))
@@ -210,7 +209,7 @@ public class ObservationHeadingControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availableobservationheadings" )
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availableobservationheadings")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -228,7 +227,7 @@ public class ObservationHeadingControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/savedobservationheadings" )
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/savedobservationheadings")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -245,7 +244,7 @@ public class ObservationHeadingControllerTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availablealertobservationheadings" )
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/" + user.getId() + "/availablealertobservationheadings")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 

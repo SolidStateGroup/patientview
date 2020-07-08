@@ -30,11 +30,8 @@ public class LocationServiceImpl extends AbstractServiceImpl<LocationServiceImpl
     public Location add(final Long groupId, final Location location)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Group group = groupRepository.findOne(groupId);
-
-        if (group == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         location.setGroup(group);
         location.setCreator(getCurrentUser());
@@ -44,11 +41,8 @@ public class LocationServiceImpl extends AbstractServiceImpl<LocationServiceImpl
 
     public Location get(final Long locationId)
             throws ResourceNotFoundException, ResourceForbiddenException {
-        Location location = locationRepository.findOne(locationId);
-
-        if (location == null) {
-            throw new ResourceNotFoundException("Contact point does not exist");
-        }
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact point does not exist"));
 
         if (!isUserMemberOfGroup(getCurrentUser(), location.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
@@ -59,26 +53,20 @@ public class LocationServiceImpl extends AbstractServiceImpl<LocationServiceImpl
 
     public void delete(final Long locationId) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Location location = locationRepository.findOne(locationId);
-
-        if (location == null) {
-            throw new ResourceNotFoundException("Contact point does not exist");
-        }
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact point does not exist"));
 
         if (!isUserMemberOfGroup(getCurrentUser(), location.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
         }
 
         location.getGroup().getLocations().remove(location);
-        locationRepository.delete(locationId);
+        locationRepository.deleteById(locationId);
     }
 
     public Location save(final Location location) throws ResourceNotFoundException, ResourceForbiddenException {
-        Location entityLocation = locationRepository.findOne(location.getId());
-
-        if (entityLocation == null) {
-            throw new ResourceNotFoundException("Contact point does not exist");
-        }
+        Location entityLocation = locationRepository.findById(location.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Contact point does not exist"));
 
         if (!isUserMemberOfGroup(getCurrentUser(), entityLocation.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");

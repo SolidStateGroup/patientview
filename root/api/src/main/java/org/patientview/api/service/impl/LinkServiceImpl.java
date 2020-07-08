@@ -6,6 +6,7 @@ import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.Code;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.Link;
+import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.enums.LinkTypes;
 import org.patientview.persistence.repository.CodeRepository;
 import org.patientview.persistence.repository.GroupRepository;
@@ -41,11 +42,8 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
     public Link addGroupLink(final Long groupId, final Link link)
             throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Group group = groupRepository.findOne(groupId);
-
-        if (group == null) {
-            throw new ResourceNotFoundException("Group not found");
-        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found"));
 
         if (!isUserMemberOfGroup(getCurrentUser(), group)) {
             throw new ResourceForbiddenException("Forbidden");
@@ -54,7 +52,8 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
         link.setGroup(group);
 
         if (link.getLinkType() != null && link.getLinkType().getId() != null) {
-            link.setLinkType(lookupRepository.findOne(link.getLinkType().getId()));
+            Lookup foundLookup = lookupRepository.findById(link.getLinkType().getId()).orElse(null);
+            link.setLinkType(foundLookup);
         }
 
         return linkRepository.save(link);
@@ -63,19 +62,18 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
     public Link addCodeLink(final Long codeId, final Link link)
             throws ResourceNotFoundException {
 
-        Code code = codeRepository.findOne(codeId);
-
-        if (code == null) {
-            throw new ResourceNotFoundException("Code not found");
-        }
+        Code code = codeRepository.findById(codeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Code not found"));
 
         link.setCode(code);
 
         if (link.getLinkType() != null && link.getLinkType().getId() != null) {
-            link.setLinkType(lookupRepository.findOne(link.getLinkType().getId()));
+            Lookup foundLookup = lookupRepository.findById(link.getLinkType().getId()).orElse(null);
+            link.setLinkType(foundLookup);
         } else {
             // defaults to custom Type when Link is added through UI
-            link.setLinkType(lookupRepository.findOne(LinkTypes.CUSTOM.id()));
+            Lookup foundLookup = lookupRepository.findById(LinkTypes.CUSTOM.id()).orElse(null);
+            link.setLinkType(foundLookup);
         }
 
         Link savedLink = linkRepository.save(link);
@@ -85,11 +83,8 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
     }
 
     public Link get(final Long linkId) throws ResourceNotFoundException, ResourceForbiddenException {
-        Link link = linkRepository.findOne(linkId);
-
-        if (link == null) {
-            throw new ResourceNotFoundException("Contact point does not exist");
-        }
+        Link link = linkRepository.findById(linkId)
+                .orElseThrow(() -> new ResourceNotFoundException("Link does not exist"));
 
         if (!isUserMemberOfGroup(getCurrentUser(), link.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
@@ -99,11 +94,9 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
     }
 
     public void delete(final Long linkId) throws ResourceNotFoundException, ResourceForbiddenException {
-        Link link = linkRepository.findOne(linkId);
+        Link link = linkRepository.findById(linkId)
+                .orElseThrow(() -> new ResourceNotFoundException("Link does not exist"));
 
-        if (link == null) {
-            throw new ResourceNotFoundException("Link does not exist");
-        }
 
         if (!isUserMemberOfGroup(getCurrentUser(), link.getGroup())) {
             throw new ResourceForbiddenException("Forbidden");
@@ -114,7 +107,8 @@ public class LinkServiceImpl extends AbstractServiceImpl<LinkServiceImpl> implem
 
     public Link save(final Link link) throws ResourceNotFoundException, ResourceForbiddenException {
 
-        Link entityLink = linkRepository.findOne(link.getId());
+        Link entityLink = linkRepository.findById(link.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Link does not exist"));
 
         if (entityLink == null) {
             throw new ResourceNotFoundException("Link does not exist");

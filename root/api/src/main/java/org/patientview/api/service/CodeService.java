@@ -65,7 +65,7 @@ public interface CodeService {
      * @return Code object, newly created based on another Code (note: consider only returning ID or HTTP OK)
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
-    Code cloneCode(Long codeId);
+    Code cloneCode(Long codeId) throws ResourceNotFoundException;
 
     /**
      * Delete a Code.

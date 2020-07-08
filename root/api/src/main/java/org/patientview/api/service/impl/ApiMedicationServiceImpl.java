@@ -76,10 +76,8 @@ public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServic
     public List<FhirMedicationStatement> getByUserId(final Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findOne(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("Could not find user");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 
         List<FhirMedicationStatement> fhirMedications = new ArrayList<>();
 

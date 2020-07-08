@@ -65,7 +65,7 @@ public class SurveyResponseServiceImpl extends AbstractServiceImpl<SurveyRespons
         SurveyResponse newSurveyResponse = new SurveyResponseBuilder(surveyResponse, survey, user).build();
 
         // delete existing by user, type, date
-        surveyResponseRepository.delete(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
+        surveyResponseRepository.deleteAll(surveyResponseRepository.findByUserAndSurveyTypeAndDate(
                 user, surveyResponse.getSurveyType(),
                 surveyResponse.getDate().toGregorianCalendar().getTime()));
 

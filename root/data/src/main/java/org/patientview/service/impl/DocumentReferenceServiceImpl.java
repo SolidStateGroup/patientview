@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -57,7 +58,7 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
      * Creates all of the FHIR DocumentReference records from the Patientview object.
      * Links them to the Patient by subject.
      *
-     * @param data patientview data from xml
+     * @param data     patientview data from xml
      * @param fhirLink FhirLink for user
      */
     @Override
@@ -146,9 +147,9 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
                                         // delete binary data
                                         try {
-                                            if (fileDataRepository.exists(Long.valueOf(
+                                            if (fileDataRepository.existsById(Long.valueOf(
                                                     media.getContent().getUrlSimple()))) {
-                                                fileDataRepository.delete(
+                                                fileDataRepository.deleteById(
                                                         Long.valueOf(media.getContent().getUrlSimple()));
                                             }
                                         } catch (NumberFormatException nfe) {
@@ -259,8 +260,9 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
             }
 
             if (alert != null) {
-                Alert entityAlert = alertRepository.findOne(alert.getId());
-                if (entityAlert != null) {
+                Optional<Alert> optionalAlert = alertRepository.findById(alert.getId());
+                if (optionalAlert.isPresent()) {
+                    Alert entityAlert = optionalAlert.get();
                     entityAlert.setLatestValue(alert.getLatestValue());
                     entityAlert.setLatestDate(alert.getLatestDate());
                     entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
@@ -312,8 +314,8 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
 
                         // delete binary data
                         try {
-                            if (fileDataRepository.exists(Long.valueOf(media.getContent().getUrlSimple()))) {
-                                fileDataRepository.delete(Long.valueOf(media.getContent().getUrlSimple()));
+                            if (fileDataRepository.existsById(Long.valueOf(media.getContent().getUrlSimple()))) {
+                                fileDataRepository.deleteById(Long.valueOf(media.getContent().getUrlSimple()));
                             }
                         } catch (NumberFormatException nfe) {
                             LOG.info("Error deleting existing letter binary data, " +
@@ -411,8 +413,9 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
                 }
             }
 
-            Alert entityAlert = alertRepository.findOne(alert.getId());
-            if (entityAlert != null) {
+            Optional<Alert> optionalAlert = alertRepository.findById(alert.getId());
+            if (optionalAlert.isPresent()) {
+                Alert entityAlert = optionalAlert.get();
                 entityAlert.setLatestValue(alert.getLatestValue());
                 entityAlert.setLatestDate(alert.getLatestDate());
                 entityAlert.setWebAlertViewed(alert.isWebAlertViewed());
@@ -426,8 +429,9 @@ public class DocumentReferenceServiceImpl extends AbstractServiceImpl<DocumentRe
     /**
      * Given a DocumentReference and a Map of key (existing DocumentReference UUIDs) to value (type + content) get
      * existing uuids by type and content
+     *
      * @param documentReference DocumentReference to check for existing in FHIR
-     * @param existingMap Map<String, String> of key (DocumentReference UUID) to value (type + content)
+     * @param existingMap       Map<String, String> of key (DocumentReference UUID) to value (type + content)
      * @return List of logical UUID for existing DocumentReferences that match the input DocumentReference
      */
     private List<UUID> getExistingByTypeAndContent(DocumentReference documentReference,

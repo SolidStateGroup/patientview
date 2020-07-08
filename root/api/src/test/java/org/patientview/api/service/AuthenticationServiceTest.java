@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -417,7 +418,7 @@ public class AuthenticationServiceTest {
         groupRoles.add(groupRole);
         user.setGroupRoles(groupRoles);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
         org.patientview.api.model.UserToken returned
@@ -468,7 +469,7 @@ public class AuthenticationServiceTest {
         groupRoles.add(groupRole);
         user.setGroupRoles(groupRoles);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
         org.patientview.api.model.UserToken returned
@@ -531,7 +532,7 @@ public class AuthenticationServiceTest {
         groupRoles.add(groupRole);
         user.setGroupRoles(groupRoles);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(userRepository.findByUsernameCaseInsensitive(any(String.class))).thenReturn(user);
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(foundUserToken);
         when(userTokenRepository.findActiveByUser(any(Long.class))).thenReturn(userTokens);
@@ -748,7 +749,7 @@ public class AuthenticationServiceTest {
         }
 
         user.setSecretWord(new JSONObject(letters).toString());
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         Map<String, String> entered = new HashMap<>();
         entered.put("2", "C");
@@ -781,7 +782,7 @@ public class AuthenticationServiceTest {
         }
 
         user.setSecretWord(new JSONObject(letters).toString());
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         Map<String, String> entered = new HashMap<>();
         entered.put("0", "A");
@@ -818,7 +819,7 @@ public class AuthenticationServiceTest {
         }
 
         user.setSecretWord(new JSONObject(letters).toString());
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         Map<String, String> entered = new HashMap<>();
         entered.put("2", "C");
@@ -851,7 +852,7 @@ public class AuthenticationServiceTest {
         }
 
         user.setSecretWord(new JSONObject(letters).toString());
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         Map<String, String> entered = new HashMap<>();
         entered.put("1", "B");
@@ -886,7 +887,7 @@ public class AuthenticationServiceTest {
         }
 
         user.setSecretWord(new JSONObject(letters).toString());
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         Map<String, String> entered = new HashMap<>();
         entered.put("2", "X");
@@ -908,7 +909,7 @@ public class AuthenticationServiceTest {
         user.setGroupRoles(groupRoles);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
 
         Map<String, String> entered = new HashMap<>();
         entered.put("2", "X");
@@ -940,7 +941,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setUser(user);
         foundUserToken.setToken(token);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
         when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
@@ -985,7 +986,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setUser(user);
         foundUserToken.setToken(token);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
         when(userTokenRepository.findByToken(eq(input.getToken()))).thenReturn(foundUserToken);
         when(apiConditionService.hasAnyConditions(eq(foundUserToken.getUser().getId()), eq(Boolean.TRUE))).
@@ -1045,7 +1046,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setSecretWordToken(secretWordToken);
 
         when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
 
@@ -1101,7 +1102,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setType(UserTokenTypes.MOBILE);
 
         when(externalStandardRepository.findAll()).thenReturn(new ArrayList<ExternalStandard>());
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
 
@@ -1158,7 +1159,7 @@ public class AuthenticationServiceTest {
         foundUserToken.setCheckSecretWord(true);
         foundUserToken.setSecretWordToken(secretWordToken);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(userTokenRepository.findBySecretWordToken(eq(input.getSecretWordToken()))).thenReturn(foundUserToken);
         when(groupService.getAllUserGroupsAllDetails(eq(foundUserToken.getUser().getId()))).thenReturn(userGroups);
 
@@ -1237,7 +1238,7 @@ public class AuthenticationServiceTest {
         userToken.setCreated(now);
         userToken.setExpiration(new Date(now.getTime()));
 
-        when(userRepository.findOne(eq(switchUser.getId()))).thenReturn(switchUser);
+        when(userRepository.findById(eq(switchUser.getId()))).thenReturn(Optional.of(switchUser));
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
         when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(true);
 
@@ -1272,7 +1273,7 @@ public class AuthenticationServiceTest {
         userToken.setCreated(now);
         userToken.setExpiration(new Date(now.getTime()));
 
-        when(userRepository.findOne(eq(switchUser.getId()))).thenReturn(switchUser);
+        when(userRepository.findById(eq(switchUser.getId()))).thenReturn(Optional.of(switchUser));
         when(userTokenRepository.save(any(UserToken.class))).thenReturn(userToken);
         when(userService.currentUserCanSwitchToUser(eq(switchUser))).thenReturn(false);
 

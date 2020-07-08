@@ -1,6 +1,5 @@
 package org.patientview.api.service.impl;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -9,7 +8,6 @@ import org.im4java.core.IM4JavaException;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
 import org.jcodec.scale.AWTUtil;
-import org.patientview.api.model.BaseUser;
 import org.patientview.api.service.MyMediaService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.MediaUserSpaceLimitException;
@@ -29,16 +27,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,7 +59,8 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     public org.patientview.api.model.MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException,
             ResourceForbiddenException,
             IOException, IM4JavaException, InterruptedException, JCodecException, MediaUserSpaceLimitException {
-        User currentUser = userRepository.findOne(userId);
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
         myMedia.setCreator(currentUser);
 
 
@@ -97,13 +93,16 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     @Override
     public org.patientview.api.model.MyMedia get(long id) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException {
-        return createMyMediaDto(myMediaRepository.findOne(id));
+        MyMedia media = myMediaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find Media"));
+        return createMyMediaDto(media);
     }
 
     @Override
     public void delete(Long myMediaId) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException {
-        MyMedia myMedia = myMediaRepository.findOne(myMediaId);
+        MyMedia myMedia = myMediaRepository.findById(myMediaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find Media"));
         if (ApiUtil.getCurrentUser().getId().equals(myMedia.getCreator().getId())) {
             //Because media can be shared across multiple conversations etc, we just remove the content
             //From the db so we can display an error
@@ -130,7 +129,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
         PageRequest pageable = createPageRequest(pageConverted, sizeConverted, sortField, sortDirection);
 
         Page<List<MyMedia>> media =
-                myMediaRepository.getByCreator(userRepository.findOne(userId), false, pageable);
+                myMediaRepository.getByCreator(userRepository.findById(userId).get(), false, pageable);
 
         List<org.patientview.api.model.MyMedia> mediaToReturn = new ArrayList();
 

@@ -33,6 +33,7 @@ import org.patientview.test.util.TestUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Mockito.when;
@@ -120,7 +121,7 @@ public class ResearchServiceTest {
 
 
 
-        when(userRepository.findOne(user.getId())).thenReturn(user);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(apiPatientService.get(user.getId(), null)).thenReturn(patients);
     }
 

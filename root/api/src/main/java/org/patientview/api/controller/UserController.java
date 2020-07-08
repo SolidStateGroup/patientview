@@ -147,7 +147,7 @@ public class UserController extends BaseController<UserController> {
     @ResponseBody
     public ResponseEntity<String> changePicture(@PathVariable("userId") Long userId,
                                                 @RequestParam("file") MultipartFile file)
-            throws ResourceInvalidException {
+            throws ResourceInvalidException, ResourceNotFoundException {
         return new ResponseEntity<>(userService.addPicture(userId, file), HttpStatus.OK);
     }
 
@@ -161,7 +161,7 @@ public class UserController extends BaseController<UserController> {
     @RequestMapping(value = "/user/{userId}/picturebase64", method = RequestMethod.POST)
     @ResponseBody
     public void changePicture(@PathVariable("userId") Long userId, @RequestBody String base64)
-            throws ResourceInvalidException {
+            throws ResourceInvalidException, ResourceNotFoundException {
         userService.addPicture(userId, base64);
     }
 
