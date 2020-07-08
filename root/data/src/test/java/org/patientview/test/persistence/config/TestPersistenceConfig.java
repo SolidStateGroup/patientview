@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
+import org.springframework.orm.hibernate5.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -33,9 +33,9 @@ public class TestPersistenceConfig  {
     @PostConstruct
     public void init() {
         properties = new Properties();
+        //properties.setProperty("hibernate.ddl-auto", "create");
         properties.setProperty("hibernate.hbm2ddl.auto", "create");
         properties.setProperty("hibernate.show_sql", "true");
-        properties.setProperty("hibernate.dialect", "org.patientview.persistence.dialect.PostgresCustomDialect");
     }
 
     @Bean

@@ -116,8 +116,8 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
     @Transactional
     public void categoriseConditions() {
         try {
-            codeCategoryRepository.delete(codeCategoryRepository.findAll());
-            categoryRepository.delete(categoryRepository.findAll());
+            codeCategoryRepository.deleteAll(codeCategoryRepository.findAll());
+            categoryRepository.deleteAll(categoryRepository.findAll());
 
             URL filePath = Thread.currentThread().getContextClassLoader().getResource(
                     "nhschoices/pv_nhschoices_condition-NT.xlsx");
@@ -155,7 +155,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 count++;
             }
 
-            Iterable<Category> savedCategories = categoryRepository.save(categories);
+            Iterable<Category> savedCategories = categoryRepository.saveAll(categories);
             Map<Integer, Category> savedCategoryMap = new HashMap<>();
             Iterator iterator = savedCategories.iterator();
 
@@ -223,7 +223,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 count++;
             }
 
-            codeCategoryRepository.save(codeCategories);
+            codeCategoryRepository.saveAll(codeCategories);
 
             workbook.close();
             inputStream.close();
@@ -348,11 +348,9 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 org.patientview.persistence.model.Link nhschoicesLink
                         = new org.patientview.persistence.model.Link();
 
-                Lookup linkType = lookupRepository.findOne(LinkTypes.NHS_CHOICES.id());
-                // should have them already configured
-                if (linkType == null) {
-                    throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
-                }
+                Lookup linkType = lookupRepository.findById(LinkTypes.NHS_CHOICES.id())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup"));
                 nhschoicesLink.setLinkType(linkType);
                 nhschoicesLink.setLink(condition.getIntroductionUrl());
                 nhschoicesLink.setName(linkType.getDescription());
@@ -614,11 +612,11 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                 org.patientview.persistence.model.Link nhschoicesLink
                         = new org.patientview.persistence.model.Link();
 
-                Lookup linkType = lookupRepository.findOne(LinkTypes.NHS_CHOICES.id());
                 // should have them already configured
-                if (linkType == null) {
-                    throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
-                }
+                Lookup linkType = lookupRepository.findById(LinkTypes.NHS_CHOICES.id())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup"));
+
                 nhschoicesLink.setLinkType(linkType);
                 nhschoicesLink.setLink(condition.getIntroductionUrl());
                 nhschoicesLink.setName(linkType.getDescription());
@@ -770,11 +768,10 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
                     org.patientview.persistence.model.Link nhschoicesLink
                             = new org.patientview.persistence.model.Link();
 
-                    Lookup linkType = lookupRepository.findOne(LinkTypes.NHS_CHOICES.id());
                     // should have them already configured
-                    if (linkType == null) {
-                        throw new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup");
-                    }
+                    Lookup linkType = lookupRepository.findById(LinkTypes.NHS_CHOICES.id())
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException("Could not find NHS CHOICES link type Lookup"));
 
                     nhschoicesLink.setLinkType(linkType);
                     nhschoicesLink.setLink(condition.getIntroductionUrl());
@@ -809,7 +806,7 @@ public class NhsChoicesServiceImpl extends AbstractServiceImpl<NhsChoicesService
         }
 
         if (!codesToSave.isEmpty()) {
-            codeRepository.save(codesToSave);
+            codeRepository.saveAll(codesToSave);
         }
 
         LOG.info("Finished synchronising " + conditions.size() + " NhschoicesConditions with " + currentCodes.size()

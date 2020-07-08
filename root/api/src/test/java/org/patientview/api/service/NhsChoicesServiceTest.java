@@ -110,7 +110,7 @@ public class NhsChoicesServiceTest {
         nhsChoicesService.synchroniseConditions();
 
         verify(codeRepository, Mockito.times(1)).findAllByStandardType(eq(standardType));
-        verify(codeRepository, Mockito.times(1)).save(any(List.class));
+        verify(codeRepository, Mockito.times(1)).saveAll(any(List.class));
         verify(lookupRepository, Mockito.times(1))
                 .findByTypeAndValue(eq(LookupTypes.CODE_TYPE), eq(codeType.getValue()));
         verify(lookupRepository, Mockito.times(1))

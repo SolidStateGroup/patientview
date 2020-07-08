@@ -41,7 +41,7 @@ public class NhschoicesConditionRepositoryTest {
         conditions.add(new NhschoicesCondition("code1", "name1", "uri1"));
         conditions.add(new NhschoicesCondition("code2", "name2", "uri2"));
 
-        nhschoicesConditionRepository.save(conditions);
+        nhschoicesConditionRepository.saveAll(conditions);
 
         NhschoicesCondition foundCondition = nhschoicesConditionRepository.findOneByCode("code1");
 
@@ -56,7 +56,7 @@ public class NhschoicesConditionRepositoryTest {
         conditions.add(new NhschoicesCondition("code2", "name2", "uri2"));
         conditions.add(new NhschoicesCondition("code3", "name3", "uri3"));
 
-        nhschoicesConditionRepository.save(conditions);
+        nhschoicesConditionRepository.saveAll(conditions);
 
         List<NhschoicesCondition> foundConditions = nhschoicesConditionRepository.findAll();
         Assert.assertEquals("3 NhschoicesConditions should be returned", 3, foundConditions.size());

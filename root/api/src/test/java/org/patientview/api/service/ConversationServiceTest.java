@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -171,8 +172,8 @@ public class ConversationServiceTest {
         when(properties.getProperty(eq("external.conversation.token"))).thenReturn(externalConversation.getToken());
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
-        when(userRepository.findOne(eq(recipient.getId()))).thenReturn(recipient);
-        when(userRepository.findOne(eq(sender.getId()))).thenReturn(sender);
+        when(userRepository.findById(eq(recipient.getId()))).thenReturn(Optional.of(recipient));
+        when(userRepository.findById(eq(sender.getId()))).thenReturn(Optional.of(sender));
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
@@ -239,8 +240,8 @@ public class ConversationServiceTest {
                 .thenReturn(recipient);
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
-        when(userRepository.findOne(eq(recipient.getId()))).thenReturn(recipient);
-        when(userRepository.findOne(eq(sender.getId()))).thenReturn(sender);
+        when(userRepository.findById(eq(recipient.getId()))).thenReturn(Optional.of(recipient));
+        when(userRepository.findById(eq(sender.getId()))).thenReturn(Optional.of(sender));
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
@@ -315,8 +316,8 @@ public class ConversationServiceTest {
         when(userRepository.findByUsernameCaseInsensitive(eq(externalConversation.getSenderUsername())))
                 .thenReturn(sender);
         when(userRepository.findByGroupAndFeature(eq(group), eq(feature))).thenReturn(recipients);
-        when(userRepository.findOne(eq(recipient.getId()))).thenReturn(recipient);
-        when(userRepository.findOne(eq(sender.getId()))).thenReturn(sender);
+        when(userRepository.findById(eq(recipient.getId()))).thenReturn(Optional.of(recipient));
+        when(userRepository.findById(eq(sender.getId()))).thenReturn(Optional.of(sender));
 
         ExternalConversation returned = conversationService.addExternalConversation(externalConversation);
 
@@ -399,21 +400,21 @@ public class ConversationServiceTest {
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
         when(featureRepository.findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString())))
                 .thenReturn(patientSupportContactFeature);
-        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findById(eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
         when(userRepository.findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature)))
                 .thenReturn(Arrays.asList(user2));
-        when(userRepository.findOne(eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(eq(user2.getId()))).thenReturn(Optional.of(user2));
 
         conversationService.addConversation(user1.getId(), conversation);
 
         verify(conversationRepository, times(1)).save(any(Conversation.class));
         verify(featureRepository, times(1)).findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
-        verify(groupRepository, times(1)).findOne(eq(testGroup.getId()));
+        verify(groupRepository, times(1)).findById(eq(testGroup.getId()));
         verify(userRepository, times(1)).findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature));
-        verify(userRepository, times(3)).findOne(eq(user1.getId()));
-        verify(userRepository, times(2)).findOne(eq(user2.getId()));
+        verify(userRepository, times(3)).findById(eq(user1.getId()));
+        verify(userRepository, times(2)).findById(eq(user2.getId()));
         verify(emailService, times(1)).sendEmail(emailCaptor.capture());
 
         Email email = emailCaptor.getValue();
@@ -486,8 +487,8 @@ public class ConversationServiceTest {
         conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(Matchers.eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(Matchers.eq(user2.getId()))).thenReturn(Optional.of(user2));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
 
         try {
@@ -560,8 +561,8 @@ public class ConversationServiceTest {
         conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(Matchers.eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(Matchers.eq(user2.getId()))).thenReturn(Optional.of(user2));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
 
         try {
@@ -649,21 +650,21 @@ public class ConversationServiceTest {
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
         when(featureRepository.findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString())))
                 .thenReturn(patientSupportContactFeature);
-        when(groupRepository.findOne(eq(testGroup.getId()))).thenReturn(testGroup);
+        when(groupRepository.findById(eq(testGroup.getId()))).thenReturn(Optional.of(testGroup));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
         when(userRepository.findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature)))
                 .thenReturn(Arrays.asList(user2));
-        when(userRepository.findOne(eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(eq(user2.getId()))).thenReturn(Optional.of(user2));
 
         conversationService.addConversation(user1.getId(), conversation);
 
         verify(conversationRepository, times(1)).save(any(Conversation.class));
         verify(featureRepository, times(1)).findByName(eq(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
-        verify(groupRepository, times(1)).findOne(eq(testGroup.getId()));
+        verify(groupRepository, times(1)).findById(eq(testGroup.getId()));
         verify(userRepository, times(1)).findByGroupAndFeature(eq(testGroup), eq(patientSupportContactFeature));
-        verify(userRepository, times(3)).findOne(eq(user1.getId()));
-        verify(userRepository, times(2)).findOne(eq(user2.getId()));
+        verify(userRepository, times(3)).findById(eq(user1.getId()));
+        verify(userRepository, times(2)).findById(eq(user2.getId()));
         verify(emailService, times(1)).sendEmail(emailCaptor.capture());
 
         Email email = emailCaptor.getValue();
@@ -740,8 +741,8 @@ public class ConversationServiceTest {
         conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(Matchers.eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(Matchers.eq(user2.getId()))).thenReturn(Optional.of(user2));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
 
         conversationService.addConversation(user1.getId(), conversation);
@@ -829,10 +830,10 @@ public class ConversationServiceTest {
         conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(Matchers.eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(Matchers.eq(user2.getId()))).thenReturn(Optional.of(user2));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
-        when(myMediaRepository.findOne(myMedia.getId())).thenReturn(myMedia);
+        when(myMediaRepository.findById(myMedia.getId())).thenReturn(Optional.of(myMedia));
 
         conversationService.addConversation(user1.getId(), conversation);
 
@@ -919,10 +920,10 @@ public class ConversationServiceTest {
         conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(Matchers.eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(Matchers.eq(user2.getId()))).thenReturn(Optional.of(user2));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
-        when(myMediaRepository.findOne(myMedia.getId())).thenReturn(myMedia);
+        when(myMediaRepository.findById(myMedia.getId())).thenReturn(Optional.of(myMedia));
 
         conversationService.addConversation(user1.getId(), conversation);
     }
@@ -994,8 +995,8 @@ public class ConversationServiceTest {
         conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(Matchers.eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(Matchers.eq(user2.getId()))).thenReturn(Optional.of(user2));
         when(properties.getProperty(eq("site.url"))).thenReturn("");
 
         conversationService.addConversation(user1.getId(), conversation);
@@ -1052,11 +1053,11 @@ public class ConversationServiceTest {
         conversation.setMessages(messageList);
 
         when(conversationRepository.save(eq(conversation))).thenReturn(conversation);
-        when(userRepository.findOne(Matchers.eq(user1.getId()))).thenReturn(user1);
-        when(userRepository.findOne(Matchers.eq(user2.getId()))).thenReturn(user2);
+        when(userRepository.findById(Matchers.eq(user1.getId()))).thenReturn(Optional.of(user1));
+        when(userRepository.findById(Matchers.eq(user2.getId()))).thenReturn(Optional.of(user2));
 
-        when(userRepository.exists(Matchers.eq(user1.getId()))).thenReturn(true);
-        when(userRepository.exists(Matchers.eq(user2.getId()))).thenReturn(true);
+        when(userRepository.existsById(Matchers.eq(user1.getId()))).thenReturn(true);
+        when(userRepository.existsById(Matchers.eq(user2.getId()))).thenReturn(true);
 
         when(conversationRepository.getUnreadConversationCount(eq(user1.getId()))).thenReturn(1L);
 
@@ -1091,7 +1092,7 @@ public class ConversationServiceTest {
 
         org.patientview.api.model.Message message = sendMessage(6L, victim);
 
-        when(conversationRepository.findOne(Matchers.eq(conservationId))).thenReturn(conversation);
+        when(conversationRepository.findById(Matchers.eq(conservationId))).thenReturn(Optional.of(conversation));
 
         // When malicious message is sent
 

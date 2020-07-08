@@ -136,9 +136,9 @@ public class NewsController extends BaseController<NewsController> {
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : null;
 
         if (pageConverted != null && sizeConverted != null) {
-            pageable = new PageRequest(pageConverted, sizeConverted);
+            pageable = PageRequest.of(pageConverted, sizeConverted);
         } else {
-            pageable = new PageRequest(0, Integer.MAX_VALUE);
+            pageable = PageRequest.of(0, Integer.MAX_VALUE);
         }
 
         int newsTypeId;
@@ -186,9 +186,9 @@ public class NewsController extends BaseController<NewsController> {
         Integer sizeConverted = (StringUtils.isNotEmpty(size)) ? Integer.parseInt(size) : null;
 
         if (pageConverted != null && sizeConverted != null) {
-            pageable = new PageRequest(pageConverted, sizeConverted, Sort.Direction.DESC, "lastUpdate");
+            pageable = PageRequest.of(pageConverted, sizeConverted, Sort.Direction.DESC, "lastUpdate");
         } else {
-            pageable = new PageRequest(0, Integer.MAX_VALUE, Sort.Direction.DESC, "lastUpdate");
+            pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.DESC, "lastUpdate");
         }
 
         return new ResponseEntity<>(newsService.getPublicNews(pageable), HttpStatus.OK);

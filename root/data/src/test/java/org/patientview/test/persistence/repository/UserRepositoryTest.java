@@ -131,7 +131,7 @@ public class UserRepositoryTest {
         dataTestUtils.createGroupRole(user, group2, role);
 
         //Get the initial page
-        PageRequest pageRequest = new PageRequest(0, 1000);
+        PageRequest pageRequest = PageRequest.of(0, 1000);
 
         Page<User> users = userRepository.getAllPatientsForExport(pageRequest);
 
@@ -204,7 +204,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", "%%", "%%", "%%", "%%",
-                Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), 1l, new PageRequest(0, Integer.MAX_VALUE));
+                Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), 1l, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -260,7 +260,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findPatientByGroupsRolesAnd("%%", "%%", "%%", "%%", "%%",
-                Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), 2l, new PageRequest(0, Integer.MAX_VALUE));
+                Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), 2l, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());
     }
@@ -291,7 +291,7 @@ public class UserRepositoryTest {
 
         Page<User> users = userRepository.findPatientByGroupsRoles("%" + user.getUsername().toUpperCase() + "%", "%%",
                 "%%", "%%", "%%", Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr),
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -320,7 +320,7 @@ public class UserRepositoryTest {
 
         Page<User> users = userRepository.findPatientByGroupsRoles("%" + user.getUsername().toUpperCase() + "%", "%%",
                 "%" + user.getSurname().toUpperCase() + "%", "%%", "%%", Arrays.asList(groupIdsArr),
-                Arrays.asList(roleIdsArr), new PageRequest(0, Integer.MAX_VALUE));
+                Arrays.asList(roleIdsArr), PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -357,7 +357,7 @@ public class UserRepositoryTest {
 
         Page<User> users = userRepository.findPatientByGroupsRolesFeatures("%" + identifier.getIdentifier() + "%",
                 Arrays.asList(groupIdsArr), Arrays.asList(roleIdsArr), Arrays.asList(featureIdsArr),
-                new PageRequest(0, Integer.MAX_VALUE));
+                PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -563,7 +563,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 1L, new PageRequest(0, Integer.MAX_VALUE));
+                , Arrays.asList(roleIdsArr), 1L, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }
@@ -583,7 +583,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 1L, new PageRequest(0, Integer.MAX_VALUE));
+                , Arrays.asList(roleIdsArr), 1L, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be no users returned", 0, users.getContent().size());
     }
@@ -617,7 +617,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 2L, new PageRequest(0, Integer.MAX_VALUE));
+                , Arrays.asList(roleIdsArr), 2L, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 2 user returned", 2, users.getContent().size());
     }
@@ -652,7 +652,7 @@ public class UserRepositoryTest {
         Long[] roleIdsArr = {role.getId()};
 
         Page<User> users = userRepository.findStaffByGroupsRolesAnd("%%", "%%", "%%", "%%", Arrays.asList(groupIdsArr)
-                , Arrays.asList(roleIdsArr), 2L, new PageRequest(0, Integer.MAX_VALUE));
+                , Arrays.asList(roleIdsArr), 2L, PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be 1 user returned", 1, users.getContent().size());
     }
@@ -679,7 +679,7 @@ public class UserRepositoryTest {
         Long[] featureIdsArr = {feature.getId()};
 
         Page<User> users = userRepository.findStaffByGroupsRolesFeatures("%%", Arrays.asList(groupIdsArr),
-                Arrays.asList(roleIdsArr), Arrays.asList(featureIdsArr), new PageRequest(0, Integer.MAX_VALUE));
+                Arrays.asList(roleIdsArr), Arrays.asList(featureIdsArr), PageRequest.of(0, Integer.MAX_VALUE));
 
         Assert.assertEquals("Should be one user returned", 1, users.getContent().size());
     }

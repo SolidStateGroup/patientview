@@ -157,6 +157,9 @@
             Relapse*
             <span data-ng-show="form.errors.relapse" class="error"> {{form.errors.relapse}} </span>
         </div>
+        <div class="col-md-12 p-min error" data-ng-show="!editMode && form.relapse && form.initiallyInRelapse">
+            If you are now in remission, you must change the Relapse value below to 'No' before saving the diary entry.
+        </div>
         <div class="col-md-12 p-min">
             <select class="form-control" data-ng-model="form.relapse"
                 data-ng-options="opt.val as opt.key for opt in options.yesNo" data-ng-disabled="editMode === true" >

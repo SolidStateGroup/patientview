@@ -51,7 +51,7 @@ public class CategoryRepositoryTest {
         categoryRepository.save(category1);
         categoryRepository.save(category2);
 
-        PageRequest pageable = new PageRequest(0, 999);
+        PageRequest pageable = PageRequest.of(0, 999);
 
         Page<Category> categories = categoryRepository.findAllFiltered("%%", pageable);
         Assert.assertEquals("There should be 2 categories found", 2, categories.getContent().size());
@@ -65,7 +65,7 @@ public class CategoryRepositoryTest {
         category1 = categoryRepository.save(category1);
         category2 = categoryRepository.save(category2);
 
-        PageRequest pageable = new PageRequest(0, 999);
+        PageRequest pageable = PageRequest.of(0, 999);
 
         Page<Category> categories = categoryRepository.findAllFiltered("%FRIENDLYA%", pageable);
         Assert.assertEquals("There should be 1 category returned", 1, categories.getContent().size());

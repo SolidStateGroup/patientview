@@ -5,8 +5,9 @@ import org.patientview.importer.config.ImporterConfig;
 import org.patientview.persistence.config.PersistenceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -16,7 +17,7 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @Import({ImporterConfig.class, PersistenceConfig.class, CommonConfig.class})
-@EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class })
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
 public class Importer extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

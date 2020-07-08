@@ -153,15 +153,14 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
         }
 
         //Save all in one go
-        externalServiceTaskQueueItemRepository.save(tasksToUpdate);
+        externalServiceTaskQueueItemRepository.saveAll(tasksToUpdate);
 
         //Delete all in one go
-        externalServiceTaskQueueItemRepository.delete(tasksToDelete);
+        externalServiceTaskQueueItemRepository.deleteAll(tasksToDelete);
     }
 
     /**
      * Finds queue items of a certain type with status FAILED or PENDING.
-     *
      */
     private List<ExternalServiceTaskQueueItem> getUnsentOrFailedItems(List<ExternalServices> externalService) {
 

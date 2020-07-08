@@ -172,7 +172,7 @@ public class UktServiceTest {
         when(properties.getProperty("ukt.export.filename")).thenReturn("ukt_rpv_export.txt");
 
         //Get the initial page
-        PageRequest pageRequest = new PageRequest(0, 1000);
+        PageRequest pageRequest = PageRequest.of(0, 1000);
 
         when(userRepository.getAllPatientsForExport(pageRequest)).thenReturn(new PageImpl<>(users));
         when(apiPatientService.get(eq(resourceId))).thenReturn(patient);

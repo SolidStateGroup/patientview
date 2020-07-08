@@ -27,6 +27,7 @@ import org.patientview.test.util.TestUtils;
 
 import javax.persistence.EntityManager;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -87,7 +88,7 @@ public class ContactPointServiceTest {
         ContactPoint contactPoint = TestUtils.createContactPoint("TestContactPoint", ContactPointTypes.PV_ADMIN_EMAIL);
         contactPoint.setGroup(group);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(contactPointRepository.save(eq(contactPoint))).thenReturn(contactPoint);
         when(entityManager.find(eq(ContactPointType.class), eq(contactPoint.getContactPointType().getId())))
                 .thenReturn(contactPoint.getContactPointType());
@@ -119,7 +120,7 @@ public class ContactPointServiceTest {
         ContactPoint contactPoint = TestUtils.createContactPoint("TestContactPoint", ContactPointTypes.PV_ADMIN_EMAIL);
         contactPoint.setGroup(group);
 
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(contactPointRepository.save(eq(contactPoint))).thenReturn(contactPoint);
         when(entityManager.find(eq(ContactPointType.class), eq(contactPoint.getContactPointType().getId())))
                 .thenReturn(contactPoint.getContactPointType());
@@ -149,7 +150,7 @@ public class ContactPointServiceTest {
         group.setContactPoints(new HashSet<ContactPoint>());
         group.getContactPoints().add(contactPoint);
 
-        when(contactPointRepository.findOne(eq(contactPoint.getId()))).thenReturn(contactPoint);
+        when(contactPointRepository.findById(eq(contactPoint.getId()))).thenReturn(Optional.of(contactPoint));
 
         try {
             contactPointService.delete(contactPoint.getId());
@@ -178,7 +179,7 @@ public class ContactPointServiceTest {
         group.setContactPoints(new HashSet<ContactPoint>());
         group.getContactPoints().add(contactPoint);
 
-        when(contactPointRepository.findOne(eq(contactPoint.getId()))).thenReturn(contactPoint);
+        when(contactPointRepository.findById(eq(contactPoint.getId()))).thenReturn(Optional.of(contactPoint));
 
         contactPointService.delete(contactPoint.getId());
     }

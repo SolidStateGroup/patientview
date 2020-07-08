@@ -39,6 +39,7 @@ import javax.persistence.EntityExistsException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -102,7 +103,7 @@ public class ObservationHeadingServiceTest {
      */
     @Test
     public void testFindAll() {
-        Pageable pageableAll = new PageRequest(0, Integer.MAX_VALUE);
+        Pageable pageableAll = PageRequest.of(0, Integer.MAX_VALUE);
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.SPECIALTY_ADMIN);
 
         List<ObservationHeading> observationHeadings = new ArrayList<>();
@@ -159,7 +160,8 @@ public class ObservationHeadingServiceTest {
         observationHeading.setId(1L);
 
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
-        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findById(eq(observationHeading.getId())))
+                .thenReturn(Optional.of(observationHeading));
 
         try {
             observationHeadingService.save(observationHeading);
@@ -184,10 +186,11 @@ public class ObservationHeadingServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findById(eq(observationHeading.getId())))
+                .thenReturn(Optional.of(observationHeading));
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
 
         try {
             observationHeadingService.addObservationHeadingGroup(observationHeading.getId(), group.getId(), 3L, 4L);
@@ -224,10 +227,11 @@ public class ObservationHeadingServiceTest {
         apiObservationHeadingGroup.setId(observationHeadingGroup.getId());
         observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
 
-        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findById(eq(observationHeading.getId())))
+                .thenReturn(Optional.of(observationHeading));
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
-        when(groupRepository.findOne(eq(group2.getId()))).thenReturn(group2);
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
+        when(groupRepository.findById(eq(group2.getId()))).thenReturn(Optional.of(group2));
 
         try {
             observationHeadingService.updateObservationHeadingGroup(apiObservationHeadingGroup);
@@ -259,11 +263,12 @@ public class ObservationHeadingServiceTest {
         observationHeadingGroup.setId(3L);
         observationHeading.getObservationHeadingGroups().add(observationHeadingGroup);
 
-        when(observationHeadingRepository.findOne(eq(observationHeading.getId()))).thenReturn(observationHeading);
+        when(observationHeadingRepository.findById(eq(observationHeading.getId()))).
+                thenReturn(Optional.of(observationHeading));
         when(observationHeadingRepository.save(any(ObservationHeading.class))).thenReturn(observationHeading);
-        when(observationHeadingGroupRepository.findOne(eq(observationHeadingGroup.getId())))
-                .thenReturn(observationHeadingGroup);
-        when(groupRepository.findOne(eq(group.getId()))).thenReturn(group);
+        when(observationHeadingGroupRepository.findById(eq(observationHeadingGroup.getId())))
+                .thenReturn(Optional.of(observationHeadingGroup));
+        when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
 
         try {
             observationHeadingService.removeObservationHeadingGroup(3L);
@@ -337,7 +342,7 @@ public class ObservationHeadingServiceTest {
         groupRoles.add(groupRole);
         TestUtils.authenticateTest(user, groupRoles);
 
-        when(userRepository.findOne(eq(user.getId()))).thenReturn(user);
+        when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         when(groupRepository.findGroupByUser(eq(user))).thenReturn(groupList);
         when(observationHeadingRepository.findAll()).thenReturn(observationHeadings);
 

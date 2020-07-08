@@ -159,10 +159,10 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
 
         //Delete the existing reviews as facebook doesnt have ids on the ratings
         List<Review> reviews = reviewRepository.findByReviewSource(ReviewSource.FACEBOOK);
-        reviewRepository.delete(reviews);
+        reviewRepository.deleteAll(reviews);
 
         //Save the new ones
-        reviewRepository.save(reviewsToSave);
+        reviewRepository.saveAll(reviewsToSave);
     }
 
 
@@ -231,10 +231,10 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
 
             //Delete the existing reviews as ios doesnt have ids on the ratings
             List<Review> reviews = reviewRepository.findByReviewSource(ReviewSource.IOS);
-            reviewRepository.delete(reviews);
+            reviewRepository.deleteAll(reviews);
 
             //Save the new ones
-            reviewRepository.save(reviewsToSave);
+            reviewRepository.saveAll(reviewsToSave);
         }
     }
 
@@ -277,7 +277,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
         }
 
         //Save the new ones
-        reviewRepository.save(reviewsToSave);
+        reviewRepository.saveAll(reviewsToSave);
     }
 
 

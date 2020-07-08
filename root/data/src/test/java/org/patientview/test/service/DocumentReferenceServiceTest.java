@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -125,7 +126,7 @@ public class DocumentReferenceServiceTest extends BaseTest {
 
         when(alertRepository.findByUserAndAlertType(eq(fhirLink.getUser()), eq(AlertTypes.LETTER)))
                 .thenReturn(alerts);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
         when(fhirResource.createEntity(any(Media.class), eq(ResourceType.Media.name()), eq("media")))
                 .thenReturn(mediaFhirDataBaseEntity);
         when(fhirResource.get(any(UUID.class), eq(ResourceType.Media))).thenReturn(media);
@@ -135,7 +136,7 @@ public class DocumentReferenceServiceTest extends BaseTest {
                 eq(UUID.fromString(existingDocumentReferenceMap.keySet().iterator().next())),
                 eq("documentreference")))
                 .thenReturn(locationUuid.toString());
-        when(fileDataRepository.exists(eq(Long.valueOf(media.getContent().getUrlSimple())))).thenReturn(true);
+        when(fileDataRepository.existsById(eq(Long.valueOf(media.getContent().getUrlSimple())))).thenReturn(true);
         when(fileDataRepository.save(any(FileData.class))).thenReturn(fileData);
 
         documentReferenceService.add(fhirDocumentReference, fhirLink);
@@ -151,8 +152,8 @@ public class DocumentReferenceServiceTest extends BaseTest {
         verify(fhirResource, times(1)).get(any(UUID.class), eq(ResourceType.Media));
         verify(fhirResource, times(1)).getExistingLetterDocumentReferenceTypeAndContentBySubjectId(any(UUID.class));
         verify(fhirResource, times(1)).getLocationUuidFromLogicalUuid(any(UUID.class), eq("documentreference"));
-        verify(fileDataRepository, times(1)).exists(any(Long.class));
-        verify(fileDataRepository, times(1)).delete(any(Long.class));
+        verify(fileDataRepository, times(1)).existsById(any(Long.class));
+        verify(fileDataRepository, times(1)).deleteById(any(Long.class));
         verify(fileDataRepository, times(1)).save(any(FileData.class));
     }
 
@@ -201,7 +202,7 @@ public class DocumentReferenceServiceTest extends BaseTest {
 
         when(alertRepository.findByUserAndAlertType(eq(fhirLink.getUser()), eq(AlertTypes.LETTER)))
                 .thenReturn(alerts);
-        when(alertRepository.findOne(eq(alert.getId()))).thenReturn(alert);
+        when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
         when(fhirResource.createEntity(any(Media.class), eq(ResourceType.Media.name()), eq("media")))
                 .thenReturn(mediaFhirDataBaseEntity);
         when(fileDataRepository.save(any(FileData.class))).thenReturn(fileData);
@@ -219,8 +220,8 @@ public class DocumentReferenceServiceTest extends BaseTest {
         verify(fhirResource, times(0)).get(any(UUID.class), eq(ResourceType.Media));
         verify(fhirResource, times(1)).getExistingLetterDocumentReferenceTypeAndContentBySubjectId(any(UUID.class));
         verify(fhirResource, times(0)).getLocationUuidFromLogicalUuid(any(UUID.class), eq("documentreference"));
-        verify(fileDataRepository, times(0)).exists(any(Long.class));
-        verify(fileDataRepository, times(0)).delete(any(Long.class));
+        verify(fileDataRepository, times(0)).existsById(any(Long.class));
+        verify(fileDataRepository, times(0)).deleteById(any(Long.class));
         verify(fileDataRepository, times(1)).save(any(FileData.class));
     }
 }

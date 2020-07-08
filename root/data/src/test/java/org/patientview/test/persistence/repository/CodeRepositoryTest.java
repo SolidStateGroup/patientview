@@ -53,7 +53,7 @@ public class CodeRepositoryTest {
         Code code1 = dataTestUtils.createCode("TEST_CODE", "a test code", "READ", "STANDARD1");
         Code code2 = dataTestUtils.createCode("TEST_CODE_2", "a test code", "READ", "STANDARD1");
 
-        PageRequest pageable = new PageRequest(0, 1);
+        PageRequest pageable = PageRequest.of(0, 1);
         Page<Code> codes = codeRepository.findAllFiltered("%%", pageable);
 
         // Should get 1 code back and it should be the one that was created
@@ -163,7 +163,7 @@ public class CodeRepositoryTest {
         Code code1 = dataTestUtils.createCode("TEST_CODE", "a test code", "READ", "STANDARD1");
         Code code2 = dataTestUtils.createCode("TEST_CODE_2", "a test code", "READ", "STANDARD1");
 
-        PageRequest pageable = new PageRequest(0, 999);
+        PageRequest pageable = PageRequest.of(0, 999);
 
         Page<Code> codes = codeRepository.findAllFiltered("%%", pageable);
         Assert.assertEquals("There should be 2 codes available", 2, codes.getContent().size());
@@ -175,7 +175,7 @@ public class CodeRepositoryTest {
         Code code1 = dataTestUtils.createCode("TEST_CODE_1", "test code description 1", "READ", "STANDARD1");
         Code code2 = dataTestUtils.createCode("ANOTHER_TEST_CODE", "another kind of test code", "EDTA", "STANDARD2");
 
-        PageRequest pageable = new PageRequest(0, 999);
+        PageRequest pageable = PageRequest.of(0, 999);
 
         Page<Code> codes = codeRepository.findAllFiltered("%READ%".toUpperCase(), pageable);
         Assert.assertEquals("There should be 1 code available", 1, codes.getContent().size());
@@ -220,7 +220,7 @@ public class CodeRepositoryTest {
         code2.setCreator(creator);
         codeRepository.save(code2);
 
-        PageRequest pageable = new PageRequest(0, 999);
+        PageRequest pageable = PageRequest.of(0, 999);
 
         String[] codeTypes1 = new String[]{codeType1.getId().toString()};
         String[] standardTypes1 = new String[]{standardType1.getId().toString()};
