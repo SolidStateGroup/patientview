@@ -15,13 +15,17 @@ import java.util.Map;
  */
 public class GroupStatisticTO implements Comparable {
 
-    @JsonFormat(pattern="yyyy-MM-dd")
     private Date startDate;
-    @JsonFormat(pattern="yyyy-MM-dd")
+
     private Date endDate;
+
+    private String startDateStr;
+
+    private String endDateStr;
 
     private Map<StatisticType, BigInteger> statistics;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public Date getStartDate() {
         return startDate;
     }
@@ -30,12 +34,29 @@ public class GroupStatisticTO implements Comparable {
         this.startDate = startDate;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     public Date getEndDate() {
         return endDate;
     }
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public String getEndDateStr() {
+        return endDateStr;
+    }
+
+    public void setEndDateStr(String endDateStr) {
+        this.endDateStr = endDateStr;
+    }
+
+    public String getStartDateStr() {
+        return startDateStr;
+    }
+
+    public void setStartDateStr(String startDateStr) {
+        this.startDateStr = startDateStr;
     }
 
     public Map<StatisticType, BigInteger> getStatistics() {
