@@ -134,7 +134,7 @@ public final class CommonUtils {
 
     public static String dateToSimpleString(Date date, String pattern) {
         DateTime dateTime = new DateTime(date);
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern);
         return fmt.print(dateTime);
     }
 
