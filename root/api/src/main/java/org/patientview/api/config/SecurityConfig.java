@@ -6,31 +6,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import static java.util.Arrays.asList;
+import org.springframework.web.cors.CorsUtils;
 
 /**
- * Security configuration, Spring Security not used as security is managed through filters and authentication tokens.
+ * Spring Security configuration for the application.
+ *
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
 @EnableWebSecurity
-@ComponentScan(basePackages = {"org.patientview.api.controller", "org.patientview.api.filter"})
+@ComponentScan(basePackages = {"org.patientview.api.controller",
+        "org.patientview.api.filter", "org.patientview.api.config"})
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -81,6 +81,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private AuthenticationService authenticationService;
 
+    // does not like via constructor
+    //    public SecurityConfig(AuthenticationService authenticationService) {
+    //        this.authenticationService = authenticationService;
+    //    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -88,33 +93,42 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .csrf().disable()
-                .cors()
+                    .csrf().disable()
+                    .cors()
                 .and()
-                .addFilterBefore(authFilter(), AnonymousAuthenticationFilter.class)
-                .authorizeRequests()
-                .requestMatchers(PUBLIC_URLS).permitAll()
-                .requestMatchers(PROTECTED_URLS).authenticated();
+                    .authorizeRequests()
+                    .antMatchers(HttpMethod.OPTIONS).permitAll()
+                    .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                    .requestMatchers(PUBLIC_URLS).permitAll()
+                    //.requestMatchers(PROTECTED_URLS).authenticated()
+                    .anyRequest().authenticated()
+                .and()
+                    // .addFilterBefore(authFilter(), AnonymousAuthenticationFilter.class);
+                    // don't initialize with @Bean as will be executed even for .permitAll() requests
+                    .addFilterBefore(new AuthenticateTokenFilter(authenticationService),
+                            UsernamePasswordAuthenticationFilter.class);
+
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("*");
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.setAllowedMethods(asList("GET", "POST", "PUT", "DELETE"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);
-
-        return source;
+    /**
+     * Configure web security.
+     * <p>
+     * We need this to ignore public endpoint from AuthenticateTokenFilter as .permitAll() only will ignore security
+     * check.
+     *
+     * @param web
+     * @throws Exception
+     */
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        // AuthenticateTokenFilter will ignore the below paths
+        web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
-    @Bean
-    AuthenticateTokenFilter authFilter() {
-
-        return new AuthenticateTokenFilter();
-    }
+//    @Bean
+//    AuthenticateTokenFilter authFilter() {
+//        return new AuthenticateTokenFilter();
+//    }
 
     @Override
     protected AuthenticationManager authenticationManager() {
