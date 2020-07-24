@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
+ * @deprecated not used at all in the chain can be removed
  * Filter to attach common headers to all responses.
  * Created by james@solidstategroup.com
  * Created on 17/06/2014
@@ -43,7 +44,7 @@ public class CorsFilter implements Filter {
      */
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        LOG.debug("Adding CORS headers");
+        LOG.info("Adding CORS headers");
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;

@@ -38,7 +38,7 @@ public class AuthenticateFilterTokenTest {
     private AuthenticationService authenticationService;
 
     @InjectMocks
-    private AuthenticateTokenFilter authenticateTokenFilter = new AuthenticateTokenFilter();
+    private AuthenticateTokenFilter authenticateTokenFilter = new AuthenticateTokenFilter(authenticationService);
 
     @Before
     public void setUp() throws Throwable {

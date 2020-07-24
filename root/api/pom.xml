@@ -91,13 +91,6 @@
             <version>1.0.2</version>
         </dependency>
 
-        <!-- mysql required only for migration -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.26</version>
-        </dependency>
-
         <dependency>
             <groupId>org.patientview2</groupId>
             <artifactId>data</artifactId>
@@ -270,6 +263,14 @@
             <artifactId>google-http-client-jackson2</artifactId>
             <version>1.23.0</version>
         </dependency>
+
+        <!-- For Rate limiter -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>29.0-jre</version>
+        </dependency>
+
 
     </dependencies>
 
