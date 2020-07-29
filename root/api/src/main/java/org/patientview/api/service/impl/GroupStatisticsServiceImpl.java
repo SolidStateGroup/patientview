@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import org.patientview.api.model.GroupStatisticTO;
 import org.patientview.api.service.GroupStatisticService;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.config.utils.CommonUtils;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupStatistic;
 import org.patientview.persistence.model.Lookup;
@@ -90,6 +91,10 @@ public class GroupStatisticsServiceImpl extends AbstractServiceImpl<GroupStatist
             groupStatisticTO.getStatistics().put(statisticType, groupStatistic.getValue());
             groupStatisticTO.setStartDate(groupStatistic.getStartDate());
             groupStatisticTO.setEndDate(groupStatistic.getEndDate());
+            groupStatisticTO.setStartDateStr(
+                    CommonUtils.dateToSimpleString(groupStatistic.getStartDate(), "yyyy-MM-dd"));
+            groupStatisticTO.setEndDateStr(
+                    CommonUtils.dateToSimpleString(groupStatistic.getEndDate(), "yyyy-MM-dd"));
         }
 
         // convert to list of group statistics ordered by start date

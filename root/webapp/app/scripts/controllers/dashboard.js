@@ -25,7 +25,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
 
                         for (var i = 0; i < statisticsArray.length; i++) {
                             var statistics = statisticsArray[i];
-                            var dateObject = new Date(statistics.startDate);
+                            var dateObject = new Date(statistics.startDateStr);
 
                             if (moment(dateObject).month() !== currentMonth) {
                                 xAxisCategories.push(
@@ -50,7 +50,7 @@ angular.module('patientviewApp').controller('DashboardCtrl', ['UserService', '$m
                                 }
                             }
 
-                            $scope.statisticsDate = statistics.endDate;
+                            $scope.statisticsDate = statistics.endDateStr;
                             $scope.lockedUsers = statistics.statistics.LOCKED_USER_COUNT;
 
                             // reset to 0

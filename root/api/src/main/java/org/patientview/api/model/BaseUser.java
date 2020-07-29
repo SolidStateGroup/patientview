@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * BaseUser, representing the minimum information required for Users.
@@ -16,7 +17,6 @@ public class BaseUser {
     private String username;
     private String forename;
     private String surname;
-    @JsonFormat(pattern="yyyy-MM-dd")
     private Date dateOfBirth;
 
     // only staff users
@@ -95,6 +95,7 @@ public class BaseUser {
         this.surname = surname;
     }
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "Europe/London")
     public Date getDateOfBirth() {
         return dateOfBirth;
     }
