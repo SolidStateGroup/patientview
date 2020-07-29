@@ -7,6 +7,7 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.AlertTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ public class DeletePatientTask {
     @Inject
     private UserService userService;
 
+    @Lazy
     @Inject
     private AlertService alertService;
 

@@ -132,6 +132,12 @@ public final class CommonUtils {
         return fmt.print(dateTime).replace(" 00:00","");
     }
 
+    public static String dateToSimpleString(Date date, String pattern) {
+        DateTime dateTime = new DateTime(date);
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern);
+        return fmt.print(dateTime);
+    }
+
     /**
      * Converts a byte array into a hexadecimal string.
      *

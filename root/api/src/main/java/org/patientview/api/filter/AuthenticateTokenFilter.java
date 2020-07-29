@@ -7,11 +7,14 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.UserToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -35,12 +38,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Applications main security filter to handle auth requests.
  * Class to get the filter from the request. Lookup the token and add the user into the security context.
  *
  * Created by james@solidstategroup.com
  * Created on 16/06/2014
  */
 //@WebFilter(urlPatterns = { "*" }, filterName = "authenticationTokenFilter")
+//@Component
 public class AuthenticateTokenFilter extends OncePerRequestFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
@@ -48,8 +53,13 @@ public class AuthenticateTokenFilter extends OncePerRequestFilter {
     private AuthenticationService authenticationService;
 
     private List<String> publicUrls = new ArrayList<>();
+    // to store RateLimiter
+    private static Map<Long, RateLimiter>  rateLimiterMap = new HashMap<>();
 
-    private static Map<Long, RateLimiter> rateLimiterMap;
+//    @Autowired
+    public AuthenticateTokenFilter(final AuthenticationService authenticationService){
+        this.authenticationService = authenticationService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
@@ -57,23 +67,19 @@ public class AuthenticateTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws IOException, ServletException {
 
+        String path = httpServletRequest.getRequestURI();
 
-        String token = extractAuthTokenFromRequest(httpServletRequest);
-
-        if (token != null) {
-
-            SecurityContextHolder
-                    .getContext()
-                    .setAuthentication(new UsernamePasswordAuthenticationToken(token, token));
-        }
-
+        if (!authenticateRequest(httpServletRequest)) {
+                redirectFailedAuthentication(httpServletResponse, httpServletRequest, path);
+                return;
+            }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
     /**
      * Set up publicly available URLs.
      */
-//    @PostConstruct
+    // @PostConstruct
     public void init() {
         LOG.info("Authentication token filter initialised");
 
@@ -197,7 +203,7 @@ public class AuthenticateTokenFilter extends OncePerRequestFilter {
                 new PreAuthenticatedAuthenticationToken(authToken, authToken);
 
         try {
-            if (authenticationService.sessionExpired(authToken)) {
+           if (authenticationService.sessionExpired(authToken)) {
                 authenticationService.logout(authToken, true);
                 return false;
             }
@@ -267,11 +273,11 @@ public class AuthenticateTokenFilter extends OncePerRequestFilter {
      * @param servletRequest ServletRequest
      */
     private void setAuthenticationManager(ServletRequest servletRequest) {
-        if (authenticationService == null) {
-            WebApplicationContext webApplicationContext =
-                    WebApplicationContextUtils.getWebApplicationContext(servletRequest.getServletContext());
-            authenticationService = (AuthenticationService) webApplicationContext.getBean("authenticationServiceImpl");
-        }
+//        if (authenticationService == null) {
+//            WebApplicationContext webApplicationContext =
+//                    WebApplicationContextUtils.getWebApplicationContext(servletRequest.getServletContext());
+//            authenticationService = (AuthenticationService) webApplicationContext.getBean("authenticationServiceImpl");
+//        }
     }
 
     /**
