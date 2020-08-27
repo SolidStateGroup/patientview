@@ -24,7 +24,8 @@
     "moment": "2.13.0",
     "angular-inview": "1.5.7",
     "highstock": "highstock-release#6.0.3",
-    "angularjs-slider": "6.5.1"
+    "angularjs-slider": "6.5.1",
+    "angular-img-http-src": "^1.0.1"
   },
   "devDependencies": {
     "angular-mocks": "1.2.15",

@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -51,6 +52,8 @@ public class AuthenticateTokenFilter extends OncePerRequestFilter {
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticateTokenFilter.class);
 
     private AuthenticationService authenticationService;
+
+    private static final String PICTURE_URI = "/picture";
 
     private List<String> publicUrls = new ArrayList<>();
     // to store RateLimiter
@@ -301,6 +304,12 @@ public class AuthenticateTokenFilter extends OncePerRequestFilter {
     private String extractAuthTokenFromRequest(HttpServletRequest httpRequest) {
         String authToken = httpRequest.getHeader("X-Auth-Token");
         if (authToken == null) {
+
+            // for user picture endpoint we need it in the header
+            String path = httpRequest.getRequestURI();
+            if(!StringUtils.isEmpty(path) && path.contains(PICTURE_URI)){
+                return null;
+            }
             authToken = httpRequest.getParameter("token");
         }
 

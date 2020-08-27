@@ -131,7 +131,7 @@
                         </h4>
                         
                         <div data-ng-show="getLastMessageUser(conversation).picture.length" class="pull-left">
-                            <img data-ng-src="{{'/api/conversation/' + conversation.id + '/user/' + getLastMessageUser(conversation).id + '/picture?token=' + authToken}}" class="conversation-user-picture" src="">
+                            <img http-src="{{'/api/conversation/' + conversation.id + '/user/' + getLastMessageUser(conversation).id + '/picture'}}" class="conversation-user-picture" src="">
                         </div>
                         
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
@@ -214,7 +214,7 @@
                                     </span>
                                 </span>
                                 <span data-ng-show="message.user.picture.length" class="pull-left">
-                                    <img data-ng-src="{{'/api/conversation/' + conversation.id + '/user/' + message.user.id + '/picture?token=' + authToken}}" class="conversation-user-picture" src="">
+                                    <img http-src="{{'/api/conversation/' + conversation.id + '/user/' + message.user.id + '/picture'}}" class="conversation-user-picture" src="">
                                 </span>
                                 
                             </span>

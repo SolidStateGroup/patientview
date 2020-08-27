@@ -38,7 +38,7 @@
         then close this window.</div>
 
     <div data-ng-show="editUser.picture.length" class="form-horizontal text-center" data-ng-if="editUser.id">
-        <img data-ng-src="{{'/api/user/' + editUser.id + '/picture?token=' + authToken}}" class="user-picture" src="">
+        <img http-src="{{'/api/user/' + editUser.id + '/picture'}}" class="user-picture" src="">
         <br/><br/>
     </div>
 
