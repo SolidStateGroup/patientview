@@ -701,12 +701,12 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        String codeCleaned =  StringUtils.isNotEmpty(code) ? Jsoup.clean(code, Whitelist.relaxed()) : "";
+        String codeCleaned = StringUtils.isNotEmpty(code) ? Jsoup.clean(code, Whitelist.relaxed()) : "";
 
         List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode(codeCleaned);
         // we should find Observations heading if code valid
         if (CollectionUtils.isEmpty(observationHeadings)) {
-            LOG.error("Could not find ObservationHeading, for code" + codeCleaned);
+            LOG.error("Could not find ObservationHeading, for code " + codeCleaned);
             throw new ResourceNotFoundException("Could nto find observation headings for code");
         }
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
