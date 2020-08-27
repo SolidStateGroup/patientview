@@ -4,7 +4,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     function (localStorageService, UserService, AuthService, $scope, $rootScope, UtilService, FileUploader) {
 
     $scope.pw ='';
-    $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture?token=' + $rootScope.authToken;
+    $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture';
 
     if ($rootScope.loggedInUser === null) {
         $rootScope.logout();
