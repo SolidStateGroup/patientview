@@ -15,9 +15,9 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             $scope.userdetails = data;
             $scope.userdetails.confirmEmail = $scope.userdetails.email;
             // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
-            $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
+            $scope.datedUserPicture = $scope.userPicture + '?date=' + (new Date()).toString();
 
-            $rootScope.loggedInUser.secretWordIsSet = data.secretWordIsSet;
+            rootScope.loggedInUser.secretWordIsSet = data.secretWordIsSet;
         });
     };
 
