@@ -11,6 +11,8 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
 import org.patientview.persistence.model.enums.ExternalServices;
 import org.patientview.persistence.repository.ExternalServiceTaskQueueItemRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +28,7 @@ import static org.patientview.persistence.model.enums.ExternalServiceTaskQueueSt
 /**
  * Service for sending data from PatientView to external services via HTTP request.
  * <p>
- * Created by jamesr@solidstategroup.com
- * Created on 30/04/2015
+ * Created by jamesr@solidstategroup.com Created on 30/04/2015
  */
 @Service
 public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServiceServiceImpl>
@@ -106,10 +107,12 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
      */
     @Async
     @Override
-    public void sendToExternalService(List<ExternalServices> externalServices) {
+    public void sendToExternalService(List<ExternalServices> externalServices, Pageable pageable) {
 
+        long start = System.currentTimeMillis();
+        LOG.info("Starting external task ");
         List<ExternalServiceTaskQueueItem> externalServiceTaskQueueItems =
-                getUnsentOrFailedItems(externalServices);
+                getUnsentOrFailedItems(externalServices, pageable);
 
         List<ExternalServiceTaskQueueItem> tasksToUpdate = new ArrayList<>();
         List<ExternalServiceTaskQueueItem> tasksToDelete = new ArrayList<>();
@@ -119,7 +122,7 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
             if (isPost(queueItem)) {
 
                 try {
-
+                    LOG.debug("Processing Item " + queueItem.getId() + " url " + queueItem.getUrl());
                     queueItem.setStatus(ExternalServiceTaskQueueStatus.IN_PROGRESS);
                     queueItem.setLastUpdate(new Date());
 
@@ -134,6 +137,7 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
                         // OK, delete queue item
                         tasksToDelete.add(queueItem);
                     } else {
+                        LOG.error("ERROR Sending to external task, status " + response.getStatusLine().getStatusCode());
 
                         // not OK, set as failed
                         queueItem.setStatus(FAILED);
@@ -142,8 +146,12 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
                         queueItem.setResponseReason(response.getStatusLine().getReasonPhrase());
                         queueItem.setLastUpdate(new Date());
                     }
+
+                    LOG.debug("Done Processing Item " + queueItem.getId());
                 } catch (Exception e) {
                     // exception, set as failed
+                    LOG.error("Exception in Sending external task", e.getMessage());
+
                     queueItem.setStatus(FAILED);
                     queueItem.setLastUpdate(new Date());
                 }
@@ -157,16 +165,19 @@ public class ExternalServiceServiceImpl extends AbstractServiceImpl<ExternalServ
 
         //Delete all in one go
         externalServiceTaskQueueItemRepository.deleteAll(tasksToDelete);
+
+        LOG.info("TIMING external task processing " + (System.currentTimeMillis() - start) + " ms");
     }
 
     /**
      * Finds queue items of a certain type with status FAILED or PENDING.
      */
-    private List<ExternalServiceTaskQueueItem> getUnsentOrFailedItems(List<ExternalServices> externalService) {
+    private List<ExternalServiceTaskQueueItem> getUnsentOrFailedItems(List<ExternalServices> externalService,
+                                                                      Pageable pageable) {
 
         List<ExternalServiceTaskQueueStatus> statuses = asList(FAILED, PENDING);
 
-        return externalServiceTaskQueueItemRepository.findByStatusAndServiceType(statuses, externalService);
+        return externalServiceTaskQueueItemRepository.findByStatusAndServiceType(statuses, externalService, pageable);
     }
 
     /**
