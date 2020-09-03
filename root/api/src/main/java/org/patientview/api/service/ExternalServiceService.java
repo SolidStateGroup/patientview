@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.ExternalServices;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,5 +36,5 @@ public interface ExternalServiceService {
      *
      * @param externalServices item types to send.
      */
-    void sendToExternalService(List<ExternalServices> externalServices);
+    void sendToExternalService(List<ExternalServices> externalServices, Pageable pageable);
 }
