@@ -543,7 +543,7 @@
             </div>
             <div class="user-details content-panel">
                 <div data-ng-if="loggedInUser.picture.length">
-                    <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}"
+                    <img http-src="{{'/api/user/' + loggedInUser.id + '/picture'}}"
                          class="user-picture pull-left" src="">
                 </div>
                 <div data-ng-if="!loggedInUser.picture">

@@ -4,7 +4,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
     function (localStorageService, UserService, AuthService, $scope, $rootScope, UtilService, FileUploader) {
 
     $scope.pw ='';
-    $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture?token=' + $rootScope.authToken;
+    $scope.userPicture = '/api/user/' + $rootScope.loggedInUser.id + '/picture';
 
     if ($rootScope.loggedInUser === null) {
         $rootScope.logout();
@@ -15,7 +15,7 @@ angular.module('patientviewApp').controller('AccountCtrl', ['localStorageService
             $scope.userdetails = data;
             $scope.userdetails.confirmEmail = $scope.userdetails.email;
             // use date parameter (not used in Spring controller) to force refresh of picture by angular after upload
-            $scope.datedUserPicture = $scope.userPicture + '&date=' + (new Date()).toString();
+            $scope.datedUserPicture = $scope.userPicture + '?date=' + (new Date()).toString();
 
             $rootScope.loggedInUser.secretWordIsSet = data.secretWordIsSet;
         });

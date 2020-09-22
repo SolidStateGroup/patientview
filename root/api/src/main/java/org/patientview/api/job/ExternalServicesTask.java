@@ -5,6 +5,8 @@ import org.patientview.persistence.model.enums.ExternalServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -53,22 +55,26 @@ public class ExternalServicesTask {
     @Scheduled(cron = "0 */1 * * * ?") // every 1 minute
     public void sendToExternalService() {
 
-        processQueueItems(singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION));
+        // As we processing items every minute we need to keep smaller set of records
+        processQueueItems(singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION), PageRequest.of(0, 30));
     }
 
     @Scheduled(cron = "0 */1 * * * ?") // every 1 minute
     public void sendSurveysToExternalService() {
 
-        processQueueItems(singletonList(ExternalServices.SURVEY_NOTIFICATION));
+        // As we processing items every minute we need to keep smaller set of records
+        processQueueItems(singletonList(ExternalServices.SURVEY_NOTIFICATION), PageRequest.of(0, 30));
     }
 
     // @Scheduled(cron = "0 */20 * * * ?") // every 20 minute
     @Scheduled(cron = "0 0 */6 * * ?") // every 6 hours
     public void sendInsRecordingsToExternalService() {
-        processQueueItems(singletonList(ExternalServices.UKRDC_INS_DIARY_NOTIFICATION));
+        // grab all items as we processing every 6 hours
+        processQueueItems(singletonList(ExternalServices.UKRDC_INS_DIARY_NOTIFICATION),
+                PageRequest.of(0, Integer.MAX_VALUE));
     }
 
-    private void processQueueItems(List<ExternalServices> externalServices) {
+    private void processQueueItems(List<ExternalServices> externalServices, Pageable pageable) {
 
         if (serviceIsDisabled()) {
             return;
@@ -77,8 +83,9 @@ public class ExternalServicesTask {
         String correlationId = UUID.randomUUID().toString();
         try {
 
-            LOG.info("Starting external service sync with id: {} for: {}", correlationId, flattenToString(externalServices));
-            externalServiceService.sendToExternalService(externalServices);
+            LOG.info("Starting external service sync with id: {} for: {}",
+                    correlationId, flattenToString(externalServices));
+            externalServiceService.sendToExternalService(externalServices, pageable);
         } catch (Exception e) {
 
             LOG.error("Error running sendToExternalService task {} : {}" + e.getMessage(), correlationId, e);

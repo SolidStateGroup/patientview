@@ -1,6 +1,7 @@
 package org.patientview.api.controller;
 
 import net.lingala.zip4j.exception.ZipException;
+import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.MigrationException;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceInvalidException;
@@ -59,7 +60,7 @@ public abstract class BaseController<T extends BaseController> {
     public String handleGenericException(Exception e) {
         LOG.error("Unhandled exception type {}", e.getCause());
         LOG.error("Unhandled exception ", e);
-        return e.getMessage();
+        return "Server error, unhandled exception";
     }
 
     @ExceptionHandler(IOException.class)
@@ -172,5 +173,13 @@ public abstract class BaseController<T extends BaseController> {
     public String handleZipException(ZipException e) {
         LOG.error("ZipException exception {}", e);
         return "Zip exception";
+    }
+
+    @ExceptionHandler(FhirResourceException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleFhirResourceException(FhirResourceException e) {
+        LOG.error("FhirResourceException exception {}", e);
+        return "FhirResource exception";
     }
 }

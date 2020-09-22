@@ -3,6 +3,7 @@ package org.patientview.persistence.repository;
 import org.patientview.persistence.model.ExternalServiceTaskQueueItem;
 import org.patientview.persistence.model.enums.ExternalServiceTaskQueueStatus;
 import org.patientview.persistence.model.enums.ExternalServices;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -28,5 +29,6 @@ public interface ExternalServiceTaskQueueItemRepository extends CrudRepository<E
     @Query("SELECT i FROM ExternalServiceTaskQueueItem i WHERE status IN :statuses AND serviceType IN :serviceTypes")
     List<ExternalServiceTaskQueueItem> findByStatusAndServiceType(
             @Param("statuses") List<ExternalServiceTaskQueueStatus> statuses,
-            @Param("serviceTypes") List<ExternalServices> externalServices);
+            @Param("serviceTypes") List<ExternalServices> externalServices,
+            Pageable pageable);
 }
