@@ -158,7 +158,6 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
                         " method: " + callerClass3.getMethodName());
             } catch (Exception e) {
                 LOG.error("Exception in getting caller class");
-
             }
 
 //            for (GroupRole groupRole : user.getGroupRoles()) {
