@@ -1,7 +1,7 @@
 package org.patientview.api.service.impl;
 
-import org.patientview.persistence.model.Email;
 import org.patientview.api.service.EmailService;
+import org.patientview.persistence.model.Email;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -19,11 +19,12 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Created by jamesr@solidstategroup.com
- * Created on 24/06/2014
+ * Created by jamesr@solidstategroup.com Created on 24/06/2014
  */
 @Service
 public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> implements EmailService {
+
+    private static final String IGNORE_EMAIL_DOMAIN = "@patientview.org";
 
     @Inject
     private JavaMailSenderImpl javaMailSender;
@@ -113,13 +114,19 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
     }
 
     /**
-     * Validate email address.
+     * Validate email address. Must be a valid email address and does not contain
+     *
      * @param email String email address to validate
      * @return false if not a valid email address
      */
-    private static boolean isValidEmailAddress(String email) {
+    private boolean isValidEmailAddress(String email) {
         boolean result = true;
         try {
+            if (email.contains(IGNORE_EMAIL_DOMAIN)) {
+                LOG.info("Dummy email address " + email + ", will ignore");
+                return false;
+            }
+
             InternetAddress emailAddr = new InternetAddress(email);
             emailAddr.validate();
         } catch (AddressException ex) {
@@ -130,8 +137,9 @@ public class EmailServiceImpl extends AbstractServiceImpl<EmailServiceImpl> impl
 
     /**
      * Split an array of Strings into a List of smaller arrays.
+     *
      * @param originalArray String array
-     * @param chunkSize int size of new smaller arrays
+     * @param chunkSize     int size of new smaller arrays
      * @return List of String arrays
      */
     private List<String[]> splitArray(String[] originalArray, int chunkSize) {
