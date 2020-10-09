@@ -9,6 +9,7 @@ import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.ExternalServiceService;
 import org.patientview.api.service.Timer;
 import org.patientview.persistence.model.enums.ExternalServices;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Collections;
 import java.util.Properties;
@@ -44,7 +45,7 @@ public class ExternalServicesTaskTest {
 
         when(properties.getProperty("external.service.enabled")).thenReturn("true");
         externalServicesTask.sendToExternalService();
-        verify(externalServiceService, Mockito.times(1)).sendToExternalService(Collections.singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION));
+        verify(externalServiceService, Mockito.times(1)).sendToExternalService(Collections.singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),  PageRequest.of(0, 30));
     }
 
     @Test
@@ -52,6 +53,6 @@ public class ExternalServicesTaskTest {
 
         when(properties.getProperty("external.service.enabled")).thenReturn("false");
         externalServicesTask.sendToExternalService();
-        verify(externalServiceService, Mockito.times(0)).sendToExternalService(Collections.singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION));
+        verify(externalServiceService, Mockito.times(0)).sendToExternalService(Collections.singletonList(ExternalServices.RDC_GROUP_ROLE_NOTIFICATION),  PageRequest.of(0, 30));
     }
 }

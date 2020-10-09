@@ -605,7 +605,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
     @Override
     public void checkLettersAgainstSecretWord(User user, Map<String, String> letterMap, boolean lengthCheck)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceForbiddenException {
         if (letterMap == null || letterMap.isEmpty()) {
             throw new ResourceForbiddenException("A new version of PatientView is available. To login, please " +
                     "update your PatientView app on the App Store");
@@ -613,10 +613,6 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         if (user == null) {
             throw new ResourceForbiddenException("User not found");
-        }
-
-        if (StringUtils.isEmpty(user.getSecretWord())) {
-            throw new ResourceForbiddenException("Secret word is not set");
         }
 
         // extra check to make sure user not locked on secret words check
@@ -628,15 +624,22 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
             throw new ResourceForbiddenException("This account has been deleted");
         }
 
+        if (StringUtils.isEmpty(user.getSecretWord())) {
+            incrementFailedLogon(user);
+            throw new ResourceForbiddenException("Secret word is not set");
+        }
+
         // convert from JSON string to map
         Map<String, String> secretWordMap = new Gson().fromJson(
                 user.getSecretWord(), new TypeToken<HashMap<String, String>>() {
                 }.getType());
 
         if (secretWordMap.isEmpty()) {
+            incrementFailedLogon(user);
             throw new ResourceForbiddenException("Secret word not found");
         }
         if (StringUtils.isEmpty(secretWordMap.get("salt"))) {
+            incrementFailedLogon(user);
             throw new ResourceForbiddenException("Secret word salt not found");
         }
 
@@ -646,12 +649,14 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
         if (lengthCheck) {
             //  We accept only 2 letters for Web
             if (letterMap.keySet().size() != SECRET_WORD_LETTER_COUNT) {
+                incrementFailedLogon(user);
                 throw new ResourceForbiddenException("Must include all requested secret word letters");
             }
 
         } else {
             // doing full word check against stored secret word - salt
             if (letterMap.size() != (secretWordMap.size() - 1)) {
+                incrementFailedLogon(user);
                 throw new ResourceForbiddenException("Secret word check failed");
             }
         }

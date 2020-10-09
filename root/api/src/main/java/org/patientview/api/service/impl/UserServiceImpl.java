@@ -822,11 +822,14 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // if i have staff group role in same groups
-        for (GroupRole groupRole : user.getGroupRoles()) {
-            if (isUserMemberOfGroup(getCurrentUser(), groupRole.getGroup())) {
-                return true;
+        if(!currentUserHasRole(RoleName.PATIENT)){
+            for (GroupRole groupRole : user.getGroupRoles()) {
+                if (isUserMemberOfGroup(getCurrentUser(), groupRole.getGroup())) {
+                    return true;
+                }
             }
         }
+
         return false;
     }
 

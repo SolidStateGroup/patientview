@@ -40,13 +40,14 @@ var patientviewApp = angular.module('patientviewApp', [
     'ngCookies',
     'ngResource',
     'ngRoute',
-    // 'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
+    'angulartics',          // http://luisfarzati.github.io/angulartics Google analytics
     'rzModule',             // https://github.com/angular-slider/angularjs-slider
-    // 'angulartics.google.analytics',
+    'angulartics.google.analytics',
     'pasvaz.bindonce',      // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
     'angularFileUpload',    // https://github.com/nervgh/angular-file-upload
     'debounce',             // https://github.com/shahata/angular-debounce
-    'angular-inview'        // https://github.com/thenikso/angular-inview
+    'angular-inview',        // https://github.com/thenikso/angular-inview
+    'angular.img'        // https://github.com/dougmoscrop/angular-img-http-src
 ]);
 
 patientviewApp.filter('startFrom', function () {

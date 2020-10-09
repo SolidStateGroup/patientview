@@ -60,7 +60,7 @@
                 <i class="icon-account pull-left" data-ng-show="!loggedInUser.picture"></i>
 
                 <div data-ng-if="loggedInUser.picture.length" class="pull-left">
-                    <img data-ng-src="{{'/api/user/' + loggedInUser.id + '/picture?token=' + authToken}}" class="user-header-picture" src="">
+                    <img http-src="{{'/api/user/' + loggedInUser.id + '/picture'}}" class="user-header-picture" src="">
                 </div>
                 
                 <h4>{{ loggedInUser.forename }} {{ loggedInUser.surname }}</h4>

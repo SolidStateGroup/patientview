@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.patientview2</groupId>
     <artifactId>root</artifactId>
-    <version>2.7.1-RELEASE</version>
+    <version>2.7.2-RELEASE</version>
   </parent>
 
   <groupId>patientview</groupId>
   <artifactId>database</artifactId>
-  <version>2.7.1-RELEASE</version>
+  <version>2.7.2-RELEASE</version>
   <name>database</name>
   <url>http://maven.apache.org</url>
 

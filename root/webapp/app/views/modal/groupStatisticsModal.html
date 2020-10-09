@@ -19,8 +19,8 @@
             <th>Patients Removed</th>
         </tr>
         <tbody>
-            <tr data-ng-repeat="stat in statistics | orderBy:'-startDate'">
-                <td>{{formatDate(stat.startDate)}}</td>
+            <tr data-ng-repeat="stat in statistics | orderBy:'-startDateStr'">
+                <td>{{formatDate(stat.startDateStr)}}</td>
                 <td>{{stat.statistics.PATIENT_COUNT}}</td>
                 <td>{{stat.statistics.LOGGED_ON_COUNT}}</td>
                 <td>{{stat.statistics.UNIQUE_LOGGED_ON_COUNT}}</td>
