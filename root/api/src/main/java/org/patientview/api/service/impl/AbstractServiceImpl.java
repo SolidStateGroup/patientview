@@ -23,9 +23,8 @@ import java.util.List;
 
 /**
  * Created to group the services add utilities
- *
- * Created by james@solidstategroup.com
- * Created on 05/08/2014
+ * <p>
+ * Created by james@solidstategroup.com Created on 05/08/2014
  */
 public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
@@ -69,6 +68,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
     }
 
     protected boolean isUserMemberOfGroup(final User user, final Group group) {
+
         // unit admins / specialty admins can only add groups they belong to
         if (ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             return true;
@@ -131,7 +131,26 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
         // Dont think this should be here
         if (ApiUtil.userHasRole(user, RoleName.PATIENT)) {
-            LOG.error("Check for isUserMemberOfGroup() for Patient, should not be used?");
+            LOG.warn("Check for isUserMemberOfGroup() for Patient, should not be used? user id: {}", user.getId());
+
+            // Check the callers classes, need to figure out where it's getting called from
+            // index 0 - thread, 1 - this class, 2 direct caller and so on
+            try {
+                StackTraceElement directCallerClass = Thread.currentThread().getStackTrace()[2];
+                LOG.info("direct caller class name: " + directCallerClass.getClassName() +
+                        " method: " + directCallerClass.getMethodName());
+
+                StackTraceElement callerClass2 = Thread.currentThread().getStackTrace()[3];
+                LOG.info("caller class 2  name: " + callerClass2.getClassName() +
+                        " method: " + callerClass2.getMethodName());
+
+                StackTraceElement callerClass3 = Thread.currentThread().getStackTrace()[4];
+                LOG.info("caller class 3  name: " + callerClass3.getClassName() +
+                        " method: " + callerClass3.getMethodName());
+            } catch (Exception e) {
+                LOG.error("Exception in getting caller class");
+            }
+
 //            for (GroupRole groupRole : user.getGroupRoles()) {
 //                if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
 //                    return true;
@@ -150,7 +169,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
      */
     protected boolean groupIsRenalChild(final Group group) {
 
-        if(group == null || CollectionUtils.isEmpty(group.getGroupRelationships())){
+        if (group == null || CollectionUtils.isEmpty(group.getGroupRelationships())) {
             return false;
         }
         for (GroupRelationship groupRelationship : group.getGroupRelationships()) {
