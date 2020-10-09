@@ -129,12 +129,14 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
             }
         }
 
+        // Dont think this should be here
         if (ApiUtil.userHasRole(user, RoleName.PATIENT)) {
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
-                    return true;
-                }
-            }
+            LOG.error("Check for isUserMemberOfGroup() for Patient, should not be used?");
+//            for (GroupRole groupRole : user.getGroupRoles()) {
+//                if (groupRole.getRole().getName().equals(RoleName.PATIENT) && groupRole.getGroup().equals(group)) {
+//                    return true;
+//                }
+//            }
         }
 
         return false;

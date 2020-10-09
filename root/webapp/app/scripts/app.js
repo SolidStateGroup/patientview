@@ -46,7 +46,8 @@ var patientviewApp = angular.module('patientviewApp', [
     'pasvaz.bindonce',      // https://github.com/Pasvaz/bindonce bind once (ie8 performance)
     'angularFileUpload',    // https://github.com/nervgh/angular-file-upload
     'debounce',             // https://github.com/shahata/angular-debounce
-    'angular-inview'        // https://github.com/thenikso/angular-inview
+    'angular-inview',        // https://github.com/thenikso/angular-inview
+    'angular.img'        // https://github.com/dougmoscrop/angular-img-http-src
 ]);
 
 patientviewApp.filter('startFrom', function () {

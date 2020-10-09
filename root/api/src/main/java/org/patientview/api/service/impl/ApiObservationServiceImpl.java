@@ -10,6 +10,8 @@ import org.hl7.fhir.instance.model.Patient;
 import org.hl7.fhir.instance.model.Quantity;
 import org.hl7.fhir.instance.model.ResourceReference;
 import org.hl7.fhir.instance.model.ResourceType;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.FhirObservationPage;
 import org.patientview.api.model.IdValue;
@@ -699,7 +701,14 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceForbiddenException("Forbidden");
         }
 
-        List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode(code);
+        String codeCleaned = StringUtils.isNotEmpty(code) ? Jsoup.clean(code, Whitelist.relaxed()) : "";
+
+        List<ObservationHeading> observationHeadings = observationHeadingRepository.findByCode(codeCleaned);
+        // we should find Observations heading if code valid
+        if (CollectionUtils.isEmpty(observationHeadings)) {
+            LOG.error("Could not find ObservationHeading, for code " + codeCleaned);
+            throw new ResourceNotFoundException("Could nto find observation headings for code");
+        }
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
 
         for (FhirLink fhirLink : user.getFhirLinks()) {
@@ -711,9 +720,9 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                 query.append(fhirLink.getResourceId().toString());
                 query.append("' ");
 
-                if (StringUtils.isNotEmpty(code)) {
+                if (StringUtils.isNotEmpty(codeCleaned)) {
                     query.append("AND UPPER(content-> 'name' ->> 'text') = '");
-                    query.append(code.toUpperCase());
+                    query.append(codeCleaned.toUpperCase());
                     query.append("' ");
                 }
 
@@ -1210,6 +1219,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
                                                  Long offset, String orderDirection)
             throws ResourceNotFoundException, FhirResourceException {
 
+        // parse pagination
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
 

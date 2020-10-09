@@ -236,7 +236,9 @@ public class ObservationController extends BaseController<ObservationController>
     @ResponseBody
     public ResponseEntity<FhirObservationPage> getObservationsByCodes(
             @PathVariable("userId") Long userId,
-            @RequestParam List<String> code, @RequestParam Long limit, @RequestParam Long offset,
+            @RequestParam List<String> code,
+            @RequestParam Long limit,
+            @RequestParam Long offset,
             @RequestParam String orderDirection)
             throws FhirResourceException, ResourceNotFoundException {
         return new ResponseEntity<>(
