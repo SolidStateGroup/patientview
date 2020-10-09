@@ -151,8 +151,6 @@ public class MyMediaController extends BaseController<MyMediaController> {
             } else {
                 getMyMediaVideo(message.getMyMedia(), response);
             }
-        } else {
-            LOG.warn("Trying to view non-existent media in a message (" + messageId + ")");
         }
     }
 
