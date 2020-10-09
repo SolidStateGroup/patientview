@@ -69,15 +69,6 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
     protected boolean isUserMemberOfGroup(final User user, final Group group) {
 
-        LOG.info("Checking access: ");
-
-
-        String ancestorName = Thread.currentThread().getStackTrace()[2].getClassName();
-        String ancestorMethod = Thread.currentThread().getStackTrace()[2].getMethodName();
-        //Thread.currentThread().getStackTrace()[2].getFileName();
-        LOG.info("current class name: " + Thread.currentThread().getStackTrace()[1].getClassName() +
-                " method: " + Thread.currentThread().getStackTrace()[1].getMethodName());
-        LOG.info("class name: " + ancestorName + " method: " + ancestorMethod);
         // unit admins / specialty admins can only add groups they belong to
         if (ApiUtil.userHasRole(user, RoleName.GLOBAL_ADMIN)) {
             return true;
