@@ -2432,6 +2432,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return true;
         }
 
+        // Patient should not be able to switch to any user
+        if (isUserAPatient(user)) {
+            return false;
+        }
+
         // if user trying to access a non patient user
         if (!isUserAPatient(switchUser)) {
             return false;

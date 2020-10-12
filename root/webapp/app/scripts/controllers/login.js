@@ -65,10 +65,15 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
 
                 $rootScope.startTimers();
             }, function (result) {
-                if (result.data) {
-                    $scope.errorMessage = ' - ' + result.data;
+                if (result.status === 502) {
+                    // for 502 Bad Gateway api might be down print custom message
+                    $scope.errorMessage = 'The PatientView service is temporarily unavailable. If this issue persists, please contact PatientView support.'
                 } else {
-                    $scope.errorMessage = ' ';
+                    if (result.data) {
+                        $scope.errorMessage = ' - ' + result.data;
+                    } else {
+                        $scope.errorMessage = ' ';
+                    }
                 }
                 $scope.loading = false;
             });
@@ -112,10 +117,15 @@ angular.module('patientviewApp').controller('LoginCtrl', ['localStorageService',
                     $scope.keyPressCount = 3;
                 }
 
-                if (result.data) {
-                    $scope.errorMessage = ' - ' + result.data;
+                if (result.status === 502) {
+                    // for 502 Bad Gateway api might be down print custom message
+                    $scope.errorMessage = 'The PatientView service is temporarily unavailable. If this issue persists, please contact PatientView support.'
                 } else {
-                    $scope.errorMessage = ' ';
+                    if (result.data) {
+                        $scope.errorMessage = ' - ' + result.data;
+                    } else {
+                        $scope.errorMessage = ' ';
+                    }
                 }
 
                 var username = $scope.username;
