@@ -878,7 +878,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
 
         // delete current user token associated with this user
         // should not delete all tokens for user as we need them for different devices
-        userTokenRepository.delete(userToken);
+        userTokenRepository.deleteByToken(userToken.getToken());
         SecurityContextHolder.getContext().setAuthentication(null);
 
         // delete all expired user tokens
