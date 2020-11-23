@@ -3,6 +3,7 @@ package org.patientview.api.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.patientview.api.model.NhsIndicators;
@@ -310,18 +311,19 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
                 + StringUtils.join(userIds, ",") + ") AND group_id = " + groupId;
 
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         List<UUID> resourceIds = new ArrayList<>();
 
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(sql);
+            statement = connection.createStatement();
+            results = statement.executeQuery(sql);
 
             while ((results.next())) {
                 resourceIds.add((UUID) results.getObject(1));
             }
 
-            connection.close();
         } catch (SQLException e) {
             // try and close the open connection
             try {
@@ -334,6 +336,10 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(results);
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
 
         return resourceIds;
