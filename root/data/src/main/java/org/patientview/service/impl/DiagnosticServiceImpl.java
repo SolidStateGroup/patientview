@@ -426,9 +426,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
             throw new FhirResourceException(e);
         } finally {
-            DbUtils.closeQuietly(results);
-            DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         if (observationIn.length() > 2) {

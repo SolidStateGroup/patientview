@@ -256,9 +256,7 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                 }
                 throw new UktException(e);
             } finally {
-                DbUtils.closeQuietly(results);
-                DbUtils.closeQuietly(statement);
-                DbUtils.closeQuietly(connection);
+                DbUtils.closeQuietly(connection, statement, results);
             }
         }
 

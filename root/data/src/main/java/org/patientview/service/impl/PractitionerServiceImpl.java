@@ -302,9 +302,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         } catch (SQLException e) {
             throw new FhirResourceException(e);
         } finally {
-            DbUtils.closeQuietly(results);
-            DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -373,9 +371,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         } catch (SQLException e) {
             throw new FhirResourceException(e);
         } finally {
-            DbUtils.closeQuietly(results);
-            DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -410,9 +406,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         } catch (SQLException e) {
             throw new FhirResourceException(e);
         } finally {
-            DbUtils.closeQuietly(results);
-            DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 }

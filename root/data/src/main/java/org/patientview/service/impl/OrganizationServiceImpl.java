@@ -159,9 +159,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
         } catch (SQLException e) {
             throw new FhirResourceException(e);
         } finally {
-            DbUtils.closeQuietly(results);
-            DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 }

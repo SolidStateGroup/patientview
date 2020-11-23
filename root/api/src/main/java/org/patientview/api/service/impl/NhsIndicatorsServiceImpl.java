@@ -337,9 +337,7 @@ public class NhsIndicatorsServiceImpl extends AbstractServiceImpl<NhsIndicatorsS
 
             throw new FhirResourceException(e.getMessage());
         } finally {
-            DbUtils.closeQuietly(results);
-            DbUtils.closeQuietly(statement);
-            DbUtils.closeQuietly(connection);
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return resourceIds;
