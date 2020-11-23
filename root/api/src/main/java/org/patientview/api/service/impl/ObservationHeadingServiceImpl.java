@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseObservationHeading;
 import org.patientview.api.service.ObservationHeadingService;
@@ -187,10 +188,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                 query.append("' ");
 
                 Connection connection = null;
+                java.sql.Statement statement = null;
+                ResultSet results = null;
                 try {
                     connection = dataSource.getConnection();
-                    java.sql.Statement statement = connection.createStatement();
-                    ResultSet results = statement.executeQuery(query.toString());
+                    statement = connection.createStatement();
+                    results = statement.executeQuery(query.toString());
 
                     while ((results.next())) {
                         String code = results.getString(1).replace("\"", "").toLowerCase();
@@ -202,7 +205,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                         }
                     }
 
-                    connection.close();
                 } catch (SQLException e) {
                     try {
                         if (connection != null) {
@@ -213,6 +215,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                     }
 
                     throw new FhirResourceException(e);
+                } finally {
+                    DbUtils.closeQuietly(results);
+                    DbUtils.closeQuietly(statement);
+                    DbUtils.closeQuietly(connection);
                 }
             }
         }
