@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Address;
@@ -515,10 +516,12 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         // execute and return UUIDs
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             List<UUID> uuids = new ArrayList<>();
 
@@ -526,7 +529,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             if (connection != null) {
@@ -537,6 +539,10 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                 }
             }
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(results);
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
     }
 
