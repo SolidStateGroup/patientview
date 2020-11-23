@@ -1,5 +1,6 @@
 package org.patientview.service.impl;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.service.FileDataService;
 import org.patientview.config.exception.FhirResourceException;
@@ -92,10 +93,12 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
 
             if (query.length() > 0) {
                 Connection connection = null;
+                Statement statement = null;
+                ResultSet results = null;
                 try {
                     connection = dataSource.getConnection();
-                    Statement statement = connection.createStatement();
-                    ResultSet results = statement.executeQuery(query.toString());
+                    statement = connection.createStatement();
+                    results = statement.executeQuery(query.toString());
 
                     while ((results.next())) {
                         Long foundFileDataId = results.getLong(1);
@@ -105,7 +108,6 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
                         }
                     }
 
-                    connection.close();
                 } catch (SQLException e) {
                     try {
                         if (connection != null) {
@@ -116,6 +118,10 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
                     }
 
                     throw new FhirResourceException(e);
+                } finally {
+                    DbUtils.closeQuietly(results);
+                    DbUtils.closeQuietly(statement);
+                    DbUtils.closeQuietly(connection);
                 }
             }
         }

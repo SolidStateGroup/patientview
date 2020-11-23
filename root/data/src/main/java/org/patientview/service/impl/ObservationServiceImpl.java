@@ -1,7 +1,7 @@
 package org.patientview.service.impl;
 
 import generated.Patientview;
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
@@ -38,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.sql.DataSource;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -69,7 +70,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     @Inject
     @Named("fhir")
-    private BasicDataSource dataSource;
+    private DataSource dataSource;
 
     @Inject
     private FhirResource fhirResource;
@@ -477,6 +478,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     private List<BasicObservation> getBasicObservationBySubjectId(final UUID subjectId)
             throws FhirResourceException {
 
+        Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             // build query
             StringBuilder query = new StringBuilder();
@@ -487,9 +491,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             query.append("' ");
 
             // execute and return map of logical ids and applies
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<BasicObservation> observations = new ArrayList<>();
 
             while ((results.next())) {
@@ -519,11 +523,14 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                 }
             }
 
-            connection.close();
             return observations;
         } catch (Exception e) {
             LOG.error("Error getting existing observations", e);
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(results);
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
     }
 
