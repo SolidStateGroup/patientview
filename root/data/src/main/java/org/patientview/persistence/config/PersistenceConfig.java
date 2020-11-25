@@ -113,8 +113,8 @@ public class PersistenceConfig extends CommonConfig {
         // config.setDriverClassName("org.postgresql.Driver"); //set this if not found by Hikari
 
         config.setPoolName("PatientViewFhirHikariCP");
-        config.setMinimumIdle(20);
-        config.setMaximumPoolSize(20);
+        config.setMinimumIdle(50);
+        config.setMaximumPoolSize(50);
         config.setIdleTimeout(600000); // 10 min
         config.setMaxLifetime(1800000); // 30 min
         config.setConnectionTimeout(30000); // 30 seconds
