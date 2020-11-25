@@ -1,6 +1,7 @@
 package org.patientview.service.impl;
 
 import generated.Patientview;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Encounter;
 import org.hl7.fhir.instance.model.Observation;
@@ -29,6 +30,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -211,6 +213,8 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
         }
 
         Connection connection = null;
+        java.sql.Statement statement = null;
+
         String fhirLinkString = "";
         List<FhirLink> fhirLinks = new ArrayList<>(user.getFhirLinks());
 
@@ -239,9 +243,8 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
 
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             statement.executeQuery(query.toString());
-            connection.close();
         } catch (SQLException e) {
             try {
                 if (connection != null) {
@@ -250,6 +253,9 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
             } catch (SQLException e1) {
                 throw new FhirResourceException(e);
             }
+        } finally {
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
     }
 

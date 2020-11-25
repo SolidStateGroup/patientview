@@ -1,8 +1,10 @@
 package org.patientview.persistence.config;
 
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.patientview.config.CommonConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,16 +21,18 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * Created by james@solidstategroup.com
- * Created on 03/06/2014
+ * Created by james@solidstategroup.com Created on 03/06/2014
  */
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.patientview.persistence.repository"})
 @EnableTransactionManagement
 public class PersistenceConfig extends CommonConfig {
+
+    private final Logger LOG = LoggerFactory.getLogger(PersistenceConfig.class);
 
     @Inject
     private Properties properties;
@@ -80,7 +84,7 @@ public class PersistenceConfig extends CommonConfig {
         dataSourceProperties.setUrl(properties.getProperty("pv.url"));
         dataSourceProperties.setUsername(properties.getProperty("pv.user"));
         dataSourceProperties.setPassword(properties.getProperty("pv.password"));
-        dataSourceProperties.setDriverClassName("org.postgresql.Driver");
+        // dataSourceProperties.setDriverClassName("org.postgresql.Driver"); // should be resolved by Hikari
         dataSourceProperties.setType(HikariDataSource.class);
 
         return dataSourceProperties;
@@ -90,13 +94,7 @@ public class PersistenceConfig extends CommonConfig {
     @Primary
     @ConfigurationProperties(prefix = "patientview.datasource.hikari")
     public HikariDataSource patientViewDataSource() {
-//        BasicDataSource dataSource = new BasicDataSource();
-//        dataSource.setMaxTotal(50);
-//        dataSource.setDriverClassName("org.postgresql.Driver");
-//        dataSource.setUrl(properties.getProperty("pv.url"));
-//        dataSource.setUsername(properties.getProperty("pv.user"));
-//        dataSource.setPassword(properties.getProperty("pv.password"));
-//        return dataSource;
+        LOG.info("Initializing PV datasource ");
         return pvDataSourceProperties()
                 .initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
@@ -104,26 +102,28 @@ public class PersistenceConfig extends CommonConfig {
     }
 
     @Bean(name = "fhir")
-    public BasicDataSource fhirDataSource() {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setMaxTotal(50);
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl(properties.getProperty("fhir.url"));
-        dataSource.setUsername(properties.getProperty("fhir.user"));
-        dataSource.setPassword(properties.getProperty("fhir.password"));
-        return dataSource;
-    }
+    public DataSource fhirDataSource() {
+        LOG.info("Initializing PV Fhir datasource ");
 
-//    @Bean(name = "patientView1")
-//    public BasicDataSource patientView1DataSource() {
-//        BasicDataSource dataSource = new BasicDataSource();
-//        dataSource.setMaxTotal(50);
-//        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-//        dataSource.setUrl(properties.getProperty("pv1.url"));
-//        dataSource.setUsername(properties.getProperty("pv1.user"));
-//        dataSource.setPassword(properties.getProperty("pv1.password"));
-//        return dataSource;
-//    }
+        // https://github.com/brettwooldridge/HikariCP
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(properties.getProperty("fhir.url"));
+        config.setUsername(properties.getProperty("fhir.user"));
+        config.setPassword(properties.getProperty("fhir.password"));
+        // config.setDriverClassName("org.postgresql.Driver"); //set this if not found by Hikari
+
+        config.setPoolName("PatientViewFhirHikariCP");
+        config.setMinimumIdle(50);
+        config.setMaximumPoolSize(50);
+        config.setIdleTimeout(600000); // 10 min
+        config.setMaxLifetime(1800000); // 30 min
+        config.setConnectionTimeout(30000); // 30 seconds
+        config.addDataSourceProperty("cachePrepStmts", "false");
+        //  config.addDataSourceProperty("prepStmtCacheSize", "250");
+        // config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+        return new HikariDataSource(config);
+    }
 
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
