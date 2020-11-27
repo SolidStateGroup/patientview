@@ -1,5 +1,6 @@
 package org.patientview.persistence.resource;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.formats.JsonComposer;
@@ -26,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -59,7 +59,7 @@ public class FhirResource {
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FhirLinkRepository fhirLinkRepository;
