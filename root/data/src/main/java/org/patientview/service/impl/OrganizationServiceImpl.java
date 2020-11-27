@@ -1,5 +1,6 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
 import org.apache.commons.dbutils.DbUtils;
 import org.hl7.fhir.instance.model.Organization;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,7 +41,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     private String nhsno;
 

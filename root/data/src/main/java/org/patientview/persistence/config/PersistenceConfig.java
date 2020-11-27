@@ -102,7 +102,7 @@ public class PersistenceConfig extends CommonConfig {
     }
 
     @Bean(name = "fhir")
-    public DataSource fhirDataSource() {
+    public HikariDataSource fhirDataSource() {
         LOG.info("Initializing PV Fhir datasource ");
 
         // https://github.com/brettwooldridge/HikariCP
@@ -110,11 +110,12 @@ public class PersistenceConfig extends CommonConfig {
         config.setJdbcUrl(properties.getProperty("fhir.url"));
         config.setUsername(properties.getProperty("fhir.user"));
         config.setPassword(properties.getProperty("fhir.password"));
+        config.setLeakDetectionThreshold(30000); // 30 seconds
         // config.setDriverClassName("org.postgresql.Driver"); //set this if not found by Hikari
 
         config.setPoolName("PatientViewFhirHikariCP");
-        config.setMinimumIdle(50);
-        config.setMaximumPoolSize(50);
+        config.setMinimumIdle(20);
+        config.setMaximumPoolSize(80);
         config.setIdleTimeout(600000); // 10 min
         config.setMaxLifetime(1800000); // 30 min
         config.setConnectionTimeout(30000); // 30 seconds

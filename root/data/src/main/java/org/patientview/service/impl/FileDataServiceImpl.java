@@ -1,5 +1,6 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.dbutils.DbUtils;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.service.FileDataService;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +28,7 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FileDataRepository fileDataRepository;

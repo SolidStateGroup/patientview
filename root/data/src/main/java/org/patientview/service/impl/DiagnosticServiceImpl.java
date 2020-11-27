@@ -1,5 +1,6 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
 import generated.Patientview.Patient.Diagnostics.Diagnostic;
 import org.apache.commons.dbutils.DbUtils;
@@ -31,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,7 +55,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     private String nhsno;
 

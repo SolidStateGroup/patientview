@@ -1,5 +1,6 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -38,7 +39,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -70,7 +70,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FhirResource fhirResource;

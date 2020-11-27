@@ -1,5 +1,6 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,12 +29,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,7 +44,7 @@ public class EncounterServiceImpl extends AbstractServiceImpl<EncounterService> 
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FhirResource fhirResource;
