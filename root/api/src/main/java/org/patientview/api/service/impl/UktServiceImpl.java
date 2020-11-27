@@ -1,5 +1,6 @@
 package org.patientview.api.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -71,7 +71,7 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
 
     @Inject
     @Named("patientView")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     /**
      * Store kidney transplant status for a User using a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR.
