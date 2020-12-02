@@ -1010,7 +1010,6 @@ public class FhirResource {
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-//            connection.setReadOnly(true);
             statement = connection.createStatement();
             results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
