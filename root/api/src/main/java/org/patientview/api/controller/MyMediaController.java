@@ -167,6 +167,10 @@ public class MyMediaController extends BaseController<MyMediaController> {
     private void getMyMediaImage(byte[] content, HttpServletResponse response)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
         InputStream is = null;
+        if(content == null){
+            LOG.error("Missing content for Media Image");
+            return;
+        }
 
         try {
             response.setContentType(MediaType.IMAGE_JPEG_VALUE);
