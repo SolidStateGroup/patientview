@@ -32,6 +32,8 @@ import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -54,6 +56,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
  */
+@Transactional(readOnly = true)
 @Service
 public class ObservationHeadingServiceImpl extends AbstractServiceImpl<ObservationHeadingServiceImpl>
         implements ObservationHeadingService {
@@ -89,6 +92,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     private static final Long FIRST_PANEL = 1L;
     private static final Long DEFAULT_COUNT = 3L;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ObservationHeading add(final ObservationHeading observationHeading) {
         if (observationHeadingExists(observationHeading)) {
@@ -114,6 +118,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.save(observationHeading);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -370,6 +375,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return new ArrayList<>(out);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void delete(final Long observationHeadingId) {
         observationHeadingRepository.deleteById(observationHeadingId);
@@ -385,6 +391,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return !observationHeadingRepository.findByCode(observationHeading.getCode()).isEmpty();
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void removeObservationHeadingGroup(Long observationHeadingGroupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -402,6 +409,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         observationHeadingGroupRepository.delete(observationHeadingGroup);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
 
@@ -423,6 +431,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.save(entity);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void saveObservationHeadingSelection(Long userId, String[] codes) throws ResourceNotFoundException {
 
@@ -486,6 +495,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         userRepository.save(user);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
             throws ResourceNotFoundException, ResourceForbiddenException {
