@@ -35,6 +35,8 @@ import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ObservationService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -63,6 +65,7 @@ import java.util.UUID;
  * Created on 01/09/2014
  */
 @Service
+@Transactional(readOnly = true)
 public class ObservationServiceImpl extends AbstractServiceImpl<ObservationService> implements ObservationService {
 
     @Inject
@@ -85,6 +88,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     /**
      * Creates all of the FHIR observation records from the Patientview object. Links then to the PatientReference
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
@@ -255,6 +259,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void add(FhirObservation fhirObservation, FhirLink fhirLink) throws FhirResourceException {
         ObservationBuilder observationBuilder
@@ -443,6 +448,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return identifier;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteAllExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException {
 
@@ -454,6 +460,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteObservations(List<UUID> observationsUuidsToDelete) throws FhirResourceException {
         if (!CollectionUtils.isEmpty(observationsUuidsToDelete)) {
@@ -555,6 +562,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return null;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void insertFhirDatabaseObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
             throws FhirResourceException {
