@@ -69,6 +69,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -99,6 +101,7 @@ import static org.patientview.api.util.ApiUtil.userHasRole;
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014
  */
+@Transactional(readOnly = true)
 @Service
 public class ConversationServiceImpl extends AbstractServiceImpl<ConversationServiceImpl>
         implements ConversationService {
@@ -166,6 +169,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addConversation(Long userId, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -177,6 +181,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         if (!conversationUsersAndGroupsHaveMessagingFeatures(conversation)) {
             throw new ResourceForbiddenException("Forbidden (conversation user group features)");
         }
+
+
 
         User creator = getCurrentUser();
         User entityUser = findEntityUser(userId);
@@ -260,6 +266,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addConversationToRecipientsByFeature(Long userId, String featureName, Conversation conversation)
             throws ResourceNotFoundException, ResourceForbiddenException, VerificationException {
@@ -334,6 +341,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addConversationUser(Long conversationId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -378,6 +386,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -425,6 +434,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ExternalConversation addExternalConversation(ExternalConversation conversation) {
         // validate essential properties are present and token is correct
@@ -656,6 +666,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addMessage(Long conversationId, org.patientview.api.model.Message message)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -724,6 +735,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addMessageReadReceipt(Long messageId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -915,6 +927,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteUserFromConversations(User user) {
         // remove from all conversations where user is a member (including messages)
@@ -1892,6 +1905,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void removeConversationUser(Long conversationId, Long userId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -1923,6 +1937,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     /**
      * @inheritDoc
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void removeConversationUserLabel(Long userId, Long conversationId, ConversationLabel conversationLabel)
             throws ResourceNotFoundException, ResourceForbiddenException {
