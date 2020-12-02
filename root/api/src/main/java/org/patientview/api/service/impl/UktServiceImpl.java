@@ -67,9 +67,6 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
     private Properties properties;
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
     @Named("patientView")
     private HikariDataSource dataSource;
 
