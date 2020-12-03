@@ -217,7 +217,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newMessage.setMessage(StringUtils.isNotEmpty(message.getMessage()) ?
                     Jsoup.clean(message.getMessage(), Whitelist.relaxed()) : "");
             newMessage.setType(message.getType());
-            newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
+            newMessage.setReadReceipts(new HashSet<>());
             newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
             newMessage.setCreator(newMessage.getCreator() == null ? entityUser : newMessage.getCreator());
 
@@ -328,7 +328,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // add found staff as conversation users
-        conversation.setConversationUsers(new HashSet<ConversationUser>());
+        conversation.setConversationUsers(new HashSet<>());
         for (User staffUser : page.getContent()) {
             conversation.getConversationUsers().add(new ConversationUser(conversation, staffUser));
         }
@@ -360,6 +360,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             if (conversationUser.getUser().getId().equals(userId)) {
                 found = true;
+                break;
             }
         }
 
@@ -372,7 +373,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversationUser.setCreator(getCurrentUser());
             conversationUser.setCreated(new Date());
             conversationUser.setConversation(conversation);
-            conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUser.setConversationUserLabels(new HashSet<>());
             conversationUser.setAnonymous(false);
 
             ConversationUserLabel newConversationUserLabel = new ConversationUserLabel();
@@ -414,10 +415,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
                         if (conversationUserLabel.getConversationLabel().equals(conversationLabel)) {
                             found = true;
+                            break;
                         }
                     }
                 } else {
-                    conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                    conversationUser.setConversationUserLabels(new HashSet<>());
                 }
 
                 // if label doesn't already exist, add it to the ConversationUser
@@ -607,8 +609,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         // create conversation
         Conversation newConversation = new Conversation();
         newConversation.setTitle(conversation.getTitle());
-        newConversation.setConversationUsers(new HashSet<ConversationUser>());
-        newConversation.setMessages(new ArrayList<Message>());
+        newConversation.setConversationUsers(new HashSet<>());
+        newConversation.setMessages(new ArrayList<>());
         newConversation.setLastUpdate(now);
         newConversation.setType(ConversationTypes.MESSAGE);
         newConversation.setOpen(true);
@@ -617,7 +619,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (User recipient : recipients) {
             ConversationUser conversationUser = new ConversationUser(newConversation, recipient);
             conversationUser.setAnonymous(false);
-            conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUser.setConversationUserLabels(new HashSet<>());
             conversationUser.getConversationUserLabels().add(
                     new ConversationUserLabel(conversationUser, ConversationLabel.INBOX));
 
@@ -640,7 +642,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             }
             ConversationUser conversationUser = new ConversationUser(newConversation, notificationUser);
             conversationUser.setAnonymous(false);
-            conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            conversationUser.setConversationUserLabels(new HashSet<>());
             conversationUser.getConversationUserLabels().add(
                     new ConversationUserLabel(conversationUser, ConversationLabel.INBOX));
 
@@ -712,7 +714,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
         messageRepository.save(newMessage);
 
-        newMessage.setReadReceipts(new HashSet<MessageReadReceipt>());
+        newMessage.setReadReceipts(new HashSet<>());
         newMessage.getReadReceipts().add(new MessageReadReceipt(newMessage, entityUser));
 
         entityConversation.getMessages().add(newMessage);
@@ -759,6 +761,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         for (MessageReadReceipt messageReadReceipt : entityMessage.getReadReceipts()) {
             if (messageReadReceipt.getUser().equals(entityUser)) {
                 found = true;
+                break;
             }
         }
 
@@ -776,7 +779,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      */
     private Conversation anonymiseConversation(Conversation conversation) {
         Conversation newConversation = new Conversation();
-        newConversation.setConversationUsers(new HashSet<ConversationUser>());
+        newConversation.setConversationUsers(new HashSet<>());
         List<Long> anonUserIds = new ArrayList<>();
         User anonUser = new User();
         anonUser.setForename("Anonymous");
@@ -891,34 +894,6 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return (conversation.getConversationUsers().size() == usersWithMessagingFeaturesCount);
-    }
-
-
-    /**
-     * Verify all conversation users are members of my Groups.
-     * Used in conjunction with patient count check in conversation.
-     *
-     * @param conversation Conversation to verify
-     * @return true if all conversation users have messaging features and member of group with messaging enabled
-     */
-    private boolean conversationUsersAreMembersOfMyGroups(Conversation conversation, User currentUser) {
-
-        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
-            User user = userRepository.findById(conversationUser.getUser().getId())
-                    .orElse(null);
-
-            // Ignore Patients
-            if (!userHasRole(user, RoleName.PATIENT)) {
-
-                for (GroupRole groupRole : currentUser.getGroupRoles()) {
-                    if (!isUserMemberOfGroup(user, groupRole.getGroup())) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -1099,7 +1074,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     for (ConversationUserLabel conversationUserLabel : conversationUser.getConversationUserLabels()) {
                         conversationUserLabelRepository.deleteById(conversationUserLabel.getId());
                     }
-                    conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                    conversationUser.setConversationUserLabels(new HashSet<>());
                     conversationUserRepository.save(conversationUser);
                     conversationUserRepository.delete(conversationUser);
                 }
@@ -1126,7 +1101,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         List<Message> messages = messageRepository.findByUserOrCreator(user);
         deleteMessages(messages, user);
 
-        user.setConversationUsers(new HashSet<ConversationUser>());
+        user.setConversationUsers(new HashSet<>());
         userRepository.save(user);
     }
 
@@ -1368,7 +1343,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             newConversationUser.setAnonymous(conversationUser.getAnonymous() == null
                     ? false : conversationUser.getAnonymous());
             newConversationUser.setCreator(creator);
-            newConversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+            newConversationUser.setConversationUserLabels(new HashSet<>());
             conversationUserSet.add(newConversationUser);
         }
 
@@ -1440,7 +1415,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversationUserLabel.setConversationLabel(ConversationLabel.INBOX);
 
             if (CollectionUtils.isEmpty(conversationUser.getConversationUserLabels())) {
-                conversationUser.setConversationUserLabels(new HashSet<ConversationUserLabel>());
+                conversationUser.setConversationUserLabels(new HashSet<>());
             }
 
             conversationUser.getConversationUserLabels().add(conversationUserLabel);
