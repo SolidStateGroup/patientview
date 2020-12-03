@@ -182,14 +182,25 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden (conversation user group features)");
         }
 
-        // check make sure we have only one patient per conversation
-        if (conversationUsersPatientsCount(conversation) > 1) {
-            throw new ResourceForbiddenException("For security reasons, only one patient can be " +
-                    "added to this conversation.");
-        }
 
         User creator = getCurrentUser();
         User entityUser = findEntityUser(userId);
+
+        // check make sure we have only one patient per conversation
+        // and also we should not have any users from Other Groups
+        int patientsCount = conversationUsersPatientsCount(conversation);
+        if(patientsCount > 0){
+            if (patientsCount > 1) {
+                throw new ResourceForbiddenException("For security reasons, only one patient can be " +
+                        "added to this conversation.");
+            }
+
+            // dont allow admins from other groups, when we have patient in conversation
+            if(conversationUsersAreMembersOfMyGroups(conversation, creator)){
+                throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
+                        " included in the same conversation as a patient.");
+            }
+        }
 
         // handle comments to central PatientView support (sent via standard contact mechanism in UI but does not
         // create a conversation, simply emails address set in properties
@@ -368,11 +379,29 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         if (!found) {
 
-            // Only one patient per conversation
-            // check if adding a Patient and if we already have one
-            if (userHasRole(user, RoleName.PATIENT) && conversationUsersPatientsCount(conversation) > 0) {
-                throw new ResourceForbiddenException("For security reasons, only one patient can be " +
-                        "added to this conversation.");
+//            // Only one patient per conversation
+//            // check if adding a Patient and if we already have one
+//            if (userHasRole(user, RoleName.PATIENT) && conversationUsersPatientsCount(conversation) > 0) {
+//                throw new ResourceForbiddenException("For security reasons, only one patient can be " +
+//                        "added to this conversation.");
+//            }
+
+            User currentUser = getCurrentUser();
+
+            // check make sure we have only one patient per conversation
+            // and also we should not have any users from Other Groups when patient is in conversation
+            int patientsCount = conversationUsersPatientsCount(conversation);
+            if(patientsCount > 0) {
+                if (patientsCount > 1) {
+                    throw new ResourceForbiddenException("For security reasons, only one patient can be " +
+                            "added to this conversation.");
+                }
+
+                // dont allow admins from other groups, when we have patient in conversation
+                if(conversationUsersAreMembersOfMyGroups(conversation, currentUser)){
+                    throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
+                            " included in the same conversation as a patient.");
+                }
             }
 
             ConversationUser conversationUser = new ConversationUser();
@@ -899,6 +928,34 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return (conversation.getConversationUsers().size() == usersWithMessagingFeaturesCount);
+    }
+
+
+    /**
+     * Verify all conversation users are members of my Groups.
+     * Used in conjunction with patient count check in conversation.
+     *
+     * @param conversation Conversation to verify
+     * @return true if all conversation users have messaging features and member of group with messaging enabled
+     */
+    private boolean conversationUsersAreMembersOfMyGroups(Conversation conversation, User currentUser) {
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            User user = userRepository.findById(conversationUser.getUser().getId())
+                    .orElse(null);
+
+            // Ignore Patients
+            if (!userHasRole(user, RoleName.PATIENT)) {
+
+                for (GroupRole groupRole : currentUser.getGroupRoles()) {
+                    if (isUserMemberOfGroup(user, groupRole.getGroup())) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
