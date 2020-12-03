@@ -186,21 +186,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         User creator = getCurrentUser();
         User entityUser = findEntityUser(userId);
 
-        // check make sure we have only one patient per conversation
-        // and also we should not have any users from Other Groups
-        int patientsCount = conversationUsersPatientsCount(conversation);
-        if(patientsCount > 0){
-            if (patientsCount > 1) {
-                throw new ResourceForbiddenException("For security reasons, only one patient can be " +
-                        "added to this conversation.");
-            }
-
-            // dont allow admins from other groups, when we have patient in conversation
-            if(conversationUsersAreMembersOfMyGroups(conversation, creator)){
-                throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
-                        " included in the same conversation as a patient.");
-            }
-        }
+        validateConversationUsers(conversation, null);
 
         // handle comments to central PatientView support (sent via standard contact mechanism in UI but does not
         // create a conversation, simply emails address set in properties
@@ -379,30 +365,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         if (!found) {
 
-//            // Only one patient per conversation
-//            // check if adding a Patient and if we already have one
-//            if (userHasRole(user, RoleName.PATIENT) && conversationUsersPatientsCount(conversation) > 0) {
-//                throw new ResourceForbiddenException("For security reasons, only one patient can be " +
-//                        "added to this conversation.");
-//            }
-
-            User currentUser = getCurrentUser();
-
-            // check make sure we have only one patient per conversation
-            // and also we should not have any users from Other Groups when patient is in conversation
-            int patientsCount = conversationUsersPatientsCount(conversation);
-            if(patientsCount > 0) {
-                if (patientsCount > 1) {
-                    throw new ResourceForbiddenException("For security reasons, only one patient can be " +
-                            "added to this conversation.");
-                }
-
-                // dont allow admins from other groups, when we have patient in conversation
-                if(conversationUsersAreMembersOfMyGroups(conversation, currentUser)){
-                    throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
-                            " included in the same conversation as a patient.");
-                }
-            }
+            validateConversationUsers(conversation, user);
 
             ConversationUser conversationUser = new ConversationUser();
             conversationUser.setUser(user);
@@ -948,7 +911,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             if (!userHasRole(user, RoleName.PATIENT)) {
 
                 for (GroupRole groupRole : currentUser.getGroupRoles()) {
-                    if (isUserMemberOfGroup(user, groupRole.getGroup())) {
+                    if (!isUserMemberOfGroup(user, groupRole.getGroup())) {
                         return false;
                     }
                 }
@@ -959,13 +922,21 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
     }
 
     /**
-     * Check make sure we dont have more then one Patient participant in Conversation.
+     * Rules applies to to all conversations.
+     * If we have Patient in conversation check:
+     * - max of 1 patient per conversation
+     * - all user in conversations are members of the same Group as a Patient.
      *
      * @param conversation Conversation to verify
-     * @return true if we have more then one patient in conversation, false otherwise
+     * @param userToAdd a User to verify
+     * @throws ResourceForbiddenException when one if the check failed
      */
-    private int conversationUsersPatientsCount(Conversation conversation) {
+    private void validateConversationUsers(Conversation conversation, User userToAdd)
+            throws ResourceForbiddenException {
+
         int patientsCount = 0;
+        User patient = null;
+        List<User> participants = new ArrayList<>();
 
         for (ConversationUser conversationUser : conversation.getConversationUsers()) {
             User user = userRepository.findById(conversationUser.getUser().getId())
@@ -974,9 +945,69 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             // GLOBAL_ADMIN and PATIENT users always have messaging features
             if (userHasRole(user, RoleName.PATIENT)) {
                 patientsCount++;
+                patient = user;
+            }
+            participants.add(user);
+        }
+
+        // no patients in conversation participants, no further checks needed
+        if(patientsCount < 1){
+            return;
+        }
+
+        // cannot have more then 1 patient in conversation
+        if (patientsCount > 1) {
+            throw new ResourceForbiddenException("For security reasons, only one patient can be " +
+                    "added to this conversation.");
+        }
+
+        if(userToAdd != null) {
+            // adding new Patient, we already have in the list of participants
+            if (userHasRole(userToAdd, RoleName.PATIENT)) {
+                throw new ResourceForbiddenException("For security reasons, only one patient can be " +
+                        "added to this conversation.");
+            }
+
+            boolean isMemberOfGroup = false;
+            for (GroupRole groupRole : patient.getGroupRoles()) {
+                // checking only units groups
+                if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
+                    if (isUserMemberOfGroup(userToAdd, groupRole.getGroup())) {
+                        isMemberOfGroup = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!isMemberOfGroup) {
+                throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
+                        " included in the same conversation as a patient.");
             }
         }
-        return  patientsCount;
+
+        // dont allow admins from other groups, when we have patient in conversation
+        for(User participant :  participants){
+            boolean isMemberOfGroup = false;
+
+            // Ignore Patients
+            if (!userHasRole(participant, RoleName.PATIENT)) {
+
+                for (GroupRole groupRole : patient.getGroupRoles()) {
+                    // checking only units groups
+                    if (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())) {
+                        if (isUserMemberOfGroup(participant, groupRole.getGroup())) {
+                            isMemberOfGroup = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(!isMemberOfGroup) {
+                    throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
+                            " included in the same conversation as a patient.");
+                }
+            }
+        }
     }
 
     /**
