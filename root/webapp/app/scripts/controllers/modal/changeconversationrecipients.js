@@ -79,8 +79,8 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
                     }, function() {
                         alert('Error getting conversation');
                     });
-                }, function() {
-                    alert('Error adding conversation user');
+                }, function(err) {
+                    $scope.errorMessage = err.data;
                 });
             }
 
