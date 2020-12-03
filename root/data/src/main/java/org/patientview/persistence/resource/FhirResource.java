@@ -23,6 +23,7 @@ import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -252,6 +253,7 @@ public class FhirResource {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<String[]> findLatestObservationsByQuery(String sql) throws FhirResourceException {
         Connection connection = null;
         java.sql.Statement statement = null;
@@ -299,6 +301,7 @@ public class FhirResource {
      * @return a list of array values
      * @throws FhirResourceException
      */
+    @Transactional(readOnly = true)
     public List<String[]> findValuesByQueryAndArray(String sql, int size) throws FhirResourceException {
         Connection connection = null;
         java.sql.Statement statement = null;
@@ -938,6 +941,7 @@ public class FhirResource {
         return output;
     }
 
+    @Transactional(readOnly = true)
     public List<UUID> getLogicalIdsBySubjectId(final String tableName, final UUID subjectId)
             throws FhirResourceException {
 
@@ -977,11 +981,10 @@ public class FhirResource {
             } catch (SQLException e2) {
                 LOG.error("Cannot close connection {}", e2);
                 throw new FhirResourceException(e2.getMessage());
-            } finally {
-                DbUtils.closeQuietly(connection, statement, results);
             }
-
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -1243,6 +1246,7 @@ public class FhirResource {
         return findResourceByQuery(query, Observation.class);
     }
 
+    @Transactional(readOnly = true)
     public List<UUID> getObservationUuidsBySubjectNameDateRange(UUID subjectId, String name, Date start, Date end)
             throws FhirResourceException {
 

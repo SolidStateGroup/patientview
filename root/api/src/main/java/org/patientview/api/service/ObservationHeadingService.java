@@ -24,7 +24,6 @@ import java.util.List;
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
  */
-@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ObservationHeadingService extends CrudService<ObservationHeading> {
 
     /**

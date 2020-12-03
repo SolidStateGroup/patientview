@@ -62,6 +62,7 @@ import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -93,7 +94,7 @@ import static org.patientview.api.util.ApiUtil.getCurrentUser;
  * Created on 02/09/2014
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservationServiceImpl>
         implements ApiObservationService {
 
@@ -133,9 +134,6 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     @Inject
     private UserService userService;
 
-    @Inject
-    private LookupRepository lookupRepository;
-
     private static final Logger LOG = LoggerFactory.getLogger(ApiObservationServiceImpl.class);
     private static final String COMMENT_RESULT_HEADING = "resultcomment";
     private static final String COMMENT_PRE = "PRE";
@@ -145,6 +143,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
     private static final int FIVE = 5;
     private static final int EIGHT = 8;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addTestObservations(Long userId, Long groupId, FhirObservationRange fhirObservationRange)
             throws ResourceNotFoundException, ResourceForbiddenException, FhirResourceException {
@@ -214,6 +213,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         observationService.insertFhirDatabaseObservations(fhirDatabaseObservations);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public Map<String, UUID> addUserResultClusters(Long userId, List<UserResultCluster> userResultClusters)
             throws ResourceNotFoundException, FhirResourceException {
@@ -330,6 +330,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return resourceMapIds;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addUserDialysisTreatmentResult(Long userId, Map<String, String> resultClusterMap)
             throws ResourceNotFoundException, FhirResourceException, ResourceInvalidException {
@@ -481,11 +482,13 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void updatePatientEnteredResult(Long userId, Long adminId,
                                            org.patientview.api.model.FhirObservation enteredResult)
             throws ResourceNotFoundException, FhirResourceException {
 
+        // TODO: connection leak detected
         // Patient updates his own results
         User patientUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
@@ -562,6 +565,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         auditService.save(audit);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deletePatientEnteredResult(Long userId, Long adminId, String uuid)
             throws ResourceNotFoundException, FhirResourceException {
@@ -685,6 +689,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<org.patientview.api.model.FhirObservation> get(final Long userId,
                                                                final String code,
@@ -710,7 +715,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             throw new ResourceNotFoundException("Could nto find observation headings for code");
         }
         List<org.patientview.api.model.FhirObservation> fhirObservations = new ArrayList<>();
-
+        // JPA will ignore Read only
         for (FhirLink fhirLink : user.getFhirLinks()) {
             if (fhirLink.getActive()) {
                 StringBuilder query = new StringBuilder();
@@ -1495,6 +1500,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ObservationSummary> getObservationSummary(Long userId)
             throws ResourceNotFoundException, FhirResourceException {
@@ -1609,6 +1615,7 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
         return valueString;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ServerResponse importObservations(FhirObservationRange fhirObservationRange) {
         boolean deleteObservations = false;
