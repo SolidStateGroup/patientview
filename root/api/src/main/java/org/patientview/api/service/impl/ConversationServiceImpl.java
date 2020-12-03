@@ -182,7 +182,11 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             throw new ResourceForbiddenException("Forbidden (conversation user group features)");
         }
 
-
+        // check make sure we have only one patient per conversation
+        if (conversationUsersPatientsCount(conversation) > 1) {
+            throw new ResourceForbiddenException("For security reasons, only one patient can be " +
+                    "added to this conversation.");
+        }
 
         User creator = getCurrentUser();
         User entityUser = findEntityUser(userId);
@@ -363,6 +367,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         if (!found) {
+
+            // Only one patient per conversation
+            // check if adding a Patient and if we already have one
+            if (userHasRole(user, RoleName.PATIENT) && conversationUsersPatientsCount(conversation) > 0) {
+                throw new ResourceForbiddenException("For security reasons, only one patient can be " +
+                        "added to this conversation.");
+            }
+
             ConversationUser conversationUser = new ConversationUser();
             conversationUser.setUser(user);
             conversationUser.setCreator(getCurrentUser());
@@ -887,6 +899,27 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         return (conversation.getConversationUsers().size() == usersWithMessagingFeaturesCount);
+    }
+
+    /**
+     * Check make sure we dont have more then one Patient participant in Conversation.
+     *
+     * @param conversation Conversation to verify
+     * @return true if we have more then one patient in conversation, false otherwise
+     */
+    private int conversationUsersPatientsCount(Conversation conversation) {
+        int patientsCount = 0;
+
+        for (ConversationUser conversationUser : conversation.getConversationUsers()) {
+            User user = userRepository.findById(conversationUser.getUser().getId())
+                    .orElse(null);
+
+            // GLOBAL_ADMIN and PATIENT users always have messaging features
+            if (userHasRole(user, RoleName.PATIENT)) {
+                patientsCount++;
+            }
+        }
+        return  patientsCount;
     }
 
     /**
