@@ -951,7 +951,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
         }
 
         // no patients in conversation participants, no further checks needed
-        if(patientsCount < 1){
+        if (patientsCount < 1) {
             return;
         }
 
@@ -961,7 +961,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     "added to this conversation.");
         }
 
-        if(userToAdd != null) {
+        if (userToAdd != null) {
             // adding new Patient, we already have in the list of participants
             if (userHasRole(userToAdd, RoleName.PATIENT)) {
                 throw new ResourceForbiddenException("For security reasons, only one patient can be " +
@@ -979,14 +979,14 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 }
             }
 
-            if(!isMemberOfGroup) {
+            if (!isMemberOfGroup) {
                 throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
                         " included in the same conversation as a patient.");
             }
         }
 
         // dont allow admins from other groups, when we have patient in conversation
-        for(User participant :  participants){
+        for (User participant : participants) {
             boolean isMemberOfGroup = false;
 
             // Ignore Patients
@@ -1002,7 +1002,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     }
                 }
 
-                if(!isMemberOfGroup) {
+                if (!isMemberOfGroup) {
                     throw new ResourceForbiddenException("For security reasons, staff from other units cannot be " +
                             " included in the same conversation as a patient.");
                 }
