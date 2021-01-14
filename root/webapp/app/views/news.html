@@ -15,6 +15,7 @@
 
         <button class="btn blue" data-ng-click="openModalNewNews('lg')" data-ng-show="permissions.canAddNews">Create New</button>
     </h1>
+    <div class="alert alert-success" data-ng-show="successMessage">{{successMessage}}</div>
 
     <p data-ng-show="permissions.canAddNews"><a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/#Write_a_News_item"
           target="_blank">Guidance on creating news items.</a></p>
@@ -38,13 +39,33 @@
         </div>
     </script>
 
+    <!-- news notification modal template -->
+    <script type="text/ng-template" id="newsNotificationModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Notify Users</h3>
+        </div>
+        <div class="modal-body">
+            <p>Note: This will notify all active users in the selected groups of this news story, by sending them an email.
+                Please use this function with care. Are you sure you wish to continue?.</p>
+        </div>
+        <div class="modal-footer">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
+            <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" data-ng-click="ok()">Notify Users</button>
+        </div>
+    </script>
+
     <div data-ng-show="!loading" data-ng-cloak>
         <div class="message-item" data-ng-repeat="news in pagedItems">
             <div class="content-panel">
-                <ul class="pull-right aside-actions unstyled">
-                    <li><a href="" class="aside-link active" data-ng-click="edit(news)" data-ng-show="news.edit">Edit</a></li>
-                    <li class="delete-news"><a href="" class="aside-link" data-ng-click="remove(news)" data-ng-confirm-click="Are you sure you want to delete this news item?" data-ng-show="news.delete">Delete</a></li>
-                </ul>
+                <div class="row-item actions">
+                    <!-- Edit, Actions dropdown buttons -->
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn blue edit-button" data-ng-click="edit(news)" data-ng-show="news.edit">Edit</button>
+                        <button type="button" class="btn aquamarine" data-ng-show="permissions.canNotifyUsers"  data-ng-click="notify(news.id, $event)">Notify Users</button>
+                        <button type="button" class="btn negative" data-ng-click="remove(news)" data-ng-confirm-click="Are you sure you want to delete this news item?" data-ng-show="news.delete">Delete</button>
+                    </div>
+                </div>
                 <div class="message-summary">
                     <h2 class="message-title">
                         <a href="" data-ng-click="viewNewsItem(news)">
