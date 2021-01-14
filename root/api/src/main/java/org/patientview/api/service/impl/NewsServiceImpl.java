@@ -3,11 +3,13 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.NewsService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
@@ -28,10 +30,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +45,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
@@ -70,6 +76,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private Properties properties;
+
+    @Inject
+    private EmailService emailService;
 
     @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public Long add(final NewsItem newsItem) {
@@ -518,6 +530,54 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         entityNewsItem.setLastUpdate(new Date());
         entityNewsItem.setLastUpdater(userRepository.findById(getCurrentUser().getId()).get());
         newsItemRepository.save(entityNewsItem);
+    }
+
+    @Transactional(readOnly = true)
+    public void notifyUsers(Long newsItemId) throws ResourceNotFoundException {
+
+        NewsItem entityNewsItem = newsItemRepository.findById(newsItemId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find news %s", newsItemId)));
+
+        List<RoleName> ignoreRoles = Arrays.asList(RoleName.PUBLIC, RoleName.GLOBAL_ADMIN, RoleName.MEMBER);
+
+        List<Long> groupIds = new ArrayList<>();
+        List<Long> roleIds = new ArrayList<>();
+
+        for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
+            if ((newsLink.getGroup() != null && !ignoreRoles.contains(newsLink.getRole().getName()))) {
+                groupIds.add(newsLink.getGroup().getId());
+                roleIds.add(newsLink.getRole().getId());
+            }
+        }
+
+        List<String> emails = userRepository.findUserEmailsByGroupsRoles(groupIds, roleIds);
+        LOG.info("Users to be notified for news alert" + emails.size());
+
+        String currentUserUsername = getCurrentUser().getUsername();
+
+        if (!CollectionUtils.isEmpty(emails)) {
+            Email email = new Email();
+            email.setBcc(true);
+            email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+            email.setSenderName(properties.getProperty("smtp.sender.name"));
+            email.setRecipients(emails.toArray(new String[emails.size()]));
+            email.setSubject("PatientView - News alert");
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("An important item of news has been flagged for your attention by admin user ");
+            sb.append(currentUserUsername);
+            sb.append("<br/>Title : " + entityNewsItem.getHeading());
+            sb.append("<br/>Please login to PatientView and look under your Dashboard or News page for the full details.");
+            sb.append("<br/><br/>Kind regards,<br/>PatientView Team.");
+            email.setBody(sb.toString());
+
+            try {
+                emailService.sendEmail(email);
+            } catch (MessagingException | MailException me) {
+                LOG.error("Could not send news item alert emails: ", me);
+            }
+        }
+
     }
 
     private NewsItem setEditable(final NewsItem newsItem, final User user) {
