@@ -550,7 +550,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             }
         }
 
-        List<String> emails = userRepository.findUserEmailsByGroupsRoles(groupIds, roleIds);
+        List<String> emails = userRepository.findActiveUserEmailsByGroupsRoles(groupIds, roleIds);
         LOG.info("Users to be notified for news alert" + emails.size());
 
         String currentUserUsername = getCurrentUser().getUsername();
