@@ -538,7 +538,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         NewsItem entityNewsItem = newsItemRepository.findById(newsItemId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find news %s", newsItemId)));
 
-        List<RoleName> ignoreRoles = Arrays.asList(RoleName.PUBLIC, RoleName.GLOBAL_ADMIN, RoleName.MEMBER);
+        List<RoleName> ignoreRoles = Arrays.asList(RoleName.PUBLIC);
 
         List<Long> groupIds = new ArrayList<>();
         List<Long> roleIds = new ArrayList<>();
@@ -551,16 +551,15 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         }
 
         List<String> emails = userRepository.findActiveUserEmailsByGroupsRoles(groupIds, roleIds);
-        LOG.info("Users to be notified for news alert" + emails.size());
+        LOG.info("Users to be notified for news alert " + emails.size());
 
         String currentUserUsername = getCurrentUser().getUsername();
 
         if (!CollectionUtils.isEmpty(emails)) {
             Email email = new Email();
-            email.setBcc(true);
+            email.setBcc(false);
             email.setSenderEmail(properties.getProperty("smtp.sender.email"));
             email.setSenderName(properties.getProperty("smtp.sender.name"));
-            email.setRecipients(emails.toArray(new String[emails.size()]));
             email.setSubject("PatientView - News alert");
 
             StringBuilder sb = new StringBuilder();
@@ -571,10 +570,15 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             sb.append("<br/><br/>Kind regards,<br/>PatientView Team.");
             email.setBody(sb.toString());
 
-            try {
-                emailService.sendEmail(email);
-            } catch (MessagingException | MailException me) {
-                LOG.error("Could not send news item alert emails: ", me);
+            // send emails individually
+            for (String emailAddress : emails) {
+                try {
+                    String[] recipients = {emailAddress};
+                    email.setRecipients(recipients);
+                    emailService.sendEmail(email);
+                } catch (MessagingException | MailException me) {
+                    LOG.error("Could not send news item alert emails: ", me);
+                }
             }
         }
 
