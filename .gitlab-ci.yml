@@ -129,7 +129,7 @@ build:staging:web:
     - ls -l
     - cd root/webapp
     - npm install -g bower
-    - npm install -g grunt
+    - npm install -g grunt@1.1.0
     #    - npm install
     - echo "Build and Package Web"
     - ./deploy_nowar.sh minimalssgdev_nowar
@@ -236,7 +236,7 @@ build:prod:web:
     - ls -l
     - cd root/webapp
     - npm install -g bower
-    - npm install -g grunt
+    - npm install -g grunt@1.1.0
     - echo "Build and Package Production Web"
     - ./deploy_nowar.sh minimalssgproduction_nowar
     - echo "DeployingProduction  WEB"
