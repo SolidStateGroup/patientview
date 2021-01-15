@@ -1,6 +1,6 @@
 'use strict';
 var NewsNotifyModalInstanceCtrl = ['$scope', '$rootScope', '$modalInstance', 'newsId', 'NewsService',
-    function ($scope, $rootScope, $modalInstance, newsId, NewsService, ) {
+    function ($scope, $rootScope, $modalInstance, newsId, NewsService) {
 
         $scope.modalLoading = true;
         $scope.newsId = newsId;
