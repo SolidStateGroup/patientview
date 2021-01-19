@@ -540,22 +540,54 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
         List<RoleName> ignoreRoles = Arrays.asList(RoleName.PUBLIC);
 
-        List<Long> groupIds = new ArrayList<>();
-        List<Long> roleIds = new ArrayList<>();
+
+        /*
+            We need to find users based on different Group Role
+            combinations in the news items
+            - By Role only
+            - By Group and Role
+            - By Group only, where Role is 7 (MEMBER), Logged-in Users
+         */
+
+        Set<String> uniqueEmails = new HashSet<>();
 
         for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
-            if ((newsLink.getGroup() != null && !ignoreRoles.contains(newsLink.getRole().getName()))) {
-                groupIds.add(newsLink.getGroup().getId());
-                roleIds.add(newsLink.getRole().getId());
+            if (!ignoreRoles.contains(newsLink.getRole().getName())) {
+
+                if (newsLink.getGroup() == null) {
+                    // find by role, in case where All Groups selected
+                    List<String> emails = userRepository.findActiveUserEmailsByRole(newsLink.getRole().getId());
+                    if (!CollectionUtils.isEmpty(emails)) {
+                        uniqueEmails.addAll(emails);
+                    }
+
+                } else {
+                    // Special Case
+                    // MEMBER Role is stored against Generic group in user's GroupRole
+                    // for news item its selected as Logged in User
+                    // which is essentially a member of the Group
+                    List<String> emails;
+                    if (newsLink.getRole().getName().equals(RoleName.MEMBER)) {
+                        emails = userRepository.findActiveUserEmailsByGroup(newsLink.getGroup().getId());
+
+                    } else {
+                        // otherwise find by Group and Role
+                        emails = userRepository.findActiveUserEmailsByGroupAndRole(
+                                newsLink.getGroup().getId(), newsLink.getRole().getId());
+                    }
+                    if (!CollectionUtils.isEmpty(emails)) {
+                        uniqueEmails.addAll(emails);
+                    }
+                }
             }
         }
 
-        List<String> emails = userRepository.findActiveUserEmailsByGroupsRoles(groupIds, roleIds);
-        LOG.info("Users to be notified for news alert " + emails.size());
+
+        LOG.info("Users to be notified for news alert " + uniqueEmails.size());
 
         String currentUserUsername = getCurrentUser().getUsername();
 
-        if (!CollectionUtils.isEmpty(emails)) {
+        if (!CollectionUtils.isEmpty(uniqueEmails)) {
             Email email = new Email();
             email.setBcc(false);
             email.setSenderEmail(properties.getProperty("smtp.sender.email"));
@@ -571,7 +603,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
             email.setBody(sb.toString());
 
             // send emails individually
-            for (String emailAddress : emails) {
+            for (String emailAddress : uniqueEmails) {
                 try {
                     String[] recipients = {emailAddress};
                     email.setRecipients(recipients);

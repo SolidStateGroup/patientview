@@ -269,10 +269,24 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 
     @Query(value = "SELECT u.email FROM pv_user u, pv_user_group_role ugr  " +
-            "WHERE ugr.group_id IN :groupIds  AND ugr.role_id IN :roleIds " +
+            "WHERE ugr.role_id = :roleId " +
             "AND ugr.user_id = u.id AND u.deleted = false " +
             "AND (u.current_login BETWEEN LOCALTIMESTAMP - INTERVAL '3 months' AND LOCALTIMESTAMP) " +
             "GROUP BY u.id", nativeQuery = true)
-    List<String> findActiveUserEmailsByGroupsRoles(@Param("groupIds") List<Long> groupIds,
-                                             @Param("roleIds") List<Long> roleIds);
+    List<String> findActiveUserEmailsByRole(@Param("roleId") Long roleId);
+
+    @Query(value = "SELECT u.email FROM pv_user u, pv_user_group_role ugr  " +
+            "WHERE ugr.group_id = :groupId " +
+            "AND ugr.user_id = u.id AND u.deleted = false " +
+            "AND (u.current_login BETWEEN LOCALTIMESTAMP - INTERVAL '3 months' AND LOCALTIMESTAMP) " +
+            "GROUP BY u.id", nativeQuery = true)
+    List<String> findActiveUserEmailsByGroup(@Param("groupId") Long groupId);
+
+    @Query(value = "SELECT u.email FROM pv_user u, pv_user_group_role ugr  " +
+            "WHERE ugr.group_id = :groupId  AND ugr.role_id = :roleId " +
+            "AND ugr.user_id = u.id AND u.deleted = false " +
+            "AND (u.current_login BETWEEN LOCALTIMESTAMP - INTERVAL '3 months' AND LOCALTIMESTAMP) " +
+            "GROUP BY u.id", nativeQuery = true)
+    List<String> findActiveUserEmailsByGroupAndRole(@Param("groupId") Long groupId,
+                                             @Param("roleId") Long roleId);
 }
