@@ -24,7 +24,6 @@ import java.util.Map;
  * Created by jamesr@solidstategroup.com
  * Created on 05/08/2014
  */
-@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ConversationService {
 
     /**

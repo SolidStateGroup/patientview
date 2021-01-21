@@ -1,7 +1,8 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.hl7.fhir.instance.model.Organization;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -40,7 +41,7 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
 
     @Inject
     @Named("fhir")
-    private BasicDataSource dataSource;
+    private HikariDataSource dataSource;
 
     private String nhsno;
 
@@ -137,10 +138,13 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
         query.append("\"' ");
 
         // execute and return UUIDs
+        Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             List<Map<String, UUID>> uuids = new ArrayList<>();
 
@@ -150,11 +154,12 @@ public class OrganizationServiceImpl extends AbstractServiceImpl<OrganizationSer
                 ids.put("logicalId", UUID.fromString(results.getString(2)));
                 uuids.add(ids);
             }
-
-            connection.close();
+;
             return uuids;
         } catch (SQLException e) {
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 }

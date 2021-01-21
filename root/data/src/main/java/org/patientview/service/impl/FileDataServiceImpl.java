@@ -1,5 +1,7 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.patientview.service.FileDataService;
 import org.patientview.config.exception.FhirResourceException;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +28,7 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FileDataRepository fileDataRepository;
@@ -92,10 +93,12 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
 
             if (query.length() > 0) {
                 Connection connection = null;
+                Statement statement = null;
+                ResultSet results = null;
                 try {
                     connection = dataSource.getConnection();
-                    Statement statement = connection.createStatement();
-                    ResultSet results = statement.executeQuery(query.toString());
+                    statement = connection.createStatement();
+                    results = statement.executeQuery(query.toString());
 
                     while ((results.next())) {
                         Long foundFileDataId = results.getLong(1);
@@ -105,7 +108,6 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
                         }
                     }
 
-                    connection.close();
                 } catch (SQLException e) {
                     try {
                         if (connection != null) {
@@ -116,6 +118,8 @@ public class FileDataServiceImpl extends AbstractServiceImpl<FileDataServiceImpl
                     }
 
                     throw new FhirResourceException(e);
+                } finally {
+                    DbUtils.closeQuietly(connection, statement, results);
                 }
             }
         }

@@ -78,6 +78,16 @@ angular.module('patientviewApp').factory('NewsService', ['$q', 'Restangular', 'U
                 });
                 return deferred.promise;
             },
+            notify: function (newsId) {
+                var deferred = $q.defer();
+                // POST /news/{newsId}/notify
+                Restangular.one('news', newsId).one('notify').post().then(function (successResult) {
+                    deferred.resolve(successResult);
+                }, function (failureResult) {
+                    deferred.reject(failureResult);
+                });
+                return deferred.promise;
+            },
             // Add new group and role to news links
             addGroupAndRole: function (newsItemId, groupId, roleId) {
                 var deferred = $q.defer();

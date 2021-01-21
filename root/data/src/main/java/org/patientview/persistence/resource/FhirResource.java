@@ -1,5 +1,7 @@
 package org.patientview.persistence.resource;
 
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.formats.JsonComposer;
 import org.hl7.fhir.instance.formats.JsonParser;
@@ -21,11 +23,11 @@ import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -58,7 +60,7 @@ public class FhirResource {
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FhirLinkRepository fhirLinkRepository;
@@ -90,10 +92,11 @@ public class FhirResource {
     public JSONObject create(Resource resource) throws FhirResourceException {
         PGobject result;
         Connection connection = null;
+        CallableStatement proc = null;
 
         try {
             connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_create( ?::jsonb, ?, ?::jsonb, ?::jsonb)}");
+            proc = connection.prepareCall("{call fhir_create( ?::jsonb, ?, ?::jsonb, ?::jsonb)}");
             proc.setObject(1, config);
             proc.setObject(2, resource.getResourceType().name());
             proc.setObject(3, marshallFhirRecord(resource));
@@ -104,8 +107,6 @@ public class FhirResource {
             result = (PGobject) proc.getObject(1);
             JSONObject jsonObject = new JSONObject(result.getValue());
 
-            proc.close();
-            connection.close();
             return jsonObject;
         } catch (SQLException e) {
             LOG.error("Unable to build resource {}", e);
@@ -123,6 +124,16 @@ public class FhirResource {
             throw new FhirResourceException(e);
         } catch (Exception e) {
             throw new FhirResourceException(e);
+        } finally {
+            try {
+                if (proc != null) {
+                    proc.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close CallableStatement {}", e2);
+            }
+
+            DbUtils.closeQuietly(connection);
         }
     }
 
@@ -160,14 +171,14 @@ public class FhirResource {
 
         //LOG.debug("Delete {} resource {}", resourceType.toString(), uuid.toString());
         Connection connection = null;
+        CallableStatement proc = null;
         try {
             connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_delete( ?::jsonb, ?, ?)}");
+            proc = connection.prepareCall("{call fhir_delete( ?::jsonb, ?, ?)}");
             proc.setObject(1, config);
             proc.setObject(2, resourceType.name());
             proc.setObject(3, uuid);
-            proc.execute();
-            connection.close();
+
         } catch (SQLException e) {
             LOG.error("Unable to delete resource {}", e);
             // try and close the open connection
@@ -179,6 +190,16 @@ public class FhirResource {
                 LOG.error("Cannot close connection {}", e2);
                 throw new FhirResourceException(e2.getMessage());
             }
+        } finally {
+            try {
+                if (proc != null) {
+                    proc.close();
+                }
+            } catch (SQLException e) {
+                LOG.error("Cannot close CallableStatement {}", e);
+            }
+
+            DbUtils.closeQuietly(connection);
         }
     }
 
@@ -194,11 +215,12 @@ public class FhirResource {
 
     public void executeSQL(String sql) throws FhirResourceException {
         Connection connection = null;
+        java.sql.Statement statement = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             statement.execute(sql);
-            connection.close();
+
         } catch (SQLException e) {
             LOG.error("SQL exception: " + sql);
             LOG.error("SQL exception:", e);
@@ -225,16 +247,21 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
     }
 
+    @Transactional(readOnly = true)
     public List<String[]> findLatestObservationsByQuery(String sql) throws FhirResourceException {
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(sql);
+            statement = connection.createStatement();
+            results = statement.executeQuery(sql);
 
             List<String[]> observations = new ArrayList<>();
 
@@ -244,7 +271,6 @@ public class FhirResource {
                 observations.add(res);
             }
 
-            connection.close();
             return observations;
         } catch (SQLException e) {
             LOG.error("Unable to find latest observations by query {}", e);
@@ -260,6 +286,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -273,13 +301,15 @@ public class FhirResource {
      * @return a list of array values
      * @throws FhirResourceException
      */
+    @Transactional(readOnly = true)
     public List<String[]> findValuesByQueryAndArray(String sql, int size) throws FhirResourceException {
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(sql);
+            statement = connection.createStatement();
+            results = statement.executeQuery(sql);
 
             List<String[]> observations = new ArrayList<>();
 
@@ -292,7 +322,6 @@ public class FhirResource {
                 observations.add(res);
             }
 
-            connection.close();
             return observations;
         } catch (SQLException e) {
             LOG.error("Unable to find values by query {}", e);
@@ -308,17 +337,20 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
     public <T extends Resource> List<T> findResourceByQuery(String sql, Class<T> resourceType)
             throws FhirResourceException {
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(sql);
+            statement = connection.createStatement();
+            results = statement.executeQuery(sql);
             List<T> resultsList = convertResultSet(results);
             connection.close();
             return resultsList;
@@ -336,6 +368,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -361,9 +395,10 @@ public class FhirResource {
         //LOG.debug("Getting {} resource {}", resourceType.toString(), uuid.toString());
         PGobject result;
         Connection connection = null;
+        CallableStatement proc = null;
         try {
             connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
+            proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
             proc.setObject(1, config);
             proc.setObject(2, resourceType.name());
             proc.setObject(3, uuid);
@@ -371,8 +406,7 @@ public class FhirResource {
             proc.execute();
             result = (PGobject) proc.getObject(1);
             JSONObject jsonObject = new JSONObject(result.getValue());
-            proc.close();
-            connection.close();
+
             return jsonObject;
         } catch (SQLException e) {
             LOG.error("Unable to get bundle {}", e);
@@ -388,6 +422,16 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            try {
+                if (proc != null) {
+                    proc.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close CallableStatement {}", e2);
+            }
+
+            DbUtils.closeQuietly(connection);
         }
     }
 
@@ -421,19 +465,19 @@ public class FhirResource {
         }
 
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
 
             while ((results.next())) {
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             LOG.error("Unable to get logical ids by subject id {}", e);
@@ -449,12 +493,16 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
     public Long getCountEncounterBySubjectIdsAndCodes(List<UUID> subjectIds, List<String> codeList)
             throws FhirResourceException {
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         Long result;
 
         // convert list of UUID and code to suitable string
@@ -474,14 +522,13 @@ public class FhirResource {
         // execute and return map of logical ids and applies
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             // get a single result
             results.next();
             result = results.getLong(1);
 
-            connection.close();
         } catch (SQLException e) {
             LOG.error("Unable to get encounter counts: {}", e);
 
@@ -496,6 +543,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return result;
@@ -504,6 +553,8 @@ public class FhirResource {
     public Long getCountEncounterBySubjectIdsAndNotCodes(List<UUID> subjectIds, List<String> codeList)
             throws FhirResourceException {
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         Long result;
 
         // convert list of UUID and code to suitable string
@@ -523,14 +574,13 @@ public class FhirResource {
         // execute and return map of logical ids and applies
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             // get a single result
             results.next();
             result = results.getLong(1);
 
-            connection.close();
         } catch (SQLException e) {
             LOG.error("Unable to get encounter counts: {}", e);
 
@@ -545,6 +595,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return result;
@@ -553,6 +605,8 @@ public class FhirResource {
     public Long getCountEncounterTreatmentBySubjectIds(List<UUID> subjectIds)
             throws FhirResourceException {
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         Long result;
 
         // convert list of UUID and code to suitable string
@@ -570,14 +624,13 @@ public class FhirResource {
         // execute and return map of logical ids and applies
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             // get a single result
             results.next();
             result = results.getLong(1);
 
-            connection.close();
         } catch (SQLException e) {
             LOG.error("Unable to get encounter counts: {}", e);
 
@@ -592,6 +645,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return result;
@@ -601,6 +656,8 @@ public class FhirResource {
             throws FhirResourceException {
         Map<String, String> existingMap = new HashMap<>();
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
 
         // build query
         StringBuilder query = new StringBuilder();
@@ -613,14 +670,13 @@ public class FhirResource {
         // execute and return map of logical ids and applies
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            statement.executeQuery(query.toString());
 
             while ((results.next())) {
                 existingMap.put(results.getString(1), results.getString(2));
             }
 
-            connection.close();
         } catch (SQLException e) {
             LOG.error("Unable to get location uuids by logical id {}", e);
 
@@ -635,6 +691,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return existingMap;
@@ -650,14 +708,15 @@ public class FhirResource {
         //LOG.info(query.toString());
 
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
 
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             Map<String, List<String>> toReturn = new HashMap<>();
-
 
             while ((results.next())) {
 
@@ -668,7 +727,6 @@ public class FhirResource {
                 toReturn.get(results.getString(1)).add(results.getString(2));
             }
 
-            connection.close();
             return toReturn;
         } catch (SQLException e) {
             LOG.error("Unable to retrieve {}", e);
@@ -684,6 +742,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -692,6 +752,8 @@ public class FhirResource {
             throws FhirResourceException {
         Map<String, String> existingMap = new HashMap<>();
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
 
         // build query
         StringBuilder query = new StringBuilder();
@@ -705,8 +767,8 @@ public class FhirResource {
         // execute and return map of logical ids and applies
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             while ((results.next())) {
                 if (StringUtils.isNotEmpty(results.getString(2)) && StringUtils.isNotEmpty(results.getString(3))) {
@@ -720,7 +782,6 @@ public class FhirResource {
                 }
             }
 
-            connection.close();
         } catch (SQLException e) {
             LOG.error("Unable to get location uuids by logical id {}", e);
 
@@ -735,6 +796,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return existingMap;
@@ -750,18 +813,20 @@ public class FhirResource {
     public List<GpPatient> getGpPatientsFromPostcode(String gpPostcode) {
         List<GpPatient> gpPatients = new ArrayList<>();
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
 
         try {
             // get logical_id and name of GP from FHIR practitioners where postcode matches
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             String query = "SELECT logical_id, CONTENT -> 'name' #>> '{family,0}' " +
                     "FROM practitioner " +
                     "WHERE CONTENT -> 'address' ->> 'zip' = '" + gpPostcode  + "' " +
                     "OR CONTENT -> 'address' ->> 'zip' = '" + gpPostcode.replace(" ", "")  + "' " +
                     "GROUP BY logical_id";
 
-            ResultSet results = statement.executeQuery(query);
+            results = statement.executeQuery(query);
 
             Map<String, Map<String, String>> practitionerMap = new HashMap<>();
 
@@ -824,6 +889,8 @@ public class FhirResource {
             } catch (SQLException e2) {
                 LOG.error("Cannot close connection:", e2);
             }
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return gpPatients;
@@ -841,17 +908,18 @@ public class FhirResource {
         query.append("' ");
 
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
 
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             while ((results.next())) {
                 output = results.getString(1);
             }
 
-            connection.close();
         } catch (SQLException e) {
             LOG.error("Unable to get location uuids by logical id {}", e);
 
@@ -866,11 +934,14 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         return output;
     }
 
+    @Transactional(readOnly = true)
     public List<UUID> getLogicalIdsBySubjectId(final String tableName, final UUID subjectId)
             throws FhirResourceException {
 
@@ -884,19 +955,20 @@ public class FhirResource {
         query.append("' ");
 
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
 
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
 
             while ((results.next())) {
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             LOG.error("Unable to get logical ids by subject id {}", e);
@@ -910,8 +982,9 @@ public class FhirResource {
                 LOG.error("Cannot close connection {}", e2);
                 throw new FhirResourceException(e2.getMessage());
             }
-
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -931,19 +1004,20 @@ public class FhirResource {
         query.append("' ");
 
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
 
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
 
             while ((results.next())) {
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             LOG.error("Unable to get logical ids by subject id {}", e);
@@ -959,6 +1033,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -990,12 +1066,13 @@ public class FhirResource {
         }
 
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
 
             while ((results.next())) {
@@ -1022,7 +1099,6 @@ public class FhirResource {
 
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             LOG.error("Unable to get logical ids by subject id {}", e);
@@ -1038,6 +1114,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -1069,19 +1147,19 @@ public class FhirResource {
         }
 
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
 
             while ((results.next())) {
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             LOG.error("Unable to get logical ids by subject id {}", e);
@@ -1097,6 +1175,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -1113,19 +1193,19 @@ public class FhirResource {
         query.append("' ");
 
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<UUID> uuids = new ArrayList<>();
 
             while ((results.next())) {
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             LOG.error("Unable to retrieve resource {}", e);
@@ -1141,6 +1221,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -1164,6 +1246,7 @@ public class FhirResource {
         return findResourceByQuery(query, Observation.class);
     }
 
+    @Transactional(readOnly = true)
     public List<UUID> getObservationUuidsBySubjectNameDateRange(UUID subjectId, String name, Date start, Date end)
             throws FhirResourceException {
 
@@ -1179,12 +1262,13 @@ public class FhirResource {
         query.append("' ");
 
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         // execute and return map of logical ids
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<UUID> observationUuids = new ArrayList<>();
 
             while ((results.next())) {
@@ -1204,7 +1288,6 @@ public class FhirResource {
                 }
             }
 
-            connection.close();
             return observationUuids;
         } catch (SQLException e) {
             LOG.error("Unable to get logical ids by subject id, date range {}", e);
@@ -1220,6 +1303,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -1234,9 +1319,10 @@ public class FhirResource {
         LOG.debug("Getting resource {}", uuid.toString());
         PGobject result;
         Connection connection = null;
+        CallableStatement proc = null;
         try {
             connection = dataSource.getConnection();
-            CallableStatement proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
+            proc = connection.prepareCall("{call fhir_read( ?::jsonb, ?, ?)}");
             proc.setObject(1, config);
             proc.setObject(2, resourceType.name());
             proc.setObject(3, uuid);
@@ -1244,8 +1330,7 @@ public class FhirResource {
             proc.execute();
             result = (PGobject) proc.getObject(1);
             JSONObject jsonObject = new JSONObject(result.getValue());
-            proc.close();
-            connection.close();
+
             return jsonObject;
         } catch (SQLException e) {
             LOG.error("Unable to retrieve resource {}", e);
@@ -1261,6 +1346,16 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            try {
+                if (proc != null) {
+                    proc.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close CallableStatement {}", e2);
+            }
+
+            DbUtils.closeQuietly(connection);
         }
     }
 
@@ -1291,19 +1386,18 @@ public class FhirResource {
 
     public List<UUID> getUuidByQuery(final String query) throws FhirResourceException {
         Connection connection = null;
-
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         // execute and return UUIDs
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query);
+            statement = connection.createStatement();
+            results = statement.executeQuery(query);
             List<UUID> uuids = new ArrayList<>();
 
             while ((results.next())) {
                 uuids.add(UUID.fromString(results.getString(1)));
             }
-
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             LOG.error("Unable to retrieve resource {}", e);
@@ -1319,6 +1413,8 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -1344,10 +1440,10 @@ public class FhirResource {
 
         PGobject result;
         Connection connection = null;
+        CallableStatement proc = null;
         try {
             connection = dataSource.getConnection();
-            CallableStatement proc
-                    = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
+            proc = connection.prepareCall("{call fhir_update( ?::jsonb, ?, ?, ?,  ?::jsonb, ?::jsonb)}");
             proc.setObject(1, config);
             proc.setObject(2, resource.getResourceType().name());
             proc.setObject(3, fhirLink.getResourceId());
@@ -1359,10 +1455,8 @@ public class FhirResource {
 
             result = (PGobject) proc.getObject(1);
             JSONObject jsonObject = new JSONObject(result.getValue());
-            proc.close();
-            connection.close();
-            return getVersionId(jsonObject);
 
+            return getVersionId(jsonObject);
         } catch (SQLException e) {
             LOG.error("Unable to update resource {}", e);
 
@@ -1377,6 +1471,16 @@ public class FhirResource {
             }
 
             throw new FhirResourceException(e.getMessage());
+        } finally {
+            try {
+                if (proc != null) {
+                    proc.close();
+                }
+            } catch (SQLException e2) {
+                LOG.error("Cannot close CallableStatement {}", e2);
+            }
+
+            DbUtils.closeQuietly(connection);
         }
     }
 

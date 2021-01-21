@@ -167,6 +167,10 @@ public class MyMediaController extends BaseController<MyMediaController> {
     private void getMyMediaImage(byte[] content, HttpServletResponse response)
             throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
         InputStream is = null;
+        if(content == null){
+            LOG.error("Missing content for Media Image");
+            return;
+        }
 
         try {
             response.setContentType(MediaType.IMAGE_JPEG_VALUE);
@@ -204,10 +208,12 @@ public class MyMediaController extends BaseController<MyMediaController> {
      * @throws UnsupportedEncodingException
      * @throws ResourceForbiddenException
      */
-    private void getMyMediaVideo(org.patientview.api.model.MyMedia myMedia,
-                                 HttpServletResponse response)
-            throws ResourceNotFoundException, UnsupportedEncodingException, ResourceForbiddenException {
+    private void getMyMediaVideo(org.patientview.api.model.MyMedia myMedia, HttpServletResponse response) {
         InputStream is = null;
+
+        if (myMedia == null) {
+            return;
+        }
 
         try {
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);

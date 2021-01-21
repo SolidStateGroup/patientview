@@ -1,7 +1,8 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
@@ -34,6 +35,8 @@ import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.ObservationService;
 import org.patientview.util.Util;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
@@ -62,6 +65,7 @@ import java.util.UUID;
  * Created on 01/09/2014
  */
 @Service
+@Transactional(readOnly = true)
 public class ObservationServiceImpl extends AbstractServiceImpl<ObservationService> implements ObservationService {
 
     @Inject
@@ -69,7 +73,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
 
     @Inject
     @Named("fhir")
-    private BasicDataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FhirResource fhirResource;
@@ -84,6 +88,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     /**
      * Creates all of the FHIR observation records from the Patientview object. Links then to the PatientReference
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void add(final Patientview data, final FhirLink fhirLink) throws FhirResourceException, SQLException {
 
@@ -254,6 +259,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void add(FhirObservation fhirObservation, FhirLink fhirLink) throws FhirResourceException {
         ObservationBuilder observationBuilder
@@ -442,6 +448,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return identifier;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteAllExistingObservationData(Set<FhirLink> fhirLinks) throws FhirResourceException {
 
@@ -453,6 +460,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteObservations(List<UUID> observationsUuidsToDelete) throws FhirResourceException {
         if (!CollectionUtils.isEmpty(observationsUuidsToDelete)) {
@@ -477,6 +485,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
     private List<BasicObservation> getBasicObservationBySubjectId(final UUID subjectId)
             throws FhirResourceException {
 
+        Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             // build query
             StringBuilder query = new StringBuilder();
@@ -487,9 +498,9 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
             query.append("' ");
 
             // execute and return map of logical ids and applies
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
             List<BasicObservation> observations = new ArrayList<>();
 
             while ((results.next())) {
@@ -519,11 +530,12 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
                 }
             }
 
-            connection.close();
             return observations;
         } catch (Exception e) {
             LOG.error("Error getting existing observations", e);
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -550,6 +562,7 @@ public class ObservationServiceImpl extends AbstractServiceImpl<ObservationServi
         return null;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void insertFhirDatabaseObservations(List<FhirDatabaseObservation> fhirDatabaseObservations)
             throws FhirResourceException {

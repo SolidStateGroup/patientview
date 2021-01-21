@@ -7,12 +7,12 @@
             <p>Select Group and Recipient, then add your Title and Message.</p>
         </div>
         <div class="modal-body">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <form name="conversationFormNew" data-ng-model="newConversation">
                 <div data-ng-include src="'views/partials/conversationDetailsNew.html'" data-ng-controller="ConversationDetailsCtrl"></div>
             </form>
         </div>
         <div class="modal-footer">
-            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" data-ng-click="cancel()">Cancel</button>
             <button class="btn btn-primary" data-ng-click="ok()"
                     data-ng-disabled="!conversationFormNew.$valid || (newConversation.recipients.length < 1)"
@@ -26,12 +26,12 @@
             <p>Select Group and Recipient to add them to the conversation, you can also remove yourself from the conversation.</p>
         </div>
         <div class="modal-body">
+            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <form name="conversationFormEdit" data-ng-model="editConversation">
                 <div data-ng-include src="'views/partials/changeConversationRecipients.html'"></div>
             </form>
         </div>
         <div class="modal-footer">
-            <div class="alert alert-danger" data-ng-show="errorMessage">There was an error {{errorMessage}}</div>
             <button class="btn btn-grey" data-ng-click="cancel()">Close</button>
         </div>
     </script>
@@ -135,7 +135,7 @@
                         </div>
                         
                         <p class="message-content" ng-bind-html="parseHTMLText(conversation.messages[conversation.messages.length-1].message)"></p>
-                        <div class="media-thumbnail pull-left" ng-show="conversation.messages[conversation.messages.length-1].hasAttachment">
+                        <div class="media-thumbnail pull-left" ng-if="conversation.messages[conversation.messages.length-1].hasAttachment">
                             <div class="media-body">
                                 <div ng-show="conversation.messages[conversation.messages.length-1].hasAttachment &&
                         conversation.messages[conversation.messages.length-1].myMedia != null &&
@@ -222,7 +222,7 @@
                         </h4>
                         <p class="message-content" data-ng-bind-html="parseHTMLText(message.message)"></p>
 
-                        <div class="media-thumbnail pull-left" ng-show="message.hasAttachment">
+                        <div class="media-thumbnail pull-left" ng-if="message.hasAttachment">
                             <div class="media-body">
                                 <div>
                                     <a ng-show="message.hasAttachment && (message.myMedia != null && !message.myMedia.deleted)"

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
@@ -44,6 +45,7 @@ import java.util.List;
  * Created by james@solidstategroup.com
  * Created on 20/06/2014
  */
+@Transactional(readOnly = true)
 @Service
 public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> implements MyMediaService {
 
@@ -55,6 +57,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
     private UserRepository userRepository;
 
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public org.patientview.api.model.MyMedia save(Long userId, MyMedia myMedia) throws ResourceNotFoundException,
             ResourceForbiddenException,
@@ -98,6 +101,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
         return createMyMediaDto(media);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void delete(Long myMediaId) throws ResourceNotFoundException, ResourceForbiddenException,
             UnsupportedEncodingException {
@@ -157,7 +161,7 @@ public class MyMediaServiceImpl extends AbstractServiceImpl<MyMediaServiceImpl> 
         return new org.patientview.api.model.MyMedia(myMedia);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteMediaForUser(User user){
         myMediaRepository.deleteByUser(user);

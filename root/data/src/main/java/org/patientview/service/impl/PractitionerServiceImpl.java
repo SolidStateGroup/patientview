@@ -1,7 +1,8 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Address;
 import org.hl7.fhir.instance.model.Contact;
@@ -48,7 +49,7 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
 
     @Inject
     @Named("fhir")
-    private BasicDataSource dataSource;
+    private HikariDataSource dataSource;
 
     private String nhsno;
 
@@ -278,11 +279,15 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
             query.append("AND (content #> '{role,0}' ->> 'text') IS NULL ");
         }
 
+        Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
+
         // execute and return UUIDs
         try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             List<Map<String, UUID>> uuids = new ArrayList<>();
 
@@ -293,10 +298,11 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                 uuids.add(ids);
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -347,10 +353,13 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         query.append("\"]'");
 
         // execute and return UUIDs
+        Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             List<UUID> uuids = new ArrayList<>();
 
@@ -358,10 +367,11 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 
@@ -378,10 +388,13 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
         query.append("\"}]'");
 
         // execute and return UUIDs
+        Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
-            Connection connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            connection = dataSource.getConnection();
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             List<UUID> uuids = new ArrayList<>();
 
@@ -389,10 +402,11 @@ public class PractitionerServiceImpl extends AbstractServiceImpl<PractitionerSer
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 }

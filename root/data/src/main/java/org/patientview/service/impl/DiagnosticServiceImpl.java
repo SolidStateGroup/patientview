@@ -1,7 +1,9 @@
 package org.patientview.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import generated.Patientview;
 import generated.Patientview.Patient.Diagnostics.Diagnostic;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.CodeableConcept;
 import org.hl7.fhir.instance.model.DateAndTime;
@@ -30,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -54,7 +55,7 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     private String nhsno;
 
@@ -399,10 +400,12 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
         StringBuilder observationIn = new StringBuilder("'");
         List<UUID> mediaUuids = new ArrayList<>();
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             while ((results.next())) {
                 observationIn.append(results.getString(1));
@@ -412,7 +415,6 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
                 }
             }
 
-            connection.close();
         } catch (SQLException e) {
             if (connection != null) {
                 try {
@@ -423,6 +425,8 @@ public class DiagnosticServiceImpl extends AbstractServiceImpl<DiagnosticService
             }
 
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
 
         if (observationIn.length() > 2) {
