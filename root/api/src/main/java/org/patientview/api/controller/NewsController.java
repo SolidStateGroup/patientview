@@ -14,13 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 
@@ -246,5 +240,19 @@ public class NewsController extends BaseController<NewsController> {
     @ResponseBody
     public void save(@RequestBody NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException {
         newsService.save(newsItem);
+    }
+
+
+    /**
+     * Send email notification to all users in Group Roles for the NewsItem.
+     *
+     * @param newsItemId ID of NewsItem to send notification for
+     * @throws ResourceNotFoundException
+     */
+    @RequestMapping(value = "/news/{newsItemId}/notify", method = RequestMethod.POST)
+    @ResponseBody
+    public void notifyUsers(@PathVariable("newsItemId") Long newsItemId)
+            throws ResourceNotFoundException {
+        newsService.notifyUsers(newsItemId);
     }
 }

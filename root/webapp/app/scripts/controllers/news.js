@@ -16,12 +16,19 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
             permissions.isSuperAdmin = UserService.checkRoleExists('GLOBAL_ADMIN', $scope.loggedInUser);
             permissions.isSpecialtyAdmin = UserService.checkRoleExists('SPECIALTY_ADMIN', $scope.loggedInUser);
             permissions.isUnitAdmin = UserService.checkRoleExists('UNIT_ADMIN', $scope.loggedInUser);
+            permissions.isDiseaseAdmin = UserService.checkRoleExists('DISEASE_GROUP_ADMIN', $scope.loggedInUser);
+            permissions.isGpAdmin = UserService.checkRoleExists('GP_ADMIN', $scope.loggedInUser);
 
             permissions.canAddAllGroups = permissions.isSuperAdmin;
             permissions.canAddPublicRole = permissions.isSuperAdmin || permissions.isSpecialtyAdmin;
 
             if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin || permissions.isUnitAdmin) {
                 permissions.canAddNews = true;
+            }
+
+            if (permissions.isSuperAdmin || permissions.isSpecialtyAdmin || permissions.isUnitAdmin ||
+                permissions.isDiseaseAdmin || permissions.isGpAdmin) {
+                permissions.canNotifyUsers = true;
             }
 
             $scope.permissions = permissions;
@@ -165,6 +172,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
         // open modal for new news
         $scope.openModalNewNews = function (size) {
             $scope.errorMessage = '';
+            $scope.successMessage = '';
             $scope.editMode = false;
 
             var modalInstance = $modal.open({
@@ -212,6 +220,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
         $scope.edit = function (news) {
             var i;
             $scope.saved = '';
+            $scope.successMessage = '';
 
             if (news.showEdit) {
                 $scope.editNews = '';
@@ -257,6 +266,7 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
 
         // Save from edit
         $scope.save = function (editNewsForm, news) {
+            $scope.successMessage = '';
             NewsService.save(news, news.newsType).then(function () {
 
                 // successfully saved, replace existing element in data grid with updated
@@ -286,7 +296,35 @@ angular.module('patientviewApp').controller('NewsCtrl', ['$scope', '$modal', '$q
             });
         };
 
+        // notify users, opens modal
+        $scope.notify = function (newsId, $event) {
+            $event.stopPropagation();
+            $scope.successMessage = '';
+
+            var modalInstance = $modal.open({
+                templateUrl: 'newsNotificationModal.html',
+                controller: NewsNotifyModalInstanceCtrl,
+                resolve: {
+                    newsId: function () {
+                        return newsId;
+                    },
+                    NewsService: function () {
+                        return NewsService;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                $scope.successMessage = 'Users have been successfully notified.';
+            }, function () {
+                // closed
+            });
+
+        };
+
         $scope.remove = function (news) {
+            $scope.successMessage = '';
+
             NewsService.remove(news).then(function () {
                 $scope.loading = true;
                 NewsService.getByUser($scope.loggedInUser.id, $scope.newsType, false, $scope.currentPage, $scope.itemsPerPage).then(function (page) {
