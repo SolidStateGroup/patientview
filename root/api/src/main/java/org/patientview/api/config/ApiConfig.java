@@ -117,7 +117,7 @@ public class ApiConfig {
      *
      * @return ThreadPoolTaskExecutor
      */
-    @Bean
+    @Bean(name = "threadPoolTaskExecutor")
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(5);
@@ -132,6 +132,7 @@ public class ApiConfig {
      * @return Executor
      */
     @Bean
+    @Primary
     public Executor taskScheduler() {
         return Executors.newScheduledThreadPool(5);
     }

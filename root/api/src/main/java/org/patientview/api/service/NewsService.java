@@ -156,4 +156,14 @@ public interface NewsService {
      */
     @RoleOnly(roles = {RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN })
     void save(NewsItem newsItem) throws ResourceNotFoundException, ResourceForbiddenException;
+
+    /**
+     * Send email notification to all users in Group Roles for the NewsItem.
+     *
+     * @param newsItemId a NewsItem to sent notification for
+     * @throws ResourceNotFoundException
+     */
+    @RoleOnly(roles = {RoleName.GLOBAL_ADMIN, RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN,
+            RoleName.DISEASE_GROUP_ADMIN, RoleName.GP_ADMIN})
+    void notifyUsers(Long newsItemId) throws ResourceNotFoundException;
 }

@@ -1,6 +1,7 @@
 package org.patientview.api.service.impl;
 
-import org.apache.commons.dbcp2.BasicDataSource;
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Patient;
@@ -28,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -67,11 +67,8 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
     private Properties properties;
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
     @Named("patientView")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     /**
      * Store kidney transplant status for a User using a TRANSPLANT_STATUS_KIDNEY Encounter in FHIR.
@@ -147,6 +144,8 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
         if (exportEnabled) {
 
             Connection connection = null;
+            java.sql.Statement statement = null;
+            ResultSet results = null;
             try {
                 BufferedWriter logWriter
                         = new BufferedWriter(new FileWriter(exportDirectory + "/" + logFilename, true));
@@ -169,8 +168,8 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                         " GROUP BY u.id, i.identifier ";
 
                 connection = dataSource.getConnection();
-                java.sql.Statement statement = connection.createStatement();
-                ResultSet results = statement.executeQuery(querySql);
+                statement = connection.createStatement();
+                results = statement.executeQuery(querySql);
                 results.setFetchSize(1000);
 
                 int totalPatients = 0;
@@ -253,6 +252,8 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                     }
                 }
                 throw new UktException(e);
+            } finally {
+                DbUtils.closeQuietly(connection, statement, results);
             }
         }
 

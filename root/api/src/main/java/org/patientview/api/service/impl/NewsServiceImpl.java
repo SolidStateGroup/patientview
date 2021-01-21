@@ -3,11 +3,13 @@ package org.patientview.api.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.patientview.api.service.EmailService;
 import org.patientview.api.service.NewsService;
 import org.patientview.api.service.StaticDataManager;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.config.exception.ResourceNotFoundException;
+import org.patientview.persistence.model.Email;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.NewsItem;
@@ -28,10 +30,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +45,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.patientview.api.util.ApiUtil.getCurrentUser;
@@ -70,6 +76,12 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private Properties properties;
+
+    @Inject
+    private EmailService emailService;
 
     @CacheEvict(value = "findNewsByUserId", allEntries = true)
     public Long add(final NewsItem newsItem) {
@@ -518,6 +530,90 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         entityNewsItem.setLastUpdate(new Date());
         entityNewsItem.setLastUpdater(userRepository.findById(getCurrentUser().getId()).get());
         newsItemRepository.save(entityNewsItem);
+    }
+
+    @Transactional(readOnly = true)
+    public void notifyUsers(Long newsItemId) throws ResourceNotFoundException {
+
+        NewsItem entityNewsItem = newsItemRepository.findById(newsItemId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find news %s", newsItemId)));
+
+        List<RoleName> ignoreRoles = Arrays.asList(RoleName.PUBLIC);
+
+
+        /*
+            We need to find users based on different Group Role
+            combinations in the news items
+            - By Role only
+            - By Group and Role
+            - By Group only, where Role is 7 (MEMBER), Logged-in Users
+         */
+
+        Set<String> uniqueEmails = new HashSet<>();
+
+        for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
+            if (!ignoreRoles.contains(newsLink.getRole().getName())) {
+
+                if (newsLink.getGroup() == null) {
+                    // find by role, in case where All Groups selected
+                    List<String> emails = userRepository.findActiveUserEmailsByRole(newsLink.getRole().getId());
+                    if (!CollectionUtils.isEmpty(emails)) {
+                        uniqueEmails.addAll(emails);
+                    }
+
+                } else {
+                    // Special Case
+                    // MEMBER Role is stored against Generic group in user's GroupRole
+                    // for news item its selected as Logged in User
+                    // which is essentially a member of the Group
+                    List<String> emails;
+                    if (newsLink.getRole().getName().equals(RoleName.MEMBER)) {
+                        emails = userRepository.findActiveUserEmailsByGroup(newsLink.getGroup().getId());
+
+                    } else {
+                        // otherwise find by Group and Role
+                        emails = userRepository.findActiveUserEmailsByGroupAndRole(
+                                newsLink.getGroup().getId(), newsLink.getRole().getId());
+                    }
+                    if (!CollectionUtils.isEmpty(emails)) {
+                        uniqueEmails.addAll(emails);
+                    }
+                }
+            }
+        }
+
+
+        LOG.info("Users to be notified for news alert " + uniqueEmails.size());
+
+        String currentUserUsername = getCurrentUser().getUsername();
+
+        if (!CollectionUtils.isEmpty(uniqueEmails)) {
+            Email email = new Email();
+            email.setBcc(false);
+            email.setSenderEmail(properties.getProperty("smtp.sender.email"));
+            email.setSenderName(properties.getProperty("smtp.sender.name"));
+            email.setSubject("PatientView - News alert");
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("An important item of news has been flagged for your attention by admin user ");
+            sb.append(currentUserUsername);
+            sb.append("<br/>Title : " + entityNewsItem.getHeading());
+            sb.append("<br/>Please login to PatientView and look under your Dashboard or News page for the full details.");
+            sb.append("<br/><br/>Kind regards,<br/>PatientView Team.");
+            email.setBody(sb.toString());
+
+            // send emails individually
+            for (String emailAddress : uniqueEmails) {
+                try {
+                    String[] recipients = {emailAddress};
+                    email.setRecipients(recipients);
+                    emailService.sendEmail(email);
+                } catch (MessagingException | MailException me) {
+                    LOG.error("Could not send news item alert emails: ", me);
+                }
+            }
+        }
+
     }
 
     private NewsItem setEditable(final NewsItem newsItem, final User user) {

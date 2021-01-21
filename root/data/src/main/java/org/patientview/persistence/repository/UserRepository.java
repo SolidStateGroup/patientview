@@ -51,49 +51,49 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByIdentifier(@Param("identifier") String identifier);
 
     @Query("SELECT u " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "JOIN u.identifiers i " +
-           "WHERE gr.role.id IN :roleIds " +
-           "AND gr.group.id IN :groupIds " +
-           "AND (UPPER(u.username) LIKE :searchUsername) " +
-           "AND (UPPER(u.forename) LIKE :searchForename) " +
-           "AND (UPPER(u.surname) LIKE :searchSurname) " +
-           "AND (UPPER(u.email) LIKE :searchEmail) " +
-           "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "JOIN u.identifiers i " +
+            "WHERE gr.role.id IN :roleIds " +
+            "AND gr.group.id IN :groupIds " +
+            "AND (UPPER(u.username) LIKE :searchUsername) " +
+            "AND (UPPER(u.forename) LIKE :searchForename) " +
+            "AND (UPPER(u.surname) LIKE :searchSurname) " +
+            "AND (UPPER(u.email) LIKE :searchEmail) " +
+            "AND (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :searchIdentifier)) " +
             "AND u.deleted = false " +
             "GROUP BY u.id " +
             "HAVING COUNT(gr) = :groupCount")
     Page<User> findPatientByGroupsRolesAnd(@Param("searchUsername") String searchUsername,
-                                @Param("searchForename") String searchForename,
-                                @Param("searchSurname") String searchSurname,
-                                @Param("searchEmail") String searchEmail,
-                                @Param("searchIdentifier") String searchIdentifier,
-                                @Param("groupIds") List<Long> groupIds,
-                                @Param("roleIds") List<Long> roleIds,
-                                @Param("groupCount") Long groupCount,
-                                Pageable pageable);
+                                           @Param("searchForename") String searchForename,
+                                           @Param("searchSurname") String searchSurname,
+                                           @Param("searchEmail") String searchEmail,
+                                           @Param("searchIdentifier") String searchIdentifier,
+                                           @Param("groupIds") List<Long> groupIds,
+                                           @Param("roleIds") List<Long> roleIds,
+                                           @Param("groupCount") Long groupCount,
+                                           Pageable pageable);
 
     @Query("SELECT u " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "WHERE gr.role.id IN :roleIds " +
-           "AND (gr.group.id) IN (:groupIds) " +
-           "AND (UPPER(u.username) LIKE :searchUsername) " +
-           "AND (UPPER(u.forename) LIKE :searchForename) " +
-           "AND (UPPER(u.surname) LIKE :searchSurname) " +
-           "AND (UPPER(u.email) LIKE :searchEmail) " +
-           "AND u.deleted = false " +
-           "GROUP BY u.id " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "WHERE gr.role.id IN :roleIds " +
+            "AND (gr.group.id) IN (:groupIds) " +
+            "AND (UPPER(u.username) LIKE :searchUsername) " +
+            "AND (UPPER(u.forename) LIKE :searchForename) " +
+            "AND (UPPER(u.surname) LIKE :searchSurname) " +
+            "AND (UPPER(u.email) LIKE :searchEmail) " +
+            "AND u.deleted = false " +
+            "GROUP BY u.id " +
             "HAVING COUNT(gr) = :groupCount")
     Page<User> findStaffByGroupsRolesAnd(@Param("searchUsername") String searchUsername,
-                                 @Param("searchForename") String searchForename,
-                                 @Param("searchSurname") String searchSurname,
-                                 @Param("searchEmail") String searchEmail,
-                                 @Param("groupIds") List<Long> groupIds,
-                                 @Param("roleIds") List<Long> roleIds,
-                                 @Param("groupCount") Long groupCount,
-                                 Pageable pageable);
+                                         @Param("searchForename") String searchForename,
+                                         @Param("searchSurname") String searchSurname,
+                                         @Param("searchEmail") String searchEmail,
+                                         @Param("groupIds") List<Long> groupIds,
+                                         @Param("roleIds") List<Long> roleIds,
+                                         @Param("groupCount") Long groupCount,
+                                         Pageable pageable);
 
     @Query("SELECT u " +
             "FROM User u " +
@@ -135,6 +135,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                       @Param("groupIds") List<Long> groupIds,
                                       @Param("roleIds") List<Long> roleIds,
                                       Pageable pageable);
+
     @Query("SELECT u " +
             "FROM User u " +
             "JOIN u.groupRoles gr " +
@@ -144,8 +145,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findPatientByGroupsRolesNoFilter(@Param("groupIds") List<Long> groupIds,
-                                        @Param("roleIds") List<Long> roleIds,
-                                        Pageable pageable);
+                                                @Param("roleIds") List<Long> roleIds,
+                                                Pageable pageable);
 
     @Query("SELECT u " +
             "FROM User u " +
@@ -155,8 +156,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findStaffByGroupsRolesNoFilter(@Param("groupIds") List<Long> groupIds,
-                                      @Param("roleIds") List<Long> roleIds,
-                                      Pageable pageable);
+                                              @Param("roleIds") List<Long> roleIds,
+                                              Pageable pageable);
 
     @Query("SELECT u " +
             "FROM User u " +
@@ -179,46 +180,46 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByGroupAndFeature(@Param("userGroup") Group userGroup, @Param("feature") Feature feature);
 
     @Query("SELECT u " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "JOIN u.userFeatures uf " +
-           "JOIN uf.feature f " +
-           "WHERE gr.role.id IN :roleIds " +
-           "AND gr.group.id IN :groupIds " +
-           "AND f.id IN :featureIds " +
-           "AND ((UPPER(u.username) LIKE :filterText) " +
-           "OR (UPPER(u.forename) LIKE :filterText) " +
-           "OR (UPPER(u.surname) LIKE :filterText) " +
-           "OR (UPPER(u.email) LIKE :filterText)) " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "JOIN u.userFeatures uf " +
+            "JOIN uf.feature f " +
+            "WHERE gr.role.id IN :roleIds " +
+            "AND gr.group.id IN :groupIds " +
+            "AND f.id IN :featureIds " +
+            "AND ((UPPER(u.username) LIKE :filterText) " +
+            "OR (UPPER(u.forename) LIKE :filterText) " +
+            "OR (UPPER(u.surname) LIKE :filterText) " +
+            "OR (UPPER(u.email) LIKE :filterText)) " +
             "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findStaffByGroupsRolesFeatures(@Param("filterText") String filterText,
-                                 @Param("groupIds") List<Long> groupIds,
-                                 @Param("roleIds") List<Long> roleIds,
-                                 @Param("featureIds") List<Long> featureIds,
-                                 Pageable pageable);
+                                              @Param("groupIds") List<Long> groupIds,
+                                              @Param("roleIds") List<Long> roleIds,
+                                              @Param("featureIds") List<Long> featureIds,
+                                              Pageable pageable);
 
     @Query("SELECT u " +
-           "FROM User u " +
-           "JOIN u.groupRoles gr " +
-           "JOIN u.identifiers i " +
-           "JOIN u.userFeatures uf " +
-           "JOIN uf.feature f " +
-           "WHERE gr.role.id IN :roleIds " +
-           "AND gr.group.id IN :groupIds " +
-           "AND f.id IN :featureIds " +
-           "AND ((UPPER(u.username) LIKE :filterText) " +
-           "OR (UPPER(u.forename) LIKE :filterText) " +
-           "OR (UPPER(u.surname) LIKE :filterText) " +
-           "OR (UPPER(u.email) LIKE :filterText) " +
-           "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
+            "FROM User u " +
+            "JOIN u.groupRoles gr " +
+            "JOIN u.identifiers i " +
+            "JOIN u.userFeatures uf " +
+            "JOIN uf.feature f " +
+            "WHERE gr.role.id IN :roleIds " +
+            "AND gr.group.id IN :groupIds " +
+            "AND f.id IN :featureIds " +
+            "AND ((UPPER(u.username) LIKE :filterText) " +
+            "OR (UPPER(u.forename) LIKE :filterText) " +
+            "OR (UPPER(u.surname) LIKE :filterText) " +
+            "OR (UPPER(u.email) LIKE :filterText) " +
+            "OR (i IN (SELECT id FROM Identifier id WHERE UPPER(id.identifier) LIKE :filterText))) " +
             "AND u.deleted = false " +
             "GROUP BY u.id")
     Page<User> findPatientByGroupsRolesFeatures(@Param("filterText") String filterText,
-                                 @Param("groupIds") List<Long> groupIds,
-                                 @Param("roleIds") List<Long> roleIds,
-                                 @Param("featureIds") List<Long> featureIds,
-                                 Pageable pageable);
+                                                @Param("groupIds") List<Long> groupIds,
+                                                @Param("roleIds") List<Long> roleIds,
+                                                @Param("featureIds") List<Long> featureIds,
+                                                Pageable pageable);
 
     // used by UKT
     @Query("SELECT u " +
@@ -265,4 +266,27 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND (u.lastLogin > :date OR u.currentLogin > :date) " +
             "GROUP BY u.id")
     List<Long> findPatientUserIdsByRecentLogin(@Param("groupId") Long groupId, @Param("date") Date date);
+
+
+    @Query(value = "SELECT u.email FROM pv_user u, pv_user_group_role ugr  " +
+            "WHERE ugr.role_id = :roleId " +
+            "AND ugr.user_id = u.id AND u.deleted = false " +
+            "AND (u.current_login BETWEEN LOCALTIMESTAMP - INTERVAL '3 months' AND LOCALTIMESTAMP) " +
+            "GROUP BY u.id", nativeQuery = true)
+    List<String> findActiveUserEmailsByRole(@Param("roleId") Long roleId);
+
+    @Query(value = "SELECT u.email FROM pv_user u, pv_user_group_role ugr  " +
+            "WHERE ugr.group_id = :groupId " +
+            "AND ugr.user_id = u.id AND u.deleted = false " +
+            "AND (u.current_login BETWEEN LOCALTIMESTAMP - INTERVAL '3 months' AND LOCALTIMESTAMP) " +
+            "GROUP BY u.id", nativeQuery = true)
+    List<String> findActiveUserEmailsByGroup(@Param("groupId") Long groupId);
+
+    @Query(value = "SELECT u.email FROM pv_user u, pv_user_group_role ugr  " +
+            "WHERE ugr.group_id = :groupId  AND ugr.role_id = :roleId " +
+            "AND ugr.user_id = u.id AND u.deleted = false " +
+            "AND (u.current_login BETWEEN LOCALTIMESTAMP - INTERVAL '3 months' AND LOCALTIMESTAMP) " +
+            "GROUP BY u.id", nativeQuery = true)
+    List<String> findActiveUserEmailsByGroupAndRole(@Param("groupId") Long groupId,
+                                             @Param("roleId") Long roleId);
 }

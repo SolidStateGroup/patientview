@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hl7.fhir.instance.model.Address;
@@ -56,7 +58,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -107,7 +108,7 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     @Inject
     private FhirResource fhirResource;
@@ -515,10 +516,12 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
         // execute and return UUIDs
         Connection connection = null;
+        java.sql.Statement statement = null;
+        ResultSet results = null;
         try {
             connection = dataSource.getConnection();
-            java.sql.Statement statement = connection.createStatement();
-            ResultSet results = statement.executeQuery(query.toString());
+            statement = connection.createStatement();
+            results = statement.executeQuery(query.toString());
 
             List<UUID> uuids = new ArrayList<>();
 
@@ -526,7 +529,6 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                 uuids.add(UUID.fromString(results.getString(1)));
             }
 
-            connection.close();
             return uuids;
         } catch (SQLException e) {
             if (connection != null) {
@@ -537,6 +539,8 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
                 }
             }
             throw new FhirResourceException(e);
+        } finally {
+            DbUtils.closeQuietly(connection, statement, results);
         }
     }
 

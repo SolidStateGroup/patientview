@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface MyMediaService {
 
     @UserOnly

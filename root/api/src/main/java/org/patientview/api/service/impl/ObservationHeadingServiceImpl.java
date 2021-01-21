@@ -1,5 +1,7 @@
 package org.patientview.api.service.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.model.BaseObservationHeading;
 import org.patientview.api.service.ObservationHeadingService;
@@ -30,12 +32,13 @@ import org.patientview.util.Util;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityExistsException;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,6 +56,7 @@ import java.util.Set;
  * Created by jamesr@solidstategroup.com
  * Created on 11/09/2014
  */
+@Transactional(readOnly = true)
 @Service
 public class ObservationHeadingServiceImpl extends AbstractServiceImpl<ObservationHeadingServiceImpl>
         implements ObservationHeadingService {
@@ -83,11 +87,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Inject
     @Named("fhir")
-    private DataSource dataSource;
+    private HikariDataSource dataSource;
 
     private static final Long FIRST_PANEL = 1L;
     private static final Long DEFAULT_COUNT = 3L;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ObservationHeading add(final ObservationHeading observationHeading) {
         if (observationHeadingExists(observationHeading)) {
@@ -113,6 +118,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.save(observationHeading);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -187,10 +193,12 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                 query.append("' ");
 
                 Connection connection = null;
+                java.sql.Statement statement = null;
+                ResultSet results = null;
                 try {
                     connection = dataSource.getConnection();
-                    java.sql.Statement statement = connection.createStatement();
-                    ResultSet results = statement.executeQuery(query.toString());
+                    statement = connection.createStatement();
+                    results = statement.executeQuery(query.toString());
 
                     while ((results.next())) {
                         String code = results.getString(1).replace("\"", "").toLowerCase();
@@ -202,7 +210,6 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                         }
                     }
 
-                    connection.close();
                 } catch (SQLException e) {
                     try {
                         if (connection != null) {
@@ -213,6 +220,8 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
                     }
 
                     throw new FhirResourceException(e);
+                } finally {
+                    DbUtils.closeQuietly(connection, statement, results);
                 }
             }
         }
@@ -366,6 +375,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return new ArrayList<>(out);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void delete(final Long observationHeadingId) {
         observationHeadingRepository.deleteById(observationHeadingId);
@@ -381,6 +391,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return !observationHeadingRepository.findByCode(observationHeading.getCode()).isEmpty();
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void removeObservationHeadingGroup(Long observationHeadingGroupId)
             throws ResourceNotFoundException, ResourceForbiddenException {
@@ -398,6 +409,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         observationHeadingGroupRepository.delete(observationHeadingGroup);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
 
@@ -419,6 +431,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         return observationHeadingRepository.save(entity);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void saveObservationHeadingSelection(Long userId, String[] codes) throws ResourceNotFoundException {
 
@@ -482,6 +495,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         userRepository.save(user);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
             throws ResourceNotFoundException, ResourceForbiddenException {

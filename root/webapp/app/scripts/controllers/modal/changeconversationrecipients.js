@@ -30,6 +30,7 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
         $scope.selectGroup = function(conversation, groupId) {
             $scope.modalLoading = true;
             $scope.recipientsExist = false;
+            delete $scope.errorMessage;
 
             ConversationService.getRecipients($scope.loggedInUser.id, groupId).then(function (recipientOptions) {
                 var element = document.getElementById('conversation-add-recipient');
@@ -61,6 +62,7 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
         };
 
         var addConversationUser = function (userId) {
+            delete $scope.errorMessage;
             var found = false;
             var conversation = $scope.editConversation;
 
@@ -79,8 +81,12 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
                     }, function() {
                         alert('Error getting conversation');
                     });
-                }, function() {
-                    alert('Error adding conversation user');
+                }, function(err) {
+                    if (err.data) {
+                        $scope.errorMessage = ' - ' + err.data;
+                    } else {
+                        $scope.errorMessage = ' ';
+                    }
                 });
             }
 
@@ -90,6 +96,7 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
         };
         
         $scope.addConversationUser = function (conversation) {
+            delete $scope.errorMessage;
             var userId = $('#conversation-add-recipient option').filter(':selected').val();
             var found = false;
 
@@ -115,6 +122,7 @@ var ChangeConversationRecipientsModalInstanceCtrl = ['$scope', '$rootScope', '$m
         };
 
         $scope.removeConversationUser = function (conversationId, userId) {
+            delete $scope.errorMessage;
             ConversationService.removeConversationUser(conversationId, userId).then(function() {
                 if (userId !== $scope.loggedInUser.id) {
                     ConversationService.get(conversation.id).then(function(successResult) {

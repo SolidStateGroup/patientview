@@ -21,7 +21,6 @@ import java.util.UUID;
  * Created by james@solidstategroup.com
  * Created on 01/09/2014
  */
-@Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface ObservationService {
 
     void add(Patientview data, FhirLink fhirLink) throws FhirResourceException, SQLException;
