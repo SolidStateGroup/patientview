@@ -237,7 +237,14 @@
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-androidpublisher</artifactId>
-            <version>v2-rev59-1.23.0</version>
+            <version>v3-rev20201125-1.31.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.google.http-client/google-http-client -->
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <version>1.38.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.im4java/im4java -->
         <dependency>
