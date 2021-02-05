@@ -41,6 +41,14 @@ public class ReviewsController extends BaseController<ReviewsController> {
     @ResponseBody
     public ResponseEntity<List<Review>> getAll()
             throws ResourceNotFoundException, ResourceForbiddenException {
+
+        try{
+            reviewService.pollForNewReviews();
+        }catch (Exception e){
+            System.out.println("Exception in syncing reviews");
+        }
+
+
         return new ResponseEntity<>(reviewService.getReviewsToDisplay(), HttpStatus.OK);
     }
 }
