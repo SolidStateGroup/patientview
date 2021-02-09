@@ -256,6 +256,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
 
         for (com.google.api.services.androidpublisher.model.Review review : reviews.getReviews()) {
             Review newReview = new Review();
+            newReview.setReviewSource(ReviewSource.GOOGLE_PLAY);
             for (Comment comment : review.getComments()) {
                 newReview.setRating(comment.getUserComment().getStarRating());
                 if (comment.getUserComment().getLastModified().getSeconds() != null) {
@@ -267,7 +268,6 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
             newReview.setExternalId(review.getReviewId());
             newReview.setReviewerName(review.getAuthorName().replaceAll("[^\\p{ASCII}]", " "));
             newReview.setExcluded(false);
-            newReview.setReviewSource(ReviewSource.GOOGLE_PLAY);
 
             if (newReview.getRating() > 3) {
 
