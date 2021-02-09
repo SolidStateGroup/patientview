@@ -1,1 +1,1 @@
-ALTER TABLE pv_reviews ALTER COLUMN "external_id" Character Varying( 255 );
+ALTER TABLE pv_reviews ALTER COLUMN "external_id" TYPE Character Varying( 255 );
