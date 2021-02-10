@@ -33,6 +33,7 @@ import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -255,8 +256,13 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
 
         for (com.google.api.services.androidpublisher.model.Review review : reviews.getReviews()) {
             Review newReview = new Review();
+            newReview.setReviewSource(ReviewSource.GOOGLE_PLAY);
             for (Comment comment : review.getComments()) {
                 newReview.setRating(comment.getUserComment().getStarRating());
+                if (comment.getUserComment().getLastModified().getSeconds() != null) {
+                    newReview.setCreatedDate(new Date(comment.getUserComment().getLastModified().getSeconds() * 1000));
+                }
+
                 newReview.setReviewText(comment.getUserComment().getText().replaceAll("[^\\p{ASCII}]", " "));
             }
             newReview.setExternalId(review.getReviewId());
@@ -271,8 +277,11 @@ public class ReviewServiceImpl extends AbstractServiceImpl<ReviewServiceImpl> im
                     newReview.setExcluded(true);
                 }
                 //Check if we have that id, as android doesnt maintain a history more than 1 week
-                reviewRepository.getByExternalId(newReview.getExternalId());
-                reviewsToSave.add(newReview);
+                Review existing = reviewRepository.getByExternalId(newReview.getExternalId());
+                if (existing == null) {
+                    reviewsToSave.add(newReview);
+                }
+
             }
         }
 

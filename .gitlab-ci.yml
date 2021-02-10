@@ -58,7 +58,7 @@ package:staging:api:
   script:
     - echo "Starting PV Staging API Package"
 #    - echo $CI_PIPELINE_ID
-    - cp $GOOGLE_PLAY_KEY root/api/src/main/resources/conf/google-play-key.json
+    - cp $GOOGLE_PLAY_KEY root/api/src/main/resources/google-play-key.json
     - cp $STAGING_API_PROPS root/api/src/main/resources/conf/staging-api.properties
     - cp $STAGING_DB_PROPS root/api/src/main/resources/conf/staging-database.properties
     - cp $STAGING_API_PROPS root/importer/src/main/resources/conf/staging-api.properties
@@ -166,7 +166,7 @@ package:prod:api:
     expire_in: 3 days
   script:
     - echo "Starting PV Production API Package"
-    - cp $GOOGLE_PLAY_KEY root/api/src/main/resources/conf/google-play-key.json
+    - cp $GOOGLE_PLAY_KEY root/api/src/main/resources/google-play-key.json
     - cp $PROD_API_PROPS root/api/src/main/resources/conf/production-api.properties
     - cp $PROD_DB_PROPS root/api/src/main/resources/conf/production-database.properties
     - cp $PROD_API_PROPS root/importer/src/main/resources/conf/production-api.properties
