@@ -41,6 +41,7 @@ public class ReviewsController extends BaseController<ReviewsController> {
     @ResponseBody
     public ResponseEntity<List<Review>> getAll()
             throws ResourceNotFoundException, ResourceForbiddenException {
+
         return new ResponseEntity<>(reviewService.getReviewsToDisplay(), HttpStatus.OK);
     }
 }
