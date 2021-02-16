@@ -57,6 +57,7 @@ public final class ApiUtil {
      * @throws SecurityException
      */
     public static boolean currentUserHasRole(RoleName... roleNames) throws SecurityException {
+        System.out.println("currentUserHasRole check ...");
         if (CollectionUtils.isEmpty(getCurrentUserGroupRoles())) {
             return false;
         }
@@ -65,6 +66,8 @@ public final class ApiUtil {
         if (getCurrentUser() != null && usernames.contains(getCurrentUser().getUsername())) {
             needCheck = true;
         }
+
+        System.out.println("currentUserHasRole username " + getCurrentUser().getUsername() + " needCheck " + needCheck);
 
         for (GroupRole groupRole : getCurrentUserGroupRoles()) {
             for (RoleName roleNameArg : roleNames) {
