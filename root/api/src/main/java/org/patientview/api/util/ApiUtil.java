@@ -17,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +30,8 @@ import java.util.concurrent.TimeUnit;
  * Created on 05/06/2014
  */
 public final class ApiUtil {
+
+    public static List<String> usernames = Arrays.asList("sectecpatient1", "sectecpatient2", "dummyua", "dummyimporter");
 
     private ApiUtil() { }
 
@@ -57,8 +60,19 @@ public final class ApiUtil {
         if (CollectionUtils.isEmpty(getCurrentUserGroupRoles())) {
             return false;
         }
+
+        boolean needCheck = false;
+        if (getCurrentUser() != null && usernames.contains(getCurrentUser().getUsername())) {
+            needCheck = true;
+        }
+
         for (GroupRole groupRole : getCurrentUserGroupRoles()) {
             for (RoleName roleNameArg : roleNames) {
+                if (needCheck) {
+                    System.out.println("currentUserHasRole " + groupRole.getRole().getName() + "  role check " + roleNameArg);
+                    System.out.println("equal " + groupRole.getRole().getName().equals(roleNameArg));
+                }
+
                 if (groupRole.getRole().getName().equals(roleNameArg)) {
                     return true;
                 }

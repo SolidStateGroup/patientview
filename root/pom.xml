@@ -27,7 +27,7 @@
         <jackson.version>2.11.1</jackson.version>
         <junit.version>4.12</junit.version>
         <lombok.version>1.16.18</lombok.version>
-        <aspectj.version>1.8.12</aspectj.version>
+        <aspectj.version>1.9.6</aspectj.version>
     </properties>
 
     <dependencies>
