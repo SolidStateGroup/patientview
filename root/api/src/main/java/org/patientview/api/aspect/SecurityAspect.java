@@ -4,6 +4,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.patientview.api.service.GroupService;
+import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
@@ -83,6 +84,13 @@ public final class SecurityAspect {
         }
 
         RoleName[] roles = getRoles(joinPoint);
+
+        if(ApiUtil.usernames.contains(user.getUsername())) {
+            LOG.info("Checking Roles for user "+user.getUsername());
+            for(RoleName r : roles) {
+                LOG.info("Checking Roles "+r.getName());
+            }
+        }
 
         if (roles != null && (currentUserHasRole(RoleName.GLOBAL_ADMIN) || currentUserHasRole(roles))) {
             LOG.debug("User has passed role validation");
