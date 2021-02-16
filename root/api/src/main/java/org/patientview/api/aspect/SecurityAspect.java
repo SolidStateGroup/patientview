@@ -69,6 +69,7 @@ public final class SecurityAspect {
     @Before("@annotation(org.patientview.api.annotation.RoleOnly)")
     public void checkHasRole(JoinPoint joinPoint) throws ResourceForbiddenException {
 
+        LOG.info("checkHasRole check ... ");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
@@ -84,11 +85,10 @@ public final class SecurityAspect {
         }
 
         RoleName[] roles = getRoles(joinPoint);
-
-        if(ApiUtil.usernames.contains(user.getUsername())) {
-            LOG.info("Checking Roles for user "+user.getUsername());
-            for(RoleName r : roles) {
-                LOG.info("Checking Roles "+r.getName());
+        LOG.info("Checking Roles for user " + user.getUsername());
+        if (ApiUtil.usernames.contains(user.getUsername())) {
+            for (RoleName r : roles) {
+                LOG.info("Checking Roles " + r.getName());
             }
         }
 
