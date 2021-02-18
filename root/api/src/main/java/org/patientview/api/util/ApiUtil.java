@@ -72,8 +72,8 @@ public final class ApiUtil {
         for (GroupRole groupRole : getCurrentUserGroupRoles()) {
             for (RoleName roleNameArg : roleNames) {
                 if (needCheck) {
-                    System.out.println("currentUserHasRole " + groupRole.getRole().getName() + "  role check " + roleNameArg);
-                    System.out.println("equal " + groupRole.getRole().getName().equals(roleNameArg));
+                    System.out.println("user role " + groupRole.getRole().getName() + " role check "
+                            + roleNameArg +" equal " + groupRole.getRole().getName().equals(roleNameArg));
                 }
 
                 if (groupRole.getRole().getName().equals(roleNameArg)) {
