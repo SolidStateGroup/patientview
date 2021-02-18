@@ -308,9 +308,8 @@ public class ApiMedicationServiceTest {
                 eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate()));
     }
 
-
     @Test
-    public void testImportMedication_patientFromAnotherGroup_should_fail() throws Exception {
+    public void testImportMedication_patientFromAnotherGroup_shouldFail() throws Exception {
         // auth
         Group group = TestUtils.createGroup("ImporterGroup");
         Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
