@@ -57,7 +57,7 @@ public final class ApiUtil {
      * @throws SecurityException
      */
     public static boolean currentUserHasRole(RoleName... roleNames) throws SecurityException {
-        System.out.println("currentUserHasRole check ...");
+        System.out.println("ApiUtil.currentUserHasRole() check ...");
         if (CollectionUtils.isEmpty(getCurrentUserGroupRoles())) {
             return false;
         }
@@ -300,6 +300,26 @@ public final class ApiUtil {
                 if (groupRole.getRole().getName().equals(roleNameArg)) {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate that a user has a Group for a given group id.
+     *
+     * @param user User to check has Group
+     * @return true if User has a Group
+     */
+    public static boolean userHasGroup(User user, Long groupId) throws SecurityException {
+        if (user == null || groupId == null) {
+            return false;
+        }
+
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (groupRole.getGroup().getId().equals(groupId)) {
+                return true;
             }
         }
 
