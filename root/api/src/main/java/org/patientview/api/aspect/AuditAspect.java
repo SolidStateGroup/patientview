@@ -33,7 +33,7 @@ import java.util.Optional;
 @Configurable
 public class AuditAspect {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuditAspect.class);
 
     private static AuditAspect instance;
 
