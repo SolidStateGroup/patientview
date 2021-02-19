@@ -12,6 +12,7 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -34,12 +35,12 @@ import static org.patientview.api.util.ApiUtil.getRoles;
  * Responsible for security resource via annotations.
  */
 @Aspect
-@Component
+@Configurable
 public class SecurityAspect {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
 
-    // private static SecurityAspect instance;
+     private static SecurityAspect instance;
 
     @Inject
     private GroupService groupService;
@@ -47,7 +48,7 @@ public class SecurityAspect {
     @Inject
     private GroupRepository groupRepository;
 
-    public SecurityAspect() {
+    private SecurityAspect() {
         LOG.info("Security Aspect Initialised");
     }
 
@@ -205,10 +206,10 @@ public class SecurityAspect {
         return null;
     }
 
-//    public static SecurityAspect aspectOf() {
-//        if (instance == null) {
-//            instance = new SecurityAspect();
-//        }
-//        return instance;
-//    }
+    public static SecurityAspect aspectOf() {
+        if (instance == null) {
+            instance = new SecurityAspect();
+        }
+        return instance;
+    }
 }
