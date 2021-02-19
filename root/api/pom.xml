@@ -340,14 +340,16 @@
                     <verbose>false</verbose>
                     <showWeaveInfo>true</showWeaveInfo>
                     <complianceLevel>1.8</complianceLevel>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <Xlint>ignore</Xlint>
+                    <encoding>UTF-8</encoding>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
                             <artifactId>spring-aspects</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
-                    <source>1.8</source>
-                    <target>1.8</target>
                 </configuration>
             </plugin>
 
