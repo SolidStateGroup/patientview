@@ -30,6 +30,9 @@ import java.util.UUID;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public interface GroupService {
 
+    @RoleOnly(roles = { RoleName.GLOBAL_ADMIN })
+    String evictAllCaches();
+
     /**
      * Create a Group.
      * @param group Group object containing all required properties
