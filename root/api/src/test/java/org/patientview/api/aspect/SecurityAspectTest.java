@@ -21,7 +21,6 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.test.util.TestUtils;
-import org.patientview.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,12 +29,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = false)
@@ -51,7 +47,7 @@ public class SecurityAspectTest {
     private GroupRepository groupRepository;
 
     @InjectMocks
-    private SecurityAspect securityAspect = new SecurityAspect();
+    private SecurityAspect securityAspect = SecurityAspect.aspectOf();
 
 
     @UserOnly
