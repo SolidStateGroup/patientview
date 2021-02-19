@@ -12,9 +12,9 @@ import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -32,15 +32,14 @@ import static org.patientview.api.util.ApiUtil.getRoles;
  * http://stackoverflow.com/questions/3271659/use-enum-type-as-a-value-parameter-for-rolesallowed-annotation
  *
  * Responsible for security resource via annotations.
- *
  */
 @Aspect
-@Configurable
-public final class SecurityAspect {
+@Component
+public class SecurityAspect {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
 
-    private static SecurityAspect instance;
+    // private static SecurityAspect instance;
 
     @Inject
     private GroupService groupService;
@@ -48,7 +47,7 @@ public final class SecurityAspect {
     @Inject
     private GroupRepository groupRepository;
 
-    private SecurityAspect() {
+    public SecurityAspect() {
         LOG.info("Security Aspect Initialised");
     }
 
@@ -206,10 +205,10 @@ public final class SecurityAspect {
         return null;
     }
 
-    public static SecurityAspect aspectOf() {
-        if (instance == null) {
-            instance = new SecurityAspect();
-        }
-        return instance;
-    }
+//    public static SecurityAspect aspectOf() {
+//        if (instance == null) {
+//            instance = new SecurityAspect();
+//        }
+//        return instance;
+//    }
 }

@@ -29,7 +29,7 @@ import java.util.Set;
 public class NhsIndicatorsControllerTest {
 
     @InjectMocks
-    private SecurityAspect securityAspect = SecurityAspect.aspectOf();
+    private SecurityAspect securityAspect = new SecurityAspect();
 
     @InjectMocks
     private GroupController groupController;

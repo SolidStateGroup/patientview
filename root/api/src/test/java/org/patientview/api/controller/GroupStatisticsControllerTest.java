@@ -49,7 +49,7 @@ public class GroupStatisticsControllerTest {
     private Timer timer;
 
     @InjectMocks
-    private SecurityAspect securityAspect = SecurityAspect.aspectOf();
+    private SecurityAspect securityAspect = new SecurityAspect();
 
     @InjectMocks
     private GroupStatisticsController groupStatisticsController;
