@@ -36,7 +36,7 @@ public class GroupControllerTest {
     private GroupService groupService;
 
     @InjectMocks
-    private SecurityAspect securityAspect = new SecurityAspect();
+    private SecurityAspect securityAspect = SecurityAspect.aspectOf();
 
     @InjectMocks
     private GroupController groupController;
