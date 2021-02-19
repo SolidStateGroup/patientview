@@ -4,7 +4,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.patientview.api.service.GroupService;
-import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.ResourceForbiddenException;
 import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.User;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -40,7 +38,7 @@ public class SecurityAspect {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
 
-     private static SecurityAspect instance;
+    private static SecurityAspect instance;
 
     @Inject
     private GroupService groupService;
@@ -63,13 +61,12 @@ public class SecurityAspect {
 
     /**
      * Check if current User has a certain Role.
+     *
      * @param joinPoint Join point of aspect, defined by @RoleOnly annotation on service method
      * @throws ResourceForbiddenException
      */
     @Before("@annotation(org.patientview.api.annotation.RoleOnly) && within(org.patientview.api..*)")
     public void checkHasRole(JoinPoint joinPoint) throws ResourceForbiddenException {
-
-        LOG.info("SecurityAspect.checkHasRole check ... ");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
@@ -85,12 +82,6 @@ public class SecurityAspect {
         }
 
         RoleName[] roles = getRoles(joinPoint);
-        LOG.info("Checking Roles for user " + user.getUsername());
-        if (ApiUtil.usernames.contains(user.getUsername())) {
-            for (RoleName r : roles) {
-                LOG.info("Checking Roles " + r.getName());
-            }
-        }
 
         if (roles != null && (currentUserHasRole(RoleName.GLOBAL_ADMIN) || currentUserHasRole(roles))) {
             LOG.debug("User has passed role validation");
@@ -103,12 +94,12 @@ public class SecurityAspect {
 
     /**
      * Check if current User is a member of a certain Group.
+     *
      * @param joinPoint Join point of aspect, defined by @GroupMemberOnly annotation on service method
      * @throws ResourceForbiddenException
      */
     @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly) && within(org.patientview.api..*)")
     public void checkGroupMembership(JoinPoint joinPoint) throws ResourceForbiddenException {
-        LOG.info("SecurityAspect.checkGroupMembership check ... ");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
@@ -156,6 +147,7 @@ public class SecurityAspect {
     /**
      * Check if User being retrieved or modified is the current User, typically used for service methods where only the
      * current user has permission to modify or view their own details.
+     *
      * @param joinPoint Join point of aspect, defined by @GroupMemberOnly annotation on service method
      * @throws ResourceForbiddenException
      */
@@ -179,6 +171,7 @@ public class SecurityAspect {
     /**
      * Get ID from join point parameters, currently used to retrieve Group or User ID and assumes the annotation is
      * applied to a method with a Group or User ID.
+     *
      * @param joinPoint Join point of aspect, typically on service method
      * @return Long ID of Group or User from join point parameters
      */
@@ -194,6 +187,7 @@ public class SecurityAspect {
 
     /**
      * Get the Group as retrieved from join point. Assuming we apply the annotation to a method with a Group.
+     *
      * @param joinPoint Join point of aspect
      * @return Group retrieved from join point parameters
      */
