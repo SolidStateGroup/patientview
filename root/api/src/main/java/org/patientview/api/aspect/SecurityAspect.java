@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -66,10 +67,10 @@ public final class SecurityAspect {
      * @param joinPoint Join point of aspect, defined by @RoleOnly annotation on service method
      * @throws ResourceForbiddenException
      */
-    @Before("@annotation(org.patientview.api.annotation.RoleOnly)")
+    @Before("@annotation(org.patientview.api.annotation.RoleOnly) && within(org.patientview.api..*)")
     public void checkHasRole(JoinPoint joinPoint) throws ResourceForbiddenException {
 
-        LOG.info("checkHasRole check ... ");
+        LOG.info("SecurityAspect.checkHasRole check ... ");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
@@ -106,9 +107,9 @@ public final class SecurityAspect {
      * @param joinPoint Join point of aspect, defined by @GroupMemberOnly annotation on service method
      * @throws ResourceForbiddenException
      */
-    @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
+    @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly) && within(org.patientview.api..*)")
     public void checkGroupMembership(JoinPoint joinPoint) throws ResourceForbiddenException {
-
+        LOG.info("SecurityAspect.checkGroupMembership check ... ");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
@@ -159,7 +160,7 @@ public final class SecurityAspect {
      * @param joinPoint Join point of aspect, defined by @GroupMemberOnly annotation on service method
      * @throws ResourceForbiddenException
      */
-    @Before("@annotation(org.patientview.api.annotation.UserOnly)")
+    @Before("@annotation(org.patientview.api.annotation.UserOnly) && within(org.patientview.api..*)")
     public void checkUser(JoinPoint joinPoint) throws ResourceForbiddenException {
         Long requestId = getId(joinPoint);
         if (requestId == null) {
