@@ -7,6 +7,7 @@ import org.hl7.fhir.instance.model.Observation;
 import org.hl7.fhir.instance.model.ResourceType;
 import org.json.JSONObject;
 import org.patientview.api.service.ApiDiagnosticService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -69,14 +70,13 @@ public class ApiDiagnosticServiceImpl extends AbstractServiceImpl<ApiDiagnosticS
     private IdentifierRepository identifierRepository;
 
     @Inject
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Override
     public List<org.patientview.api.model.FhirDiagnosticReport> getByUserId(final Long userId)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
+        User user = userService.get(userId);
 
         List<org.patientview.api.model.FhirDiagnosticReport> fhirDiagnosticReports = new ArrayList<>();
 
@@ -149,8 +149,7 @@ public class ApiDiagnosticServiceImpl extends AbstractServiceImpl<ApiDiagnosticS
 
     @Override
     public FileData getFileData(Long userId, Long fileDataId) throws ResourceNotFoundException, FhirResourceException {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
+        User user = userService.get(userId);
 
         if (fileDataService.userHasFileData(user, fileDataId, ResourceType.DiagnosticReport)) {
             return fileDataRepository.getOne(fileDataId);
@@ -234,6 +233,17 @@ public class ApiDiagnosticServiceImpl extends AbstractServiceImpl<ApiDiagnosticS
 
         if (user == null) {
             return new ServerResponse("user not found");
+        }
+
+        // make sure importer and patient from the same group
+        if (!userService.currentUserSameUnitGroup(user, RoleName.IMPORTER)) {
+            LOG.error("Importer trying to import medication for patient outside his group");
+            return new ServerResponse("Forbidden");
+        }
+
+        // make sure patient is a member of the imported group
+        if (!ApiUtil.userHasGroup(user, group.getId())) {
+            return new ServerResponse("patient not a member of imported group");
         }
 
         // get fhirlink, create one if not present

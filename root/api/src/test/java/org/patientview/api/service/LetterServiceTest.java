@@ -80,6 +80,9 @@ public class LetterServiceTest {
     @InjectMocks
     LetterService letterService = new LetterServiceImpl();
 
+    @Mock
+    UserService userService;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -138,6 +141,7 @@ public class LetterServiceTest {
         fhirDocumentReference.setType("some type");
         fhirDocumentReference.setDate(new Date());
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(apiPatientService.get(eq(fhirLink.getResourceId()))).thenReturn(existingPatient);
         when(groupRepository.findByCode(eq(fhirDocumentReference.getGroupCode()))).thenReturn(group);
         when(identifierRepository.findByValue(eq(fhirDocumentReference.getIdentifier()))).thenReturn(identifiers);
@@ -155,6 +159,145 @@ public class LetterServiceTest {
         verify(fhirResource, times(0)).updateEntity(any(Patient.class),
                 eq(ResourceType.Patient.name()), eq("patient"), any(UUID.class));
         verify(documentReferenceService, times(1)).add(eq(fhirDocumentReference), eq(fhirLink));
+        verify(userRepository, times(0)).save(eq(patient));
+    }
+
+    @Test
+    public void testImportLetter_patientFromAnotherGroup_shouldFail() throws Exception {
+        // auth
+        Group group = TestUtils.createGroup("testGroup");
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        // patient
+        Group patientGroup = TestUtils.createGroup("PatientGroup");
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, patientGroup, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // existing fhirlink
+        FhirLink fhirLink = TestUtils.createFhirLink(patient, identifier, patientGroup);
+
+        // existing fhir Patient associated with existing fhirLink
+        Patient existingPatient = new Patient();
+        ResourceReference careProvider = existingPatient.addCareProvider();
+        careProvider.setReferenceSimple("uuid");
+        careProvider.setDisplaySimple(UUID.randomUUID().toString());
+
+        // letter to import
+        org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference
+                = new org.patientview.persistence.model.FhirDocumentReference();
+        fhirDocumentReference.setGroupCode(group.getCode());
+        fhirDocumentReference.setIdentifier(identifier.getIdentifier());
+        fhirDocumentReference.setContent("some content");
+        fhirDocumentReference.setType("some type");
+        fhirDocumentReference.setDate(new Date());
+
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
+        when(apiPatientService.get(eq(fhirLink.getResourceId()))).thenReturn(existingPatient);
+        when(groupRepository.findByCode(eq(fhirDocumentReference.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(fhirDocumentReference.getIdentifier()))).thenReturn(identifiers);
+        when(Util.getFhirLink(eq(group), eq(identifier.getIdentifier()), eq(patient.getFhirLinks())))
+                .thenReturn(patient.getFhirLinks().iterator().next());
+
+        ServerResponse serverResponse = letterService.importLetter(fhirDocumentReference);
+
+        Assert.assertTrue(
+                "Should fail, got '" + serverResponse.getErrorMessage() + "'", !serverResponse.isSuccess());
+        Assert.assertTrue("Should have correct error message, got '"
+                        + serverResponse.getErrorMessage() + "'",
+                serverResponse.getErrorMessage().contains("patient not a member of imported group"));
+
+        verify(fhirResource, times(0)).createEntity(any(Patient.class),
+                eq(ResourceType.Patient.name()), eq("patient"));
+        verify(fhirResource, times(0)).updateEntity(any(Patient.class),
+                eq(ResourceType.Patient.name()), eq("patient"), any(UUID.class));
+        verify(documentReferenceService, times(0)).add(eq(fhirDocumentReference), eq(fhirLink));
+        verify(userRepository, times(0)).save(eq(patient));
+    }
+
+    @Test
+    public void testImportLetter_patientOutsideImporterGroup_shouldFail() throws Exception {
+        // auth
+        Group group = TestUtils.createGroup("testGroup");
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // existing fhirlink
+        FhirLink fhirLink = TestUtils.createFhirLink(patient, identifier, group);
+
+        // existing fhir Patient associated with existing fhirLink
+        Patient existingPatient = new Patient();
+        ResourceReference careProvider = existingPatient.addCareProvider();
+        careProvider.setReferenceSimple("uuid");
+        careProvider.setDisplaySimple(UUID.randomUUID().toString());
+
+        // letter to import
+        org.patientview.persistence.model.FhirDocumentReference fhirDocumentReference
+                = new org.patientview.persistence.model.FhirDocumentReference();
+        fhirDocumentReference.setGroupCode(group.getCode());
+        fhirDocumentReference.setIdentifier(identifier.getIdentifier());
+        fhirDocumentReference.setContent("some content");
+        fhirDocumentReference.setType("some type");
+        fhirDocumentReference.setDate(new Date());
+
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(false);
+
+        when(apiPatientService.get(eq(fhirLink.getResourceId()))).thenReturn(existingPatient);
+        when(groupRepository.findByCode(eq(fhirDocumentReference.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(fhirDocumentReference.getIdentifier()))).thenReturn(identifiers);
+        when(Util.getFhirLink(eq(group), eq(identifier.getIdentifier()), eq(patient.getFhirLinks())))
+                .thenReturn(patient.getFhirLinks().iterator().next());
+
+        ServerResponse serverResponse = letterService.importLetter(fhirDocumentReference);
+
+        Assert.assertTrue(
+                "Should fail, got '" + serverResponse.getErrorMessage() + "'", !serverResponse.isSuccess());
+        Assert.assertTrue("Should have correct error message, got '"
+                + serverResponse.getErrorMessage() + "'", serverResponse.getErrorMessage().contains("Forbidden"));
+
+        verify(fhirResource, times(0)).createEntity(any(Patient.class),
+                eq(ResourceType.Patient.name()), eq("patient"));
+        verify(fhirResource, times(0)).updateEntity(any(Patient.class),
+                eq(ResourceType.Patient.name()), eq("patient"), any(UUID.class));
+        verify(documentReferenceService, times(0)).add(eq(fhirDocumentReference), eq(fhirLink));
         verify(userRepository, times(0)).save(eq(patient));
     }
 }
