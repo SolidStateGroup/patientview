@@ -9,8 +9,8 @@ import org.patientview.api.controller.BaseController;
 import org.patientview.api.model.FhirMedicationStatement;
 import org.patientview.api.model.GpMedicationStatus;
 import org.patientview.api.service.ApiMedicationService;
-import org.patientview.service.FhirLinkService;
 import org.patientview.api.service.GpMedicationService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -24,11 +24,13 @@ import org.patientview.persistence.model.enums.GpMedicationGroupCodes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.persistence.util.DataUtils;
+import org.patientview.service.FhirLinkService;
 import org.patientview.service.MedicationService;
 import org.patientview.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -43,7 +45,9 @@ import java.util.UUID;
  * Created on 29/09/2014
  */
 @Service
-public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServiceImpl> implements ApiMedicationService {
+public class ApiMedicationServiceImpl extends AbstractServiceImpl<ApiMedicationServiceImpl> implements ApiMedicationService {
+
+    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     @Inject
     private FhirLinkService fhirLinkService;
@@ -61,7 +65,7 @@ public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServic
     private MedicationService medicationService;
 
     @Inject
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Inject
     private GpMedicationService gpMedicationService;
@@ -76,8 +80,7 @@ public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServic
     public List<FhirMedicationStatement> getByUserId(final Long userId, String fromDate, String toDate)
             throws ResourceNotFoundException, FhirResourceException {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
+        User user = userService.get(userId);
 
         List<FhirMedicationStatement> fhirMedications = new ArrayList<>();
 
@@ -188,18 +191,30 @@ public class ApiMedicationServiceImpl extends BaseController<ApiMedicationServic
         }
 
         Identifier identifier = identifiers.get(0);
-        User user = identifier.getUser();
+        User patientUser = identifier.getUser();
 
-        if (user == null) {
+        if (patientUser == null) {
             return new ServerResponse("user not found");
         }
 
+        // make sure importer and patient from the same group
+        if (!userService.currentUserSameUnitGroup(patientUser, RoleName.IMPORTER)) {
+            LOG.error("Importer trying to import medication for patient outside his group");
+            return new ServerResponse("Forbidden");
+        }
+
+        // make sure patient is a member of the imported group
+        if (!ApiUtil.userHasGroup(patientUser, group.getId())) {
+            return new ServerResponse("patient not a member of imported group");
+        }
+
         // get fhirlink, create one if not present
-        FhirLink fhirLink = Util.getFhirLink(group, fhirMedicationStatementRange.getIdentifier(), user.getFhirLinks());
+        FhirLink fhirLink = Util.getFhirLink(group, fhirMedicationStatementRange.getIdentifier(),
+                patientUser.getFhirLinks());
 
         if (fhirLink == null && insertMedications) {
             try {
-                fhirLink = fhirLinkService.createFhirLink(user, identifier, group);
+                fhirLink = fhirLinkService.createFhirLink(patientUser, identifier, group);
             } catch (FhirResourceException fre) {
                 return new ServerResponse(fre.getMessage());
             }

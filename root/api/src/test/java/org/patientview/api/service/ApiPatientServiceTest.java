@@ -87,6 +87,9 @@ public class ApiPatientServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    UserService userService;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -137,6 +140,8 @@ public class ApiPatientServiceTest {
         fhirPatient.setSurname("newSurname");
         fhirPatient.setGroupCode("RENALB");
         fhirPatient.setIdentifier(identifier.getIdentifier());
+
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
 
         when(fhirResource.createEntity(any(Patient.class), eq(ResourceType.Patient.name()),
                 eq("patient"))).thenReturn(fhirDatabaseEntity);
@@ -202,6 +207,7 @@ public class ApiPatientServiceTest {
         Patient currentPatient = new Patient();
 
         when(DataUtils.getResource(any(JSONObject.class))).thenReturn(currentPatient);
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(fhirResource.updateEntity(any(Patient.class), eq(ResourceType.Patient.name()),
                 eq("patient"), eq(fhirDatabaseEntity.getLogicalId()))).thenReturn(fhirDatabaseEntity);
         when(groupRepository.findByCode(eq(fhirPatient.getGroupCode()))).thenReturn(group);
@@ -265,6 +271,7 @@ public class ApiPatientServiceTest {
         fhirPatient.setGroupCode("RENALB");
         fhirPatient.setIdentifier(identifier.getIdentifier());
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(fhirResource.createEntity(any(Patient.class), eq(ResourceType.Patient.name()),
                 eq("patient"))).thenReturn(fhirDatabaseEntity);
         when(groupRepository.findByCode(eq(fhirPatient.getGroupCode()))).thenReturn(group);

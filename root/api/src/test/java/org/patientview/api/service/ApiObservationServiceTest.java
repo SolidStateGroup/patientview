@@ -572,6 +572,13 @@ public class ApiObservationServiceTest {
         String code = "wbc";
         String value = "999";
 
+        ObservationHeading observationHeading = new ObservationHeading();
+        observationHeading.setId(1L);
+        observationHeading.setCode(code);
+
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
+        observationHeadings.add(observationHeading);
+
         List<Observation> fhirObservations = new ArrayList<>();
 
         Observation observation = new Observation();
@@ -596,6 +603,7 @@ public class ApiObservationServiceTest {
         when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
                 .thenReturn(fhirObservations);
+        when(observationHeadingRepository.findByCode(eq(code))).thenReturn(observationHeadings);
 
         List<FhirObservation> apiObservations
                 = apiObservationService.get(patient.getId(), code, "appliesDateTime", "ASC", Long.MAX_VALUE);
@@ -631,6 +639,13 @@ public class ApiObservationServiceTest {
         String code = "wbc";
         String value = "999";
 
+        ObservationHeading observationHeading = new ObservationHeading();
+        observationHeading.setId(1L);
+        observationHeading.setCode(code);
+
+        List<ObservationHeading> observationHeadings = new ArrayList<>();
+        observationHeadings.add(observationHeading);
+
         List<Observation> fhirObservations = new ArrayList<>();
 
         Observation observation = new Observation();
@@ -655,6 +670,7 @@ public class ApiObservationServiceTest {
         when(groupRepository.findById(eq(group.getId()))).thenReturn(Optional.of(group));
         when(fhirResource.findResourceByQuery(any(String.class), eq(Observation.class)))
                 .thenReturn(fhirObservations);
+        when(observationHeadingRepository.findByCode(eq(code))).thenReturn(observationHeadings);
 
         List<FhirObservation> apiObservations
                 = apiObservationService.get(patient.getId(), code, "appliesDateTime", "ASC", Long.MAX_VALUE);
@@ -788,6 +804,7 @@ public class ApiObservationServiceTest {
         List<Alert> alerts = new ArrayList<>();
         alerts.add(alert);
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(alertRepository.findByUserAndObservationHeading(eq(patient), eq(observationHeading)))
                 .thenReturn(alerts);
         when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
@@ -879,6 +896,7 @@ public class ApiObservationServiceTest {
         List<Alert> alerts = new ArrayList<>();
         alerts.add(alert);
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(alertRepository.findByUserAndObservationHeading(eq(patient), eq(observationHeading)))
                 .thenReturn(alerts);
         when(alertRepository.findById(eq(alert.getId()))).thenReturn(Optional.of(alert));
@@ -964,6 +982,7 @@ public class ApiObservationServiceTest {
         List<UUID> existingObservations = new ArrayList<>();
         existingObservations.add(UUID.randomUUID());
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(fhirResource.createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
                 eq("patient"))).thenReturn(fhirPatient);
         when(fhirResource.getObservationUuidsBySubjectNameDateRange(any(UUID.class),
