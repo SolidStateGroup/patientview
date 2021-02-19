@@ -46,6 +46,8 @@ import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.util.Util;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -75,6 +77,9 @@ import static org.patientview.api.util.ApiUtil.getCurrentUser;
  */
 @Service
 public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> implements GroupService {
+
+    @Autowired
+    CacheManager cacheManager;
 
     @Inject
     private GroupRepository groupRepository;
@@ -112,6 +117,16 @@ public class GroupServiceImpl extends AbstractServiceImpl<GroupServiceImpl> impl
 
     @Inject
     private FhirResource fhirResource;
+
+    public String evictAllCaches() {
+        cacheManager.getCacheNames().stream()
+                .forEach(cacheName -> {
+                    LOG.info("Evicting " + cacheName);
+                    cacheManager.getCache(cacheName).clear();
+                });
+
+        return "OK";
+    }
 
     @CacheEvict(value = "findAllPublic", allEntries = true)
     public Long add(Group group) throws EntityExistsException {
