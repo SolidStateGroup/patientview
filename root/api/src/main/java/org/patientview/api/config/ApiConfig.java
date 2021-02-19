@@ -77,11 +77,10 @@ public class ApiConfig {
         return new Hibernate5Module();
     }
 
-//    @Bean
-//    public SecurityAspect securityAspectBean() {
-//        // return new SecurityAspect();
-//        // return SecurityAspect.aspectOf();
-//    }
+    @Bean
+    public SecurityAspect securityAspectBean() {
+         return SecurityAspect.aspectOf();
+    }
 
     @Bean
     public AuditAspect auditAspectBean() {
