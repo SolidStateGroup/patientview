@@ -222,6 +222,21 @@ function ($q, Restangular, UtilService) {
             });
             return deferred.promise;
         },
+        // find patient user and validate
+        findAndValidate: function (findParam) {
+            var deferred = $q.defer();
+
+            // clean base user object
+            var searchPatient = UtilService.cleanObject(findParam, 'searchPatient');
+            console.log(searchPatient)
+            // POST /users/validate etc
+            Restangular.one('users/validate').customPOST(searchPatient).then(function(successResult) {
+                deferred.resolve(successResult);
+            }, function(failureResult) {
+                deferred.reject(failureResult);
+            });
+            return deferred.promise;
+        },
         // gets users by group, role IDs passed in
         getByGroupsAndRoles: function (getParameters) {
             var deferred = $q.defer();
