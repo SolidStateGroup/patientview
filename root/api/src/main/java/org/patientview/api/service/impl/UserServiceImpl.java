@@ -811,16 +811,16 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // UNIT_ADMIN can get users from other groups (used when updating existing user)
         // as long as not GLOBAL_ADMIN or SPECIALTY_ADMIN
-        if (currentUserHasRole(RoleName.UNIT_ADMIN) || currentUserHasRole(RoleName.GP_ADMIN)) {
-            for (GroupRole groupRole : user.getGroupRoles()) {
-                if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
-                        || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+//        if (currentUserHasRole(RoleName.UNIT_ADMIN) || currentUserHasRole(RoleName.GP_ADMIN)) {
+//            for (GroupRole groupRole : user.getGroupRoles()) {
+//                if (groupRole.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
+//                        || groupRole.getRole().getName().equals(RoleName.SPECIALTY_ADMIN)) {
+//                    return false;
+//                }
+//            }
+//
+//            return true;
+//        }
 
         // if i have staff group role in same groups
         if(!currentUserHasRole(RoleName.PATIENT)){
