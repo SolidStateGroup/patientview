@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.patientview.api.job.DeletePatientTask;
 import org.patientview.api.model.BaseGroup;
+import org.patientview.api.model.FindPatientPayload;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.service.AlertService;
 import org.patientview.api.service.ApiMedicationService;
@@ -102,7 +103,7 @@ import javax.persistence.Query;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -1556,6 +1557,54 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         } else {
             return new org.patientview.api.model.User(foundUser);
         }
+    }
+
+
+    @Override
+    public org.patientview.api.model.User findPatientAndValidate(FindPatientPayload payload)
+            throws ResourceInvalidException, ResourceNotFoundException {
+
+        if (payload.getDateOfBirth() == null) {
+            throw new ResourceInvalidException("Missing DOB");
+        }
+
+        User foundUser;
+        if (!StringUtils.isEmpty(payload.getSearchUsername())) {
+            foundUser = userRepository.findByUsernameCaseInsensitive(payload.getSearchUsername());
+
+        } else if (!StringUtils.isEmpty(payload.getSearchIdentifier())) {
+            List<Identifier> identifiers = identifierRepository.findByValue(payload.getSearchIdentifier());
+            if (CollectionUtils.isEmpty(identifiers)) {
+                throw new ResourceNotFoundException("Identifier does not exist");
+            }
+            foundUser = identifiers.get(0).getUser();
+
+        } else if (!StringUtils.isEmpty(payload.getSearchEmail())) {
+            List<User> foundUsers = userRepository.findByEmailCaseInsensitive(payload.getSearchEmail());
+
+            // should only return one
+            if (CollectionUtils.isEmpty(foundUsers)) {
+                LOG.info("User Not Found User for : " + payload.getSearchEmail());
+                throw new ResourceNotFoundException("User not found");
+            } else {
+                foundUser = foundUsers.get(0);
+            }
+
+        } else {
+            throw new ResourceInvalidException("Missing search parameters");
+        }
+
+        if (foundUser == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        // check DOB match
+        if (!foundUser.getDateOfBirth().equals(payload.getDateOfBirth())) {
+            LOG.error("DOB check failed");
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        return new org.patientview.api.model.User(foundUser);
     }
 
     @Override

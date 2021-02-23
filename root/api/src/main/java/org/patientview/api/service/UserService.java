@@ -3,6 +3,7 @@ package org.patientview.api.service;
 import org.patientview.api.annotation.AuditTrail;
 import org.patientview.api.annotation.RoleOnly;
 import org.patientview.api.annotation.UserOnly;
+import org.patientview.api.model.FindPatientPayload;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
@@ -296,6 +297,16 @@ public interface UserService {
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
     org.patientview.api.model.User getByUsername(String username);
+
+
+    /**
+     * Get a User by username, email address or identifier and check DOB against patient, used when searching
+     * for existing patients.
+     * @param payload a payload to find a patient
+     * @return User object
+     */
+    @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN, RoleName.UNIT_ADMIN, RoleName.GP_ADMIN })
+    org.patientview.api.model.User findPatientAndValidate(FindPatientPayload payload) throws ResourceInvalidException, ResourceNotFoundException;
 
     /**
      * Get UserInformation (About Me etc) associated with a User.
