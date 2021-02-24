@@ -21,6 +21,7 @@ import org.patientview.persistence.model.Lookup;
 import org.patientview.persistence.model.LookupType;
 import org.patientview.persistence.model.Role;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
@@ -86,6 +87,8 @@ public class IdentifierServiceTest {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -129,7 +132,11 @@ public class IdentifierServiceTest {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group2 = TestUtils.createGroup("testGroup2");
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
@@ -169,6 +176,8 @@ public class IdentifierServiceTest {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -210,7 +219,11 @@ public class IdentifierServiceTest {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group2 = TestUtils.createGroup("testGroup2");
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
@@ -254,6 +267,8 @@ public class IdentifierServiceTest {
     public void testAddIdentifier() {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -373,6 +388,8 @@ public class IdentifierServiceTest {
     public void testValidateIdentifier_NhsNumber() {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -418,6 +435,8 @@ public class IdentifierServiceTest {
     public void testValidateIdentifier_DummyNhsNumber() {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -465,6 +484,8 @@ public class IdentifierServiceTest {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -505,6 +526,8 @@ public class IdentifierServiceTest {
     public void testValidateIdentifier_ChiNumber() {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -553,6 +576,8 @@ public class IdentifierServiceTest {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -593,6 +618,8 @@ public class IdentifierServiceTest {
     public void testValidateIdentifier_HscNumber() {
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -641,6 +668,8 @@ public class IdentifierServiceTest {
 
         // user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
