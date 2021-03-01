@@ -3,6 +3,7 @@ package org.patientview.api.controller;
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.config.ExcludeFromApiDoc;
 import org.patientview.api.model.Credentials;
+import org.patientview.api.model.FindPatientPayload;
 import org.patientview.api.model.SecretWordInput;
 import org.patientview.api.model.User;
 import org.patientview.api.service.MigrationService;
@@ -409,6 +410,22 @@ public class UserController extends BaseController<UserController> {
         } else {
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
+    }
+
+    /**
+     * Find patient User by email, identifier or username.
+     *
+     * @param payload FindPatientPayload object containing preferences for search
+     * @return a User
+     * @throws ResourceNotFoundException
+     * @throws ResourceInvalidException
+     */
+    @RequestMapping(value = "/users/validate", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<User> getUserAndValidate(@RequestBody FindPatientPayload payload)
+            throws ResourceNotFoundException, ResourceInvalidException {
+        return new ResponseEntity<>(userService.findPatientAndValidate(payload), HttpStatus.OK);
     }
 
     // required by migration

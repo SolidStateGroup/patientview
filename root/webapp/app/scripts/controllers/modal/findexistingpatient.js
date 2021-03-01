@@ -66,6 +66,34 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         });
     };
 
+    // find and validate patient
+    $scope.findAndValidate = function () {
+        var findParam = {}
+        findParam.searchUsername = $('#by-username').val();
+        findParam.searchIdentifier = $('#by-identifier').val();
+        findParam.searchEmail = $('#by-email').val();
+
+        // set date of birth if available
+        if ($scope.dobCheck.day && $scope.dobCheck.month && $scope.dobCheck.year) {
+            findParam.dateOfBirth = new Date($scope.dobCheck.year, $scope.dobCheck.month -1 , $scope.dobCheck.day);
+        }
+
+        delete $scope.warningMessage;
+        console.log(findParam)
+        UserService.findAndValidate(findParam).then(function (result) {
+
+            $scope.passedDobCheck = true;
+            $scope.existingUser = true;
+
+            $scope.editUser = result;
+            $scope.hasDob = true;
+            showUserOnScreen();
+
+        }, function () {
+            $scope.warningMessage = 'No patient exists with given details';
+        });
+    };
+
     var showUserOnScreen = function () {
         $scope.editMode = true;
         delete $scope.warningMessage;
