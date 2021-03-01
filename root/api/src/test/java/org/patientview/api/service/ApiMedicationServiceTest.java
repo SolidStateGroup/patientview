@@ -23,11 +23,8 @@ import org.patientview.persistence.model.User;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RoleName;
-import org.patientview.persistence.repository.AlertRepository;
 import org.patientview.persistence.repository.GroupRepository;
 import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.ResultClusterRepository;
-import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.FhirLinkService;
 import org.patientview.service.MedicationService;
@@ -61,9 +58,6 @@ public class ApiMedicationServiceTest {
 
     User creator;
 
-    @Mock
-    AlertRepository alertRepository;
-
     @InjectMocks
     ApiMedicationService apiMedicationService = new ApiMedicationServiceImpl();
 
@@ -77,9 +71,6 @@ public class ApiMedicationServiceTest {
     GroupRepository groupRepository;
 
     @Mock
-    GroupService groupService;
-
-    @Mock
     IdentifierRepository identifierRepository;
 
     @Mock
@@ -89,10 +80,7 @@ public class ApiMedicationServiceTest {
     PatientService patientService;
 
     @Mock
-    ResultClusterRepository resultClusterRepository;
-
-    @Mock
-    UserRepository userRepository;
+    UserService userService;
 
     private Date now;
     private Date weekAgo;
@@ -115,6 +103,7 @@ public class ApiMedicationServiceTest {
     public void testImportMedication() throws Exception {
         // auth
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.GROUP), "UNIT"));
         Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
         User staff = TestUtils.createUser("testStaff");
         GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
@@ -155,6 +144,7 @@ public class ApiMedicationServiceTest {
         fhirMedicationStatement.setDose("medicationDose");
         fhirMedicationStatementRange.getMedications().add(fhirMedicationStatement);
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
                 .thenReturn(patient.getFhirLinks().iterator().next());
         when(groupRepository.findByCode(eq(fhirMedicationStatementRange.getGroupCode()))).thenReturn(group);
@@ -162,7 +152,7 @@ public class ApiMedicationServiceTest {
                 .thenReturn(identifiers);
         when(medicationService.deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate())))
-            .thenReturn(1);
+                .thenReturn(1);
 
         ServerResponse serverResponse = apiMedicationService.importMedication(fhirMedicationStatementRange);
 
@@ -222,6 +212,7 @@ public class ApiMedicationServiceTest {
         fhirMedicationStatement.setDose("medicationDose");
         fhirMedicationStatementRange.getMedications().add(fhirMedicationStatement);
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
                 .thenReturn(patient.getFhirLinks().iterator().next());
         when(groupRepository.findByCode(eq(fhirMedicationStatementRange.getGroupCode()))).thenReturn(group);
@@ -288,6 +279,7 @@ public class ApiMedicationServiceTest {
         FhirDatabaseEntity fhirPatient = new FhirDatabaseEntity();
         fhirPatient.setLogicalId(UUID.randomUUID());
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(fhirResource.createEntity(eq(builtPatient), eq(ResourceType.Patient.name()),
                 eq("patient"))).thenReturn(fhirPatient);
         when(groupRepository.findByCode(eq(fhirMedicationStatementRange.getGroupCode()))).thenReturn(group);
@@ -314,6 +306,149 @@ public class ApiMedicationServiceTest {
                 eq(patient.getFhirLinks().iterator().next()));
         verify(medicationService, times(1)).deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate()));
-        verify(userRepository, times(0)).save(eq(patient));
     }
+
+    @Test
+    public void testImportMedication_patientFromAnotherGroup_shouldFail() throws Exception {
+        // auth
+        Group group = TestUtils.createGroup("ImporterGroup");
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
+        User staff = TestUtils.createUser("testImporter");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        // patient
+        Group patientGroup = TestUtils.createGroup("PatientGroup");
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, patientGroup, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        TestUtils.createFhirLink(patient, identifier, patientGroup);
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // FhirMedicationStatementRange
+        FhirMedicationStatementRange fhirMedicationStatementRange = new FhirMedicationStatementRange();
+        fhirMedicationStatementRange.setGroupCode("DSF01");
+        fhirMedicationStatementRange.setIdentifier("1111111111");
+        fhirMedicationStatementRange.setStartDate(weekAgo);
+        fhirMedicationStatementRange.setEndDate(now);
+        fhirMedicationStatementRange.setMedications(new ArrayList<>());
+
+        // FhirMedication to insert
+        FhirMedicationStatement fhirMedicationStatement = new FhirMedicationStatement();
+        fhirMedicationStatement.setName("medicationName");
+        fhirMedicationStatement.setDose("medicationDose");
+        fhirMedicationStatementRange.getMedications().add(fhirMedicationStatement);
+
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
+
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
+        when(groupRepository.findByCode(eq(fhirMedicationStatementRange.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(fhirMedicationStatementRange.getIdentifier())))
+                .thenReturn(identifiers);
+        when(medicationService.deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate())))
+                .thenReturn(1);
+
+        ServerResponse serverResponse = apiMedicationService.importMedication(fhirMedicationStatementRange);
+
+        Assert.assertTrue(
+                "Should fail, got '" + serverResponse.getErrorMessage() + "'", !serverResponse.isSuccess());
+        Assert.assertTrue("Should have correct error message, got '"
+                        + serverResponse.getErrorMessage() + "'",
+                serverResponse.getErrorMessage().contains("patient not a member of imported group"));
+
+        verify(fhirLinkService, times(0)).createFhirLink(eq(patient), eq(identifier), eq(group));
+        verify(medicationService, times(0)).add(eq(fhirMedicationStatement),
+                eq(patient.getFhirLinks().iterator().next()));
+        verify(medicationService, times(0)).deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate()));
+    }
+
+
+    @Test
+    public void testImportMedication_patientOutsideImporterGroup_shouldFail() throws Exception {
+        // auth
+        Group group = TestUtils.createGroup("ImporterGroup");
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
+        User staff = TestUtils.createUser("testImporter");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        // patient
+        Group patientGroup = TestUtils.createGroup("PatientGroup");
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, patientGroup, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        TestUtils.createFhirLink(patient, identifier, patientGroup);
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // FhirMedicationStatementRange
+        FhirMedicationStatementRange fhirMedicationStatementRange = new FhirMedicationStatementRange();
+        fhirMedicationStatementRange.setGroupCode("DSF01");
+        fhirMedicationStatementRange.setIdentifier("1111111111");
+        fhirMedicationStatementRange.setStartDate(weekAgo);
+        fhirMedicationStatementRange.setEndDate(now);
+        fhirMedicationStatementRange.setMedications(new ArrayList<>());
+
+        // FhirMedication to insert
+        FhirMedicationStatement fhirMedicationStatement = new FhirMedicationStatement();
+        fhirMedicationStatement.setName("medicationName");
+        fhirMedicationStatement.setDose("medicationDose");
+        fhirMedicationStatementRange.getMedications().add(fhirMedicationStatement);
+
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(false);
+
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(patientGroup)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
+        when(groupRepository.findByCode(eq(fhirMedicationStatementRange.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(fhirMedicationStatementRange.getIdentifier())))
+                .thenReturn(identifiers);
+        when(medicationService.deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate())))
+                .thenReturn(1);
+
+        ServerResponse serverResponse = apiMedicationService.importMedication(fhirMedicationStatementRange);
+
+        Assert.assertTrue(
+                "Should fail, got '" + serverResponse.getErrorMessage() + "'", !serverResponse.isSuccess());
+        Assert.assertTrue("Should have correct error message, got '"
+                + serverResponse.getErrorMessage() + "'", serverResponse.getErrorMessage().contains("Forbidden"));
+
+        verify(fhirLinkService, times(0)).createFhirLink(eq(patient), eq(identifier),
+                eq(patientGroup));
+        verify(medicationService, times(0)).add(eq(fhirMedicationStatement),
+                eq(patient.getFhirLinks().iterator().next()));
+        verify(medicationService, times(0)).deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirMedicationStatementRange.getStartDate()), eq(fhirMedicationStatementRange.getEndDate()));
+    }
+
 }

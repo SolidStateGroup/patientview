@@ -393,6 +393,17 @@ public class ApiPatientServiceImpl extends AbstractServiceImpl<ApiPatientService
             return new ServerResponse("user not found");
         }
 
+        // make sure importer and patient from the same group
+        if (!userService.currentUserSameUnitGroup(user, RoleName.IMPORTER)) {
+            LOG.error("Importer trying to import medication for patient outside his group");
+            return new ServerResponse("Forbidden");
+        }
+
+        // make sure patient is a member of the imported group
+        if (!ApiUtil.userHasGroup(user, group.getId())) {
+            return new ServerResponse("patient not a member of imported group");
+        }
+
         // get FhirLink
         FhirLink fhirLink = Util.getFhirLink(group, fhirPatient.getIdentifier(), user.getFhirLinks());
 

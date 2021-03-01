@@ -7,6 +7,7 @@ import org.patientview.persistence.model.Group;
 import org.patientview.persistence.model.GroupRelationship;
 import org.patientview.persistence.model.GroupRole;
 import org.patientview.persistence.model.User;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
 import org.patientview.persistence.model.enums.RoleName;
 import org.patientview.persistence.model.enums.RoleType;
@@ -97,7 +98,10 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         if (ApiUtil.userHasRole(user, RoleName.UNIT_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
-                if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN) && groupRole.getGroup().equals(group)) {
+                if (groupRole.getRole().getName().equals(RoleName.UNIT_ADMIN)
+                        && (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())
+                        || groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.DISEASE_GROUP.toString()))
+                        && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }
@@ -106,7 +110,9 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         if (ApiUtil.userHasRole(user, RoleName.GP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 // check if have direct membership of group
-                if (groupRole.getRole().getName().equals(RoleName.GP_ADMIN) && groupRole.getGroup().equals(group)) {
+                if (groupRole.getRole().getName().equals(RoleName.GP_ADMIN)
+                        && groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.GENERAL_PRACTICE.toString())
+                        && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }
@@ -114,7 +120,10 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
         if (ApiUtil.userHasRole(user, RoleName.STAFF_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
-                if (groupRole.getRole().getName().equals(RoleName.STAFF_ADMIN) && groupRole.getGroup().equals(group)) {
+                if (groupRole.getRole().getName().equals(RoleName.STAFF_ADMIN)
+                        && (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())
+                        || groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.DISEASE_GROUP.toString()))
+                        && groupRole.getGroup().equals(group)) {
                     return true;
                 }
             }
@@ -123,6 +132,8 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
         if (ApiUtil.userHasRole(user, RoleName.DISEASE_GROUP_ADMIN)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (groupRole.getRole().getName().equals(RoleName.DISEASE_GROUP_ADMIN)
+                        && (groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.UNIT.toString())
+                        || groupRole.getGroup().getGroupType().getValue().equals(GroupTypes.DISEASE_GROUP.toString()))
                         && groupRole.getGroup().equals(group)) {
                     return true;
                 }

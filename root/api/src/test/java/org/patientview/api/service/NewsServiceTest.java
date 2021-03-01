@@ -274,6 +274,8 @@ public class NewsServiceTest {
     public void testAddGroupAndRole_wrongRole() throws ResourceForbiddenException, ResourceNotFoundException {
         User user = TestUtils.createUser("testUser");
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role newsRole = TestUtils.createRole(RoleName.GLOBAL_ADMIN);
 
         GroupRole groupRole = TestUtils.createGroupRole(

@@ -288,4 +288,24 @@ public final class ApiUtil {
 
         return false;
     }
+
+    /**
+     * Validate that a user has a Group for a given group id.
+     *
+     * @param user User to check has Group
+     * @return true if User has a Group
+     */
+    public static boolean userHasGroup(User user, Long groupId) throws SecurityException {
+        if (user == null || groupId == null) {
+            return false;
+        }
+
+        for (GroupRole groupRole : user.getGroupRoles()) {
+            if (groupRole.getGroup().getId().equals(groupId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -69,17 +69,14 @@
         <!-- existing patient modal (search by identifier) -->
         <script type="text/ng-template" id="findExistingPatientModal.html">
             <div class="modal-header">
-                <h3 class="modal-title" data-ng-show="existingUser">Find Existing Patient User</h3>
+                <h3 class="modal-title" >Find Existing Patient User</h3>
             </div>
             <div class="modal-body">
 
                 <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
                 <div class="alert alert-warning" data-ng-show="warningMessage">{{warningMessage}}</div>
 
-                <form name="userFormFindByIdentifier" data-ng-if="!existingUser">
-                    <div data-ng-include src="'views/partials/patientDetailsFindExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
-                </form>
-                <form name="userFormExisting" data-ng-if="existingUser">
+                <form name="userFormExisting" >
                     <div data-ng-include src="'views/partials/patientDetailsExisting.html'" data-ng-controller="UserDetailsCtrl"></div>
                 </form>
             </div>

@@ -79,7 +79,7 @@ public class ApiConfig {
 
     @Bean
     public SecurityAspect securityAspectBean() {
-        return SecurityAspect.aspectOf();
+         return SecurityAspect.aspectOf();
     }
 
     @Bean
