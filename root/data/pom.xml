@@ -6,11 +6,11 @@
     <parent>
         <groupId>org.patientview2</groupId>
         <artifactId>root</artifactId>
-        <version>2.7.4-RELEASE</version>
+        <version>2.7.5-RELEASE</version>
     </parent>
 
     <artifactId>data</artifactId>
-    <version>2.7.4-RELEASE</version>
+    <version>2.7.5-RELEASE</version>
     <packaging>jar</packaging>
     <name>data</name>
     <url>http://maven.apache.org</url>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.patientview2</groupId>
             <artifactId>common</artifactId>
-            <version>2.7.4-RELEASE</version>
+            <version>2.7.5-RELEASE</version>
         </dependency>
 
         <!-- PDF export support -->
