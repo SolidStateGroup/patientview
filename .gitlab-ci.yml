@@ -171,7 +171,7 @@ package:prod:api:
     - cp $PROD_DB_PROPS root/api/src/main/resources/conf/production-database.properties
     - cp $PROD_API_PROPS root/importer/src/main/resources/conf/production-api.properties
     - cp $PROD_DB_PROPS root/importer/src/main/resources/conf/production-database.properties
-    - mvn $MAVEN_CLI_OPTS clean install package -Denv=production -DskipTests -f root/
+    - mvn $MAVEN_CLI_OPTS clean package -Denv=production -DskipTests -f root/
   allow_failure: false
   when: on_success
   only:

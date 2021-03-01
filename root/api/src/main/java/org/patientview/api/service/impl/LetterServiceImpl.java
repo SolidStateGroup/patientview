@@ -13,6 +13,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.patientview.api.builder.PatientBuilder;
 import org.patientview.api.service.ApiPatientService;
 import org.patientview.api.service.LetterService;
+import org.patientview.api.service.UserService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceNotFoundException;
@@ -84,6 +85,9 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private UserService userService;
 
     // used by migration
     @Override
@@ -270,6 +274,17 @@ public class LetterServiceImpl extends AbstractServiceImpl<LetterServiceImpl> im
 
         if (user == null) {
             return new ServerResponse("user not found");
+        }
+
+        // make sure importer and patient from the same group
+        if (!userService.currentUserSameUnitGroup(user, RoleName.IMPORTER)) {
+            LOG.error("Importer trying to import medication for patient outside his group");
+            return new ServerResponse("Forbidden");
+        }
+
+        // make sure patient is a member of the imported group
+        if (!ApiUtil.userHasGroup(user, group.getId())) {
+            return new ServerResponse("patient not a member of imported group");
         }
 
         // get FhirLink

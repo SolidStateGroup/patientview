@@ -31,11 +31,10 @@ import static org.patientview.api.util.ApiUtil.getRoles;
  * http://stackoverflow.com/questions/3271659/use-enum-type-as-a-value-parameter-for-rolesallowed-annotation
  *
  * Responsible for security resource via annotations.
- *
  */
 @Aspect
 @Configurable
-public final class SecurityAspect {
+public class SecurityAspect {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityAspect.class);
 
@@ -62,12 +61,12 @@ public final class SecurityAspect {
 
     /**
      * Check if current User has a certain Role.
+     *
      * @param joinPoint Join point of aspect, defined by @RoleOnly annotation on service method
      * @throws ResourceForbiddenException
      */
-    @Before("@annotation(org.patientview.api.annotation.RoleOnly)")
+    @Before("@annotation(org.patientview.api.annotation.RoleOnly) && within(org.patientview.api..*)")
     public void checkHasRole(JoinPoint joinPoint) throws ResourceForbiddenException {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
@@ -95,12 +94,12 @@ public final class SecurityAspect {
 
     /**
      * Check if current User is a member of a certain Group.
+     *
      * @param joinPoint Join point of aspect, defined by @GroupMemberOnly annotation on service method
      * @throws ResourceForbiddenException
      */
-    @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly)")
+    @Before("@annotation(org.patientview.api.annotation.GroupMemberOnly) && within(org.patientview.api..*)")
     public void checkGroupMembership(JoinPoint joinPoint) throws ResourceForbiddenException {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Cannot validate when security has not been initialised
@@ -148,10 +147,11 @@ public final class SecurityAspect {
     /**
      * Check if User being retrieved or modified is the current User, typically used for service methods where only the
      * current user has permission to modify or view their own details.
+     *
      * @param joinPoint Join point of aspect, defined by @GroupMemberOnly annotation on service method
      * @throws ResourceForbiddenException
      */
-    @Before("@annotation(org.patientview.api.annotation.UserOnly)")
+    @Before("@annotation(org.patientview.api.annotation.UserOnly) && within(org.patientview.api..*)")
     public void checkUser(JoinPoint joinPoint) throws ResourceForbiddenException {
         Long requestId = getId(joinPoint);
         if (requestId == null) {
@@ -171,6 +171,7 @@ public final class SecurityAspect {
     /**
      * Get ID from join point parameters, currently used to retrieve Group or User ID and assumes the annotation is
      * applied to a method with a Group or User ID.
+     *
      * @param joinPoint Join point of aspect, typically on service method
      * @return Long ID of Group or User from join point parameters
      */
@@ -186,6 +187,7 @@ public final class SecurityAspect {
 
     /**
      * Get the Group as retrieved from join point. Assuming we apply the annotation to a method with a Group.
+     *
      * @param joinPoint Join point of aspect
      * @return Group retrieved from join point parameters
      */

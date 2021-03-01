@@ -35,6 +35,7 @@ import org.patientview.persistence.model.UserToken;
 import org.patientview.persistence.model.enums.AuditActions;
 import org.patientview.persistence.model.enums.AuditObjectTypes;
 import org.patientview.persistence.model.enums.ExternalServices;
+import org.patientview.persistence.model.enums.GroupTypes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.model.enums.LookupTypes;
 import org.patientview.persistence.model.enums.RelationshipTypes;
@@ -224,6 +225,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -258,6 +261,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
@@ -269,6 +274,8 @@ public class UserServiceTest {
 
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         User staffUser = TestUtils.createUser("staff");
         Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group2, staffUser);
@@ -306,6 +313,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
@@ -317,10 +326,12 @@ public class UserServiceTest {
 
         // user to modify
         Group group2 = TestUtils.createGroup("testGroup2");
-        Lookup lookupValue = new Lookup();
-        lookupValue.setValue("");
-        group2.setGroupType(lookupValue);
-        group.setGroupType(lookupValue);
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
+        //        Lookup lookupValue = new Lookup();
+        //        lookupValue.setValue("");
+        //        group2.setGroupType(lookupValue);
+        //        group.setGroupType(lookupValue);
 
 
         User patientUser = TestUtils.createUser("patient");
@@ -753,6 +764,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -801,7 +814,11 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group2 = TestUtils.createGroup("testGroup2");
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
@@ -845,8 +862,14 @@ public class UserServiceTest {
     @Test
     public void testCurrentUserCanSwitchToUser_UnitStaff() {
         Group group1 = TestUtils.createGroup("test1Group");
+        group1.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group2 = TestUtils.createGroup("test2Group");
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group3 = TestUtils.createGroup("test3Group");
+        group3.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
 
         // create group relationships
         group3.getGroupRelationships().add(TestUtils.createGroupRelationship(group3, group1, RelationshipTypes.PARENT));
@@ -898,8 +921,14 @@ public class UserServiceTest {
     @Test
     public void testCurrentUserCanSwitchToUser_UnitAdmin() {
         Group group1 = TestUtils.createGroup("test1Group");
+        group1.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group2 = TestUtils.createGroup("test2Group");
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group3 = TestUtils.createGroup("test3Group");
+        group3.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
 
         // create group relationships
         group3.getGroupRelationships().add(TestUtils.createGroupRelationship(group3, group1, RelationshipTypes.PARENT));
@@ -1009,6 +1038,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -1045,6 +1076,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         user.setId(1L);
@@ -1310,6 +1343,8 @@ public class UserServiceTest {
     public void testPasswordReset() throws ResourceNotFoundException, ResourceForbiddenException, MessagingException {
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -1332,7 +1367,7 @@ public class UserServiceTest {
 
         org.patientview.api.model.User user1 = userService.resetPassword(staffUser.getId(), password);
 
-        verify(userRepository, times(2)).findById(eq(staffUser.getId()));
+        verify(userRepository, times(1)).findById(eq(staffUser.getId()));
         verify(userRepository, times(1)).save(eq(staffUser));
         Assert.assertTrue("The user now has the change password flag set", user1.getChangePassword());
     }
@@ -1363,7 +1398,7 @@ public class UserServiceTest {
         user.setChangePassword(Boolean.TRUE);
         when(userRepository.findById(eq(user.getId()))).thenReturn(Optional.of(user));
         userService.changePassword(user.getId(), password);
-        verify(userRepository, times(3)).findById(eq(user.getId()));
+        verify(userRepository, times(1)).findById(eq(user.getId()));
         verify(userTokenRepository, times(1)).findByUser(user.getId());
     }
 
@@ -1451,6 +1486,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -1537,6 +1574,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group, user);
@@ -1569,6 +1608,8 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.UNIT_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
 
@@ -1643,7 +1684,11 @@ public class UserServiceTest {
 
         // current user and security
         Group group = TestUtils.createGroup("testGroup");
+        group.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Group group2 = TestUtils.createGroup("testGroup2");
+        group2.setGroupType(TestUtils.createLookup(
+                TestUtils.createLookupType(LookupTypes.GROUP), GroupTypes.UNIT.toString()));
         Role role = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         User user = TestUtils.createUser("testUser");
         GroupRole groupRole = TestUtils.createGroupRole(role, group2, user);
@@ -1654,7 +1699,7 @@ public class UserServiceTest {
 
         // user to save
         User staffUser = TestUtils.createUser("staff");
-        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN);
+        Role staffRole = TestUtils.createRole(RoleName.STAFF_ADMIN, RoleType.STAFF);
         GroupRole groupRoleStaff = TestUtils.createGroupRole(staffRole, group, staffUser);
         Set<GroupRole> groupRolesStaff = new HashSet<>();
         groupRolesStaff.add(groupRoleStaff);

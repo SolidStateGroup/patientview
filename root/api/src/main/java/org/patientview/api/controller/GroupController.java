@@ -39,6 +39,11 @@ public class GroupController extends BaseController<GroupController> {
     @Inject
     private GroupStatisticService groupStatisticService;
 
+    @RequestMapping(value = "/group/cacheclean", method = RequestMethod.GET)
+    public ResponseEntity<?> cleanCache() {
+        return new ResponseEntity<>(groupService.evictAllCaches(), HttpStatus.OK);
+    }
+
     /**
      * Create a Group.
      * @param group Group object containing all required properties

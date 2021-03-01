@@ -2,6 +2,7 @@ package org.patientview.api.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.patientview.api.service.ClinicalDataService;
+import org.patientview.api.service.UserService;
 import org.patientview.service.FhirLinkService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
@@ -59,6 +60,9 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
     @Inject
     private OrganizationService organizationService;
 
+    @Inject
+    private UserService userService;
+
     @Transactional
     @Override
     public ServerResponse importClinicalData(FhirClinicalData fhirClinicalData) {
@@ -95,6 +99,17 @@ public class ClinicalDataServiceImpl extends AbstractServiceImpl<ClinicalDataSer
 
         if (user == null) {
             return new ServerResponse("user not found");
+        }
+
+        // make sure importer and patient from the same group
+        if (!userService.currentUserSameUnitGroup(user, RoleName.IMPORTER)) {
+            LOG.error("Importer trying to import medication for patient outside his group");
+            return new ServerResponse("Forbidden");
+        }
+
+        // make sure patient is a member of the imported group
+        if (!ApiUtil.userHasGroup(user, group.getId())) {
+            return new ServerResponse("patient not a member of imported group");
         }
 
         // validate treatments

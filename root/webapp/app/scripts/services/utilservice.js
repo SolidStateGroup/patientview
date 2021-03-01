@@ -149,6 +149,7 @@ angular.module('patientviewApp').factory('UtilService', [function () {
             fields.externalStandard = ['id', 'name','description'];
             fields.category = ['id', 'friendlyDescription', 'icd10Description', 'number', 'hidden'];
             fields.dialysisTreatment = ['day', 'month', 'year', 'hour', 'minute', 'HdHours', 'HdLocation', 'eprex', 'TargetWeight', 'PreWeight',  'PostWeight', 'UfVolume', 'pulse', 'PreBpsys', 'PreBpdia', 'PostBpdia', 'PostBpsys', 'hypotension', 'BodyTemperature', 'bps','DialFlow', 'LitresProcessed', 'comments'];
+            fields.searchPatient = ['searchUsername', 'searchIdentifier', 'searchEmail', 'dateOfBirth'];
             return fields[objectType];
         },
         getMonthText: function(month) {

@@ -1691,6 +1691,17 @@ public class ApiObservationServiceImpl extends AbstractServiceImpl<ApiObservatio
             return new ServerResponse("user not found");
         }
 
+        // make sure importer and patient from the same group
+        if (!userService.currentUserSameUnitGroup(user, RoleName.IMPORTER)) {
+            LOG.error("Importer trying to import medication for patient outside his group");
+            return new ServerResponse("Forbidden");
+        }
+
+        // make sure patient is a member of the imported group
+        if (!ApiUtil.userHasGroup(user, group.getId())) {
+            return new ServerResponse("patient not a member of imported group");
+        }
+
         // get fhirlink, create one if not present
         FhirLink fhirLink = Util.getFhirLink(group, fhirObservationRange.getIdentifier(), user.getFhirLinks());
 

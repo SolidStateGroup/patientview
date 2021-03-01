@@ -41,7 +41,6 @@ import org.patientview.persistence.repository.IdentifierRepository;
 import org.patientview.persistence.repository.ObservationHeadingGroupRepository;
 import org.patientview.persistence.repository.ObservationHeadingRepository;
 import org.patientview.persistence.repository.ResultClusterRepository;
-import org.patientview.persistence.repository.UserRepository;
 import org.patientview.persistence.resource.FhirResource;
 import org.patientview.service.DiagnosticService;
 import org.patientview.service.FhirLinkService;
@@ -55,7 +54,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -109,7 +107,7 @@ public class ApiDiagnosticServiceTest {
     ResultClusterRepository resultClusterRepository;
 
     @Mock
-    UserRepository userRepository;
+    UserService userService;
 
     private Date now;
     private Date weekAgo;
@@ -214,7 +212,7 @@ public class ApiDiagnosticServiceTest {
         resultJson.put("entry", resultArray);
 
         try {
-            when(userRepository.findById(Matchers.eq(user.getId()))).thenReturn(Optional.of(user));
+            when(userService.get(Matchers.eq(user.getId()))).thenReturn(user);
             when(fhirResource.findResourceByQuery(any(String.class), eq(DiagnosticReport.class)))
                     .thenReturn(diagnosticReports);
             when(fhirResource.getResource(any(UUID.class), eq(ResourceType.Observation))).thenReturn(resultJson);
@@ -282,6 +280,7 @@ public class ApiDiagnosticServiceTest {
         fhirDiagnosticReport.setResult(fhirObservation);
         fhirDiagnosticReportRange.getDiagnostics().add(fhirDiagnosticReport);
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(diagnosticService.deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirDiagnosticReportRange.getStartDate()), eq(fhirDiagnosticReportRange.getEndDate())))
                 .thenReturn(1);
@@ -357,6 +356,7 @@ public class ApiDiagnosticServiceTest {
         fhirDiagnosticReport.setResult(fhirObservation);
         fhirDiagnosticReportRange.getDiagnostics().add(fhirDiagnosticReport);
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
                 .thenReturn(patient.getFhirLinks().iterator().next());
         when(groupRepository.findByCode(eq(fhirDiagnosticReportRange.getGroupCode()))).thenReturn(group);
@@ -416,6 +416,7 @@ public class ApiDiagnosticServiceTest {
         fhirDiagnosticReportRange.setStartDate(weekAgo);
         fhirDiagnosticReportRange.setEndDate(now);
 
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
         when(diagnosticService.deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirDiagnosticReportRange.getStartDate()), eq(fhirDiagnosticReportRange.getEndDate())))
                 .thenReturn(1);
@@ -439,6 +440,162 @@ public class ApiDiagnosticServiceTest {
         verify(diagnosticService, times(0)).add(
                 any(org.patientview.persistence.model.FhirDiagnosticReport.class), any(FhirLink.class));
         verify(diagnosticService, times(1)).deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirDiagnosticReportRange.getStartDate()), eq(fhirDiagnosticReportRange.getEndDate()));
+        verify(fhirLinkService, times(0)).createFhirLink(eq(patient), eq(identifier), eq(group));
+    }
+
+
+    @Test
+    public void testImportDiagnostics_patientFromAnotherGroup_shouldFail() throws Exception {
+        // auth
+        Group group = TestUtils.createGroup("testGroup");
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        // patient
+        Group patientGroup = TestUtils.createGroup("PatientGroup");
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, patientGroup, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        TestUtils.createFhirLink(patient, identifier, patientGroup);
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // FhirDiagnosticReportRange
+        FhirDiagnosticReportRange fhirDiagnosticReportRange = new FhirDiagnosticReportRange();
+        fhirDiagnosticReportRange.setGroupCode("DSF01");
+        fhirDiagnosticReportRange.setIdentifier("1111111111");
+        fhirDiagnosticReportRange.setStartDate(weekAgo);
+        fhirDiagnosticReportRange.setEndDate(now);
+        fhirDiagnosticReportRange.setDiagnostics(new ArrayList<>());
+
+        // FhirObservation
+        FhirObservation fhirObservation = new FhirObservation();
+        fhirObservation.setValue("imaging result");
+
+        // FhirDiagnosticReport
+        org.patientview.persistence.model.FhirDiagnosticReport fhirDiagnosticReport
+                = new org.patientview.persistence.model.FhirDiagnosticReport();
+        fhirDiagnosticReport.setDate(now);
+        fhirDiagnosticReport.setName("imaging diagnostic");
+        fhirDiagnosticReport.setType(DiagnosticReportTypes.IMAGING.toString());
+        fhirDiagnosticReport.setResult(fhirObservation);
+        fhirDiagnosticReportRange.getDiagnostics().add(fhirDiagnosticReport);
+
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(true);
+
+        when(diagnosticService.deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirDiagnosticReportRange.getStartDate()), eq(fhirDiagnosticReportRange.getEndDate())))
+                .thenReturn(1);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(patientGroup)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
+        when(groupRepository.findByCode(eq(fhirDiagnosticReportRange.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(fhirDiagnosticReportRange.getIdentifier())))
+                .thenReturn(identifiers);
+        when(Util.isInEnum(eq(fhirDiagnosticReport.getType()), eq(DiagnosticReportTypes.class))).thenReturn(true);
+
+        ServerResponse serverResponse = apiDiagnosticService.importDiagnostics(fhirDiagnosticReportRange);
+
+        Assert.assertTrue(
+                "Should fail, got '" + serverResponse.getErrorMessage() + "'", !serverResponse.isSuccess());
+        Assert.assertTrue("Should have correct error message, got '"
+                        + serverResponse.getErrorMessage() + "'",
+                serverResponse.getErrorMessage().contains("patient not a member of imported group"));
+
+        verify(diagnosticService, times(0)).add(eq(fhirDiagnosticReport), any(FhirLink.class));
+        verify(diagnosticService, times(0)).deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirDiagnosticReportRange.getStartDate()), eq(fhirDiagnosticReportRange.getEndDate()));
+        verify(fhirLinkService, times(0)).createFhirLink(eq(patient), eq(identifier),
+                eq(patientGroup));
+    }
+
+    @Test
+    public void testImportDiagnostics_patientOutsideImporterGroup_shouldFail() throws Exception {
+        // auth
+        Group group = TestUtils.createGroup("testGroup");
+        Role staffRole = TestUtils.createRole(RoleName.IMPORTER);
+        User staff = TestUtils.createUser("testStaff");
+        GroupRole groupRole = TestUtils.createGroupRole(staffRole, group, staff);
+        Set<GroupRole> groupRoles = new HashSet<>();
+        groupRoles.add(groupRole);
+        staff.getGroupRoles().add(groupRole);
+        TestUtils.authenticateTest(staff, groupRoles);
+
+        // patient
+        User patient = TestUtils.createUser("patient");
+        Role patientRole = TestUtils.createRole(RoleName.PATIENT);
+        GroupRole groupRolePatient = TestUtils.createGroupRole(patientRole, group, patient);
+        Set<GroupRole> groupRolesPatient = new HashSet<>();
+        groupRolesPatient.add(groupRolePatient);
+        patient.setGroupRoles(groupRolesPatient);
+
+        // identifier
+        Identifier identifier = TestUtils.createIdentifier(
+                TestUtils.createLookup(TestUtils.createLookupType(LookupTypes.IDENTIFIER),
+                        IdentifierTypes.NHS_NUMBER.toString()), patient, "1111111111");
+
+        TestUtils.createFhirLink(patient, identifier, group);
+
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+
+        // FhirDiagnosticReportRange
+        FhirDiagnosticReportRange fhirDiagnosticReportRange = new FhirDiagnosticReportRange();
+        fhirDiagnosticReportRange.setGroupCode("DSF01");
+        fhirDiagnosticReportRange.setIdentifier("1111111111");
+        fhirDiagnosticReportRange.setStartDate(weekAgo);
+        fhirDiagnosticReportRange.setEndDate(now);
+        fhirDiagnosticReportRange.setDiagnostics(new ArrayList<>());
+
+        // FhirObservation
+        FhirObservation fhirObservation = new FhirObservation();
+        fhirObservation.setValue("imaging result");
+
+        // FhirDiagnosticReport
+        org.patientview.persistence.model.FhirDiagnosticReport fhirDiagnosticReport
+                = new org.patientview.persistence.model.FhirDiagnosticReport();
+        fhirDiagnosticReport.setDate(now);
+        fhirDiagnosticReport.setName("imaging diagnostic");
+        fhirDiagnosticReport.setType(DiagnosticReportTypes.IMAGING.toString());
+        fhirDiagnosticReport.setResult(fhirObservation);
+        fhirDiagnosticReportRange.getDiagnostics().add(fhirDiagnosticReport);
+
+        when(userService.currentUserSameUnitGroup(eq(patient), eq(RoleName.IMPORTER))).thenReturn(false);
+
+        when(diagnosticService.deleteBySubjectIdAndDateRange(any(UUID.class),
+                eq(fhirDiagnosticReportRange.getStartDate()), eq(fhirDiagnosticReportRange.getEndDate())))
+                .thenReturn(1);
+        when(fhirLinkService.createFhirLink(eq(patient), eq(identifier), eq(group)))
+                .thenReturn(patient.getFhirLinks().iterator().next());
+        when(groupRepository.findByCode(eq(fhirDiagnosticReportRange.getGroupCode()))).thenReturn(group);
+        when(identifierRepository.findByValue(eq(fhirDiagnosticReportRange.getIdentifier())))
+                .thenReturn(identifiers);
+        when(Util.isInEnum(eq(fhirDiagnosticReport.getType()), eq(DiagnosticReportTypes.class))).thenReturn(true);
+
+        ServerResponse serverResponse = apiDiagnosticService.importDiagnostics(fhirDiagnosticReportRange);
+
+        Assert.assertTrue(
+                "Should fail, got '" + serverResponse.getErrorMessage() + "'", !serverResponse.isSuccess());
+        Assert.assertTrue("Should have correct error message, got '"
+                + serverResponse.getErrorMessage() + "'", serverResponse.getErrorMessage().contains("Forbidden"));
+
+        verify(diagnosticService, times(0)).add(eq(fhirDiagnosticReport), any(FhirLink.class));
+        verify(diagnosticService, times(0)).deleteBySubjectIdAndDateRange(any(UUID.class),
                 eq(fhirDiagnosticReportRange.getStartDate()), eq(fhirDiagnosticReportRange.getEndDate()));
         verify(fhirLinkService, times(0)).createFhirLink(eq(patient), eq(identifier), eq(group));
     }
