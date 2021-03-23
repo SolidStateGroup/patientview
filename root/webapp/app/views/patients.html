@@ -19,10 +19,11 @@
 </div>
 
 <div data-ng-show="!loading">
-    <h1>Patients
+    <h1>Patients Changed
         <a class="btn blue" data-ng-show="permissions.canCreatePatients" href="/#/newpatient">Create New</a>
         <span data-ng-show="permissions.canCreatePatients">
         <button class="btn blue" data-ng-click="openModalFindExistingPatient('lg')">Add Existing PatientView Patient</button>
+        <button class="btn blue" data-ng-click="openModalFindExistingPatient('lg')">New Buttton</button>
         <a href="http://rixg.org/patientview2/admin-and-technical/unit-admin-guide/" target="_blank" class="h1link">
             About Adding Patients</a>
         </span>
