@@ -535,11 +535,18 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     @Transactional(readOnly = true)
     public void notifyUsers(Long newsItemId) throws ResourceNotFoundException {
 
+        // staff admins are not allowed to notify
+        if (ApiUtil.currentUserHasRole(RoleName.STAFF_ADMIN)) {
+            LOG.warn("Current user is staff admin, cannot send notifications");
+            return;
+        }
+
         NewsItem entityNewsItem = newsItemRepository.findById(newsItemId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find news %s", newsItemId)));
 
         List<RoleName> ignoreRoles = Arrays.asList(RoleName.PUBLIC);
 
+        User currentUser = getCurrentUser();
 
         /*
             We need to find users based on different Group Role
@@ -554,38 +561,84 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         for (NewsLink newsLink : entityNewsItem.getNewsLinks()) {
             if (!ignoreRoles.contains(newsLink.getRole().getName())) {
 
+                // 1. no Group, All Groups selected
                 if (newsLink.getGroup() == null) {
-                    // find by role, in case where All Groups selected
-                    List<String> emails = userRepository.findActiveUserEmailsByRole(newsLink.getRole().getId());
-                    if (!CollectionUtils.isEmpty(emails)) {
-                        uniqueEmails.addAll(emails);
+
+                    // current user Specialty admin or Global
+                    if (ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
+                            || ApiUtil.currentUserHasRole(RoleName.SPECIALTY_ADMIN)) {
+
+                        // find by role
+                        List<String> emails = userRepository.findActiveUserEmailsByRole(newsLink.getRole().getId());
+                        if (!CollectionUtils.isEmpty(emails)) {
+                            uniqueEmails.addAll(emails);
+                        }
+
+                        // current user is  Unit, GP, Disease admins
+                    } else if ((ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)
+                            || ApiUtil.currentUserHasRole(RoleName.DISEASE_GROUP_ADMIN)
+                            || ApiUtil.currentUserHasRole(RoleName.GP_ADMIN))
+                            && !(newsLink.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
+                            || newsLink.getRole().getName().equals(RoleName.SPECIALTY_ADMIN))) {
+
+                        for (GroupRole groupRole : currentUser.getGroupRoles()) {
+                            if (groupRole.getRole().equals(newsLink.getRole())) {
+                                // notify only users from the same Group as current user, for given News Role
+                                List<String> emails = userRepository.findActiveUserEmailsByGroupAndRole(
+                                        groupRole.getGroup().getId(), newsLink.getRole().getId());
+                                if (!CollectionUtils.isEmpty(emails)) {
+                                    uniqueEmails.addAll(emails);
+                                }
+                            }
+                        }
                     }
 
                 } else {
-                    // Special Case
+                    // 2. Logged in users (RoleName.MEMBER)
                     // MEMBER Role is stored against Generic group in user's GroupRole
                     // for news item its selected as Logged in User
                     // which is essentially a member of the Group
-                    List<String> emails;
+                    List<String> emails = new ArrayList<>();
                     if (newsLink.getRole().getName().equals(RoleName.MEMBER)) {
-                        emails = userRepository.findActiveUserEmailsByGroup(newsLink.getGroup().getId());
+
+                        // Unit, GP, Disease admin must be part of the group
+                        if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)
+                                || ApiUtil.currentUserHasRole(RoleName.DISEASE_GROUP_ADMIN)
+                                || ApiUtil.currentUserHasRole(RoleName.GP_ADMIN)) {
+                            if (isUserMemberOfGroup(getCurrentUser(), newsLink.getGroup())) {
+                                emails = userRepository.findActiveUserEmailsByGroup(newsLink.getGroup().getId());
+                            }
+                        } else {
+                            emails = userRepository.findActiveUserEmailsByGroup(newsLink.getGroup().getId());
+                        }
 
                     } else {
-                        // otherwise find by Group and Role
-                        emails = userRepository.findActiveUserEmailsByGroupAndRole(
-                                newsLink.getGroup().getId(), newsLink.getRole().getId());
+                        // 3.find by Group and Role
+
+                        // Unit, GP, Disease admin must be part of the group
+                        // and News Item role cannot be Global or Specialty Admin
+                        if (ApiUtil.currentUserHasRole(RoleName.UNIT_ADMIN)
+                                || ApiUtil.currentUserHasRole(RoleName.DISEASE_GROUP_ADMIN)
+                                || ApiUtil.currentUserHasRole(RoleName.GP_ADMIN)) {
+                            if (isUserMemberOfGroup(getCurrentUser(), newsLink.getGroup())
+                                    && !(newsLink.getRole().getName().equals(RoleName.GLOBAL_ADMIN)
+                                    || newsLink.getRole().getName().equals(RoleName.SPECIALTY_ADMIN))) {
+                                emails = userRepository.findActiveUserEmailsByGroupAndRole(
+                                        newsLink.getGroup().getId(), newsLink.getRole().getId());
+                            }
+                        } else {
+                            emails = userRepository.findActiveUserEmailsByGroupAndRole(
+                                    newsLink.getGroup().getId(), newsLink.getRole().getId());
+                        }
                     }
+
                     if (!CollectionUtils.isEmpty(emails)) {
                         uniqueEmails.addAll(emails);
                     }
                 }
             }
         }
-
-
         LOG.info("Users to be notified for news alert " + uniqueEmails.size());
-
-        String currentUserUsername = getCurrentUser().getUsername();
 
         if (!CollectionUtils.isEmpty(uniqueEmails)) {
             Email email = new Email();
@@ -596,7 +649,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
 
             StringBuilder sb = new StringBuilder();
             sb.append("An important item of news has been flagged for your attention by admin user ");
-            sb.append(currentUserUsername);
+            sb.append(currentUser.getUsername());
             sb.append("<br/>Title : " + entityNewsItem.getHeading());
             sb.append("<br/>Please login to PatientView and look under your Dashboard or News page for the full details.");
             sb.append("<br/><br/>Kind regards,<br/>PatientView Team.");
@@ -613,7 +666,6 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 }
             }
         }
-
     }
 
     private NewsItem setEditable(final NewsItem newsItem, final User user) {
