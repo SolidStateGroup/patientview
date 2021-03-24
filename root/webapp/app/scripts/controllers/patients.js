@@ -729,6 +729,9 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
 
                 // update accordion header for group with data from GET
                 UserService.get(user.id).then(function (successResult) {
+                    // update email verified flag in case email changed
+                    $scope.editUser.emailVerified = successResult.emailVerified;
+
                     for (var i = 0; i < $scope.pagedItems.length; i++) {
                         if ($scope.pagedItems[i].id === successResult.id) {
                             var headerDetails = $scope.pagedItems[i];
