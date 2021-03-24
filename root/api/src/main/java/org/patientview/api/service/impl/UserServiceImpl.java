@@ -824,7 +824,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // if i have staff group role in same groups
-        if(!currentUserHasRole(RoleName.PATIENT)){
+        if (!currentUserHasRole(RoleName.PATIENT)) {
             for (GroupRole groupRole : user.getGroupRoles()) {
                 if (isUserMemberOfGroup(getCurrentUser(), groupRole.getGroup())) {
                     return true;
@@ -2074,14 +2074,15 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     public void save(User user) throws EntityExistsException, ResourceNotFoundException, ResourceForbiddenException {
         User entityUser = findUser(user.getId());
         String originalEmail = entityUser.getEmail();
+        boolean emailChanged = !user.getEmail().equals(originalEmail);
 
         // don't allow setting username to same as other users
         org.patientview.api.model.User existingUser = getByUsername(user.getUsername());
         if (existingUser != null && !existingUser.getId().equals(entityUser.getId())) {
             throw new EntityExistsException("Username in use by another User");
         }
-        //If the email address has changed, check if that email exists already
-        if (!user.getEmail().equals(originalEmail)) {
+        // If the email address has changed, check if that email exists already
+        if (emailChanged) {
             //If it does exist, throw an error
             if (userRepository.emailExistsCaseInsensitive(user.getEmail())) {
                 throw new EntityExistsException("Email address in use by another User");
@@ -2130,6 +2131,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         entityUser.setDateOfBirth(user.getDateOfBirth());
         entityUser.setRoleDescription(user.getRoleDescription());
         entityUser.setFailedLogonAttempts(0);
+        if (emailChanged) {
+            entityUser.setEmailVerified(false);
+        }
         entityUser = userRepository.save(entityUser);
 
         // audit changed
@@ -2157,7 +2161,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         // audit email changed
-        if (!user.getEmail().equals(originalEmail)) {
+        if (emailChanged) {
             auditService.createAudit(AuditActions.EMAIL_CHANGED, entityUser.getUsername(), getCurrentUser(),
                     entityUser.getId(), AuditObjectTypes.User, null);
         }
