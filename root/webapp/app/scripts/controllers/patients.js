@@ -739,6 +739,7 @@ angular.module('patientviewApp').controller('PatientsCtrl',['$rootScope', '$scop
                             headerDetails.surname = successResult.surname;
                             headerDetails.email = successResult.email;
                             headerDetails.dateOfBirth = successResult.dateOfBirth;
+                            headerDetails.emailVerified = successResult.emailVerified;
                         }
                     }
                 }, function () {
