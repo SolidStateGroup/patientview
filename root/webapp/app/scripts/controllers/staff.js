@@ -297,6 +297,7 @@ angular.module('patientviewApp').controller('StaffCtrl',['$rootScope', '$scope',
                         headerDetails.forename = successResult.forename;
                         headerDetails.surname = successResult.surname;
                         headerDetails.email = successResult.email;
+                        headerDetails.emailVerified = successResult.emailVerified;
                     }
                 }
             }, function () {
