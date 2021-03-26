@@ -90,9 +90,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                 if (newsLink.getGroup() != null && newsLink.getGroup().getId() != null) {
                     Group found = groupRepository.findById(newsLink.getGroup().getId())
                             .orElse(null);
-                    if (found != null) {
                         newsLink.setGroup(found);
-                    }
                 } else {
                     newsLink.setGroup(null);
                 }
@@ -586,12 +584,28 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
                             || newsLink.getRole().getName().equals(RoleName.SPECIALTY_ADMIN))) {
 
                         for (GroupRole groupRole : currentUser.getGroupRoles()) {
-                            if (groupRole.getRole().equals(newsLink.getRole())) {
-                                // notify only users from the same Group as current user, for given News Role
-                                List<String> emails = userRepository.findActiveUserEmailsByGroupAndRole(
-                                        groupRole.getGroup().getId(), newsLink.getRole().getId());
+
+                            // ignore specialty group types
+                            if (groupRole.getGroup().getGroupType().getValue()
+                                    .equals(GroupTypes.SPECIALTY.toString())) {
+                                continue;
+                            }
+
+                            // Role is Logged in users, get users the same Group as current user
+                            if (newsLink.getRole().getName().equals(RoleName.MEMBER)) {
+                                List<String> emails = userRepository.findActiveUserEmailsByGroup(
+                                        groupRole.getGroup().getId());
                                 if (!CollectionUtils.isEmpty(emails)) {
                                     uniqueEmails.addAll(emails);
+                                }
+                            } else {
+                                if (groupRole.getRole().equals(newsLink.getRole())) {
+                                    // notify only users from the same Group as current user, for given News Role
+                                    List<String> emails = userRepository.findActiveUserEmailsByGroupAndRole(
+                                            groupRole.getGroup().getId(), newsLink.getRole().getId());
+                                    if (!CollectionUtils.isEmpty(emails)) {
+                                        uniqueEmails.addAll(emails);
+                                    }
                                 }
                             }
                         }
