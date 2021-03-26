@@ -88,7 +88,11 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
         if (!CollectionUtils.isEmpty(newsItem.getNewsLinks())) {
             for (NewsLink newsLink : newsItem.getNewsLinks()) {
                 if (newsLink.getGroup() != null && newsLink.getGroup().getId() != null) {
-                    newsLink.setGroup(groupRepository.findById(newsLink.getGroup().getId()).get());
+                    Group found = groupRepository.findById(newsLink.getGroup().getId())
+                            .orElse(null);
+                    if (found != null) {
+                        newsLink.setGroup(found);
+                    }
                 } else {
                     newsLink.setGroup(null);
                 }
