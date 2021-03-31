@@ -1,6 +1,6 @@
 {
   "name": "patientview",
-  "version": "2.7.5",
+  "version": "2.7.6",
   "private": true,
   "dependencies": {
     "angular-inview": "^3.0.0"

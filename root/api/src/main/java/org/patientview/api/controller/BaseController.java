@@ -67,9 +67,9 @@ public abstract class BaseController<T extends BaseController> {
     @ExceptionHandler(IOException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleIoException(IOException e) {
-        LOG.error("IO exception: ", e.getMessage());
-        return e.getMessage();
+    public String handleIoException(IOException e, HttpServletRequest req) {
+        LOG.error("IO exception uri '{}' query '{}' {}", req.getRequestURI(), req.getQueryString(), e.getMessage());
+        return "Error processing request";
     }
 
     @ExceptionHandler(MailException.class)
