@@ -13,5 +13,5 @@ public interface CrudService<T> {
     T add(T t) throws ResourceInvalidException;
     T get(Long id) throws ResourceNotFoundException;
     void delete(Long id);
-    T save(T t) throws ResourceNotFoundException;
+    T save(T t) throws ResourceNotFoundException, ResourceInvalidException;
 }
