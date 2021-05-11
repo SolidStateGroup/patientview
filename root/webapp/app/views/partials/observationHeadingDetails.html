@@ -65,6 +65,7 @@
                 data-ng-disabled="observationHeadingForm.$pristine || !observationHeadingForm.$valid"
                 data-ng-show="permissions.canEdit">Save</button>
         <span class="saved-notification pull-right" data-ng-show="observationHeadingForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
     </div>
 </div>
 <hr/>
@@ -95,7 +96,6 @@
                     <button class="btn negative" data-ng-click="removeSpecialtyOrder(observationHeadingGroup)">Delete</button>
                 </div>
                 <span class="saved-notification" data-ng-show="observationHeadingGroup.saved">&nbsp; Saved Successfully!</span>
-                <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
             </div>
         </div>
         <div data-ng-show="!editObservationHeading.observationHeadingGroups">
