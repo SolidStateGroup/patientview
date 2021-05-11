@@ -8,6 +8,7 @@ import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.api.util.ApiUtil;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.FhirLink;
 import org.patientview.persistence.model.GetParameters;
@@ -49,6 +50,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Class to control the crud operations of the Observation Headings.
@@ -92,12 +94,20 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     private static final Long FIRST_PANEL = 1L;
     private static final Long DEFAULT_COUNT = 3L;
 
+    private static final Pattern CODE_PATTERN = Pattern.compile("^([a-zA-Z])[a-zA-Z0-9-_]*$");
+
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public ObservationHeading add(final ObservationHeading observationHeading) {
+    public ObservationHeading add(final ObservationHeading observationHeading) throws ResourceInvalidException {
         if (observationHeadingExists(observationHeading)) {
             LOG.debug("Observation Heading not created, already exists with these details");
             throw new EntityExistsException("Observation Heading already exists with these details");
+        }
+
+        // validate code
+        if(StringUtils.isEmpty(observationHeading.getCode()) ||
+                !CODE_PATTERN.matcher(observationHeading.getCode()).find()){
+            throw new ResourceInvalidException("Invalid code format");
         }
 
         // manage observation heading groups (for migration)
