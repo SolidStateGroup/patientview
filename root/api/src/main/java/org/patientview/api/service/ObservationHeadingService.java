@@ -45,7 +45,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
-    throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Get all ObservationHeading
@@ -145,7 +145,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      * @throws ResourceNotFoundException
      */
     @RoleOnly
-    ObservationHeading save(ObservationHeading observationHeading) throws ResourceNotFoundException;
+    ObservationHeading save(ObservationHeading observationHeading) throws ResourceNotFoundException, ResourceInvalidException;
 
     /**
      * Store a User's selection of ObservationHeadings to show in the results table view.
@@ -165,5 +165,5 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void updateObservationHeadingGroup(ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 }

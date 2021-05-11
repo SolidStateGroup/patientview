@@ -166,7 +166,7 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.save(observationHeading);
-        } catch (ResourceNotFoundException rnf) {
+        } catch (ResourceNotFoundException | ResourceInvalidException rnf) {
             Assert.fail("ResourceNotFoundException thrown");
         }
 
@@ -195,7 +195,7 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.addObservationHeadingGroup(observationHeading.getId(), group.getId(), 3L, 4L);
-        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+        } catch (ResourceNotFoundException | ResourceForbiddenException | ResourceInvalidException e) {
             Assert.fail("Exception: " + e.getMessage());
         }
 
@@ -236,7 +236,7 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.updateObservationHeadingGroup(apiObservationHeadingGroup);
-        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+        } catch (ResourceNotFoundException | ResourceForbiddenException | ResourceInvalidException e) {
             Assert.fail("Exception: " + e.getMessage());
         }
 

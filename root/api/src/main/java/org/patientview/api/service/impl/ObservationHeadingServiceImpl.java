@@ -63,38 +63,28 @@ import java.util.regex.Pattern;
 public class ObservationHeadingServiceImpl extends AbstractServiceImpl<ObservationHeadingServiceImpl>
         implements ObservationHeadingService {
 
+    private static final Long FIRST_PANEL = 1L;
+    private static final Long DEFAULT_COUNT = 3L;
+    private static final Pattern CODE_PATTERN = Pattern.compile("^([a-zA-Z])[a-zA-Z0-9-_]*$");
     @Inject
     private ObservationHeadingRepository observationHeadingRepository;
-
     @Inject
     private UserObservationHeadingRepository userObservationHeadingRepository;
-
     @Inject
     private ObservationHeadingGroupRepository observationHeadingGroupRepository;
-
     @Inject
     private FhirLinkRepository fhirLinkRepository;
-
     @Inject
     private FhirResource fhirResource;
-
     @Inject
     private GroupRepository groupRepository;
-
     @Inject
     private ResultClusterRepository resultClusterRepository;
-
     @Inject
     private UserRepository userRepository;
-
     @Inject
     @Named("fhir")
     private HikariDataSource dataSource;
-
-    private static final Long FIRST_PANEL = 1L;
-    private static final Long DEFAULT_COUNT = 3L;
-
-    private static final Pattern CODE_PATTERN = Pattern.compile("^([a-zA-Z])[a-zA-Z0-9-_]*$");
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
@@ -105,15 +95,26 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         // validate code
-        if(StringUtils.isEmpty(observationHeading.getCode()) ||
-                !CODE_PATTERN.matcher(observationHeading.getCode()).find()){
-            throw new ResourceInvalidException("Invalid code format");
+        if (StringUtils.isEmpty(observationHeading.getCode()) ||
+                !CODE_PATTERN.matcher(observationHeading.getCode()).find()) {
+            throw new ResourceInvalidException("Invalid character in Code");
+        }
+
+        // validate panel order number
+        long maxPanel = observationHeadingRepository.findMaxPanelNumber();
+        if (!validPanel(maxPanel, observationHeading.getDefaultPanel())) {
+            throw new ResourceInvalidException("The maximum allowable value for field 'Default Panel' is "
+                    + (maxPanel + 1));
         }
 
         // manage observation heading groups (for migration)
         Set<ObservationHeadingGroup> observationHeadingGroups = new HashSet<>();
 
         for (ObservationHeadingGroup observationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
+            if (!validPanel(maxPanel, observationHeadingGroup.getPanel())) {
+                throw new ResourceInvalidException("The maximum allowable value for field 'Panel' is "
+                        + (maxPanel + 1));
+            }
             ObservationHeadingGroup newObservationHeadingGroup = new ObservationHeadingGroup();
             newObservationHeadingGroup.setObservationHeading(observationHeading);
             newObservationHeadingGroup.setPanelOrder(observationHeadingGroup.getPanelOrder());
@@ -131,7 +132,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         ObservationHeading observationHeading = observationHeadingRepository.findById(observationHeadingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Observation Heading does not exist"));
 
@@ -142,6 +143,11 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         if (!ApiUtil.currentUserHasRole(RoleName.GLOBAL_ADMIN)
                 && !ApiUtil.doesContainGroupAndRole(group.getId(), RoleName.SPECIALTY_ADMIN)) {
             throw new ResourceForbiddenException("Forbidden");
+        }
+
+        long maxPanel = observationHeadingRepository.findMaxPanelNumber();
+        if (!validPanel(maxPanel, panel)) {
+            throw new ResourceInvalidException("The maximum allowable value for field 'Panel' is " + (maxPanel + 1));
         }
 
         observationHeading.getObservationHeadingGroups().add(
@@ -421,11 +427,17 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public ObservationHeading save(final ObservationHeading input) throws ResourceNotFoundException {
+    public ObservationHeading save(final ObservationHeading input)
+            throws ResourceNotFoundException, ResourceInvalidException {
 
         ObservationHeading entity = observationHeadingRepository.findById(input.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Observation Heading does not exist"));
 
+        long maxPanel = observationHeadingRepository.findMaxPanelNumber();
+        if (!validPanel(maxPanel, input.getDefaultPanel())) {
+            throw new ResourceInvalidException("The maximum allowable value for field 'Default Panel'  "
+                    + (maxPanel + 1));
+        }
         entity.setCode(input.getCode());
         entity.setHeading(input.getHeading());
         entity.setName(input.getName());
@@ -508,7 +520,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void updateObservationHeadingGroup(org.patientview.api.model.ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         ObservationHeading observationHeading
                 = observationHeadingRepository.findById(observationHeadingGroup.getObservationHeadingId())
                 .orElseThrow(() -> new ResourceNotFoundException("Observation Heading does not exist"));
@@ -523,6 +535,10 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
             throw new ResourceForbiddenException("Forbidden");
         }
 
+        long maxPanel = observationHeadingRepository.findMaxPanelNumber();
+        if (!validPanel(maxPanel, observationHeadingGroup.getPanel())) {
+            throw new ResourceInvalidException("The maximum allowable value for field 'Panel' is " + (maxPanel + 1));
+        }
         for (ObservationHeadingGroup oldObservationHeadingGroup : observationHeading.getObservationHeadingGroups()) {
             if (oldObservationHeadingGroup.getId().equals(observationHeadingGroup.getId())) {
                 oldObservationHeadingGroup.setGroup(group);
@@ -532,5 +548,20 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
         }
 
         observationHeadingRepository.save(observationHeading);
+    }
+
+    /**
+     * Helper to validate the selected panel number is not outside range.
+     * The number must be consecutive from the max panel number.
+     *
+     * @param maxPanel
+     * @param selectedPanel
+     * @return
+     */
+    private boolean validPanel(long maxPanel, Long selectedPanel) {
+        if (selectedPanel != null && selectedPanel > (maxPanel + 1)) {
+            return false;
+        }
+        return true;
     }
 }
