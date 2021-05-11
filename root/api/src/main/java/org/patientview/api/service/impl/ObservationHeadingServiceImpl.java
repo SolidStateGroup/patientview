@@ -435,7 +435,7 @@ public class ObservationHeadingServiceImpl extends AbstractServiceImpl<Observati
 
         long maxPanel = observationHeadingRepository.findMaxPanelNumber();
         if (!validPanel(maxPanel, input.getDefaultPanel())) {
-            throw new ResourceInvalidException("The maximum allowable value for field 'Default Panel'  "
+            throw new ResourceInvalidException("The maximum allowable value for field 'Default Panel' is "
                     + (maxPanel + 1));
         }
         entity.setCode(input.getCode());
