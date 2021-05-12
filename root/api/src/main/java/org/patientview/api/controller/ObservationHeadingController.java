@@ -70,7 +70,8 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @ResponseBody
     public void addObservationHeadingGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
             @PathVariable("groupId") Long groupId, @PathVariable("panel") Long panel,
-            @PathVariable("panelOrder") Long panelOrder) throws ResourceNotFoundException, ResourceForbiddenException {
+            @PathVariable("panelOrder") Long panelOrder)
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         observationHeadingService.addObservationHeadingGroup(observationHeadingId, groupId, panel, panelOrder);
     }
 
@@ -235,7 +236,8 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheading", method = RequestMethod.PUT)
     @ResponseBody
-    public void save(@RequestBody ObservationHeading observationHeading) throws ResourceNotFoundException  {
+    public void save(@RequestBody ObservationHeading observationHeading)
+            throws ResourceNotFoundException, ResourceInvalidException {
         observationHeadingService.save(observationHeading);
     }
 
@@ -264,7 +266,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @RequestMapping(value = "/observationheadinggroup", method = RequestMethod.PUT)
     @ResponseBody
     public void updateObservationHeadingGroup(@RequestBody ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         observationHeadingService.updateObservationHeadingGroup(observationHeadingGroup);
     }
 }

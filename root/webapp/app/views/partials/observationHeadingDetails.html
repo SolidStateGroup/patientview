@@ -65,6 +65,7 @@
                 data-ng-disabled="observationHeadingForm.$pristine || !observationHeadingForm.$valid"
                 data-ng-show="permissions.canEdit">Save</button>
         <span class="saved-notification pull-right" data-ng-show="observationHeadingForm.$pristine && saved">Saved Successfully! &nbsp;</span>
+        <div class="alert alert-danger" data-ng-show="errorMessage">{{errorMessage}}</div>
     </div>
 </div>
 <hr/>
