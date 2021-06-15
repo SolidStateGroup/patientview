@@ -12,6 +12,9 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         UserService.findByUsername($('#username').val()).then(function(result) {
             showUserOnScreen(result, "username");
         }, function () {
+            delete $scope.successMessage;
+            delete $scope.errorMessage;
+            delete $scope.warningMessage;
             $scope.warningMessage = 'No staff member exists with this username';
         });
     };
@@ -21,6 +24,9 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         UserService.findByEmail($('#email').val()).then(function(result) {
             showUserOnScreen(result, "email");
         }, function () {
+            delete $scope.successMessage;
+            delete $scope.errorMessage;
+            delete $scope.warningMessage;
             $scope.warningMessage = 'No staff member exists with this email';
         });
     };
@@ -29,19 +35,25 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         delete $scope.successMessage;
         delete $scope.errorMessage;
         delete $scope.warningMessage;
-        $scope.editUser = result;
-        $scope.existingUser = true;
-        $scope.editMode = true;
 
         if (UserService.checkRoleExists('PATIENT', result)) {
             $scope.errorMessage = 'Please note a patient with these details already exists on PatientView. ' +
                 'If this patient is also a member of staff, please create a separate user account by clicking ' +
                 'the Create New button on the Staff page. This new account must contain a distinct username and email.';
+
+            $scope.editUser = null;
+            $scope.existingUser = false;
+            $scope.editMode = false;
+            return;
         } else {
             $scope.warningMessage = 'A user with this '
                 + searchType
                 + ' already exists. Add them to your group if required, then close this window. '
                 + 'You can then edit their details normally as they will appear in the refreshed list.';
+
+            $scope.editUser = result;
+            $scope.existingUser = true;
+            $scope.editMode = true;
         }
 
         $scope.pagedItems = [];
