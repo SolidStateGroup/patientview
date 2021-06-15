@@ -88,6 +88,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -903,7 +904,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      * - all user in conversations are members of the same Group as a Patient.
      *
      * @param conversation Conversation to verify
-     * @param userToAdd a User to verify
+     * @param userToAdd    a User to verify
      * @throws ResourceForbiddenException when one if the check failed
      */
     private void validateConversationUsers(Conversation conversation, User userToAdd)
@@ -1096,10 +1097,22 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversationRepository.save(conversation);
         }
 
-        // check make sure we don't have orphan messages (without user)
+        // check make sure we don't have orphan messages where user on message but not in conversation
         // need to clean them up as well
         List<Message> messages = messageRepository.findByUserOrCreator(user);
-        deleteMessages(messages, user);
+
+        List<Message> removedUserMessages = deleteMessages(messages, user);
+        removedUserMessages.forEach(m -> {
+            Conversation conversation = m.getConversation();
+                for (int i = 0; i < conversation.getMessages().size(); i++) {
+                    if (conversation.getMessages().get(i).getId().equals(m.getId())) {
+                        conversation.getMessages().set(i, m);
+                    }
+                }
+                // need to flush here to take effect
+                conversationRepository.saveAndFlush(conversation);
+        });
+
 
         user.setConversationUsers(new HashSet<>());
         userRepository.save(user);
@@ -1107,7 +1120,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Helper to delete messages for the user.
-     * Messages are not deleted, just setting user refrences to null
+     * Messages are not deleted, just setting user references to null
      *
      * @param messages a List of Message to delete.
      * @param user     a User to delete messages for
