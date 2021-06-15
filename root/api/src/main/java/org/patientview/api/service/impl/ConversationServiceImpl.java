@@ -1108,7 +1108,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                         conversation.getMessages().set(i, m);
                     }
                 }
-                // need to flush here to take effect
+                // need to flush here to persist changes
                 conversationRepository.saveAndFlush(conversation);
         });
 
