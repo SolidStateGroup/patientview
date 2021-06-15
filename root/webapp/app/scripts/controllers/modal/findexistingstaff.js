@@ -36,7 +36,7 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
         if (UserService.checkRoleExists('PATIENT', result)) {
             $scope.errorMessage = 'Please note a patient with these details already exists on PatientView. ' +
                 'If this patient is also a member of staff, please create a separate user account by clicking ' +
-                'the Create New button on the Staff page. This new account must contain a distinct username.';
+                'the Create New button on the Staff page. This new account must contain a distinct username and email.';
         } else {
             $scope.warningMessage = 'A user with this '
                 + searchType
