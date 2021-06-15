@@ -28,13 +28,22 @@ function ($scope, $rootScope, $modalInstance, permissions, allGroups, allowedRol
     var showUserOnScreen = function (result, searchType) {
         delete $scope.successMessage;
         delete $scope.errorMessage;
+        delete $scope.warningMessage;
         $scope.editUser = result;
         $scope.existingUser = true;
         $scope.editMode = true;
-        $scope.warningMessage = 'A user with this '
-            + searchType
-            + ' already exists. Add them to your group if required, then close this window. '
-            + 'You can then edit their details normally as they will appear in the refreshed list.';
+
+        if (UserService.checkRoleExists('PATIENT', result)) {
+            $scope.errorMessage = 'Please note a patient with these details already exists on PatientView. ' +
+                'If this patient is also a member of staff, please create a separate user account by clicking ' +
+                'the Create New button on the Staff page. This new account must contain a distinct username.';
+        } else {
+            $scope.warningMessage = 'A user with this '
+                + searchType
+                + ' already exists. Add them to your group if required, then close this window. '
+                + 'You can then edit their details normally as they will appear in the refreshed list.';
+        }
+
         $scope.pagedItems = [];
         var i;
 
