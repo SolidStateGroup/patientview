@@ -142,7 +142,7 @@ public abstract class AbstractServiceImpl<T extends AbstractServiceImpl> {
 
         // Dont think this should be here
         if (ApiUtil.userHasRole(user, RoleName.PATIENT)) {
-            LOG.warn("Check for isUserMemberOfGroup() for Patient, should not be used? user id: {}", user.getId());
+            LOG.warn("Check for isUserMemberOfGroup() for Patient, should not be used?");
 
             // Check the callers classes, need to figure out where it's getting called from
             // index 0 - thread, 1 - this class, 2 direct caller and so on
