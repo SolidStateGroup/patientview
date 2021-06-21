@@ -12,8 +12,8 @@ import org.springframework.web.client.RestTemplate;
  * Firebase API client implementation for sending out notification.
  */
 public class FirebaseClient {
-    private static Logger LOG = LoggerFactory.getLogger(FirebaseClient.class);
     private static final String API_URL = "https://fcm.googleapis.com/fcm/send";
+    private static Logger LOG = LoggerFactory.getLogger(FirebaseClient.class);
     private static String SERVER_KEY;
     private static boolean IS_LIVE = false;
 
@@ -38,7 +38,7 @@ public class FirebaseClient {
      * @return FcmResponse object containing HTTP response info.
      */
     public String notifyResult(Long userId) {
-        LOG.info("Sending mobile push notification for user {}", userId);
+        // LOG.info("Sending mobile push notification for user {}", userId);
         if (StringUtils.isEmpty(SERVER_KEY)) {
             LOG.error("No Server-Key has been defined for firebase client.");
             return null;
@@ -62,7 +62,7 @@ public class FirebaseClient {
 
             return push(topic, notification, null, null);
         } catch (Exception e) {
-            LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
+            LOG.error("Failed to send push notification to user isLive {}", IS_LIVE, e);
             return null;
         }
     }
@@ -72,13 +72,13 @@ public class FirebaseClient {
      * When users installed to mobile app they will be automatically subscribed to new message
      * notification.
      *
-     * @param userId an id of the user to send notification for
+     * @param userId         an id of the user to send notification for
      * @param conversationId an id of conversation
-     * @param title a title for conversation
+     * @param title          a title for conversation
      * @return FcmResponse object containing HTTP response info.
      */
     public String notifyMessage(Long userId, Long conversationId, String title) {
-        LOG.info("Sending message mobile push notification for user {}", userId);
+        // LOG.info("Sending message mobile push notification for user {}", userId);
         if (StringUtils.isEmpty(SERVER_KEY)) {
             LOG.error("No Server-Key has been defined for firebase client.");
             return null;
@@ -108,7 +108,7 @@ public class FirebaseClient {
 
             return push(topic, notification, data, conversationId.toString());
         } catch (Exception e) {
-            LOG.error("Failed to send push notification to user {} isLive {}", userId, IS_LIVE, e);
+            LOG.error("Failed to send push notification to user isLive {}", IS_LIVE, e);
             return null;
         }
     }
@@ -131,7 +131,7 @@ public class FirebaseClient {
         JSONObject body = new JSONObject();
         body.put("to", topic);
         body.put("priority", "high");
-       
+
         // if we need to group notification by some common key
         if (groupBy != null && !groupBy.isEmpty()) {
             body.put("collapse_key", groupBy);

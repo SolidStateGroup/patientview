@@ -13,7 +13,6 @@ import org.patientview.api.job.DeletePatientTask;
 import org.patientview.api.model.BaseGroup;
 import org.patientview.api.model.FindPatientPayload;
 import org.patientview.api.model.SecretWordInput;
-import org.patientview.api.service.AlertService;
 import org.patientview.api.service.ApiMedicationService;
 import org.patientview.api.service.AuthenticationService;
 import org.patientview.api.service.CaptchaService;
@@ -82,13 +81,13 @@ import org.patientview.service.ObservationService;
 import org.patientview.service.PatientService;
 import org.patientview.service.SurveyResponseService;
 import org.patientview.util.Util;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -137,118 +136,6 @@ import static org.patientview.api.util.ApiUtil.isInEnum;
 @Transactional
 public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implements UserService {
 
-    @Inject
-    private AlertRepository alertRepository;
-
-    @Lazy
-    @Inject
-    private AlertService alertService;
-
-    @Inject
-    private ApiKeyRepository apiKeyRepository;
-
-    @Inject
-    private AuditService auditService;
-
-    @Inject
-    private ConversationService conversationService;
-
-    @Inject
-    private EmailService emailService;
-
-    @Inject
-    private EntityManager entityManager;
-
-    @Inject
-    private ExternalServiceService externalServiceService;
-
-    @Inject
-    private FeatureRepository featureRepository;
-
-    @Inject
-    private FhirLinkRepository fhirLinkRepository;
-
-    @Inject
-    private GroupRepository groupRepository;
-
-    @Inject
-    private GroupRoleRepository groupRoleRepository;
-
-    @Inject
-    private GroupService groupService;
-
-    @Inject
-    private IdentifierRepository identifierRepository;
-
-    @Inject
-    private ObservationService observationService;
-
-    @Inject
-    private PatientManagementService patientManagementService;
-
-    @Inject
-    private PatientService patientService;
-
-    @Inject
-    private Properties properties;
-
-    @Inject
-    private RoleRepository roleRepository;
-
-    @Inject
-    private UserFeatureRepository userFeatureRepository;
-
-    @Inject
-    private UserInformationRepository userInformationRepository;
-
-    @Inject
-    private UserMigrationRepository userMigrationRepository;
-
-    @Inject
-    private UserObservationHeadingRepository userObservationHeadingRepository;
-
-    @Inject
-    private UserTokenRepository userTokenRepository;
-
-    @Inject
-    private UserRepository userRepository;
-
-    @Inject
-    private DocumentService documentService;
-
-    @Inject
-    private ApiMedicationService apiMedicationService;
-
-    @Inject
-    private CaptchaService captchaService;
-
-    @Inject
-    private AuthenticationService authenticationService;
-
-    @Inject
-    private HospitalisationService hospitalisationService;
-
-    @Inject
-    private ImmunisationService immunisationService;
-
-    @Inject
-    private InsDiaryService insDiaryService;
-
-    @Inject
-    private SurveyFeedbackService surveyFeedbackService;
-
-    @Inject
-    private SurveyResponseService surveyResponseService;
-
-    @Inject
-    private InsDiaryAuditService insDiaryAuditService;
-
-    @Inject
-    private MyMediaService myMediaService;
-
-    @Inject
-    private DeletePatientTask deletePatientTask;
-
     // TODO make these value configurable
     private static final Long GENERIC_ROLE_ID = 7L;
     private static final Long GENERIC_GROUP_ID = 1L;
@@ -260,6 +147,78 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
     private static final int TWO_HUNDRED_AND_SEVENTY = 270;
     private static final int NINETY = 90;
     private static final int SECRET_WORD_MIN_LENGTH = 7;
+    @Inject
+    private AlertRepository alertRepository;
+    @Inject
+    private ApiKeyRepository apiKeyRepository;
+    @Inject
+    private AuditService auditService;
+    @Inject
+    private ConversationService conversationService;
+    @Inject
+    private EmailService emailService;
+    @Inject
+    private EntityManager entityManager;
+    @Inject
+    private ExternalServiceService externalServiceService;
+    @Inject
+    private FeatureRepository featureRepository;
+    @Inject
+    private FhirLinkRepository fhirLinkRepository;
+    @Inject
+    private GroupRepository groupRepository;
+    @Inject
+    private GroupRoleRepository groupRoleRepository;
+    @Inject
+    private GroupService groupService;
+    @Inject
+    private IdentifierRepository identifierRepository;
+    @Inject
+    private ObservationService observationService;
+    @Inject
+    private PatientManagementService patientManagementService;
+    @Inject
+    private PatientService patientService;
+    @Inject
+    private Properties properties;
+    @Inject
+    private RoleRepository roleRepository;
+    @Inject
+    private UserFeatureRepository userFeatureRepository;
+    @Inject
+    private UserInformationRepository userInformationRepository;
+    @Inject
+    private UserMigrationRepository userMigrationRepository;
+    @Inject
+    private UserObservationHeadingRepository userObservationHeadingRepository;
+    @Inject
+    private UserTokenRepository userTokenRepository;
+    @Inject
+    private UserRepository userRepository;
+    @Inject
+    private DocumentService documentService;
+    @Inject
+    private ApiMedicationService apiMedicationService;
+    @Inject
+    private CaptchaService captchaService;
+    @Inject
+    private AuthenticationService authenticationService;
+    @Inject
+    private HospitalisationService hospitalisationService;
+    @Inject
+    private ImmunisationService immunisationService;
+    @Inject
+    private InsDiaryService insDiaryService;
+    @Inject
+    private SurveyFeedbackService surveyFeedbackService;
+    @Inject
+    private SurveyResponseService surveyResponseService;
+    @Inject
+    private InsDiaryAuditService insDiaryAuditService;
+    @Inject
+    private MyMediaService myMediaService;
+    @Inject
+    private DeletePatientTask deletePatientTask;
     private Group genericGroup;
     private Role memberRole;
 
@@ -310,7 +269,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
 
         User newUser = userRepository.save(user);
-        LOG.info("New user with id: {}, username: {}", user.getId(), user.getUsername());
+        LOG.info("New user with username: {}", user.getUsername());
 
         // check if patient
         boolean isPatient = false;
@@ -878,7 +837,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 isPatient = true;
             }
 
-            LOG.info("user: " + user.getId() + ", start delete user process");
+            LOG.info("start delete user process");
 
             // for Patient Send any updates if required
             // need to call it here as getCurrentUser() will be null with async delete
@@ -891,7 +850,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 deletePatientTask.deletePatient(user, getCurrentUser());
             } else {
                 // staff member, mark as deleted
-                LOG.info("user: " + user.getId() + ", mark staff user as deleted");
+                LOG.info("mark staff user as deleted");
                 user.setDeleted(true);
                 userRepository.save(user);
             }
@@ -905,10 +864,11 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deletePatient(Long patientId, User admin) throws ResourceNotFoundException, FhirResourceException {
         long start = System.currentTimeMillis();
-        LOG.info("Starting delete Patient: " + patientId);
+        LOG.info("Starting delete Patient ");
 
         User patient = findUser(patientId);
         String username = patient.getUsername();
@@ -928,62 +888,63 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
             // wipe patient and observation data if it exists
             if (!CollectionUtils.isEmpty(patient.getFhirLinks())) {
-                LOG.info("user: " + patient.getId() + ", delete existing patient data");
+                //LOG.info("user: " + patient.getId() + ", delete existing patient data");
                 patientService.deleteExistingPatientData(patient.getFhirLinks());
-                LOG.info("user: " + patient.getId() + ", delete observation data");
+                //LOG.info("user: " + patient.getId() + ", delete observation data");
                 observationService.deleteAllExistingObservationData(patient.getFhirLinks());
             }
 
             // patient, delete from conversations and associated messages, other non user tables
-            LOG.info("user: " + patient.getId() + ", delete user from conversations");
+            //LOG.info("user: " + patient.getId() + ", delete user from conversations");
             conversationService.deleteUserFromConversations(patient);
-            LOG.info("user: " + patient.getId() + ", delete user from audit");
+            // remove user id
+            //LOG.info("user: " + patient.getId() + ", delete user from audit");
             auditService.deleteUserFromAudit(patient);
-            LOG.info("user: " + patient.getId() + ", delete user tokens");
+            //LOG.info("user: " + patient.getId() + ", delete user tokens");
             userTokenRepository.deleteByUserId(patient.getId());
-            LOG.info("user: " + patient.getId() + ", delete user from migration");
+            //LOG.info("user: " + patient.getId() + ", delete user from migration");
             userMigrationRepository.deleteByUserId(patient.getId());
-            LOG.info("user: " + patient.getId() + ", delete user from user observation headings");
+            //LOG.info("user: " + patient.getId() + ", delete user from user observation headings");
             userObservationHeadingRepository.deleteByUserId(patient.getId());
-            LOG.info("user: " + patient.getId() + ", delete user from alerts");
+            //LOG.info("user: " + patient.getId() + ", delete user from alerts");
             alertRepository.deleteByUserId(patient.getId());
-            LOG.info("user: " + patient.getId() + ", delete fhir links");
+            //LOG.info("user: " + patient.getId() + ", delete fhir links");
             deleteFhirLinks(patient.getId());
-            LOG.info("user: " + patient.getId() + ", delete apiKeys");
+            //LOG.info("user: " + patient.getId() + ", delete apiKeys");
             deleteApiKeys(patient.getId());
 
-            LOG.info("user: " + patient.getId() + ", delete SurveyFeedback");
+            //LOG.info("user: " + patient.getId() + ", delete SurveyFeedback");
             surveyFeedbackService.deleteForUser(patient.getId());
-            LOG.info("user: " + patient.getId() + ", delete SurveyResponse");
+            //LOG.info("user: " + patient.getId() + ", delete SurveyResponse");
             surveyResponseService.deleteForUser(patient.getId());
 
             // delete hospitalisation records
-            LOG.info("user: " + patient.getId() + ", delete hospitalisations");
+            //LOG.info("user: " + patient.getId() + ", delete hospitalisations");
             hospitalisationService.deleteRecordsForUser(patient);
 
             // delete immunisation records
-            LOG.info("user: " + patient.getId() + ", delete immunisations");
+            //LOG.info("user: " + patient.getId() + ", delete immunisations");
             immunisationService.deleteRecordsForUser(patient);
 
             // delete ins diary records
-            LOG.info("user: " + patient.getId() + ", delete ins diary");
+            //LOG.info("user: " + patient.getId() + ", delete ins diary");
             insDiaryService.deleteInsDiaryRecordsForUser(patient);
 
-            LOG.info("user: " + patient.getId() + ", delete ins diary logs");
+            //LOG.info("user: " + patient.getId() + ", delete ins diary logs");
             insDiaryAuditService.deleteByPatient(patient.getId());
 
             // delete ins relapse records
-            LOG.info("user: " + patient.getId() + ", delete relapse");
+            //LOG.info("user: " + patient.getId() + ", delete relapse");
             insDiaryService.deleteRelapseRecordsForUser(patient);
 
-            // delete ins relapse records
-            LOG.info("user: " + patient.getId() + ", delete MyMedia");
+            // delete media files records
+            //LOG.info("user: " + patient.getId() + ", delete MyMedia");
             myMediaService.deleteMediaForUser(patient);
 
-            LOG.info("user: " + patient.getId() + ", delete identifiers");
+            //LOG.info("user: " + patient.getId() + ", delete identifiers");
             deleteIdentifiers(patient.getId());
 
-            LOG.info("user: " + patient.getId() + ", delete user");
+            //LOG.info("user: " + patient.getId() + ", delete user");
             userRepository.delete(patient);
 
             // audit deletion for patient
@@ -991,7 +952,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                     admin, patientId, AuditObjectTypes.User, null);
 
         } else {
-            LOG.error("Trying to delete none Patient user,  id: " + patient.getId());
+            LOG.error("Trying to delete none Patient user");
         }
         LOG.info("TIMING patient delete took " + (System.currentTimeMillis() - start));
     }
@@ -1017,7 +978,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
                 if (userRoleIds.contains(userRoleId)) {
                     duplicateGroupRoleIds.add(groupRole.getId());
                     LOG.info("Duplicate GroupRole: " + groupRole.getId() + ", Group ID: " + group.getId()
-                            + ", Group name: " + group.getShortName() + ", User ID: " + userId
+                            + ", Group name: " + group.getShortName()
                             + ", Username: " + user.getUsername() + ", Role name: " + role.getName());
                 }
                 userRoleIds.add(userRoleId);
@@ -1124,7 +1085,7 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
      * @param userId ID of the user to clean sessions for
      */
     private void cleanUpUserTokens(Long userId) {
-        LOG.info("Cleaning up user {} session tokens", userId);
+        //LOG.info("Cleaning up user {} session tokens", userId);
         try {
             // when user changes his password we need to invalidate all the session except the current one
             UserToken sessionToken = ApiUtil.getCurrentUserToken();
@@ -1559,7 +1520,6 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
             return new org.patientview.api.model.User(foundUser);
         }
     }
-
 
     @Override
     public org.patientview.api.model.User findPatientAndValidate(FindPatientPayload payload)
@@ -2277,8 +2237,9 @@ public class UserServiceImpl extends AbstractServiceImpl<UserServiceImpl> implem
 
         // don't queue xml if could not find any valid Identifiers
         if (!validIdentifierFound) {
-            LOG.error("Missing identifier for Patient while building UKRDC xml: {}, will ignore",
-                    groupRole.getUser().getId());
+//            LOG.error("Missing identifier for Patient while building UKRDC xml: {}, will ignore",
+//                    groupRole.getUser().getId());
+            LOG.error("Missing identifier for Patient while building UKRDC xml, will ignore");
             return;
         }
 
