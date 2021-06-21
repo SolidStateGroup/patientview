@@ -94,7 +94,7 @@
         <dependency>
             <groupId>org.patientview2</groupId>
             <artifactId>data</artifactId>
-            <version>2.7.6-RELEASE</version>
+            <version>2.7.7-RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
