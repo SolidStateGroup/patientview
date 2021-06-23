@@ -1,8 +1,9 @@
 <div class="row">
     <div class="form-horizontal" role="form">
         <div class="col-md-3">
-            <label for="result-heading-code" class="control-label">Code <span class="error" data-ng-show="observationHeadingFormNew.code.$error.required"> *required</span></label>
-            <div><input type="text" class="form-control" id="result-heading-code" placeholder="Code" name="code" data-ng-model="editObservationHeading.code" required></div>
+            <label for="result-heading-code" class="control-label">Code <span class="error" data-ng-show="observationHeadingFormNew.code.$error.required"> *required</span>
+                <span class="error" data-ng-show="observationHeadingFormNew.code.$error.pattern"> Invalid characters, must be ABC_123</span></label>
+            <div><input type="text" class="form-control" id="result-heading-code" placeholder="Code" name="code" data-ng-model="editObservationHeading.code" required ng-pattern="/^([a-zA-Z])[a-zA-Z0-9-_]*$/"></div>
         </div>
         <div class="col-md-3">
             <label for="result-heading-heading" class="control-label">Heading</label>

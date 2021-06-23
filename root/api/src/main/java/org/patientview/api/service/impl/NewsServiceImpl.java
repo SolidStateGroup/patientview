@@ -326,7 +326,7 @@ public class NewsServiceImpl extends AbstractServiceImpl<NewsServiceImpl> implem
     public Page<org.patientview.api.model.NewsItem> findByUserId(Long userId, int newsTypeId, boolean limitResults,
                                                                  Pageable pageable) throws ResourceNotFoundException {
         User entityUser = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find user %s", userId)));
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user "));
 
         // get role, group and grouprole specific news (directly accessed through newsLink)
         PageRequest pageableAll = PageRequest.of(0, Integer.MAX_VALUE);

@@ -499,9 +499,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
             )) {
                 throw new MigrationException("Cannot migrate observation data if previously failed to migrate "
                         + "patient data or already migrating observation data. Status: "
-                        + userMigration.getStatus().toString() + ", PatientView1 ID: "
-                        + userMigration.getPatientview1UserId() + ", PatientView2 ID: "
-                        + userMigration.getPatientview2UserId());
+                        + userMigration.getStatus().toString());
             }
 
             userMigration.setLastUpdater(getCurrentUser());
@@ -754,10 +752,10 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
         // delete user if already exists (expensive, not to be used for live migration)
         if (apiUser != null && DELETE_EXISTING) {
             try {
-                LOG.info("Deleting existing user with id " + apiUser.getId());
+                //LOG.info("Deleting existing user with id " + apiUser.getId());
                 userService.delete(apiUser.getId(), true);
             } catch (ResourceForbiddenException | FhirResourceException e) {
-                LOG.error("Cannot delete user with id " + apiUser.getId());
+                //LOG.error("Cannot delete user with id " + apiUser.getId());
                 throw new MigrationException(e);
             }
         }
@@ -818,7 +816,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
 
-                LOG.info("{} migrating patient data", userId);
+                //LOG.info("{} migrating patient data", userId);
                 migratePatientData(userId, migrationUser);
                 doneMessage = userId + " Done, migrated patient data";
 
@@ -843,8 +841,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigration.setInformation(e.getMessage());
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
-                throw new MigrationException("Could not migrate patient data for pv1 id "
-                        + userMigration.getPatientview1UserId() + ": " + e.getMessage());
+                throw new MigrationException("Could not migrate patient data " + e.getMessage());
             }
         } else {
             doneMessage = userId + " Done";
@@ -907,7 +904,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
 
-                LOG.info("{} migrating patient data", pv2User.getId());
+                //LOG.info("{} migrating patient data", pv2User.getId());
                 migratePatientData(pv2User.getId(), migrationUser);
                 doneMessage = pv2User.getId() + " Done, migrated patient data";
 
@@ -921,8 +918,7 @@ public class MigrationServiceImpl extends AbstractServiceImpl<MigrationServiceIm
                 userMigration.setInformation(e.getMessage());
                 userMigration.setLastUpdate(new Date());
                 userMigrationService.save(userMigration);
-                throw new MigrationException("Could not migrate patient data for pv1 id "
-                        + userMigration.getPatientview1UserId() + ": " + e.getMessage());
+                throw new MigrationException("Could not migrate patient data " + e.getMessage());
             }
         } else {
             doneMessage = pv2User.getId() + " Done";
