@@ -1,5 +1,6 @@
 package org.patientview.api.service;
 
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 
 /**
@@ -9,8 +10,8 @@ import org.patientview.config.exception.ResourceNotFoundException;
  * Created on 05/08/2014
  */
 public interface CrudService<T> {
-    T add(T t);
+    T add(T t) throws ResourceInvalidException;
     T get(Long id) throws ResourceNotFoundException;
     void delete(Long id);
-    T save(T t) throws ResourceNotFoundException;
+    T save(T t) throws ResourceNotFoundException, ResourceInvalidException;
 }

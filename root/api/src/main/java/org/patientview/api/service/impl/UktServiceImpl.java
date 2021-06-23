@@ -21,7 +21,6 @@ import org.patientview.persistence.model.enums.EncounterTypes;
 import org.patientview.persistence.model.enums.HiddenGroupCodes;
 import org.patientview.persistence.model.enums.IdentifierTypes;
 import org.patientview.persistence.repository.IdentifierRepository;
-import org.patientview.persistence.repository.UserRepository;
 import org.patientview.service.EncounterService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -157,15 +156,16 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                 logWriter.write(new Date().toString() + ": Started");
                 logWriter.newLine();
 
-                String querySql = "SELECT i.identifier, u.forename, u.surname, u.date_of_birth, " +
+                String querySql = "SELECT i.identifier, l.value, u.forename, u.surname, u.date_of_birth, " +
                         " (SELECT string_agg(cast(resource_id AS varchar), ', ')  " +
                         " FROM pv_fhir_link WHERE user_id = u.id) AS links " +
                         " FROM pv_user u " +
                         " LEFT JOIN pv_identifier i ON i.user_id = u.id " +
+                        " LEFT JOIN pv_lookup_value l ON l.id = i.type_id" +
                         " JOIN pv_user_group_role ugr ON ugr.user_id = u.id " +
                         " JOIN  pv_role r ON r.id = ugr.role_id " +
-                        " WHERE r.role_name = 'PATIENT' AND u.deleted = false" +
-                        " GROUP BY u.id, i.identifier ";
+                        " WHERE r.role_name = 'PATIENT' AND u.deleted = false AND u.dummy = false" +
+                        " GROUP BY u.id, i.identifier, l.value ";
 
                 connection = dataSource.getConnection();
                 statement = connection.createStatement();
@@ -176,12 +176,13 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
                 while ((results.next())) {
                     totalPatients++;
                     String identifier = results.getString(1);
-                    String firstName = results.getString(2);
-                    String lastName = results.getString(3);
-                    Date dob = results.getDate(4);
-                    String fhirlinks = results.getString(5);
+                    String identifierType = results.getString(2);
+                    String firstName = results.getString(3);
+                    String lastName = results.getString(4);
+                    Date dob = results.getDate(5);
+                    String fhirlinks = results.getString(6);
 
-                    if (isValidIdentifier(identifier)) {
+                    if (isValidIdentifier(identifier, identifierType)) {
                         //writer.write(getCsvRowFromUser(identifier, firstName, lastName, dob, fhirlinks));
                         writer.write("\"");
                         writer.write(identifier);
@@ -351,15 +352,35 @@ public class UktServiceImpl extends AbstractServiceImpl<UktServiceImpl> implemen
     }
 
     /**
-     * Check Identifier text value is a correct NHS_NUMBER, CHI_NUMBER or HSC_NUMBER.
+     * Check Identifier text value and Type is a correct NHS_NUMBER, CHI_NUMBER or HSC_NUMBER.
      *
-     * @param identifier Identifier to check has correct NHS_NUMBER, CHI_NUMBER or HSC_NUMBER
+     * @param identifierType Identifier Type to check
+     * @param identifier     Identifier to check has correct NHS_NUMBER, CHI_NUMBER or HSC_NUMBER
      * @return True if valid, false if not
      */
-    private boolean isValidIdentifier(String identifier) {
-        IdentifierTypes type = CommonUtils.getIdentifierType(identifier);
-        return (type.equals(IdentifierTypes.NHS_NUMBER)
-                || type.equals(IdentifierTypes.CHI_NUMBER)
-                || type.equals(IdentifierTypes.HSC_NUMBER));
+    private boolean isValidIdentifier(String identifier, String identifierType) {
+
+        if (StringUtils.isEmpty(identifierType)) {
+            return false;
+        }
+        // check type if one of the following
+        if (!identifierType.equals(IdentifierTypes.NHS_NUMBER.getId())
+                && !identifierType.equals(IdentifierTypes.CHI_NUMBER.getId())
+                && !identifierType.equals(IdentifierTypes.HSC_NUMBER.getId())) {
+            return false;
+        }
+        // get the Type based on Identifier value, must be one of the following
+        IdentifierTypes numberType = CommonUtils.getIdentifierType(identifier);
+        if (numberType.equals(IdentifierTypes.NHS_NUMBER)
+                && numberType.equals(IdentifierTypes.CHI_NUMBER)
+                && numberType.equals(IdentifierTypes.HSC_NUMBER)) {
+            return false;
+        }
+
+        // make sure number type matches the actual Type
+        if (!identifierType.equals(numberType.getId())) {
+            return false;
+        }
+        return true;
     }
 }

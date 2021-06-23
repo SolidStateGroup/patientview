@@ -414,7 +414,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
 
         String nhsNumber = null;
         if (CollectionUtils.isEmpty(identifiers)) {
-            LOG.error("Cannot build PatientNumbers, missing identifiers, patient id {}", user.getId());
+            LOG.error("Cannot build PatientNumbers, missing identifiers");
         }
 
         /*
@@ -610,7 +610,7 @@ public class UkrdcServiceImpl extends AbstractServiceImpl<UkrdcServiceImpl> impl
         // should be picked from the available ones in the order NHS -> CHI -> HSC
         String nhsNumber = null;
         if (CollectionUtils.isEmpty(identifiers)) {
-            LOG.error("Cannot build PatientNumbers, missing identifiers, patient id {}", user.getId());
+            LOG.error("Cannot build PatientNumbers, missing identifiers");
         }
 
         /*

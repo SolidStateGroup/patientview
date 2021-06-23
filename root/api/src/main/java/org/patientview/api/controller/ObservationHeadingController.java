@@ -7,6 +7,7 @@ import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.api.service.ObservationHeadingService;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
@@ -48,7 +49,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @RequestMapping(value = "/observationheading", method = RequestMethod.POST
             , consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<ObservationHeading> add(@RequestBody ObservationHeading observationHeading) {
+    public ResponseEntity<ObservationHeading> add(@RequestBody ObservationHeading observationHeading) throws ResourceInvalidException {
         return new ResponseEntity<>(observationHeadingService.add(observationHeading), HttpStatus.OK);
     }
 
@@ -69,7 +70,8 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @ResponseBody
     public void addObservationHeadingGroup(@PathVariable("observationHeadingId") Long observationHeadingId,
             @PathVariable("groupId") Long groupId, @PathVariable("panel") Long panel,
-            @PathVariable("panelOrder") Long panelOrder) throws ResourceNotFoundException, ResourceForbiddenException {
+            @PathVariable("panelOrder") Long panelOrder)
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         observationHeadingService.addObservationHeadingGroup(observationHeadingId, groupId, panel, panelOrder);
     }
 
@@ -234,7 +236,8 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @ExcludeFromApiDoc
     @RequestMapping(value = "/observationheading", method = RequestMethod.PUT)
     @ResponseBody
-    public void save(@RequestBody ObservationHeading observationHeading) throws ResourceNotFoundException  {
+    public void save(@RequestBody ObservationHeading observationHeading)
+            throws ResourceNotFoundException, ResourceInvalidException {
         observationHeadingService.save(observationHeading);
     }
 
@@ -263,7 +266,7 @@ public class ObservationHeadingController extends BaseController<ObservationHead
     @RequestMapping(value = "/observationheadinggroup", method = RequestMethod.PUT)
     @ResponseBody
     public void updateObservationHeadingGroup(@RequestBody ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException {
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException {
         observationHeadingService.updateObservationHeadingGroup(observationHeadingGroup);
     }
 }

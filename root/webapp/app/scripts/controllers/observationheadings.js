@@ -142,6 +142,8 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
 
         // Save observationHeading details from edit
         $scope.save = function (editObservationHeadingForm, observationHeading) {
+            $scope.errorMessage = '';
+            $scope.successMessage = '';
 
             ObservationHeadingService.save(observationHeading).then(function() {
                 ObservationHeadingService.get(observationHeading.id).then(function (entity) {
@@ -162,6 +164,8 @@ angular.module('patientviewApp').controller('ObservationHeadingsCtrl', ['$scope'
                 editObservationHeadingForm.$setPristine(true);
                 $scope.saved = true;
                 $scope.successMessage = 'Result Heading saved';
+            }, function(error) {
+                $scope.errorMessage = "Error: "+error.data;
             });
         };
 

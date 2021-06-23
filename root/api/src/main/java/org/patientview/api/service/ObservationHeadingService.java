@@ -6,14 +6,13 @@ import org.patientview.api.model.BaseObservationHeading;
 import org.patientview.api.model.ObservationHeadingGroup;
 import org.patientview.config.exception.FhirResourceException;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.ObservationHeading;
 import org.patientview.persistence.model.ResultCluster;
 import org.patientview.persistence.model.enums.RoleName;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      * @return ObservationHeading, newly created (note: consider only returning ID)
      */
     @RoleOnly
-    ObservationHeading add(ObservationHeading observationHeading);
+    ObservationHeading add(ObservationHeading observationHeading) throws ResourceInvalidException;
 
     /**
      * Add properties to assign an ObservationHeading to a Group, used when organising results summary and what order
@@ -46,7 +45,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void addObservationHeadingGroup(Long observationHeadingId, Long groupId, Long panel, Long panelOrder)
-    throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 
     /**
      * Get all ObservationHeading
@@ -146,7 +145,7 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      * @throws ResourceNotFoundException
      */
     @RoleOnly
-    ObservationHeading save(ObservationHeading observationHeading) throws ResourceNotFoundException;
+    ObservationHeading save(ObservationHeading observationHeading) throws ResourceNotFoundException, ResourceInvalidException;
 
     /**
      * Store a User's selection of ObservationHeadings to show in the results table view.
@@ -166,5 +165,5 @@ public interface ObservationHeadingService extends CrudService<ObservationHeadin
      */
     @RoleOnly(roles = { RoleName.SPECIALTY_ADMIN })
     void updateObservationHeadingGroup(ObservationHeadingGroup observationHeadingGroup)
-            throws ResourceNotFoundException, ResourceForbiddenException;
+            throws ResourceNotFoundException, ResourceForbiddenException, ResourceInvalidException;
 }

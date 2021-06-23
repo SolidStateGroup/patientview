@@ -706,7 +706,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             MyMedia myMedia = myMediaRepository.findById(message.getMyMedia().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("MyMedia not found"));
 
-            //Only allow the owner to attach the media to a conversation
+            // Only allow the owner to attach the media to a conversation
             if (entityUser.getId().equals(myMedia.getCreator().getId())) {
                 newMessage.setHasAttachment(true);
                 newMessage.setMyMedia(myMedia);
@@ -903,7 +903,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      * - all user in conversations are members of the same Group as a Patient.
      *
      * @param conversation Conversation to verify
-     * @param userToAdd a User to verify
+     * @param userToAdd    a User to verify
      * @throws ResourceForbiddenException when one if the check failed
      */
     private void validateConversationUsers(Conversation conversation, User userToAdd)
@@ -1038,7 +1038,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                     conversationRepository.findByCreator(user, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
         }
 
-        LOG.info("user id: " + user.getId() + " has " + conversations.size() + " conversations");
+        // LOG.info("user id: " + user.getId() + " has " + conversations.size() + " conversations");
 
         // required if previously failed to cleanly delete conversation user labels (RPV-582)
         List<ConversationUserLabel> conversationUserLabels = conversationUserLabelRepository.findByUser(user);
@@ -1052,8 +1052,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
         for (Conversation conversation : conversations) {
             // remove from conversation user list
-            LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
-                    + " from conversation user list");
+            // LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
+            //        + " from conversation user list");
             Set<ConversationUser> removedUserConversationUsers = new HashSet<>();
             for (ConversationUser conversationUser : conversation.getConversationUsers()) {
                 if (!conversationUser.getUser().getId().equals(user.getId())) {
@@ -1082,8 +1082,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversation.setConversationUsers(removedUserConversationUsers);
 
             // remove from messages
-            LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
-                    + " from messages");
+            // LOG.info("conversation id: " + conversation.getId() + ", remove user id: " + user.getId()
+            //        + " from messages");
             List<Message> removedUserMessages = deleteMessages(conversation.getMessages(), user);
 
             LOG.info("conversation id: " + conversation.getId() + ", save " + removedUserMessages.size() + " messages");
@@ -1096,10 +1096,22 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             conversationRepository.save(conversation);
         }
 
-        // check make sure we don't have orphan messages (without user)
+        // check make sure we don't have orphan messages where user on message but not in conversation
         // need to clean them up as well
         List<Message> messages = messageRepository.findByUserOrCreator(user);
-        deleteMessages(messages, user);
+
+        List<Message> removedUserMessages = deleteMessages(messages, user);
+        removedUserMessages.forEach(m -> {
+            Conversation conversation = m.getConversation();
+            for (int i = 0; i < conversation.getMessages().size(); i++) {
+                if (conversation.getMessages().get(i).getId().equals(m.getId())) {
+                    conversation.getMessages().set(i, m);
+                }
+            }
+            // need to flush here to persist changes
+            conversationRepository.saveAndFlush(conversation);
+        });
+
 
         user.setConversationUsers(new HashSet<>());
         userRepository.save(user);
@@ -1107,7 +1119,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
     /**
      * Helper to delete messages for the user.
-     * Messages are not deleted, just setting user refrences to null
+     * Messages are not deleted, just setting user references to null
      *
      * @param messages a List of Message to delete.
      * @param user     a User to delete messages for
@@ -1145,7 +1157,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
                 removedUserMessages.add(message);
             }
 
-            LOG.info("user id: " + user.getId() + ", save " + removedUserMessages.size() + " messages");
+            // LOG.info("user id: " + user.getId() + ", save " + removedUserMessages.size() + " messages");
 
             messageRepository.saveAll(removedUserMessages);
         }
@@ -1275,8 +1287,7 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
      */
     private User findEntityUser(Long userId) throws ResourceNotFoundException {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("Could not find user %s", userId)));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
     }
 
     /**
@@ -1373,8 +1384,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
             if (conversation.getStaffFeature().equals(FeatureType.UNIT_TECHNICAL_CONTACT)) {
                 staffUsers = userRepository.findByGroupAndFeature(entityGroup, entityFeature);
                 if (staffUsers.isEmpty()) {
-                    staffUsers = userRepository.findByGroupAndFeature(entityGroup
-                            , featureRepository.findByName(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
+                    staffUsers = userRepository.findByGroupAndFeature(entityGroup,
+                            featureRepository.findByName(FeatureType.PATIENT_SUPPORT_CONTACT.toString()));
                 }
             }
 
@@ -1385,8 +1396,8 @@ public class ConversationServiceImpl extends AbstractServiceImpl<ConversationSer
 
             // if empty then try default messaging contact
             if (staffUsers.isEmpty()) {
-                staffUsers = userRepository.findByGroupAndFeature(entityGroup
-                        , featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()));
+                staffUsers = userRepository.findByGroupAndFeature(entityGroup,
+                        featureRepository.findByName(FeatureType.DEFAULT_MESSAGING_CONTACT.toString()));
             }
 
             if (staffUsers.isEmpty()) {

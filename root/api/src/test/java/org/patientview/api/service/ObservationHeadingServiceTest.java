@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.patientview.api.service.impl.ObservationHeadingServiceImpl;
 import org.patientview.config.exception.ResourceForbiddenException;
+import org.patientview.config.exception.ResourceInvalidException;
 import org.patientview.config.exception.ResourceNotFoundException;
 import org.patientview.persistence.model.GetParameters;
 import org.patientview.persistence.model.Group;
@@ -125,7 +126,7 @@ public class ObservationHeadingServiceTest {
     }
 
     @Test
-    public void testAdd() {
+    public void testAdd() throws ResourceInvalidException {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         when(observationHeadingRepository.save(eq(observationHeading))).thenReturn(observationHeading);
@@ -136,7 +137,7 @@ public class ObservationHeadingServiceTest {
     }
 
     @Test(expected = EntityExistsException.class)
-    public void testAddDuplicate() {
+    public void testAddDuplicate() throws ResourceInvalidException {
         TestUtils.authenticateTestSingleGroupRole("testUser", "testGroup", RoleName.GLOBAL_ADMIN);
         ObservationHeading observationHeading = TestUtils.createObservationHeading("OBS1");
         List<ObservationHeading> observationHeadings = new ArrayList<>();
@@ -165,7 +166,7 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.save(observationHeading);
-        } catch (ResourceNotFoundException rnf) {
+        } catch (ResourceNotFoundException | ResourceInvalidException rnf) {
             Assert.fail("ResourceNotFoundException thrown");
         }
 
@@ -194,7 +195,7 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.addObservationHeadingGroup(observationHeading.getId(), group.getId(), 3L, 4L);
-        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+        } catch (ResourceNotFoundException | ResourceForbiddenException | ResourceInvalidException e) {
             Assert.fail("Exception: " + e.getMessage());
         }
 
@@ -235,7 +236,7 @@ public class ObservationHeadingServiceTest {
 
         try {
             observationHeadingService.updateObservationHeadingGroup(apiObservationHeadingGroup);
-        } catch (ResourceNotFoundException | ResourceForbiddenException e) {
+        } catch (ResourceNotFoundException | ResourceForbiddenException | ResourceInvalidException e) {
             Assert.fail("Exception: " + e.getMessage());
         }
 

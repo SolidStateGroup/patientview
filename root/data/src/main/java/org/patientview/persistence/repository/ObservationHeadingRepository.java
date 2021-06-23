@@ -36,4 +36,8 @@ public interface ObservationHeadingRepository extends CrudRepository<Observation
 
     @Query("SELECT oh FROM ObservationHeading oh WHERE lower(oh.code) = lower(:code)")
     List<ObservationHeading> findByCode(@Param("code") String code);
+
+    @Query(value = "SELECT GREATEST(MAX(default_panel), MAX(panel)) " +
+            " FROM pv_observation_heading_group, pv_observation_heading", nativeQuery = true)
+    long findMaxPanelNumber();
 }

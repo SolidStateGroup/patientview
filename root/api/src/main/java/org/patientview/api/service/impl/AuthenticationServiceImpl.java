@@ -1063,7 +1063,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
     @Override
     public String switchBackFromUser(Long userId, String token) throws AuthenticationServiceException {
-        LOG.debug("Switching to user with ID: {}", userId);
+        // LOG.debug("Switching to user with ID: {}", userId);
         userRepository.findById(userId)
                 .orElseThrow(() ->
                         new AuthenticationServiceException("Cannot switch user, user not found"));
@@ -1080,7 +1080,7 @@ public class AuthenticationServiceImpl extends AbstractServiceImpl<Authenticatio
     @Transactional(noRollbackFor = AuthenticationServiceException.class)
     @Override
     public String switchToUser(Long userId) throws AuthenticationServiceException {
-        LOG.debug("Switching to user with ID: {}", userId);
+        // LOG.debug("Switching to user with ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new AuthenticationServiceException("Cannot switch user, user not found"));
